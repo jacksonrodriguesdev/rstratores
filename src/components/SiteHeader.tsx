@@ -3,10 +3,9 @@ import { Menu, Phone, Tractor, X, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
 
-const NAV: Array<{ to: "/" | "/loja" | "/admin"; label: string; exact?: boolean }> = [
+const NAV: Array<{ to: "/" | "/loja"; label: string; exact?: boolean }> = [
   { to: "/", label: "Início", exact: true },
   { to: "/loja", label: "Loja" },
-  { to: "/admin", label: "Admin" },
 ];
 
 export function SiteHeader() {
