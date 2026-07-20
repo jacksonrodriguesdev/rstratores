@@ -124,6 +124,42 @@ export type Database = {
         }
         Relationships: []
       }
+      site_visits: {
+        Row: {
+          city: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string
+          id: number
+          path: string
+          referrer: string | null
+          region: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: number
+          path: string
+          referrer?: string | null
+          region?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          id?: number
+          path?: string
+          referrer?: string | null
+          region?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
