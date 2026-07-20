@@ -18,6 +18,8 @@ import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
+import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 
 const LojaRoute = LojaRouteImport.update({
   id: '/loja',
@@ -64,6 +66,16 @@ const AdminBannersRoute = AdminBannersRouteImport.update({
   path: '/banners',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAnalyticsRoute = ApiPublicAnalyticsRouteImport.update({
+  id: '/api/public/analytics',
+  path: '/api/public/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/admin/upload': typeof AdminUploadRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/analytics': typeof ApiPublicAnalyticsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +99,8 @@ export interface FileRoutesByTo {
   '/admin/upload': typeof AdminUploadRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/admin': typeof AdminIndexRoute
+  '/api/public/analytics': typeof ApiPublicAnalyticsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +113,8 @@ export interface FileRoutesById {
   '/admin/upload': typeof AdminUploadRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/analytics': typeof ApiPublicAnalyticsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +128,8 @@ export interface FileRouteTypes {
     | '/admin/upload'
     | '/produto/$sku'
     | '/admin/'
+    | '/api/public/analytics'
+    | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,6 +140,8 @@ export interface FileRouteTypes {
     | '/admin/upload'
     | '/produto/$sku'
     | '/admin'
+    | '/api/public/analytics'
+    | '/api/public/track'
   id:
     | '__root__'
     | '/'
@@ -131,6 +153,8 @@ export interface FileRouteTypes {
     | '/admin/upload'
     | '/produto/$sku'
     | '/admin/'
+    | '/api/public/analytics'
+    | '/api/public/track'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -139,6 +163,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
+  ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -206,6 +232,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBannersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/analytics': {
+      id: '/api/public/analytics'
+      path: '/api/public/analytics'
+      fullPath: '/api/public/analytics'
+      preLoaderRoute: typeof ApiPublicAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -231,6 +271,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
+  ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
