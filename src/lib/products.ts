@@ -151,23 +151,65 @@ export async function getFacets() {
 export async function getStats() {
   const [{ count: totalProducts }, { data: sample }] = await Promise.all([
     supabase.from("products").select("*", { count: "exact", head: true }),
-    supabase.from("products").select("categoria, marca, estoque"),
+    supabase.from("products").select("categoria, marca, estoque, preco_brl, imagem_principal"),
   ]);
-  const categorias = new Set<string>();
-  const marcas = new Set<string>();
+  const catCount = new Map<string, number>();
+  const marcaCount = new Map<string, number>();
   let estoqueTotal = 0;
-  (sample ?? []).forEach((r: { categoria: string | null; marca: string | null; estoque: number }) => {
-    if (r.categoria) categorias.add(r.categoria);
-    if (r.marca) marcas.add(r.marca);
-    estoqueTotal += r.estoque ?? 0;
+  let valorEstoque = 0;
+  let comPreco = 0;
+  let semPreco = 0;
+  let semImagem = 0;
+  let semEstoque = 0;
+  const precos: number[] = [];
+  (sample ?? []).forEach((r: { categoria: string | null; marca: string | null; estoque: number; preco_brl: number | null; imagem_principal: string | null }) => {
+    if (r.categoria) catCount.set(r.categoria, (catCount.get(r.categoria) ?? 0) + 1);
+    if (r.marca) marcaCount.set(r.marca, (marcaCount.get(r.marca) ?? 0) + 1);
+    const est = r.estoque ?? 0;
+    estoqueTotal += est;
+    if (est === 0) semEstoque += 1;
+    if (r.preco_brl != null) {
+      comPreco += 1;
+      precos.push(Number(r.preco_brl));
+      valorEstoque += Number(r.preco_brl) * est;
+    } else {
+      semPreco += 1;
+    }
+    if (!r.imagem_principal) semImagem += 1;
   });
+  const toArr = (m: Map<string, number>) =>
+    Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+
+  // Faixas de preço
+  const buckets = [
+    { name: "0–50", min: 0, max: 50 },
+    { name: "50–100", min: 50, max: 100 },
+    { name: "100–250", min: 100, max: 250 },
+    { name: "250–500", min: 250, max: 500 },
+    { name: "500–1k", min: 500, max: 1000 },
+    { name: "1k–2.5k", min: 1000, max: 2500 },
+    { name: "2.5k+", min: 2500, max: Infinity },
+  ].map((b) => ({ name: b.name, value: precos.filter((p) => p >= b.min && p < b.max).length }));
+
+  const avgPreco = precos.length ? precos.reduce((a, b) => a + b, 0) / precos.length : 0;
+
   return {
     totalProducts: totalProducts ?? 0,
-    totalCategorias: categorias.size,
-    totalMarcas: marcas.size,
+    totalCategorias: catCount.size,
+    totalMarcas: marcaCount.size,
     estoqueTotal,
+    valorEstoque,
+    comPreco,
+    semPreco,
+    semImagem,
+    semEstoque,
+    avgPreco,
+    porCategoria: toArr(catCount),
+    porMarca: toArr(marcaCount).slice(0, 10),
+    precoBuckets: buckets,
   };
 }
+
 
 export function formatBRL(v: number | null | undefined) {
   if (v == null) return "—";
