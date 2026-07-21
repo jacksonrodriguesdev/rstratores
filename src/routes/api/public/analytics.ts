@@ -54,6 +54,34 @@ export const Route = createFileRoute("/api/public/analytics")({
             days.push({ name: d, value: byDay.get(d) ?? 0 });
           }
 
+          // Top produtos mais visualizados (paths iniciando com /produto/)
+          const productPathCounts = new Map<string, number>();
+          for (const [name, value] of byPath.entries()) {
+            const m = /^\/produto\/(.+)$/.exec(name);
+            if (m) productPathCounts.set(decodeURIComponent(m[1]), value);
+          }
+          const topSkus = Array.from(productPathCounts.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
+
+          let topProducts: Array<{ sku: string; nome: string; views: number; imagem_principal: string | null }> = [];
+          if (topSkus.length > 0) {
+            const { data: prods } = await supabaseAdmin
+              .from("products")
+              .select("sku, nome, imagem_principal")
+              .in("sku", topSkus.map(([s]) => s));
+            const map = new Map((prods ?? []).map((p) => [p.sku, p]));
+            topProducts = topSkus.map(([sku, views]) => {
+              const p = map.get(sku);
+              return {
+                sku,
+                nome: p?.nome ?? sku,
+                imagem_principal: p?.imagem_principal ?? null,
+                views,
+              };
+            });
+          }
+
           return new Response(
             JSON.stringify({
               total: total ?? 0,
@@ -62,9 +90,11 @@ export const Route = createFileRoute("/api/public/analytics")({
               cities: toArr(byCity).slice(0, 10),
               paths: toArr(byPath).slice(0, 10),
               days,
+              topProducts,
             }),
             { status: 200, headers: { "Content-Type": "application/json", ...CORS } },
           );
+
         } catch (err) {
           console.error("analytics error", err);
           return new Response(JSON.stringify({ error: "failed" }), {
