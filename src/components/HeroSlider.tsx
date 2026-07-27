@@ -77,7 +77,7 @@ export function HeroSlider({ banners, intervalMs = 5500 }: Props) {
             type="button"
             onClick={() => go(-1)}
             aria-label="Anterior"
-            className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white hover:bg-black/60"
+            className="absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-black/40 p-2 text-white hover:bg-black/60 sm:block"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -85,7 +85,7 @@ export function HeroSlider({ banners, intervalMs = 5500 }: Props) {
             type="button"
             onClick={() => go(1)}
             aria-label="Próximo"
-            className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white hover:bg-black/60"
+            className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-black/40 p-2 text-white hover:bg-black/60 sm:block"
           >
             <ChevronRight className="h-5 w-5" />
           </button>

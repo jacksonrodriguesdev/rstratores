@@ -12,36 +12,49 @@ export const Route = createFileRoute("/api/public/analytics")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async () => {
         try {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { prisma } = await import("@/lib/prisma");
 
-          const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+          const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-          const [{ count: total }, { count: last30 }, { data: rows }] = await Promise.all([
-            supabaseAdmin.from("site_visits").select("*", { count: "exact", head: true }),
-            supabaseAdmin
-              .from("site_visits")
-              .select("*", { count: "exact", head: true })
-              .gte("created_at", since30),
-            supabaseAdmin
-              .from("site_visits")
-              .select("country, city, created_at, path")
-              .gte("created_at", since30)
-              .limit(20000),
+          const [total, last30, rows] = await Promise.all([
+            prisma.site_visits.count(),
+            prisma.site_visits.count({ where: { created_at: { gte: since30 } } }),
+            prisma.site_visits.findMany({
+              select: { country: true, city: true, created_at: true, path: true, user_agent: true },
+              where: { created_at: { gte: since30 } },
+              take: 20000,
+            }),
           ]);
 
           const byCountry = new Map<string, number>();
           const byCity = new Map<string, number>();
           const byDay = new Map<string, number>();
           const byPath = new Map<string, number>();
+          const byDevice = new Map<string, number>();
+          const topProductsMap = new Map<string, number>();
 
           for (const r of rows ?? []) {
             const country = r.country || "Desconhecido";
             byCountry.set(country, (byCountry.get(country) ?? 0) + 1);
             const cityKey = `${r.city || "Desconhecida"} — ${country}`;
             byCity.set(cityKey, (byCity.get(cityKey) ?? 0) + 1);
-            const day = new Date(r.created_at as string).toISOString().slice(0, 10);
+            const day = new Date(r.created_at as unknown as string).toISOString().slice(0, 10);
             byDay.set(day, (byDay.get(day) ?? 0) + 1);
             byPath.set(r.path, (byPath.get(r.path) ?? 0) + 1);
+
+            const ua = (r.user_agent || "").toLowerCase();
+            let device = "Desktop";
+            if (/mobile|android|iphone|ipad|ipod|windows phone/i.test(ua)) {
+              device = "Mobile";
+            }
+            byDevice.set(device, (byDevice.get(device) ?? 0) + 1);
+
+            if (r.path?.startsWith("/produto/")) {
+              const sku = r.path.split("/produto/")[1]?.split("?")[0];
+              if (sku) {
+                topProductsMap.set(sku, (topProductsMap.get(sku) ?? 0) + 1);
+              }
+            }
           }
 
           const toArr = (m: Map<string, number>) =>
@@ -62,6 +75,8 @@ export const Route = createFileRoute("/api/public/analytics")({
               cities: toArr(byCity).slice(0, 10),
               paths: toArr(byPath).slice(0, 10),
               days,
+              devices: toArr(byDevice),
+              topProducts: toArr(topProductsMap).slice(0, 10),
             }),
             { status: 200, headers: { "Content-Type": "application/json", ...CORS } },
           );

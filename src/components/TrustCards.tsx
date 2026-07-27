@@ -1,4 +1,5 @@
 import { Truck, ShieldCheck, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const CARDS = [
   {
@@ -18,9 +19,9 @@ const CARDS = [
   },
 ];
 
-export function TrustCards() {
+export function TrustCards({ className }: { className?: string }) {
   return (
-    <section className="my-8">
+    <section className={cn("my-8", className)}>
       <div className="grid gap-3 sm:grid-cols-3">
         {CARDS.map((c) => (
           <div

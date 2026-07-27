@@ -1,45 +1,41 @@
-import { supabase } from "@/integrations/supabase/client";
+import { createServerFn } from "@tanstack/react-start";
+import * as server from "./banners.server";
 
-const BUCKET = "product-images";
+export type { Banner } from "./banners.server";
+import type { Banner } from "./banners.server";
 
-export type Banner = {
-  id: number;
-  kind: "hero" | "strip";
-  position: number;
-  image_path: string;
-  link_url: string | null;
-  active: boolean;
-  created_at: string;
-};
+const listBannersFn = createServerFn({ method: "GET" })
+  .validator((kind?: "hero" | "strip") => kind)
+  .handler(async ({ data }) => {
+    return server.listBanners(data);
+  });
 
 export async function listBanners(kind?: "hero" | "strip"): Promise<Banner[]> {
-  let q = supabase.from("site_banners").select("*").order("position").order("id");
-  if (kind) q = q.eq("kind", kind);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data ?? []) as Banner[];
+  return listBannersFn({ data: kind }) as unknown as Banner[];
 }
+
+const listActiveBannersFn = createServerFn({ method: "GET" })
+  .validator((kind: "hero" | "strip") => kind)
+  .handler(async ({ data }) => {
+    return server.listActiveBanners(data);
+  });
 
 export async function listActiveBanners(kind: "hero" | "strip"): Promise<Banner[]> {
-  const { data, error } = await supabase
-    .from("site_banners")
-    .select("*")
-    .eq("kind", kind)
-    .eq("active", true)
-    .order("position")
-    .order("id");
-  if (error) throw error;
-  return (data ?? []) as Banner[];
+  return listActiveBannersFn({ data: kind }) as unknown as Banner[];
 }
 
+// Admin API calls (client-side only)
+
 export async function uploadBannerImage(file: File, kind: "hero" | "strip"): Promise<string> {
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `site/${kind}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-    contentType: file.type || "image/jpeg",
-    upsert: false,
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("kind", kind);
+  const res = await fetch("/api/admin/banners/upload", {
+    method: "POST",
+    body: formData,
   });
-  if (error) throw error;
+  if (!res.ok) throw new Error("Failed to upload banner image");
+  const { path } = await res.json();
   return path;
 }
 
@@ -50,26 +46,31 @@ export async function createBanner(input: {
   link_url?: string | null;
   active?: boolean;
 }) {
-  const { error } = await supabase.from("site_banners").insert({
-    kind: input.kind,
-    image_path: input.image_path,
-    position: input.position ?? 0,
-    link_url: input.link_url ?? null,
-    active: input.active ?? true,
+  const res = await fetch("/api/admin/banners", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
   });
-  if (error) throw error;
+  if (!res.ok) throw new Error("Failed to create banner");
 }
 
 export async function updateBanner(
   id: number,
   patch: Partial<Pick<Banner, "position" | "link_url" | "active" | "image_path">>,
 ) {
-  const { error } = await supabase.from("site_banners").update(patch).eq("id", id);
-  if (error) throw error;
+  const res = await fetch(`/api/admin/banners/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error("Failed to update banner");
 }
 
 export async function deleteBanner(id: number, image_path: string) {
-  await supabase.storage.from(BUCKET).remove([image_path]);
-  const { error } = await supabase.from("site_banners").delete().eq("id", id);
-  if (error) throw error;
+  const res = await fetch(`/api/admin/banners/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image_path }),
+  });
+  if (!res.ok) throw new Error("Failed to delete banner");
 }

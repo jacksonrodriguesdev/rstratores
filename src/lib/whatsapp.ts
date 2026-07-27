@@ -1,6 +1,6 @@
-// +55 (Brasil) 53 9 9942-8130
-export const PHONE = "5553999428130";
-export const PHONE_DISPLAY = "(53) 99942-8130";
+// +55 (Brasil) 53 9 9953-4631
+export const PHONE = "5553999534631";
+export const PHONE_DISPLAY = "(53) 99953-4631";
 
 // Usamos api.whatsapp.com/send diretamente (sem passar por wa.me).
 // O redirect do wa.me pode ser bloqueado dentro de iframes de preview

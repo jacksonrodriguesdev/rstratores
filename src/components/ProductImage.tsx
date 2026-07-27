@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { resolveImageUrl } from "@/lib/products";
-import { Tractor } from "lucide-react";
+import { Tractor, Car } from "lucide-react";
+import { useSegment } from "@/components/SegmentContext";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -10,6 +11,14 @@ type Props = {
 };
 
 export function ProductImage({ src, alt, className }: Props) {
+  let currentSegment = "AGRICOLA";
+  try {
+    const segmentCtx = useSegment();
+    currentSegment = segmentCtx.segment;
+  } catch (e) {
+    // silently fallback to AGRICOLA if used outside provider
+  }
+
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState(false);
 
@@ -31,9 +40,13 @@ export function ProductImage({ src, alt, className }: Props) {
   }, [src]);
 
   if (!src || error || (url === null && src && !src.startsWith("http"))) {
+    const Icon = currentSegment === "AUTOMOTIVA" ? Car : Tractor;
     return (
-      <div className={cn("flex items-center justify-center bg-muted text-muted-foreground", className)}>
-        <Tractor className="h-8 w-8 opacity-40" />
+      <div className={cn("flex flex-col items-center justify-center bg-zinc-50 border-2 border-dashed border-zinc-200 text-zinc-400 p-4 rounded-xl", className)}>
+        <Icon className="h-10 w-10 mb-3 opacity-30 text-zinc-500" />
+        <span className="text-[10px] font-medium text-center uppercase tracking-wider text-zinc-400 max-w-[180px] leading-snug">
+          Não possuímos imagem desse produto catalogada ainda.
+        </span>
       </div>
     );
   }

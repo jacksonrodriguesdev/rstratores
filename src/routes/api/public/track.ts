@@ -41,15 +41,17 @@ export const Route = createFileRoute("/api/public/track")({
             });
           }
 
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          await supabaseAdmin.from("site_visits").insert({
-            path,
-            country: country ? decodeURIComponent(country) : null,
-            country_code: country,
-            city: city ? decodeURIComponent(city) : null,
-            region: region ? decodeURIComponent(region) : null,
-            referrer,
-            user_agent: userAgent,
+          const { prisma } = await import("@/lib/prisma");
+          await prisma.site_visits.create({
+            data: {
+              path,
+              country: country ? decodeURIComponent(country) : null,
+              country_code: country,
+              city: city ? decodeURIComponent(city) : null,
+              region: region ? decodeURIComponent(region) : null,
+              referrer,
+              user_agent: userAgent,
+            }
           });
 
           return new Response(JSON.stringify({ ok: true }), {

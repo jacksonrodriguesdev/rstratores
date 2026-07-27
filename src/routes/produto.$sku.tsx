@@ -10,11 +10,15 @@ import {
   ExternalLink,
   CheckCircle2,
   XCircle,
+  ShoppingCart,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
 import { TrustCards } from "@/components/TrustCards";
+import { ProductSlider } from "@/components/ProductSlider";
+import { useLanguage } from "@/components/LanguageContext";
+import { useCart } from "@/components/CartContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -22,6 +26,7 @@ import {
   getProduct,
   getProductImages,
   getRelatedProducts,
+  getRelatedCategories,
 } from "@/lib/products";
 
 export const Route = createFileRoute("/produto/$sku")({
@@ -88,6 +93,8 @@ export const Route = createFileRoute("/produto/$sku")({
 
 function ProductDetail() {
   const { product } = Route.useLoaderData();
+  const { language, t } = useLanguage();
+  const { addItem } = useCart();
   const [mainImage, setMainImage] = useState<string | null>(product.imagem_principal);
 
   const imagesQuery = useQuery({
@@ -96,8 +103,13 @@ function ProductDetail() {
   });
 
   const relatedQuery = useQuery({
-    queryKey: ["related", product.sku, product.categoria],
-    queryFn: () => getRelatedProducts(product.sku, product.categoria),
+    queryKey: ["related", product.sku, product.category_id],
+    queryFn: () => getRelatedProducts(product.sku, product.category_id),
+  });
+
+  const categoriesQuery = useQuery({
+    queryKey: ["related-categories", product.category_id],
+    queryFn: () => getRelatedCategories(product.category_id),
   });
 
   const gallery = [
@@ -111,10 +123,28 @@ function ProductDetail() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-7xl px-4 py-6">
-        <Button asChild variant="ghost" size="sm" className="mb-4">
+        {categoriesQuery.data && categoriesQuery.data.length > 0 && (
+          <div className="mb-6">
+            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("product.categoriasQueTalvezPrecise")}</h3>
+            <div className="flex flex-wrap gap-2">
+              {categoriesQuery.data.map((cat) => (
+                <Link
+                  key={cat.id}
+                  to="/"
+                  search={{ search: "", page: 1, linha: product.linha, categoria: cat.nome }}
+                  className="rounded-full border bg-card px-4 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+                >
+                  {cat.nome}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Button asChild variant="ghost" size="sm" className="mb-4 -ml-3">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar ao catálogo
+            {t("product.voltar")}
           </Link>
         </Button>
 
@@ -122,7 +152,7 @@ function ProductDetail() {
           {/* Gallery */}
           <div>
             <Card className="aspect-square overflow-hidden bg-muted p-0">
-              <ProductImage src={mainImage} alt={product.nome} />
+              <ProductImage src={mainImage} alt={language === "es-UY" && product.nome_es ? product.nome_es : product.nome} />
             </Card>
             {gallery.length > 1 && (
               <div className="mt-3 grid grid-cols-5 gap-2">
@@ -159,71 +189,150 @@ function ProductDetail() {
             </div>
 
             <h1 className="text-2xl font-bold leading-tight md:text-3xl">
-              {product.nome}
+              {language === "es-UY" && product.nome_es ? product.nome_es : product.nome}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">SKU: {product.sku}</p>
 
-            {/* Stock pill */}
-            <div className="mt-3">
-              {product.estoque > 0 ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Em estoque · {product.estoque} un.
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <XCircle className="h-3.5 w-3.5" />
-                  Sob consulta
-                </span>
+            {/* Detalhes Rápidos em Cards */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {product.marca && (
+                <div className="rounded-xl border bg-muted/20 p-3 shadow-sm transition-colors hover:bg-muted/40">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Factory className="h-3.5 w-3.5" /> {t("product.marca")}
+                  </div>
+                  <div className="mt-1 text-sm font-bold text-foreground">{product.marca}</div>
+                </div>
+              )}
+              {product.categoria && (
+                <div className="rounded-xl border bg-muted/20 p-3 shadow-sm transition-colors hover:bg-muted/40">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Tag className="h-3.5 w-3.5" /> {t("product.categoria")}
+                  </div>
+                  <div className="mt-1 line-clamp-1 text-sm font-bold text-foreground" title={product.categoria}>
+                    {product.categoria}
+                  </div>
+                </div>
               )}
             </div>
 
-            <div className="mt-6 rounded-lg border bg-card p-6 shadow-sm">
-              <div className="mb-4">
-                <div className="text-sm font-medium text-muted-foreground">
-                  Consulte o preço pelo WhatsApp
+            <div className="mt-6 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent p-1 shadow-lg shadow-primary/10">
+              <div className="rounded-xl bg-card p-6">
+                <div className="mb-4 text-center">
+                  <div className="text-sm font-semibold uppercase tracking-wide text-primary">
+                    Venda Direta
+                  </div>
+                  <div className="mt-1 text-2xl font-black text-foreground">
+                    Consulte o Preço
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">Temos a melhor negociação do mercado para você.</p>
                 </div>
-                <div className="mt-1 text-2xl font-bold text-primary">
-                  Fazer cotação
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => addItem({ sku: product.sku, name: product.nome, image: product.imagem_principal || undefined, quantity: 1 })}
+                    className="w-full flex items-center justify-center gap-2 bg-primary text-white h-14 rounded-md font-bold text-lg uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-xl shadow-primary/20"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    Adicionar ao Carrinho
+                  </button>
+                  <QuoteButton
+                    product={product}
+                    size="lg"
+                    fullWidth
+                    label="Fazer cotação rápida"
+                    className="h-14 text-lg bg-zinc-100 text-zinc-900 border border-zinc-200 hover:bg-zinc-200 transition-colors font-bold"
+                  />
                 </div>
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  Entrega rápida para Sul e Sudeste
+                </div>
+                {product.url && (
+                  <div className="mt-4 flex justify-center border-t pt-4">
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Ver ficha completa do fabricante
+                    </a>
+                  </div>
+                )}
               </div>
-              <QuoteButton
-                product={product}
-                size="lg"
-                fullWidth
-                label="Fazer cotação pelo WhatsApp"
-              />
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                <InfoLine
-                  icon={<Package2 className="h-4 w-4" />}
-                  label="Estoque"
-                  value={`${product.estoque} un.`}
-                  highlight={product.estoque > 0}
-                />
-                <InfoLine
-                  icon={<Scale className="h-4 w-4" />}
-                  label="Peso"
-                  value={product.peso ? `${product.peso} kg` : "—"}
-                />
-              </div>
-              {product.url && (
-                <a
-                  href={product.url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Ver ficha completa do fabricante
-                </a>
-              )}
             </div>
 
             {product.descricao && (
               <div className="mt-6 rounded-lg border bg-card p-5">
                 <h2 className="mb-2 text-base font-semibold">Descrição</h2>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
-                  {product.descricao}
+                  {language === "es-UY" && product.descricao_es ? product.descricao_es : product.descricao}
+                </p>
+              </div>
+            )}
+
+            {(product as any).fichas_tecnicas?.length > 0 && (
+              <div className="mt-8">
+                <h2 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-foreground"><Package2 className="h-6 w-6 text-primary" /> Ficha Técnica</h2>
+                <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2">
+                    {(product as any).fichas_tecnicas.map((ficha: any, idx: number) => (
+                      <div key={idx} className="flex justify-between border-b border-muted/50 p-3 text-sm sm:even:border-l sm:last:border-b-0">
+                        <span className="font-medium text-muted-foreground">{ficha.chave}</span>
+                        <span className="text-right text-foreground font-semibold ml-4">{ficha.valor}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(product as any).aplicacoes?.length > 0 && (
+              <div className="mt-6 rounded-lg border bg-card p-5">
+                <h2 className="mb-4 flex items-center gap-2 text-base font-semibold"><Tag className="h-5 w-5 text-primary" /> Aplicações (Veículos Compatíveis)</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-muted/50 text-muted-foreground">
+                      <tr>
+                        <th className="px-3 py-2 font-medium">Montadora</th>
+                        <th className="px-3 py-2 font-medium">Veículo</th>
+                        <th className="px-3 py-2 font-medium">Ano</th>
+                        <th className="px-3 py-2 font-medium">Motor</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-muted/30">
+                      {(product as any).aplicacoes.map((app: any, idx: number) => (
+                        <tr key={idx} className="transition-colors hover:bg-muted/20">
+                          <td className="px-3 py-2 font-semibold">{app.montadora}</td>
+                          <td className="px-3 py-2">{app.veiculo}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{app.ano || '-'}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{app.motor || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {(product as any).similares?.length > 0 && (
+              <div className="mt-6 rounded-lg border bg-card p-5">
+                <h2 className="mb-3 text-base font-semibold text-muted-foreground">Códigos Similares (Outras Marcas)</h2>
+                <div className="flex flex-wrap gap-2">
+                  {(product as any).similares.map((sim: any, idx: number) => (
+                    <Badge key={idx} variant="outline" className="bg-muted/10 text-xs">
+                      <span className="opacity-70 mr-1">{sim.marca_similar}:</span> {sim.codigo_similar}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {product.veiculos_compativeis && (
+              <div className="mt-6 rounded-lg border bg-card p-5">
+                <h2 className="mb-2 text-base font-semibold">Veículos Compatíveis</h2>
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
+                  {product.veiculos_compativeis}
                 </p>
               </div>
             )}
@@ -231,12 +340,13 @@ function ProductDetail() {
             {/* Specs summary */}
             <div className="mt-6 rounded-lg border bg-card p-5">
               <h2 className="mb-3 text-base font-semibold">Especificações</h2>
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <SpecRow label="SKU" value={product.sku} />
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                <SpecRow label="SKU / Código" value={product.sku} />
                 {product.categoria && <SpecRow label="Categoria" value={product.categoria} />}
                 {product.marca && <SpecRow label="Marca" value={product.marca} />}
-                <SpecRow label="Estoque" value={`${product.estoque} un.`} />
-                {product.peso != null && <SpecRow label="Peso" value={`${product.peso} kg`} />}
+                {product.tamanho && <SpecRow label="Tamanho" value={product.tamanho} />}
+                {product.altura != null && <SpecRow label="Altura" value={`${product.altura} cm`} />}
+                {product.largura != null && <SpecRow label="Largura" value={`${product.largura} cm`} />}
               </dl>
             </div>
           </div>
@@ -247,34 +357,10 @@ function ProductDetail() {
 
         {/* Related */}
         {relatedQuery.data && relatedQuery.data.length > 0 && (
-          <section className="mt-16">
-            <h2 className="mb-4 text-xl font-semibold">Produtos relacionados</h2>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {relatedQuery.data.map((p) => (
-                <Card key={p.sku} className="flex flex-col overflow-hidden p-0 transition-all hover:shadow-md">
-                  <Link
-                    to="/produto/$sku"
-                    params={{ sku: p.sku }}
-                    className="block aspect-square bg-muted"
-                  >
-                    <ProductImage src={p.imagem_principal} alt={p.nome} />
-                  </Link>
-                  <div className="flex flex-1 flex-col gap-2 p-3">
-                    <Link
-                      to="/produto/$sku"
-                      params={{ sku: p.sku }}
-                      className="line-clamp-2 text-sm font-medium hover:text-primary"
-                    >
-                      {p.nome}
-                    </Link>
-                    <div className="mt-auto pt-2">
-                      <QuoteButton product={p} fullWidth />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
+          <div className="mt-16 rounded-xl bg-muted/10 p-6 md:p-8">
+            <h2 className="mb-6 text-2xl font-bold tracking-tight">Produtos que podem interessar</h2>
+            <ProductSlider title="" products={relatedQuery.data} />
+          </div>
         )}
       </main>
     </div>

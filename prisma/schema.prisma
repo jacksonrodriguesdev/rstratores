@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model products_img {
+  id         Int      @id @default(autoincrement())
+  image_path String
+  image_type String   @default("thumb")
+  sku        String
+  sort_order Int      @default(99)
+  created_at DateTime @default(now())
+
+  product    products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+
+  @@unique([sku, image_path])
+}
+
+model categories {
+  id         Int          @id @default(autoincrement())
+  nome       String
+  parent_id  Int?
+  image_path String?
+  linha      String       @default("AGRICOLA")
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+
+  parent     categories?  @relation("CategoryToCategory", fields: [parent_id], references: [id], onDelete: SetNull)
+  children   categories[] @relation("CategoryToCategory")
+  products   products[]
+  agricolas  agricolas[]  @relation("AgricolaCategory")
+}
+
+model products {
+  sku                  String       @id
+  categoria            String?      @db.Text
+  category_id          Int?
+  linha                String       @default("AGRICOLA")
+  created_at           DateTime     @default(now())
+  descricao            String?      @db.Text
+  estoque              Int          @default(0)
+  imagem_principal     String?      @db.Text
+  marca                String?      @db.Text
+  nome                 String       @db.Text
+  nome_es              String?      @db.Text
+  descricao_es         String?      @db.Text
+  peso                 Float?
+  tamanho              String?      @db.Text
+  altura               Float?
+  largura              Float?
+  valor_compra         Float?
+  valor_promocional    Float?
+  preco_brl            Float?
+  veiculos_compativeis String?      @db.Text
+  updated_at           DateTime     @updatedAt
+  url                  String?      @db.Text
+  codigo_fabricante    String?      @db.Text
+  ean                  String?      @db.Text
+  ncm                  String?      @db.Text
+  profundidade         Float?
+
+  category             categories?  @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  images               products_img[]
+  aplicacoes           produto_aplicacao[]
+  similares            produto_similar[]
+  fichas_tecnicas      produto_ficha_tecnica[]
+}
+
+model produto_aplicacao {
+  id         Int      @id @default(autoincrement())
+  sku        String
+  montadora  String
+  veiculo    String
+  ano        String?
+  motor      String?
+  
+  product    products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+}
+
+model produto_similar {
+  id              Int      @id @default(autoincrement())
+  sku             String
+  codigo_similar  String
+  marca_similar   String
+  
+  product         products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+}
+
+model produto_ficha_tecnica {
+  id         Int      @id @default(autoincrement())
+  sku        String
+  chave      String
+  valor      String   @db.Text
+  
+  product    products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+}
+
+model site_banners {
+  id         Int      @id @default(autoincrement())
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
+  image_path String
+  kind       String
+  link_url   String?
+  position   Int      @default(0)
+}
+
+model site_visits {
+  id           Int      @id @default(autoincrement())
+  city         String?
+  country      String?
+  country_code String?
+  created_at   DateTime @default(now())
+  path         String
+  referrer     String?
+  region       String?
+  user_agent   String?
+}
+
+model quotes {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  endereco   String
+  whatsapp   String
+  mensagem   String?  @db.Text
+  file_path  String?
+  status     String   @default("NOVA")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model agricolas {
+  sku                  String       @id
+  categoria            String?      @db.Text
+  category_id          Int?
+  created_at           DateTime     @default(now())
+  descricao            String?      @db.Text
+  estoque              Int          @default(0)
+  imagem_principal     String?      @db.Text
+  marca                String?      @db.Text
+  nome                 String       @db.Text
+  nome_es              String?      @db.Text
+  descricao_es         String?      @db.Text
+  peso                 Float?
+  tamanho              String?      @db.Text
+  altura               Float?
+  largura              Float?
+  valor_compra         Float?
+  valor_promocional    Float?
+  preco_brl            Float?
+  veiculos_compativeis String?      @db.Text
+  updated_at           DateTime     @updatedAt
+  url                  String?      @db.Text
+  codigo_fabricante    String?      @db.Text
+  ean                  String?      @db.Text
+  ncm                  String?      @db.Text
+  profundidade         Float?
+
+  category             categories?  @relation("AgricolaCategory", fields: [category_id], references: [id], onDelete: SetNull)
+  images               agricolas_img[]
+  aplicacoes           agricolas_aplicacao[]
+  similares            agricolas_similar[]
+  fichas_tecnicas      agricolas_ficha_tecnica[]
+}
+
+model agricolas_img {
+  id         Int      @id @default(autoincrement())
+  image_path String
+  image_type String   @default("thumb")
+  sku        String
+  sort_order Int      @default(99)
+  created_at DateTime @default(now())
+
+  product    agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  @@unique([sku, image_path])
+}
+
+model agricolas_aplicacao {
+  id         Int      @id @default(autoincrement())
+  sku        String
+  montadora  String
+  veiculo    String
+  ano        String?
+  motor      String?
+  
+  product    agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+}
+
+model agricolas_similar {
+  id              Int      @id @default(autoincrement())
+  sku             String
+  codigo_similar  String
+  marca_similar   String
+  
+  product         agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+}
+
+model agricolas_ficha_tecnica {
+  id         Int      @id @default(autoincrement())
+  sku        String
+  chave      String
+  valor      String   @db.Text
+  
+  product    agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+}
+
+model homepage_blocks {
+  id         Int      @id @default(autoincrement())
+  type       String
+  active     Boolean  @default(true)
+  position   Int      @default(0)
+  title      String?
+  config     String?  @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model users {
+  id            Int      @id @default(autoincrement())
+  nome_completo String
+  email         String   @unique
+  senha_hash    String
+  telefone      String?
+  endereco      String?  @db.Text
+  cidade        String?
+  ponto_referencia String? @db.Text
+  numero_casa   String?
+  cep           String?
+  pais          String?  @default("Brasil")
+  role          String   @default("USER")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}

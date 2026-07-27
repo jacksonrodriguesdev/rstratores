@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { FloatingContact } from "@/components/FloatingContact";
 import { VisitTracker } from "@/components/VisitTracker";
+import { SiteFooter } from "@/components/SiteFooter";
 
 function NotFoundComponent() {
   return (
@@ -107,7 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR" translate="no">
       <head>
         <HeadContent />
       </head>
@@ -119,15 +120,28 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { SegmentProvider } from "@/components/SegmentContext";
+import { LanguageProvider } from "@/components/LanguageContext";
+import { CartProvider } from "@/components/CartContext";
+import { CartDrawer } from "@/components/CartDrawer";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <FloatingContact />
-      <VisitTracker />
+      <LanguageProvider>
+        <SegmentProvider>
+          <CartProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <SiteFooter />
+            <FloatingContact />
+            <VisitTracker />
+            <CartDrawer />
+          </CartProvider>
+        </SegmentProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

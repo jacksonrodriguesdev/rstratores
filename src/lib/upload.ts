@@ -13,6 +13,7 @@ export type CsvRow = {
   url: string | null;
   imagem: string | null;
   descricao: string | null;
+  linha: string | null;
 };
 
 const BUCKET = "product-images";
@@ -40,13 +41,14 @@ export function parseCsv(file: File): Promise<{ rows: CsvRow[]; errors: string[]
     Papa.parse<Record<string, unknown>>(file, {
       header: true,
       skipEmptyLines: true,
+      transformHeader: (h) => h.trim().toLowerCase(),
       complete: (result) => {
         result.data.forEach((raw, i) => {
-          const sku = str(raw.sku);
+          let sku = str(raw.sku);
           const nome = str(raw.nome);
           if (!sku) {
-            errors.push(`Linha ${i + 2}: SKU vazio`);
-            return;
+            // Gera um SKU automaticamente baseado na data e aleatoriedade
+            sku = `AUTO_${Date.now().toString(36).toUpperCase()}_${Math.floor(Math.random()*1000)}`;
           }
           if (!nome) {
             errors.push(`Linha ${i + 2} (SKU ${sku}): nome vazio`);
@@ -63,6 +65,7 @@ export function parseCsv(file: File): Promise<{ rows: CsvRow[]; errors: string[]
             url: str(raw.url),
             imagem: str(raw.imagem),
             descricao: str(raw.descricao),
+            linha: str(raw.linha),
           });
         });
         resolve({ rows, errors });
@@ -106,20 +109,24 @@ export async function importProducts(
       peso: r.peso,
       url: r.url,
       descricao: r.descricao,
-      imagem_principal: r.imagem, // stores external URL from CSV
+      imagem_principal: r.imagem,
+      linha: r.linha,
     }));
 
-    const { error, count } = await supabase
-      .from("products")
-      .upsert(chunk, { onConflict: "sku", count: "exact" });
-
-    if (error) {
+    try {
+      const res = await fetch("/api/admin/products/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: chunk }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      state.inserted += data.count ?? chunk.length;
+    } catch (err: any) {
       state.failed += chunk.length;
-      state.currentBatchErrors.push(`Batch ${Math.floor(i / BATCH) + 1}: ${error.message}`);
-    } else {
-      // Supabase upsert doesn't easily distinguish insert vs update — count as processed
-      state.inserted += count ?? chunk.length;
+      state.currentBatchErrors.push(`Batch ${Math.floor(i / BATCH) + 1}: ${err.message}`);
     }
+
     state.processed += chunk.length;
     onProgress?.({ ...state });
   }
@@ -139,97 +146,25 @@ export async function importImagesZip(
   file: File,
   onProgress?: (p: ZipImportProgress) => void,
 ): Promise<ZipImportProgress> {
-  const zip = await JSZip.loadAsync(file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-  // Group entries by SKU
-  const bySku = new Map<string, { path: string; entry: JSZip.JSZipObject }[]>();
-  zip.forEach((relativePath, entry) => {
-    if (entry.dir) return;
-    // Expect paths like "produtos/SKU_7239/main.jpg" or "SKU_7239/main.jpg"
-    const parts = relativePath.split("/").filter(Boolean);
-    const skuFolder = parts.find((p) => /^SKU[_-]/i.test(p));
-    if (!skuFolder) return;
-    const sku = skuFolder.replace(/^SKU[_-]/i, "");
-    const fileName = parts[parts.length - 1];
-    if (!/\.(jpe?g|png|webp|gif)$/i.test(fileName)) return;
-    if (!bySku.has(sku)) bySku.set(sku, []);
-    bySku.get(sku)!.push({ path: fileName, entry });
+  const res = await fetch("/api/admin/images/import", {
+    method: "POST",
+    body: formData,
   });
 
-  // Fetch known SKUs (in chunks to avoid URL limits)
-  const allSkus = Array.from(bySku.keys());
-  const knownSkus = new Set<string>();
-  for (let i = 0; i < allSkus.length; i += 500) {
-    const slice = allSkus.slice(i, i + 500);
-    const { data } = await supabase.from("products").select("sku").in("sku", slice);
-    data?.forEach((r: { sku: string }) => knownSkus.add(r.sku));
+  if (!res.ok) {
+    throw new Error(await res.text());
   }
 
-  const state: ZipImportProgress = {
-    processed: 0,
-    total: allSkus.length,
-    uploaded: 0,
-    skipped: 0,
-    errors: [],
-  };
-
-  for (const sku of allSkus) {
-    if (!knownSkus.has(sku)) {
-      state.skipped += 1;
-      state.processed += 1;
-      onProgress?.({ ...state });
-      continue;
-    }
-
-    const files = bySku.get(sku)!;
-    const imageRows: { sku: string; image_path: string; image_type: string; sort_order: number }[] = [];
-    let mainPath: string | null = null;
-
-    for (const { path, entry } of files) {
-      const storagePath = `SKU_${sku}/${path}`;
-      const blob = await entry.async("blob");
-      const contentType = path.match(/\.png$/i)
-        ? "image/png"
-        : path.match(/\.webp$/i)
-          ? "image/webp"
-          : path.match(/\.gif$/i)
-            ? "image/gif"
-            : "image/jpeg";
-
-      const { error: upErr } = await supabase.storage
-        .from(BUCKET)
-        .upload(storagePath, blob, { contentType, upsert: true });
-
-      if (upErr) {
-        state.errors.push(`SKU ${sku} / ${path}: ${upErr.message}`);
-        continue;
-      }
-      state.uploaded += 1;
-
-      const isMain = /^main\./i.test(path);
-      if (isMain) mainPath = storagePath;
-      const orderMatch = path.match(/thumb[_-]?(\d+)/i);
-      const sortOrder = isMain ? 0 : orderMatch ? Number(orderMatch[1]) : 99;
-      imageRows.push({
-        sku,
-        image_path: storagePath,
-        image_type: isMain ? "main" : "thumb",
-        sort_order: sortOrder,
-      });
-    }
-
-    if (imageRows.length > 0) {
-      await supabase.from("product_images").upsert(imageRows, { onConflict: "sku,image_path" });
-    }
-    if (mainPath) {
-      await supabase.from("products").update({ imagem_principal: mainPath }).eq("sku", sku);
-    }
-
-    state.processed += 1;
-    onProgress?.({ ...state });
+  const result = await res.json();
+  
+  if (onProgress) {
+    onProgress(result as ZipImportProgress);
   }
-
-  return state;
+  
+  return result as ZipImportProgress;
 }
 
 export function exportProductsCsv(rows: Record<string, unknown>[]): string {

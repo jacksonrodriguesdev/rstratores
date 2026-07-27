@@ -1,7 +1,14 @@
 import { MessageCircle } from "lucide-react";
 import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
+import { useRouterState } from "@tanstack/react-router";
 
 export function FloatingContact() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  if (pathname.startsWith("/loja")) {
+    return null;
+  }
+
   return (
     <a
       href={whatsappContactUrl()}
