@@ -21,6 +21,8 @@ export type Product = {
   imagem_principal: string | null;
   codigo_fabricante?: string | null;
   fabricante?: string | null;
+  // false quando a marca é só o valor padrão da importação antiga
+  marca_confirmada?: boolean;
   // Preenchido nas versões: SKU do produto principal com o mesmo código.
   duplicado_de?: string | null;
   // Versões desta peça (outros fabricantes/sufixos), só na página do produto.
@@ -37,6 +39,11 @@ export type Product = {
 // Código mostrado ao cliente: o código real da peça quando existe, senão o SKU interno.
 export function codigoExibicao(p: Pick<Product, "sku" | "codigo_fabricante">) {
   return (p.codigo_fabricante || p.sku).toUpperCase();
+}
+
+// Marca mostrada ao cliente: oculta quando não foi confirmada.
+export function marcaExibicao(p: Pick<Product, "marca" | "marca_confirmada">) {
+  return p.marca_confirmada === false ? null : p.marca;
 }
 
 export type ProductImage = {

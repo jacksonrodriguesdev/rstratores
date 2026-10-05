@@ -3,49 +3,49 @@
     "categorias": [
       {
         "name": "Engrenagens e Transmissão",
-        "count": 5587
+        "count": 5247
       },
       {
         "name": "Estrutura e Suspensão",
-        "count": 1837
+        "count": 1769
       },
       {
         "name": "Elementos de Fixação",
-        "count": 3054
+        "count": 2873
       },
       {
         "name": "Vedações",
-        "count": 3454
+        "count": 3239
       },
       {
         "name": "Outros Componentes",
-        "count": 9300
+        "count": 9003
       },
       {
         "name": "Hidráulica e Pneumática",
-        "count": 3306
+        "count": 3228
       },
       {
         "name": "Rolamentos e Mancais",
-        "count": 1596
+        "count": 1450
       },
       {
         "name": "Freios e Embreagens",
-        "count": 830
+        "count": 750
       },
       {
         "name": "Elétrica e Sensores",
-        "count": 563
+        "count": 553
       },
       {
         "name": "Filtros",
-        "count": 1023
+        "count": 908
       }
     ],
     "marcas": [
       {
         "name": "Massey Ferguson",
-        "count": 17608
+        "count": 15543
       },
       {
         "name": "New Holland",
@@ -53,11 +53,11 @@
       },
       {
         "name": "John Deere",
-        "count": 3831
+        "count": 4353
       },
       {
         "name": "Valtra",
-        "count": 4327
+        "count": 4340
       },
       {
         "name": "Agrale",
@@ -75,7 +75,7 @@
     "montadoras": [
       {
         "name": "Massey Ferguson",
-        "count": 17608
+        "count": 15543
       },
       {
         "name": "New Holland",
@@ -83,11 +83,11 @@
       },
       {
         "name": "John Deere",
-        "count": 3831
+        "count": 4353
       },
       {
         "name": "Valtra",
-        "count": 4327
+        "count": 4340
       },
       {
         "name": "Agrale",

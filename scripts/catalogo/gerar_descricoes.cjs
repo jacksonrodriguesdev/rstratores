@@ -80,7 +80,7 @@ function nomeLegivel(nome) {
 }
 
 function marcaConfiavel(p) {
-  if (!p.marca) return null;
+  if (!p.marca || p.marca_confirmada === false) return null;
   if (!p.fabricante && p.marca === MARCA_PADRAO_ANTIGA) return null;
   return p.marca;
 }

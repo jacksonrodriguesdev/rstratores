@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
 import { useLanguage } from "@/components/LanguageContext";
-import { codigoExibicao, type Product } from "@/lib/products";
+import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
 
 type Props = {
   title: string;
@@ -79,7 +79,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                       <ProductImage
                         src={p.imagem_principal}
                         alt={language === "es-UY" && p.nome_es ? p.nome_es : p.nome}
-                        marca={p.marca}
+                        marca={marcaExibicao(p)}
                         className="transition-transform hover:scale-105"
                       />
                     </Link>

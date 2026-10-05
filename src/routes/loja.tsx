@@ -26,7 +26,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { listProducts, getFacets, codigoExibicao, type ListParams } from "@/lib/products";
+import {
+  listProducts,
+  getFacets,
+  codigoExibicao,
+  marcaExibicao,
+  type ListParams,
+} from "@/lib/products";
 
 const searchSchema = z.object({
   q: z.string().optional(),
@@ -357,7 +363,7 @@ function LojaPage() {
                       <ProductImage
                         src={p.imagem_principal}
                         alt={p.nome}
-                        marca={p.marca}
+                        marca={marcaExibicao(p)}
                         className="transition-transform duration-700 ease-out group-hover:scale-105 object-contain drop-shadow-sm mix-blend-multiply"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -367,9 +373,9 @@ function LojaPage() {
                         <div className="text-[11px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200/80 tracking-wide">
                           Cód. {codigoExibicao(p)}
                         </div>
-                        {p.marca && (
+                        {marcaExibicao(p) && (
                           <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">
-                            {p.marca}
+                            {marcaExibicao(p)}
                           </span>
                         )}
                       </div>

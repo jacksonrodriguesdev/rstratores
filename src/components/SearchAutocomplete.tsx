@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { useDebounce } from "@/hooks/use-debounce";
-import { listProducts, formatBRL } from "@/lib/products";
+import { listProducts, formatBRL, marcaExibicao } from "@/lib/products";
 
 interface SearchAutocompleteProps {
   segment: "AGRICOLA" | "AUTOMOTIVA";
@@ -114,7 +114,7 @@ export function SearchAutocomplete({
                       {product.nome}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      {product.marca || product.categoria || product.sku}
+                      {marcaExibicao(product) || product.categoria || product.sku}
                     </div>
                   </div>
                   <div className="text-sm font-bold text-primary shrink-0 pl-2">

@@ -160,6 +160,8 @@ model agricolas {
   fabricante           String?      @db.Text // fabricante da peça (DANA, MWM, FERSA...)
   // Versão de outra peça com o mesmo código: fica oculta na loja e aparece na página do principal
   duplicado_de         String?      @db.VarChar(191)
+  // false quando a marca é só o valor padrão da importação antiga e não pôde ser confirmada
+  marca_confirmada     Boolean      @default(true)
   ean                  String?      @db.Text
   ncm                  String?      @db.Text
   profundidade         Float?

@@ -28,6 +28,7 @@ import {
   getRelatedProducts,
   getRelatedCategories,
   codigoExibicao,
+  marcaExibicao,
 } from "@/lib/products";
 
 export const Route = createFileRoute("/produto/$sku")({
@@ -103,6 +104,7 @@ function ProductDetail() {
   const { product } = Route.useLoaderData();
   const { language, t } = useLanguage();
   const { addItem } = useCart();
+  const marca = marcaExibicao(product);
   const [mainImage, setMainImage] = useState<string | null>(product.imagem_principal);
 
   const imagesQuery = useQuery({
@@ -165,7 +167,7 @@ function ProductDetail() {
               <ProductImage
                 src={mainImage}
                 alt={language === "es-UY" && product.nome_es ? product.nome_es : product.nome}
-                marca={product.marca}
+                marca={marca}
               />
             </Card>
             {gallery.length > 1 && (
@@ -196,10 +198,10 @@ function ProductDetail() {
                   {product.categoria}
                 </Badge>
               )}
-              {product.marca && (
+              {marca && (
                 <Badge variant="outline">
                   <Factory className="mr-1 h-3 w-3" />
-                  {product.marca}
+                  {marca}
                 </Badge>
               )}
             </div>
@@ -211,12 +213,12 @@ function ProductDetail() {
 
             {/* Detalhes Rápidos em Cards */}
             <div className="mt-4 grid grid-cols-2 gap-3">
-              {product.marca && (
+              {marca && (
                 <div className="rounded-xl border bg-muted/20 p-3 shadow-sm transition-colors hover:bg-muted/40">
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <Factory className="h-3.5 w-3.5" /> {t("product.marca")}
                   </div>
-                  <div className="mt-1 text-sm font-bold text-foreground">{product.marca}</div>
+                  <div className="mt-1 text-sm font-bold text-foreground">{marca}</div>
                 </div>
               )}
               {product.categoria && (
@@ -403,7 +405,7 @@ function ProductDetail() {
                 <SpecRow label="Código" value={codigoExibicao(product)} />
                 {product.fabricante && <SpecRow label="Fabricante" value={product.fabricante} />}
                 {product.categoria && <SpecRow label="Categoria" value={product.categoria} />}
-                {product.marca && <SpecRow label="Marca" value={product.marca} />}
+                {marca && <SpecRow label="Marca" value={marca} />}
                 {product.tamanho && <SpecRow label="Tamanho" value={product.tamanho} />}
                 {product.altura != null && (
                   <SpecRow label="Altura" value={`${product.altura} cm`} />

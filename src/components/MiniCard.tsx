@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/components/LanguageContext";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
-import { codigoExibicao, type Product } from "@/lib/products";
+import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
 import { useCart } from "@/components/CartContext";
 import { ShoppingCart } from "lucide-react";
 
@@ -22,7 +22,7 @@ export function MiniCard({ p }: { p: Product }) {
         <ProductImage
           src={p.imagem_principal}
           alt={p.nome}
-          marca={p.marca}
+          marca={marcaExibicao(p)}
           className="transition-transform duration-700 ease-out group-hover:scale-110 object-contain drop-shadow-sm"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -32,9 +32,9 @@ export function MiniCard({ p }: { p: Product }) {
           <div className="text-[11px] font-medium text-muted-foreground/80 bg-muted/50 px-2 py-0.5 rounded-full border border-black/5">
             Cód. {codigoExibicao(p)}
           </div>
-          {p.marca && (
+          {marcaExibicao(p) && (
             <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-              {p.marca}
+              {marcaExibicao(p)}
             </span>
           )}
         </div>
