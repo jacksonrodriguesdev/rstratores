@@ -9,9 +9,14 @@ async function run() {
     console.log("Generating AGRICOLA facets...");
     const rawCats = await prisma.agricolas.groupBy({
       by: ["categoria"],
+      where: { duplicado_de: null },
       _count: { categoria: true },
     });
-    const mrks = await prisma.agricolas.groupBy({ by: ["marca"], _count: { marca: true } });
+    const mrks = await prisma.agricolas.groupBy({
+      by: ["marca"],
+      where: { duplicado_de: null },
+      _count: { marca: true },
+    });
 
     const catMap = new Map();
     rawCats.forEach((c) => {

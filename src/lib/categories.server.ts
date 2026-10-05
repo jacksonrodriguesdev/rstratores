@@ -14,7 +14,8 @@ export async function listCategories(opts?: {
     orderBy: { nome: "asc" },
     include: {
       _count: {
-        select: { products: true, agricolas: true },
+        // Versões (duplicado_de) não contam: aparecem só dentro do produto principal.
+        select: { products: true, agricolas: { where: { duplicado_de: null } } },
       },
     },
   });

@@ -21,6 +21,15 @@ export type Product = {
   imagem_principal: string | null;
   codigo_fabricante?: string | null;
   fabricante?: string | null;
+  // Preenchido nas versões: SKU do produto principal com o mesmo código.
+  duplicado_de?: string | null;
+  // Versões desta peça (outros fabricantes/sufixos), só na página do produto.
+  variantes?: Array<{
+    sku: string;
+    codigo_fabricante: string | null;
+    fabricante: string | null;
+    nome: string;
+  }>;
   created_at: string;
   updated_at: string;
 };

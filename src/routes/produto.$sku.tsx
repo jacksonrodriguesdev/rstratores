@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -34,6 +34,10 @@ export const Route = createFileRoute("/produto/$sku")({
   loader: async ({ params }) => {
     const product = await getProduct(params.sku);
     if (!product) throw notFound();
+    // Versão agrupada: mantém links antigos funcionando levando ao produto principal.
+    if (product.duplicado_de) {
+      throw redirect({ to: "/produto/$sku", params: { sku: product.duplicado_de } });
+    }
     return { product };
   },
   head: ({ loaderData }) => {
@@ -371,6 +375,24 @@ function ProductDetail() {
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
                   {product.veiculos_compativeis}
                 </p>
+              </div>
+            )}
+
+            {product.variantes && product.variantes.length > 0 && (
+              <div className="mt-6 rounded-lg border bg-card p-5">
+                <h2 className="mb-1 text-base font-semibold">Versões disponíveis</h2>
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Esta peça também está disponível nestes códigos e fabricantes. Informe na cotação
+                  qual versão prefere.
+                </p>
+                <ul className="divide-y text-sm">
+                  {product.variantes.map((v) => (
+                    <li key={v.sku} className="flex items-center justify-between gap-4 py-2">
+                      <span className="font-medium">{v.codigo_fabricante || v.sku.toUpperCase()}</span>
+                      <span className="text-muted-foreground">{v.fabricante || "—"}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 

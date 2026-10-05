@@ -28,6 +28,11 @@ export async function listProducts(params: ListParams) {
 
   const where: any = { AND: [] };
 
+  // Versões de uma peça (duplicado_de) aparecem só na página do produto principal.
+  if (linha === "AGRICOLA") {
+    where.AND.push({ duplicado_de: null });
+  }
+
   if (hasImage) {
     where.AND.push({
       imagem_principal: { not: null },
@@ -53,8 +58,19 @@ export async function listProducts(params: ListParams) {
           { nome: { contains: s } },
           { sku: { contains: s } },
           { codigo_fabricante: { contains: s } },
-          // `fabricante` só existe na tabela agricolas
-          ...(linha === "AGRICOLA" ? [{ fabricante: { contains: s } }] : []),
+          // `fabricante` e as versões só existem na tabela agricolas
+          ...(linha === "AGRICOLA"
+            ? [
+                { fabricante: { contains: s } },
+                {
+                  variantes: {
+                    some: {
+                      OR: [{ codigo_fabricante: { contains: s } }, { fabricante: { contains: s } }],
+                    },
+                  },
+                },
+              ]
+            : []),
           { categoria: { contains: s } },
           { marca: { contains: s } },
           { descricao: { contains: s } },
@@ -193,6 +209,10 @@ export async function getProduct(sku: string) {
         aplicacoes: true,
         fichas_tecnicas: true,
         similares: true,
+        variantes: {
+          select: { sku: true, codigo_fabricante: true, fabricante: true, nome: true },
+          orderBy: { codigo_fabricante: "asc" },
+        },
       },
     })) as any;
   }
@@ -223,6 +243,7 @@ export async function getRelatedProducts(sku: string, category_id: number | null
     where: {
       category_id,
       sku: { not: sku },
+      ...(AUTOMOTIVA_ATIVA ? {} : { duplicado_de: null }),
     },
     take: limit,
   });

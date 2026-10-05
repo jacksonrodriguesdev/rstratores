@@ -3,103 +3,103 @@
     "categorias": [
       {
         "name": "Engrenagens e Transmissão",
-        "count": 7211
-      },
-      {
-        "name": "Outros Componentes",
-        "count": 12232
+        "count": 5587
       },
       {
         "name": "Estrutura e Suspensão",
-        "count": 2490
+        "count": 1837
       },
       {
         "name": "Elementos de Fixação",
-        "count": 4001
+        "count": 3054
       },
       {
         "name": "Vedações",
-        "count": 4469
+        "count": 3454
+      },
+      {
+        "name": "Outros Componentes",
+        "count": 9300
       },
       {
         "name": "Hidráulica e Pneumática",
-        "count": 3999
+        "count": 3306
       },
       {
         "name": "Rolamentos e Mancais",
-        "count": 1720
+        "count": 1596
       },
       {
         "name": "Freios e Embreagens",
-        "count": 1042
+        "count": 830
       },
       {
         "name": "Elétrica e Sensores",
-        "count": 677
+        "count": 563
       },
       {
         "name": "Filtros",
-        "count": 1173
+        "count": 1023
       }
     ],
     "marcas": [
       {
         "name": "Massey Ferguson",
-        "count": 23988
-      },
-      {
-        "name": "John Deere",
-        "count": 4391
-      },
-      {
-        "name": "Agrale",
-        "count": 430
-      },
-      {
-        "name": "Valtra",
-        "count": 4612
-      },
-      {
-        "name": "Case IH",
-        "count": 609
+        "count": 17608
       },
       {
         "name": "New Holland",
-        "count": 4466
+        "count": 3686
+      },
+      {
+        "name": "John Deere",
+        "count": 3831
+      },
+      {
+        "name": "Valtra",
+        "count": 4327
+      },
+      {
+        "name": "Agrale",
+        "count": 318
       },
       {
         "name": "Ford",
-        "count": 518
+        "count": 353
+      },
+      {
+        "name": "Case IH",
+        "count": 427
       }
     ],
     "montadoras": [
       {
         "name": "Massey Ferguson",
-        "count": 23988
-      },
-      {
-        "name": "John Deere",
-        "count": 4391
-      },
-      {
-        "name": "Agrale",
-        "count": 430
-      },
-      {
-        "name": "Valtra",
-        "count": 4612
-      },
-      {
-        "name": "Case IH",
-        "count": 609
+        "count": 17608
       },
       {
         "name": "New Holland",
-        "count": 4466
+        "count": 3686
+      },
+      {
+        "name": "John Deere",
+        "count": 3831
+      },
+      {
+        "name": "Valtra",
+        "count": 4327
+      },
+      {
+        "name": "Agrale",
+        "count": 318
       },
       {
         "name": "Ford",
-        "count": 518
+        "count": 353
+      },
+      {
+        "name": "Case IH",
+        "count": 427
       }
     ]
   },

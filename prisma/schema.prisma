@@ -158,11 +158,15 @@ model agricolas {
   url                  String?      @db.Text
   codigo_fabricante    String?      @db.Text
   fabricante           String?      @db.Text // fabricante da peça (DANA, MWM, FERSA...)
+  // Versão de outra peça com o mesmo código: fica oculta na loja e aparece na página do principal
+  duplicado_de         String?      @db.VarChar(191)
   ean                  String?      @db.Text
   ncm                  String?      @db.Text
   profundidade         Float?
 
   category             categories?  @relation("AgricolaCategory", fields: [category_id], references: [id], onDelete: SetNull)
+  principal            agricolas?   @relation("AgricolaVariantes", fields: [duplicado_de], references: [sku], onDelete: SetNull)
+  variantes            agricolas[]  @relation("AgricolaVariantes")
   images               agricolas_img[]
   aplicacoes           agricolas_aplicacao[]
   similares            agricolas_similar[]

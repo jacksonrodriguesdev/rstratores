@@ -167,9 +167,13 @@ async function main() {
   console.log(`Pronto. Para desfazer: node scripts/catalogo/gerar_descricoes.cjs --desfazer ${backup}`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exitCode = 1;
-  })
-  .finally(() => prisma.$disconnect());
+module.exports = { gerar };
+
+if (require.main === module) {
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exitCode = 1;
+    })
+    .finally(() => prisma.$disconnect());
+}
