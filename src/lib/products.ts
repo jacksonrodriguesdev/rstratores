@@ -27,7 +27,7 @@ export type Product = {
 
 // Código mostrado ao cliente: o código real da peça quando existe, senão o SKU interno.
 export function codigoExibicao(p: Pick<Product, "sku" | "codigo_fabricante">) {
-  return p.codigo_fabricante || p.sku;
+  return (p.codigo_fabricante || p.sku).toUpperCase();
 }
 
 export type ProductImage = {

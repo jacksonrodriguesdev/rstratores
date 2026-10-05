@@ -44,8 +44,13 @@ export const Route = createFileRoute("/produto/$sku")({
     }
     const p = loaderData.product;
     const title = `${p.nome} — Cód. ${codigoExibicao(p)}`;
-    const desc =
-      `${p.nome}. ${p.categoria ?? ""} ${p.marca ?? ""}. Faça sua cotação pelo WhatsApp.`.trim();
+    // Usa o início da descrição (até ~155 caracteres, limite do Google) quando existe.
+    const resumo = p.descricao?.replace(/\s+/g, " ").trim();
+    const desc = resumo
+      ? resumo.length > 155
+        ? `${resumo.slice(0, 152).replace(/\s+\S*$/, "").replace(/[.,;:]+$/, "")}...`
+        : resumo
+      : `${p.nome}. ${p.categoria ?? ""}. Faça sua cotação pelo WhatsApp.`.trim();
     return {
       meta: [
         { title },
