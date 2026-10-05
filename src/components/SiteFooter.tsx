@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin, Instagram, Facebook } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram, Facebook, QrCode, CreditCard, Barcode } from "lucide-react";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 
 export function SiteFooter() {
@@ -102,35 +102,20 @@ export function SiteFooter() {
           <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
             Formas de Pagamento
           </h3>
+          {/* Selos próprios: os logos vinham de um site externo que bloqueia o uso (logospng.org) */}
           <div className="flex flex-wrap gap-2">
-            <div className="bg-white p-1 rounded">
-              <img
-                src="https://logospng.org/download/pix/logo-pix-icone-512.png"
-                alt="Pix"
-                className="h-6 w-auto"
-              />
-            </div>
-            <div className="bg-white p-1 rounded">
-              <img
-                src="https://logospng.org/download/mastercard/logo-mastercard-2048.png"
-                alt="Mastercard"
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-            <div className="bg-white p-1 rounded">
-              <img
-                src="https://logospng.org/download/visa/logo-visa-2048.png"
-                alt="Visa"
-                className="h-6 w-auto object-contain"
-              />
-            </div>
-            <div className="bg-white p-1 rounded">
-              <img
-                src="https://logospng.org/download/boleto/logo-boleto-2048.png"
-                alt="Boleto"
-                className="h-6 w-auto object-contain"
-              />
-            </div>
+            {[
+              { icon: QrCode, nome: "Pix" },
+              { icon: CreditCard, nome: "Cartão" },
+              { icon: Barcode, nome: "Boleto" },
+            ].map(({ icon: Icone, nome }) => (
+              <span
+                key={nome}
+                className="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-zinc-800"
+              >
+                <Icone className="h-4 w-4 text-primary" /> {nome}
+              </span>
+            ))}
           </div>
         </div>
 

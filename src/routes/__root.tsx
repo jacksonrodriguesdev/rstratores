@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -15,6 +16,7 @@ import { FloatingContact } from "@/components/FloatingContact";
 import { VisitTracker } from "@/components/VisitTracker";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -162,6 +164,18 @@ import { LanguageProvider } from "@/components/LanguageContext";
 import { CartProvider } from "@/components/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 
+// Rodapé e WhatsApp flutuante só no site público (o admin tem layout próprio).
+function RodapePublico() {
+  const pathname = useRouterState({ select: (st) => st.location.pathname });
+  if (pathname.startsWith("/admin")) return null;
+  return (
+    <>
+      <SiteFooter />
+      <FloatingContact />
+    </>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -172,11 +186,12 @@ function RootComponent() {
           <CartProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
-            <SiteFooter />
+            <RodapePublico />
             <MobileTabBar />
-            <FloatingContact />
             <VisitTracker />
             <CartDrawer />
+            {/* Notificações (toast) usadas no admin e no site */}
+            <Toaster richColors position="top-center" />
           </CartProvider>
         </SegmentProvider>
       </LanguageProvider>

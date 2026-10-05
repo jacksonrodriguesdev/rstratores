@@ -1,11 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { resolveImageUrls } from "@/lib/products";
 import type { Banner } from "@/lib/banners";
 import { cn } from "@/lib/utils";
 
 const INTERVALO_MS = 5500;
+
+const urlImagem = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
+
+// "hero": topo da home (largura total no desktop). "faixa": faixa promocional entre seções.
+const ESTILOS = {
+  hero: {
+    caixa: "relative px-3 pt-3 md:px-0 md:pt-0",
+    trilho: "rounded-2xl md:rounded-none",
+    img: "h-[170px] sm:h-[240px] md:h-[400px]",
+    pontos: "bottom-3 md:bottom-24",
+  },
+  faixa: {
+    caixa: "relative",
+    trilho: "rounded-2xl shadow-sm",
+    img: "aspect-[800/300] md:aspect-[1600/250]",
+    pontos: "bottom-2",
+  },
+};
 
 // Banner principal com arrasto (toque/mouse), troca automática e indicadores.
 // Celular: cartão arredondado com margem (visual de app). Desktop: largura total.
@@ -14,20 +31,18 @@ export function HeroCarousel({
   titulo,
   subtitulo,
   tag,
+  variante = "hero",
 }: {
   banners: Banner[];
   titulo?: string | null;
   subtitulo?: string;
   tag?: string;
+  variante?: keyof typeof ESTILOS;
 }) {
-  const [urls, setUrls] = useState<Record<string, string>>({});
+  const estilo = ESTILOS[variante];
   const [emblaRef, api] = useEmblaCarousel({ loop: banners.length > 1 });
   const [atual, setAtual] = useState(0);
   const [pausado, setPausado] = useState(false);
-
-  useEffect(() => {
-    resolveImageUrls(banners.map((b) => b.image_path)).then(setUrls);
-  }, [banners]);
 
   useEffect(() => {
     if (!api) return;
@@ -52,20 +67,26 @@ export function HeroCarousel({
 
   return (
     <div
-      className="relative px-3 pt-3 md:px-0 md:pt-0"
+      className={estilo.caixa}
       onMouseEnter={() => setPausado(true)}
       onMouseLeave={() => setPausado(false)}
     >
-      <div className="overflow-hidden rounded-2xl md:rounded-none" ref={emblaRef}>
+      <div className={cn("overflow-hidden", estilo.trilho)} ref={emblaRef}>
         <div className="flex touch-pan-y">
           {banners.map((b, i) => {
+            // Arte de celular (opcional) entra abaixo de 768 px; senão usa a do computador.
             const img = (
-              <img
-                src={urls[b.image_path]}
-                alt=""
-                loading={i === 0 ? "eager" : "lazy"}
-                className="h-[170px] w-full bg-zinc-200 object-cover sm:h-[240px] md:h-[400px]"
-              />
+              <picture>
+                {b.image_path_mobile && (
+                  <source media="(max-width: 767px)" srcSet={urlImagem(b.image_path_mobile)} />
+                )}
+                <img
+                  src={urlImagem(b.image_path)}
+                  alt={b.titulo ?? ""}
+                  loading={i === 0 && variante === "hero" ? "eager" : "lazy"}
+                  className={cn("w-full bg-zinc-200 object-cover", estilo.img)}
+                />
+              </picture>
             );
             return (
               <div key={b.id} className="relative min-w-0 flex-[0_0_100%]">
@@ -82,7 +103,7 @@ export function HeroCarousel({
         </div>
       </div>
 
-      {(titulo || subtitulo || tag) && (
+      {variante === "hero" && (titulo || subtitulo || tag) && (
         <div className="pointer-events-none absolute inset-0 flex items-center px-6 md:px-0">
           <div className="mx-auto w-full max-w-7xl md:px-8">
             <div className="max-w-md rounded-2xl bg-black/35 p-4 text-white backdrop-blur-sm md:p-6">
@@ -99,7 +120,9 @@ export function HeroCarousel({
       )}
 
       {/* Desktop: degradê para o fundo cinza, onde os cartões de atalho se sobrepõem */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-32 bg-gradient-to-b from-transparent to-zinc-100 md:block" />
+      {variante === "hero" && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-32 bg-gradient-to-b from-transparent to-zinc-100 md:block" />
+      )}
 
       {banners.length > 1 && (
         <>
@@ -117,7 +140,7 @@ export function HeroCarousel({
           >
             <ChevronRight className="h-6 w-6" />
           </button>
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 md:bottom-24">
+          <div className={cn("absolute left-1/2 flex -translate-x-1/2 gap-1.5", estilo.pontos)}>
             {banners.map((_, i) => (
               <button
                 key={i}

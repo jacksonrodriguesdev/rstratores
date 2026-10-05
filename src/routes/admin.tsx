@@ -112,11 +112,15 @@ function AdminLayout() {
   const navigate = useNavigate();
 
   const [authorized, setAuthorized] = useState(false);
+  const [usuario, setUsuario] = useState<{ nome: string; email: string } | null>(null);
 
   useEffect(() => {
     getSessionFn()
       .then((session) => {
-        if (session?.role === "ADMIN") setAuthorized(true);
+        if (session?.role === "ADMIN") {
+          setUsuario({ nome: session.nome, email: session.email });
+          setAuthorized(true);
+        }
         else window.location.href = "/login";
       })
       .catch(() => {
@@ -220,12 +224,17 @@ function AdminLayout() {
           <div className="mb-4 flex items-center gap-3 px-2">
             <Avatar className="h-10 w-10 border border-background shadow-sm">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                AD
+                {(usuario?.nome ?? "AD")
+                  .split(" ")
+                  .map((p) => p[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-bold truncate">Administrador</span>
-              <span className="text-xs text-muted-foreground truncate">admin@rstrator.com</span>
+              <span className="text-sm font-bold truncate">{usuario?.nome ?? "Administrador"}</span>
+              <span className="text-xs text-muted-foreground truncate">{usuario?.email}</span>
             </div>
           </div>
           <Button

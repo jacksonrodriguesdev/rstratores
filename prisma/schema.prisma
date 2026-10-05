@@ -104,6 +104,10 @@ model site_banners {
   active     Boolean  @default(true)
   created_at DateTime @default(now())
   image_path String
+  // Arte opcional para celular (o banner largo é cortado nas laterais em telas estreitas)
+  image_path_mobile String?
+  // Nome interno, usado também como texto alternativo da imagem
+  titulo     String?
   kind       String
   link_url   String?
   position   Int      @default(0)

@@ -281,9 +281,21 @@ export function ProductsGridBlock({ title, config }: { title: string | null; con
   );
 }
 
-// FAIXA PROMOCIONAL (imagem enviada no admin)
+// FAIXA PROMOCIONAL: banners do tipo "Faixa promocional" em Admin > Banners
 export function PromoStripBlock({ title, config }: { title: string | null; config: string | null }) {
   const c = lerConfig(config);
+  const { data: faixas = [] } = useQuery({
+    queryKey: ["home_banners", "strip"],
+    queryFn: () => listActiveBanners("strip", "AGRICOLA"),
+  });
+  if (faixas.length > 0) {
+    return (
+      <Reveal>
+        <HeroCarousel banners={faixas} variante="faixa" />
+      </Reveal>
+    );
+  }
+  // Reserva: imagem configurada no próprio bloco (Admin > Página Inicial)
   if (!c.image_path) return null;
   const img = (
     <BannerImage
@@ -416,6 +428,45 @@ const PROMO_BANNERS = [
 ];
 
 export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
+  const { data: duplos = [] } = useQuery({
+    queryKey: ["home_banners", "duplo"],
+    queryFn: () => listActiveBanners("duplo", "AGRICOLA"),
+  });
+
+  // Banners enviados em Admin > Banners > "Banners promocionais"
+  if (duplos.length > 0) {
+    return (
+      <Reveal>
+        <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+          {duplos.slice(0, 4).map((b) => {
+            const url = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
+            const img = (
+              <picture>
+                {b.image_path_mobile && (
+                  <source media="(max-width: 767px)" srcSet={url(b.image_path_mobile)} />
+                )}
+                <img
+                  src={url(b.image_path)}
+                  alt={b.titulo ?? ""}
+                  loading="lazy"
+                  className="aspect-[800/350] w-full rounded-2xl bg-zinc-200 object-cover shadow-sm md:aspect-[900/350]"
+                />
+              </picture>
+            );
+            return b.link_url ? (
+              <a key={b.id} href={b.link_url} className="block transition hover:opacity-95 active:scale-[0.98]">
+                {img}
+              </a>
+            ) : (
+              <div key={b.id}>{img}</div>
+            );
+          })}
+        </div>
+      </Reveal>
+    );
+  }
+
+  // Padrão enquanto não houver banners cadastrados
   return (
     <Reveal>
       <div className="grid gap-3 md:grid-cols-2 md:gap-4">

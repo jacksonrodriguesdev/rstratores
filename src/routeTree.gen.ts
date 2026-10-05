@@ -23,6 +23,7 @@ import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
+import { Route as UploadsSplatRouteImport } from './routes/uploads.$'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
@@ -118,6 +119,11 @@ const AdminUploadRoute = AdminUploadRouteImport.update({
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
   id: '/produto/$sku',
   path: '/produto/$sku',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UploadsSplatRoute = UploadsSplatRouteImport.update({
+  id: '/uploads/$',
+  path: '/uploads/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminBannersRoute = ApiAdminBannersRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
@@ -309,6 +316,7 @@ export interface FileRoutesByTo {
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
@@ -352,6 +360,7 @@ export interface FileRoutesById {
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/admin/produtos'
     | '/admin/upload'
     | '/produto/$sku'
+    | '/uploads/$'
     | '/admin/'
     | '/api/admin/banners'
     | '/api/admin/categories'
@@ -437,6 +447,7 @@ export interface FileRouteTypes {
     | '/admin/produtos'
     | '/admin/upload'
     | '/produto/$sku'
+    | '/uploads/$'
     | '/admin'
     | '/api/admin/banners'
     | '/api/admin/categories'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/admin/produtos'
     | '/admin/upload'
     | '/produto/$sku'
+    | '/uploads/$'
     | '/admin/'
     | '/api/admin/banners'
     | '/api/admin/categories'
@@ -515,6 +527,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
+  UploadsSplatRoute: typeof UploadsSplatRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
   ApiAdminProductsRoute: typeof ApiAdminProductsRouteWithChildren
@@ -630,6 +643,13 @@ declare module '@tanstack/react-router' {
       path: '/produto/$sku'
       fullPath: '/produto/$sku'
       preLoaderRoute: typeof ProdutoSkuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/uploads/$': {
+      id: '/uploads/$'
+      path: '/uploads/$'
+      fullPath: '/uploads/$'
+      preLoaderRoute: typeof UploadsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/banners': {
@@ -926,6 +946,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
+  UploadsSplatRoute: UploadsSplatRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
   ApiAdminProductsRoute: ApiAdminProductsRouteWithChildren,

@@ -1,42 +1,80 @@
+import { createServerFn } from "@tanstack/react-start";
+
+// Tipos de banner da página inicial:
+// - hero:  carrossel principal no topo
+// - duplo: banners promocionais lado a lado
+// - strip: faixa promocional larga entre as seções
+export type BannerKind = "hero" | "duplo" | "strip";
+
 export type Banner = {
   id: number;
-  kind: "hero" | "strip";
+  kind: BannerKind;
   position: number;
   image_path: string;
+  image_path_mobile: string | null;
+  titulo: string | null;
   link_url: string | null;
   active: boolean;
   linha: string;
   created_at: string;
 };
 
-import { createServerFn } from "@tanstack/react-start";
-
+// Descrição de cada tipo para o admin: onde aparece e o tamanho ideal da arte.
+export const TIPOS_BANNER: Record<
+  BannerKind,
+  { nome: string; onde: string; desktop: string; celular: string; aspecto: string; aspectoCelular: string }
+> = {
+  hero: {
+    nome: "Carrossel principal",
+    onde: "Topo da página inicial. Vários banners viram um carrossel com troca automática.",
+    desktop: "1920 × 500 px. Deixe os ~100 px de baixo sem texto: os cartões de atalho ficam por cima.",
+    celular: "800 × 400 px",
+    aspecto: "aspect-[1366/400]",
+    aspectoCelular: "aspect-[366/170]",
+  },
+  duplo: {
+    nome: "Banners promocionais (lado a lado)",
+    onde: "Dois banners lado a lado no meio da página (um embaixo do outro no celular). Use 2 ativos.",
+    desktop: "900 × 350 px",
+    celular: "800 × 350 px (opcional)",
+    aspecto: "aspect-[900/350]",
+    aspectoCelular: "aspect-[800/350]",
+  },
+  strip: {
+    nome: "Faixa promocional",
+    onde: "Faixa larga entre as seções de produtos. Vários viram carrossel.",
+    desktop: "1600 × 250 px",
+    celular: "800 × 300 px",
+    aspecto: "aspect-[1600/250]",
+    aspectoCelular: "aspect-[800/300]",
+  },
+};
 
 const listBannersFn = createServerFn({ method: "GET" })
-  .validator((d: { kind?: "hero" | "strip"; linha?: string } = {}) => d)
+  .validator((d: { kind?: BannerKind; linha?: string } = {}) => d)
   .handler(async ({ data }) => {
     const server = await import("./banners.server");
     return server.listBanners(data.kind, data.linha);
   });
 
-export async function listBanners(kind?: "hero" | "strip", linha?: string): Promise<Banner[]> {
+export async function listBanners(kind?: BannerKind, linha?: string): Promise<Banner[]> {
   return listBannersFn({ data: { kind, linha } }) as unknown as Banner[];
 }
 
 const listActiveBannersFn = createServerFn({ method: "GET" })
-  .validator((d: { kind: "hero" | "strip"; linha?: string }) => d)
+  .validator((d: { kind: BannerKind; linha?: string }) => d)
   .handler(async ({ data }) => {
     const server = await import("./banners.server");
     return server.listActiveBanners(data.kind, data.linha);
   });
 
-export async function listActiveBanners(kind: "hero" | "strip", linha?: string): Promise<Banner[]> {
+export async function listActiveBanners(kind: BannerKind, linha?: string): Promise<Banner[]> {
   return listActiveBannersFn({ data: { kind, linha } }) as unknown as Banner[];
 }
 
 // Admin API calls (client-side only)
 
-export async function uploadBannerImage(file: File, kind: "hero" | "strip"): Promise<string> {
+export async function uploadBannerImage(file: File, kind: BannerKind): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("kind", kind);
@@ -44,14 +82,16 @@ export async function uploadBannerImage(file: File, kind: "hero" | "strip"): Pro
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to upload banner image");
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao enviar a imagem");
   const { path } = await res.json();
   return path;
 }
 
 export async function createBanner(input: {
-  kind: "hero" | "strip";
+  kind: BannerKind;
   image_path: string;
+  image_path_mobile?: string | null;
+  titulo?: string | null;
   position?: number;
   link_url?: string | null;
   active?: boolean;
@@ -62,26 +102,24 @@ export async function createBanner(input: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("Failed to create banner");
+  if (!res.ok) throw new Error("Falha ao criar o banner");
 }
 
 export async function updateBanner(
   id: number,
-  patch: Partial<Pick<Banner, "position" | "link_url" | "active" | "image_path">>,
+  patch: Partial<
+    Pick<Banner, "position" | "link_url" | "active" | "image_path" | "image_path_mobile" | "titulo" | "linha">
+  >,
 ) {
   const res = await fetch(`/api/admin/banners/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(patch),
   });
-  if (!res.ok) throw new Error("Failed to update banner");
+  if (!res.ok) throw new Error("Falha ao atualizar o banner");
 }
 
-export async function deleteBanner(id: number, image_path: string) {
-  const res = await fetch(`/api/admin/banners/${id}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image_path }),
-  });
-  if (!res.ok) throw new Error("Failed to delete banner");
+export async function deleteBanner(id: number) {
+  const res = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Falha ao remover o banner");
 }
