@@ -20,7 +20,8 @@ const path = require("path");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const PASTA = path.join(process.cwd(), "public", "uploads", "produtos");
+const RAIZ_UPLOADS = path.resolve(process.env.UPLOADS_DIR || path.join(process.cwd(), "uploads"));
+const PASTA = path.join(RAIZ_UPLOADS, "produtos");
 const MIN_BYTES = 8 * 1024; // menor que isso costuma ser ícone ou miniatura inútil
 const MAX_BYTES = 8 * 1024 * 1024;
 const PAUSA_MS = 300;
@@ -123,7 +124,7 @@ async function remover(where) {
   });
   for (const f of fotos) {
     if (f.imagem_principal?.startsWith("produtos/")) {
-      fs.rmSync(path.join(process.cwd(), "public", "uploads", f.imagem_principal), { force: true });
+      fs.rmSync(path.join(RAIZ_UPLOADS, f.imagem_principal), { force: true });
     }
   }
   // imagem_buscada_em continua preenchido: o produto não é pesquisado (nem cobrado) de novo.

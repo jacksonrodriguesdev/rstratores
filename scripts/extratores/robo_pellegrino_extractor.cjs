@@ -13,7 +13,7 @@ const EMAIL = "jacksonrodriguesdev@gmail.com";
 const PASSWORD = "bzhudi";
 
 // Cria o diretório de uploads
-const uploadsDir = path.join(process.cwd(), "..", "public", "uploads", "pellegrino");
+const uploadsDir = path.join(process.cwd(), "uploads", "pellegrino");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }

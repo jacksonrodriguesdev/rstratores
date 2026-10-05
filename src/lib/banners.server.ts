@@ -88,9 +88,8 @@ async function apagarArquivo(relativo: string | null | undefined) {
   try {
     const fs = await import("fs/promises");
     const path = await import("path");
-    const raiz = path.resolve(process.cwd(), "public", "uploads");
-    const arquivo = path.resolve(raiz, relativo);
-    if (arquivo.startsWith(raiz + path.sep)) await fs.unlink(arquivo);
+    const { caminhoUpload } = await import("./uploads.server");
+    await fs.unlink(caminhoUpload(relativo));
   } catch {
     // Arquivo pode já ter sido removido manualmente
   }

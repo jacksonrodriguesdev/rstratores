@@ -43,7 +43,8 @@ export const Route = createFileRoute("/api/public/quotes")({
             const buffer = Buffer.from(await file.arrayBuffer());
             relativePath = `quotes/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-            const dest = path.join(process.cwd(), "public", "uploads", relativePath);
+            const { caminhoUpload } = await import("@/lib/uploads.server");
+            const dest = caminhoUpload(relativePath);
             await fs.mkdir(path.dirname(dest), { recursive: true });
             await fs.writeFile(dest, buffer);
           }

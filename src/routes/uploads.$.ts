@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 // Entrega os arquivos enviados pelo site (banners, categorias, cotações, fotos de produtos).
-// O servidor de arquivos estáticos só conhece o que existia em public/ quando ele subiu
-// (e o build copia public/ uma única vez), então uploads novos davam 404 até reiniciar.
-// Esta rota lê direto do disco, a cada pedido.
+// Os arquivos ficam fora de public/ (ver src/lib/uploads.server.ts); esta rota lê do disco
+// a cada pedido, então uploads novos aparecem na hora, sem rebuild nem reinício.
 const TIPOS: Record<string, string> = {
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
@@ -22,7 +21,8 @@ export const Route = createFileRoute("/uploads/$")({
       GET: async ({ params }) => {
         const path = await import("path");
         const fs = await import("fs/promises");
-        const raiz = path.resolve(process.cwd(), "public", "uploads");
+        const { pastaUploads } = await import("@/lib/uploads.server");
+        const raiz = pastaUploads();
         const arquivo = path.resolve(raiz, decodeURIComponent(params._splat ?? ""));
 
         // Impede sair da pasta de uploads (ex.: /uploads/../../.env)

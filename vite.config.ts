@@ -1,29 +1,64 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
-//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
-//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+import tsConfigPaths from "vite-tsconfig-paths";
+import viteReact from "@vitejs/plugin-react";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 
-export default defineConfig({
-  vite: {
-    server: {
-      allowedHosts: true,
-      watch: {
-        ignored: ["**/public/uploads/**"],
+// Configuração própria (sem o preset da Lovable).
+// O build gera um servidor Node.js em .output/ (`npm run build` e `npm start`):
+// o sistema usa MySQL via Prisma e grava uploads em disco, o que exige Node
+// (o preset da Lovable empacotava para Cloudflare por padrão).
+export default defineConfig(({ command }) => ({
+  plugins: [
+    tailwindcss(),
+    tsConfigPaths({ projects: ["./tsconfig.json"] }),
+    tanstackStart({
+      // Entrada do servidor em src/server.ts (wrapper de erros do SSR)
+      server: { entry: "server" },
+      serverFns: { disableCsrfMiddlewareWarning: true },
+      // Código de servidor não pode ir para o navegador
+      importProtection: {
+        behavior: "error",
+        client: { files: ["**/server/**"], specifiers: ["server-only"] },
       },
-    },
-    optimizeDeps: {
-      noDiscovery: true,
-      include: ["react", "react-dom", "lucide-react", "@tanstack/react-router", "@tanstack/react-query", "recharts"],
-      exclude: ["@prisma/client", "prisma", "bcryptjs", "jose"],
-    },
+    }),
+    ...(command === "build" ? [nitro({ preset: "node-server" })] : []),
+    viteReact(),
+  ],
+  css: { transformer: "lightningcss" },
+  resolve: {
+    alias: { "@": `${process.cwd()}/src` },
+    dedupe: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "@tanstack/react-query",
+      "@tanstack/query-core",
+    ],
   },
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-    serverFns: { disableCsrfMiddlewareWarning: true },
+  server: {
+    host: "::",
+    port: 8080,
+    allowedHosts: true,
+    // Uploads são servidos pela rota /uploads/$; não precisam recarregar a página
+    watch: { ignored: ["**/uploads/**"] },
   },
-});
+  optimizeDeps: {
+    noDiscovery: true,
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "lucide-react",
+      "@tanstack/react-router",
+      "@tanstack/react-query",
+      "recharts",
+      "embla-carousel-react",
+    ],
+    exclude: ["@prisma/client", "prisma", "bcryptjs", "jose"],
+  },
+}));

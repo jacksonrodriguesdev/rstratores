@@ -3,7 +3,7 @@ dist/
 build/
 .output/
 .output.rar
-public/uploads/
+uploads/
 .prettierignore
 package-lock.json
 *.cjs

@@ -8,10 +8,9 @@ import {
   Scripts,
   useRouterState,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { FloatingContact } from "@/components/FloatingContact";
 import { VisitTracker } from "@/components/VisitTracker";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -43,9 +42,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -96,7 +92,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
       },
-      { name: "author", content: "Lovable" },
+      { name: "author", content: "RS Trator Peças" },
       { property: "og:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
       {
         property: "og:description",
@@ -105,7 +101,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
       {
         name: "twitter:description",
@@ -115,12 +110,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:image",
         content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8bcfbd86-0bc1-4e3a-8f4e-68ffb7143950/id-preview-ddc31343--76a40171-f760-4a4e-8d75-3af114834768.lovable.app-1784509297468.png",
+          "/icon-512.png",
       },
       {
         name: "twitter:image",
         content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8bcfbd86-0bc1-4e3a-8f4e-68ffb7143950/id-preview-ddc31343--76a40171-f760-4a4e-8d75-3af114834768.lovable.app-1784509297468.png",
+          "/icon-512.png",
       },
     ],
     links: [

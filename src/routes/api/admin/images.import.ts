@@ -55,7 +55,8 @@ export const Route = createFileRoute("/api/admin/images/import")({
 
             for (const { path: filename, entry } of files) {
               const storagePath = `SKU_${sku}/${filename}`;
-              const dest = path.join(process.cwd(), "public", "uploads", storagePath);
+              const { caminhoUpload } = await import("@/lib/uploads.server");
+              const dest = caminhoUpload(storagePath);
 
               try {
                 await fs.mkdir(path.dirname(dest), { recursive: true });

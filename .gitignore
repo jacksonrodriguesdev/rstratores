@@ -60,7 +60,7 @@ dist-ssr
 rstratorpecas_backup.sql
 *.sql
 *.csv
-public/uploads/
+uploads/
 # Secrets e dados locais
 .env
 .env.*

@@ -29,7 +29,7 @@ async function main() {
     }
   });
 
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  const uploadsDir = path.join(process.cwd(), "uploads");
   const loteDir = path.join(process.cwd(), "lote1_imagens");
   
   // Criar pasta do lote se não existir
