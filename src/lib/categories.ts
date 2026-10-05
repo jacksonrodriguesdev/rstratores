@@ -1,21 +1,33 @@
-import { createServerFn } from "@tanstack/react-start";
-import * as server from "./categories.server";
+export type Category = {
+  id: number;
+  nome: string;
+  parent_id: number | null;
+  image_path: string | null;
+  created_at: Date;
+  updated_at: Date;
+};
 
-export type { Category, CategoryWithChildren } from "./categories.server";
+export type CategoryWithChildren = Category & {
+  children?: CategoryWithChildren[];
+};
+
+import { createServerFn } from "@tanstack/react-start";
 
 const listCategoriesFn = createServerFn({ method: "GET" })
-  .validator((opts?: { linha?: string, onlyWithProducts?: boolean }) => opts)
+  .validator((opts?: { linha?: string; onlyWithProducts?: boolean }) => opts)
   .handler(async ({ data }) => {
+    const server = await import("./categories.server");
     return server.listCategories(data);
   });
 
-export async function listCategories(opts?: { linha?: string, onlyWithProducts?: boolean }) {
+export async function listCategories(opts?: { linha?: string; onlyWithProducts?: boolean }) {
   return listCategoriesFn({ data: opts });
 }
 
 const getCategoryFn = createServerFn({ method: "GET" })
   .validator((id: number) => id)
   .handler(async ({ data }) => {
+    const server = await import("./categories.server");
     return server.getCategory(data);
   });
 
@@ -25,19 +37,27 @@ export async function getCategory(id: number) {
 
 // Admin API wrappers (Client side)
 
-export async function createCategory(data: { nome: string; parent_id?: number | null; image_path?: string | null; linha?: string }) {
+export async function createCategory(data: {
+  nome: string;
+  parent_id?: number | null;
+  image_path?: string | null;
+  linha?: string;
+}) {
   const res = await fetch("/api/admin/categories", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
   if (!res.ok) {
-     const text = await res.text();
-     throw new Error(text || "Failed to create category");
+    const text = await res.text();
+    throw new Error(text || "Failed to create category");
   }
 }
 
-export async function updateCategory(id: number, data: { nome?: string; parent_id?: number | null; image_path?: string | null; linha?: string }) {
+export async function updateCategory(
+  id: number,
+  data: { nome?: string; parent_id?: number | null; image_path?: string | null; linha?: string },
+) {
   const res = await fetch(`/api/admin/categories/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },

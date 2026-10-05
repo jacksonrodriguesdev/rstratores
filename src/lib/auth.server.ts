@@ -1,19 +1,15 @@
+import type { SessionPayload } from "./auth";
 import { SignJWT, jwtVerify } from "jose";
 import { deleteCookie, getEvent } from "vinxi/http";
 import { getCookie } from "@tanstack/start-server-core";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-super-secret-key-12345"
+  process.env.JWT_SECRET || "fallback-super-secret-key-12345",
 );
 
 export const AUTH_COOKIE = "rstrator_auth";
 
-export type SessionPayload = {
-  id: number;
-  nome: string;
-  email: string;
-  role: string;
-};
+
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
   const token = await new SignJWT(payload)
@@ -24,7 +20,6 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
 
   return token;
 }
-
 
 export async function getSession(): Promise<SessionPayload | null> {
   try {

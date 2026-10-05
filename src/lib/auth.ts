@@ -1,3 +1,10 @@
+export type SessionPayload = {
+  id: number;
+  nome: string;
+  email: string;
+  role: string;
+};
+
 // Simple client-side auth for admin access.
 // NOTE: This is not a real security boundary — it just gates the admin UI.
 // Data protection lives in Supabase RLS policies.

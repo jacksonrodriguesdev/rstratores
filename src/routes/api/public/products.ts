@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/public/products")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const url = new URL(request.url);
           const search = url.searchParams.get("search") || undefined;
@@ -35,11 +35,11 @@ export const Route = createFileRoute("/api/public/products")({
             "nome-desc": { nome: "desc" },
             "preco-asc": { preco_brl: "asc" },
             "preco-desc": { preco_brl: "desc" },
-            "sku": { sku: "asc" },
+            sku: { sku: "asc" },
           };
           const orderBy = sortMap[sort] || { nome: "asc" };
           const skip = (page - 1) * pageSize;
-          
+
           const [data, total] = await Promise.all([
             prisma.products.findMany({ where, orderBy, skip, take: pageSize }),
             prisma.products.count({ where }),

@@ -51,9 +51,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = currentItems.find((item) => item.sku === newItem.sku);
       if (existing) {
         return currentItems.map((item) =>
-          item.sku === newItem.sku
-            ? { ...item, quantity: item.quantity + newItem.quantity }
-            : item
+          item.sku === newItem.sku ? { ...item, quantity: item.quantity + newItem.quantity } : item,
         );
       }
       return [...currentItems, newItem];
@@ -71,9 +69,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.sku === sku ? { ...item, quantity } : item
-      )
+      currentItems.map((item) => (item.sku === sku ? { ...item, quantity } : item)),
     );
   };
 

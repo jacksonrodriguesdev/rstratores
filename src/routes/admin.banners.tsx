@@ -23,25 +23,56 @@ export const Route = createFileRoute("/admin/banners")({
   component: BannersPage,
 });
 
+const LINHAS = [
+  { value: "AGRICOLA", label: "🚜 Agrícola" },
+  { value: "AUTOMOTIVA", label: "🚗 Automotiva" },
+] as const;
+
 function BannersPage() {
   const qc = useQueryClient();
-  const banners = useQuery({ queryKey: ["site_banners"], queryFn: () => listBanners() });
+  const [linhaAtiva, setLinhaAtiva] = useState<string>("AGRICOLA");
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["site_banners"] });
+  const banners = useQuery({
+    queryKey: ["site_banners", linhaAtiva],
+    queryFn: () => listBanners(undefined, linhaAtiva),
+  });
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["site_banners"] });
+    qc.invalidateQueries({ queryKey: ["hero_banners"] });
+  };
 
   const heroes = (banners.data ?? []).filter((b) => b.kind === "hero");
   const strips = (banners.data ?? []).filter((b) => b.kind === "strip");
 
   return (
     <div className="space-y-8">
+      {/* Seletor de Linha */}
+      <div className="flex items-center gap-2 rounded-lg border bg-muted/40 p-1">
+        {LINHAS.map((l) => (
+          <button
+            key={l.value}
+            onClick={() => setLinhaAtiva(l.value)}
+            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+              linhaAtiva === l.value
+                ? "bg-white shadow-sm text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {l.label}
+          </button>
+        ))}
+      </div>
+
       <section>
         <div className="mb-3">
           <h2 className="text-lg font-semibold">Imagem principal (hero)</h2>
           <p className="text-sm text-muted-foreground">
-            Imagem exibida no topo da página inicial. Se houver mais de uma ativa, a primeira será usada.
+            Imagem exibida no topo da página inicial. Se houver mais de uma ativa, a primeira será
+            usada.
           </p>
         </div>
-        <UploadForm kind="hero" onDone={refresh} recommend="Recomendado: 1600 × 500px" />
+        <UploadForm kind="hero" linha={linhaAtiva} onDone={refresh} recommend="Recomendado: 1600 × 500px" />
         <BannerList items={heroes} onChange={refresh} kind="hero" />
       </section>
 
@@ -49,10 +80,11 @@ function BannersPage() {
         <div className="mb-3">
           <h2 className="text-lg font-semibold">Banners entre sliders</h2>
           <p className="text-sm text-muted-foreground">
-            Faixas horizontais exibidas entre os sliders da home. Tamanho recomendado: <strong>1200 × 40px</strong>.
+            Faixas horizontais exibidas entre os sliders da home. Tamanho recomendado:{" "}
+            <strong>1200 × 40px</strong>.
           </p>
         </div>
-        <UploadForm kind="strip" onDone={refresh} recommend="Recomendado: 1200 × 40px" />
+        <UploadForm kind="strip" linha={linhaAtiva} onDone={refresh} recommend="Recomendado: 1200 × 40px" />
         <BannerList items={strips} onChange={refresh} kind="strip" />
       </section>
     </div>
@@ -61,10 +93,12 @@ function BannersPage() {
 
 function UploadForm({
   kind,
+  linha,
   onDone,
   recommend,
 }: {
   kind: "hero" | "strip";
+  linha: string;
   onDone: () => void;
   recommend: string;
 }) {
@@ -87,6 +121,7 @@ function UploadForm({
         position,
         link_url: linkUrl.trim() || null,
         active: true,
+        linha,
       });
       toast.success("Banner adicionado");
       setFile(null);

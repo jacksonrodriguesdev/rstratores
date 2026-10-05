@@ -1,13 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  Package,
-  Upload,
-  ImageIcon,
-  Store,
-  LogOut,
-  Wrench,
-} from "lucide-react";
+import { LayoutDashboard, Package, Upload, ImageIcon, Store, LogOut, Wrench } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,9 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const painel = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-] as const;
+const painel = [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }] as const;
 
 const catalogo = [
   { to: "/admin/produtos", label: "Produtos", icon: Package },
@@ -63,7 +53,11 @@ export function AdminSidebar({ onLogout }: { onLogout: () => void }) {
             <SidebarMenu>
               {painel.map((it) => (
                 <SidebarMenuItem key={it.to}>
-                  <SidebarMenuButton asChild isActive={isActive(it.to, it.exact)} tooltip={it.label}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(it.to, it.exact)}
+                    tooltip={it.label}
+                  >
                     <Link to={it.to}>
                       <it.icon className="h-4 w-4" />
                       <span>{it.label}</span>

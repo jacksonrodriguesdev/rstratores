@@ -1,19 +1,10 @@
+import type { Category, CategoryWithChildren } from "./categories";
 import { prisma } from "./prisma";
 
-export type Category = {
-  id: number;
-  nome: string;
-  parent_id: number | null;
-  image_path: string | null;
-  created_at: Date;
-  updated_at: Date;
-};
-
-export type CategoryWithChildren = Category & {
-  children?: CategoryWithChildren[];
-};
-
-export async function listCategories(opts?: { linha?: string, onlyWithProducts?: boolean }): Promise<CategoryWithChildren[]> {
+export async function listCategories(opts?: {
+  linha?: string;
+  onlyWithProducts?: boolean;
+}): Promise<CategoryWithChildren[]> {
   const where: any = {};
   if (opts?.linha) where.linha = opts.linha;
 
@@ -23,17 +14,17 @@ export async function listCategories(opts?: { linha?: string, onlyWithProducts?:
     orderBy: { nome: "asc" },
     include: {
       _count: {
-        select: { products: true }
-      }
-    }
+        select: { products: true, agricolas: true },
+      },
+    },
   });
-  
+
   // Build tree
   const map = new Map<number, CategoryWithChildren>();
   all.forEach((c) => map.set(c.id, { ...c, children: [] }));
-  
+
   const root: CategoryWithChildren[] = [];
-  
+
   all.forEach((c) => {
     if (c.parent_id === null) {
       root.push(map.get(c.id)!);
@@ -47,10 +38,10 @@ export async function listCategories(opts?: { linha?: string, onlyWithProducts?:
       }
     }
   });
-  
+
   // Compute total products per root (including children)
   const computeTotals = (node: CategoryWithChildren): number => {
-    let total = (node as any)._count?.products || 0;
+    let total = ((node as any)._count?.products || 0) + ((node as any)._count?.agricolas || 0);
     if (node.children) {
       for (const child of node.children) {
         total += computeTotals(child);
@@ -64,7 +55,7 @@ export async function listCategories(opts?: { linha?: string, onlyWithProducts?:
 
   if (opts?.onlyWithProducts) {
     const filterTree = (nodes: CategoryWithChildren[]): CategoryWithChildren[] => {
-      return nodes.filter(n => {
+      return nodes.filter((n) => {
         if (n.children) {
           n.children = filterTree(n.children);
         }
@@ -81,14 +72,19 @@ export async function getCategory(id: number): Promise<Category | null> {
   return prisma.categories.findUnique({ where: { id } });
 }
 
-export async function createCategory(data: { nome: string; parent_id?: number | null; image_path?: string | null; linha?: string }) {
+export async function createCategory(data: {
+  nome: string;
+  parent_id?: number | null;
+  image_path?: string | null;
+  linha?: string;
+}) {
   return prisma.categories.create({
     data: {
       nome: data.nome,
       parent_id: data.parent_id,
       image_path: data.image_path,
       linha: data.linha || "AGRICOLA",
-    } as any
+    } as any,
   });
 }
 
@@ -100,7 +96,7 @@ export async function updateCategory(id: number, data: Partial<Category>) {
       parent_id: data.parent_id,
       image_path: data.image_path,
       linha: (data as any).linha,
-    } as any
+    } as any,
   });
 }
 

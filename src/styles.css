@@ -43,19 +43,19 @@
   --radius: 0.5rem;
   /* Agricultural theme: green primary, amber accent */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.２ 0.02 150);
+  --foreground: oklch(0２ 0.02 150);
   --foreground: oklch(0.2 0.02 150);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 150);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.02 150);
-  --primary: oklch(0.48 0.14 148);           /* #2E7D32 verde agrícola */
+  --primary: oklch(0.48 0.14 148); /* #2E7D32 verde agrícola */
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0.005 150);
   --secondary-foreground: oklch(0.25 0.03 150);
-  --muted: oklch(0.965 0.005 150);           /* #F5F5F5 */
+  --muted: oklch(0.965 0.005 150); /* #F5F5F5 */
   --muted-foreground: oklch(0.5 0.02 150);
-  --accent: oklch(0.78 0.16 82);             /* #F9A825 amarelo destaque */
+  --accent: oklch(0.78 0.16 82); /* #F9A825 amarelo destaque */
   --accent-foreground: oklch(0.2 0.02 150);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);

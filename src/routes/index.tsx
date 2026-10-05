@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Search, Package, ArrowRight, MessageCircle, Settings, Wrench, OctagonAlert, Droplet } from "lucide-react";
+import {
+  Search,
+  Package,
+  ArrowRight,
+  MessageCircle,
+  Settings,
+  Wrench,
+  OctagonAlert,
+  Droplet,
+} from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -24,10 +33,10 @@ import { BannerImage } from "@/components/BannerImage";
 import { useSegment } from "@/components/SegmentContext";
 import { useLanguage } from "@/components/LanguageContext";
 import { WelcomePortal } from "@/components/WelcomePortal";
-import { 
-  HeroSliderBlock, 
-  CategoryGridBlock, 
-  ProductsCarouselBlock, 
+import {
+  HeroSliderBlock,
+  CategoryGridBlock,
+  ProductsCarouselBlock,
   ProductsGridBlock,
   PromoStripBlock,
   FeaturesStripBlock,
@@ -36,7 +45,7 @@ import {
   PromoBannersDuplosBlock,
   CarouselMontadorasBlock,
   DepoimentosBlock,
-  NewsletterInstagramBlock
+  NewsletterInstagramBlock,
 } from "@/components/homepage-blocks";
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,7 +57,11 @@ export const Route = createFileRoute("/")({
           "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
       },
       { property: "og:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
-      { property: "og:description", content: "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp." },
+      {
+        property: "og:description",
+        content:
+          "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
+      },
     ],
   }),
   component: CatalogPage,
@@ -57,7 +70,7 @@ export const Route = createFileRoute("/")({
 function CatalogPage() {
   const [inputValue, setInputValue] = useState("");
   const search = useDebounce(inputValue, 400);
-  
+
   const { segment, setSegment } = useSegment();
   const { t } = useLanguage();
   const [showPortal, setShowPortal] = useState(false);
@@ -86,10 +99,10 @@ function CatalogPage() {
 
   const blocksQuery = useQuery({
     queryKey: ["homepage_blocks"],
-    queryFn: () => import("@/lib/homepage").then(m => m.listHomepageBlocks()),
+    queryFn: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
   });
 
-  const activeBlocks = (blocksQuery.data ?? []).filter(b => b.active);
+  const activeBlocks = (blocksQuery.data ?? []).filter((b) => b.active);
   const stripBanners: any[] = [];
   const stripAt = (i: number) => stripBanners[i % stripBanners.length];
 
@@ -120,7 +133,7 @@ function CatalogPage() {
               <EmptyState hasFilter />
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {searchRows.map((p) => (
+                {searchRows.map((p: any) => (
                   <MiniCard key={p.sku} p={p} />
                 ))}
               </div>
@@ -128,27 +141,45 @@ function CatalogPage() {
           </section>
         ) : (
           <div className="flex flex-col gap-8">
-            {blocksQuery.isLoading && <div className="py-20 text-center text-muted-foreground">Carregando blocos...</div>}
-            
+            {blocksQuery.isLoading && (
+              <div className="py-20 text-center text-muted-foreground">Carregando blocos...</div>
+            )}
+
             {activeBlocks.length === 0 && !blocksQuery.isLoading && (
               <div className="py-20 text-center">
-                <p className="text-muted-foreground mb-4">A página inicial não possui blocos configurados.</p>
-                <Button asChild><Link to="/loja">Ver Catálogo</Link></Button>
+                <p className="text-muted-foreground mb-4">
+                  A página inicial não possui blocos configurados.
+                </p>
+                <Button asChild>
+                  <Link to="/loja">Ver Catálogo</Link>
+                </Button>
               </div>
             )}
-            
-            {activeBlocks.map(block => {
+
+            {activeBlocks.map((block) => {
               switch (block.type) {
                 case "HERO_SLIDER":
-                  return <HeroSliderBlock key={block.id} config={block.config} title={block.title} />;
+                  return (
+                    <HeroSliderBlock key={block.id} config={block.config} title={block.title} />
+                  );
                 case "CATEGORY_GRID":
                   return <CategoryGridBlock key={block.id} config={block.config} />;
                 case "PRODUCTS_CAROUSEL":
-                  return <ProductsCarouselBlock key={block.id} title={block.title} config={block.config} />;
+                  return (
+                    <ProductsCarouselBlock
+                      key={block.id}
+                      title={block.title}
+                      config={block.config}
+                    />
+                  );
                 case "PRODUCTS_GRID":
-                  return <ProductsGridBlock key={block.id} title={block.title} config={block.config} />;
+                  return (
+                    <ProductsGridBlock key={block.id} title={block.title} config={block.config} />
+                  );
                 case "PROMO_STRIP":
-                  return <PromoStripBlock key={block.id} title={block.title} config={block.config} />;
+                  return (
+                    <PromoStripBlock key={block.id} title={block.title} config={block.config} />
+                  );
                 case "FEATURES_STRIP":
                   return <FeaturesStripBlock key={block.id} config={block.config} />;
                 case "BRANDS_CAROUSEL":
@@ -174,7 +205,6 @@ function CatalogPage() {
   );
 }
 
-
 function EmptyState({ hasFilter }: { hasFilter: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
@@ -191,15 +221,8 @@ function EmptyState({ hasFilter }: { hasFilter: boolean }) {
 
 function StripBanner({ banner }: { banner: any }) {
   const content = (
-    <div
-      className="mx-auto mb-8 overflow-hidden rounded"
-      style={{ maxWidth: 1200, height: 120 }}
-    >
-      <BannerImage
-        src={banner.image_path}
-        alt="banner"
-        className="h-[120px] w-full object-cover"
-      />
+    <div className="mx-auto mb-8 overflow-hidden rounded" style={{ maxWidth: 1200, height: 120 }}>
+      <BannerImage src={banner.image_path} alt="banner" className="h-[120px] w-full object-cover" />
     </div>
   );
   if (banner.link_url) {

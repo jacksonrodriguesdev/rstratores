@@ -9,7 +9,14 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "debug": "node debug_query.cjs",
+    "test-page": "node test_page.cjs",
+    "generate-facets": "node generate_facets.cjs",
+    "test-blocks": "node test_blocks.cjs",
+    "test-page-8081": "node test_page_8081.cjs",
+    "test-loja-8081": "node test_loja_8081.cjs",
+    "test-list-products": "node test_listProducts.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -51,7 +58,9 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "duckduckgo-images-api": "^1.0.5",
     "embla-carousel-react": "^8.6.0",
+    "googlethis": "^1.8.0",
     "input-otp": "^1.4.2",
     "jose": "^6.2.4",
     "jszip": "^3.10.1",

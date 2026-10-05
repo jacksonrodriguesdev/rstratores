@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { updateBanner, deleteBanner } from "@/lib/banners.server";
 
 export const Route = createFileRoute("/api/admin/banners/$id")({
   server: {
@@ -8,6 +7,7 @@ export const Route = createFileRoute("/api/admin/banners/$id")({
         try {
           const { id } = params;
           const body = await request.json();
+          const { updateBanner } = await import("@/lib/banners.server");
           await updateBanner(Number(id), body);
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/api/admin/banners/$id")({
       DELETE: async ({ params }) => {
         try {
           const { id } = params;
+          const { deleteBanner } = await import("@/lib/banners.server");
           await deleteBanner(Number(id));
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/api/admin/banners/$id")({
         } catch (err: any) {
           return new Response(JSON.stringify({ error: err.message }), { status: 500 });
         }
-      }
+      },
     },
   },
 });

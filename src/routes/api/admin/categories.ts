@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/admin/categories")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const body = await request.json();
           if (!body.nome) {
@@ -16,16 +16,16 @@ export const Route = createFileRoute("/api/admin/categories")({
               parent_id: body.parent_id,
               image_path: body.image_path,
               linha: body.linha || "AGRICOLA",
-            } as any
+            } as any,
           });
           return new Response(JSON.stringify(cat), {
-             status: 200,
-             headers: { "Content-Type": "application/json" }
+            status: 200,
+            headers: { "Content-Type": "application/json" },
           });
         } catch (e: any) {
-           return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
         }
-      }
-    }
-  }
+      },
+    },
+  },
 });

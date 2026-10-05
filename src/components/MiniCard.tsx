@@ -19,14 +19,22 @@ export function MiniCard({ p }: { p: Product }) {
         params={{ sku: p.sku }}
         className="block aspect-square overflow-hidden bg-white/80 p-4 relative"
       >
-        <ProductImage src={p.imagem_principal} alt={p.nome} className="transition-transform duration-700 ease-out group-hover:scale-110 object-contain drop-shadow-sm" />
+        <ProductImage
+          src={p.imagem_principal}
+          alt={p.nome}
+          className="transition-transform duration-700 ease-out group-hover:scale-110 object-contain drop-shadow-sm"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </Link>
       <div className="flex flex-1 flex-col gap-2.5 p-4 bg-white/40">
         <div className="flex flex-wrap gap-1.5 items-center justify-between">
-          <div className="text-[11px] font-medium text-muted-foreground/80 bg-muted/50 px-2 py-0.5 rounded-full border border-black/5">SKU {p.sku}</div>
+          <div className="text-[11px] font-medium text-muted-foreground/80 bg-muted/50 px-2 py-0.5 rounded-full border border-black/5">
+            SKU {p.sku}
+          </div>
           {p.marca && (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{p.marca}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+              {p.marca}
+            </span>
           )}
         </div>
         <Link
@@ -37,8 +45,15 @@ export function MiniCard({ p }: { p: Product }) {
           {nomeDisplay}
         </Link>
         <div className="mt-auto pt-3 flex flex-col gap-2">
-          <button 
-            onClick={() => addItem({ sku: p.sku, name: p.nome, image: p.imagem_principal || undefined, quantity: 1 })}
+          <button
+            onClick={() =>
+              addItem({
+                sku: p.sku,
+                name: p.nome,
+                image: p.imagem_principal || undefined,
+                quantity: 1,
+              })
+            }
             className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-md font-bold text-xs uppercase tracking-wide hover:bg-primary/90 transition-colors"
           >
             <ShoppingCart className="w-4 h-4" />

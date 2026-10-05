@@ -41,7 +41,7 @@ import { exportProductsCsv, downloadFile } from "@/lib/upload";
 import { listCategories } from "@/lib/categories";
 
 const searchSchema = z.object({
-  linha: z.enum(["AGRICOLA", "AUTOMOTIVA"]).optional().default("AGRICOLA")
+  linha: z.enum(["AGRICOLA", "AUTOMOTIVA"]).optional().default("AGRICOLA"),
 });
 
 export const Route = createFileRoute("/admin/produtos")({
@@ -55,7 +55,7 @@ function AdminProducts() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { linha } = Route.useSearch();
-  
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -94,11 +94,11 @@ function AdminProducts() {
     mutationFn: async (p: Partial<Product>) => {
       if (!p.sku) throw new Error("SKU é obrigatório");
       if (!p.nome) throw new Error("Nome é obrigatório");
-      
+
       let uploadedImages: string[] = [];
       if (imageFiles.length > 0) {
         const formData = new FormData();
-        imageFiles.forEach(f => formData.append("files", f));
+        imageFiles.forEach((f) => formData.append("files", f));
         const upRes = await fetch("/api/admin/products/upload", { method: "POST", body: formData });
         if (upRes.ok) {
           const { paths } = await upRes.json();
@@ -150,7 +150,7 @@ function AdminProducts() {
       let uploadedImages: string[] = [];
       if (imageFiles.length > 0) {
         const formData = new FormData();
-        imageFiles.forEach(f => formData.append("files", f));
+        imageFiles.forEach((f) => formData.append("files", f));
         const upRes = await fetch("/api/admin/products/upload", { method: "POST", body: formData });
         if (upRes.ok) {
           const { paths } = await upRes.json();
@@ -210,24 +210,32 @@ function AdminProducts() {
   const total = q.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const categoriasFlat = (catQ.data ?? []).flatMap(c => [c, ...(c.children ?? [])]);
+  const categoriasFlat = (catQ.data ?? []).flatMap((c) => [c, ...(c.children ?? [])]);
 
-  const CategorySelect = ({ value, onChange }: { value: number | null | undefined, onChange: (id: number | null, name: string | null) => void }) => (
+  const CategorySelect = ({
+    value,
+    onChange,
+  }: {
+    value: number | null | undefined;
+    onChange: (id: number | null, name: string | null) => void;
+  }) => (
     <select
       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
       value={value || ""}
       onChange={(e) => {
         const id = e.target.value ? Number(e.target.value) : null;
-        const name = id ? categoriasFlat.find(c => c.id === id)?.nome || null : null;
+        const name = id ? categoriasFlat.find((c) => c.id === id)?.nome || null : null;
         onChange(id, name);
       }}
     >
       <option value="">-- Selecione uma Categoria --</option>
-      {(catQ.data ?? []).map(c => (
+      {(catQ.data ?? []).map((c) => (
         <optgroup key={c.id} label={c.nome}>
           <option value={c.id}>{c.nome} (Geral)</option>
-          {c.children?.map(child => (
-            <option key={child.id} value={child.id}>{child.nome}</option>
+          {c.children?.map((child) => (
+            <option key={child.id} value={child.id}>
+              {child.nome}
+            </option>
           ))}
         </optgroup>
       ))}
@@ -250,7 +258,14 @@ function AdminProducts() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="default" onClick={() => { setNewProduct({ linha }); setImageFiles([]); setIsCreating(true); }}>
+          <Button
+            variant="default"
+            onClick={() => {
+              setNewProduct({ linha });
+              setImageFiles([]);
+              setIsCreating(true);
+            }}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Novo Produto
           </Button>
@@ -297,7 +312,7 @@ function AdminProducts() {
                 </TableCell>
               </TableRow>
             ) : (
-              q.data!.rows.map((p) => (
+              q.data!.rows.map((p: any) => (
                 <TableRow key={p.sku}>
                   <TableCell className="font-mono text-xs">{p.sku}</TableCell>
                   <TableCell className="max-w-md truncate">{p.nome}</TableCell>
@@ -310,7 +325,14 @@ function AdminProducts() {
                   </TableCell>
                   <TableCell className="text-right">{p.estoque}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="icon" variant="ghost" onClick={() => { setEditing(p); setImageFiles([]); }}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditing(p);
+                        setImageFiles([]);
+                      }}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
@@ -330,9 +352,7 @@ function AdminProducts() {
       </div>
 
       <div className="mt-4 flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">
-          {total.toLocaleString("pt-BR")} produtos
-        </span>
+        <span className="text-muted-foreground">{total.toLocaleString("pt-BR")} produtos</span>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -377,14 +397,19 @@ function AdminProducts() {
                 />
               </Field>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-3">
               <Field label="Valor de Compra (Custo)">
                 <Input
                   type="number"
                   step="0.01"
                   value={newProduct.valor_compra ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, valor_compra: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      valor_compra: e.target.value === "" ? undefined : Number(e.target.value),
+                    })
+                  }
                 />
               </Field>
               <Field label="Valor de Venda (Normal)">
@@ -392,7 +417,12 @@ function AdminProducts() {
                   type="number"
                   step="0.01"
                   value={newProduct.preco_brl ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, preco_brl: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      preco_brl: e.target.value === "" ? undefined : Number(e.target.value),
+                    })
+                  }
                 />
               </Field>
               <Field label="Valor Promocional">
@@ -400,7 +430,12 @@ function AdminProducts() {
                   type="number"
                   step="0.01"
                   value={newProduct.valor_promocional ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, valor_promocional: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      valor_promocional: e.target.value === "" ? undefined : Number(e.target.value),
+                    })
+                  }
                 />
               </Field>
             </div>
@@ -417,25 +452,35 @@ function AdminProducts() {
                 </select>
               </Field>
               <Field label="Categoria">
-                <CategorySelect 
+                <CategorySelect
                   value={newProduct.category_id}
-                  onChange={(id, name) => setNewProduct({ ...newProduct, category_id: id ?? undefined, categoria: name ?? undefined })}
+                  onChange={(id, name) =>
+                    setNewProduct({
+                      ...newProduct,
+                      category_id: id ?? undefined,
+                      categoria: name ?? undefined,
+                    })
+                  }
                 />
               </Field>
               <Field label="Marca">
                 <Input
                   value={newProduct.marca ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, marca: e.target.value || undefined })}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, marca: e.target.value || undefined })
+                  }
                 />
               </Field>
             </div>
-            
+
             <div className="grid grid-cols-4 gap-3">
               <Field label="Qtd Estoque">
                 <Input
                   type="number"
                   value={newProduct.estoque ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, estoque: Number(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, estoque: Number(e.target.value) || 0 })
+                  }
                 />
               </Field>
               <Field label="Peso (kg)">
@@ -443,7 +488,12 @@ function AdminProducts() {
                   type="number"
                   step="0.001"
                   value={newProduct.peso ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, peso: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      peso: e.target.value === "" ? undefined : Number(e.target.value),
+                    })
+                  }
                 />
               </Field>
               <Field label="Altura (cm)">
@@ -451,7 +501,12 @@ function AdminProducts() {
                   type="number"
                   step="0.01"
                   value={newProduct.altura ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, altura: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      altura: e.target.value === "" ? undefined : Number(e.target.value),
+                    })
+                  }
                 />
               </Field>
               <Field label="Largura (cm)">
@@ -459,7 +514,12 @@ function AdminProducts() {
                   type="number"
                   step="0.01"
                   value={newProduct.largura ?? ""}
-                  onChange={(e) => setNewProduct({ ...newProduct, largura: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      largura: e.target.value === "" ? undefined : Number(e.target.value),
+                    })
+                  }
                 />
               </Field>
             </div>
@@ -468,14 +528,21 @@ function AdminProducts() {
               <Input
                 value={newProduct.tamanho ?? ""}
                 placeholder="Ex: Único, M, G, 10x10..."
-                onChange={(e) => setNewProduct({ ...newProduct, tamanho: e.target.value || undefined })}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, tamanho: e.target.value || undefined })
+                }
               />
             </Field>
 
             <Field label="Veículos Compatíveis">
               <Textarea
                 value={newProduct.veiculos_compativeis ?? ""}
-                onChange={(e) => setNewProduct({ ...newProduct, veiculos_compativeis: e.target.value || undefined })}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    veiculos_compativeis: e.target.value || undefined,
+                  })
+                }
                 placeholder="Ex: Trator X 2015-2020, Trator Y..."
                 rows={2}
               />
@@ -484,7 +551,9 @@ function AdminProducts() {
             <Field label="Descrição do Produto">
               <Textarea
                 value={newProduct.descricao ?? ""}
-                onChange={(e) => setNewProduct({ ...newProduct, descricao: e.target.value || undefined })}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, descricao: e.target.value || undefined })
+                }
                 rows={4}
               />
             </Field>
@@ -537,14 +606,19 @@ function AdminProducts() {
                   onChange={(e) => setEditing({ ...editing, nome: e.target.value })}
                 />
               </Field>
-              
+
               <div className="grid grid-cols-3 gap-3">
                 <Field label="Valor Compra">
                   <Input
                     type="number"
                     step="0.01"
                     value={editing.valor_compra ?? ""}
-                    onChange={(e) => setEditing({ ...editing, valor_compra: e.target.value === "" ? null : Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        valor_compra: e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
                   />
                 </Field>
                 <Field label="Valor Venda (Normal)">
@@ -552,7 +626,12 @@ function AdminProducts() {
                     type="number"
                     step="0.01"
                     value={editing.preco_brl ?? ""}
-                    onChange={(e) => setEditing({ ...editing, preco_brl: e.target.value === "" ? null : Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        preco_brl: e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
                   />
                 </Field>
                 <Field label="Valor Promocional">
@@ -560,7 +639,12 @@ function AdminProducts() {
                     type="number"
                     step="0.01"
                     value={editing.valor_promocional ?? ""}
-                    onChange={(e) => setEditing({ ...editing, valor_promocional: e.target.value === "" ? null : Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        valor_promocional: e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
                   />
                 </Field>
               </div>
@@ -577,9 +661,11 @@ function AdminProducts() {
                   </select>
                 </Field>
                 <Field label="Categoria">
-                  <CategorySelect 
+                  <CategorySelect
                     value={editing.category_id}
-                    onChange={(id, name) => setEditing({ ...editing, category_id: id, categoria: name })}
+                    onChange={(id, name) =>
+                      setEditing({ ...editing, category_id: id, categoria: name })
+                    }
                   />
                 </Field>
                 <Field label="Marca">
@@ -595,7 +681,9 @@ function AdminProducts() {
                   <Input
                     type="number"
                     value={editing.estoque}
-                    onChange={(e) => setEditing({ ...editing, estoque: Number(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setEditing({ ...editing, estoque: Number(e.target.value) || 0 })
+                    }
                   />
                 </Field>
                 <Field label="Peso (kg)">
@@ -603,7 +691,12 @@ function AdminProducts() {
                     type="number"
                     step="0.001"
                     value={editing.peso ?? ""}
-                    onChange={(e) => setEditing({ ...editing, peso: e.target.value === "" ? null : Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        peso: e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
                   />
                 </Field>
                 <Field label="Altura (cm)">
@@ -611,7 +704,12 @@ function AdminProducts() {
                     type="number"
                     step="0.01"
                     value={editing.altura ?? ""}
-                    onChange={(e) => setEditing({ ...editing, altura: e.target.value === "" ? null : Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        altura: e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
                   />
                 </Field>
                 <Field label="Largura (cm)">
@@ -619,7 +717,12 @@ function AdminProducts() {
                     type="number"
                     step="0.01"
                     value={editing.largura ?? ""}
-                    onChange={(e) => setEditing({ ...editing, largura: e.target.value === "" ? null : Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        largura: e.target.value === "" ? null : Number(e.target.value),
+                      })
+                    }
                   />
                 </Field>
               </div>
@@ -635,7 +738,9 @@ function AdminProducts() {
               <Field label="Veículos Compatíveis">
                 <Textarea
                   value={editing.veiculos_compativeis ?? ""}
-                  onChange={(e) => setEditing({ ...editing, veiculos_compativeis: e.target.value || null })}
+                  onChange={(e) =>
+                    setEditing({ ...editing, veiculos_compativeis: e.target.value || null })
+                  }
                   rows={2}
                 />
               </Field>
@@ -689,12 +794,16 @@ function AdminProducts() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remover produto?</AlertDialogTitle>
             <AlertDialogDescription>
-              O produto <strong>{deleting?.nome}</strong> (SKU {deleting?.sku}) será removido permanentemente, junto com todas as imagens associadas.
+              O produto <strong>{deleting?.nome}</strong> (SKU {deleting?.sku}) será removido
+              permanentemente, junto com todas as imagens associadas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleting && del.mutate(deleting.sku)} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={() => deleting && del.mutate(deleting.sku)}
+              className="bg-destructive hover:bg-destructive/90"
+            >
               Remover
             </AlertDialogAction>
           </AlertDialogFooter>

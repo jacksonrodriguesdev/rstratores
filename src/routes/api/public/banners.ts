@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { listActiveBanners, listBanners } from "@/lib/banners.server";
 
 export const Route = createFileRoute("/api/public/banners")({
   server: {
@@ -9,9 +8,11 @@ export const Route = createFileRoute("/api/public/banners")({
           const url = new URL(request.url);
           const kind = url.searchParams.get("kind") || undefined;
           const active = url.searchParams.get("active") === "true";
-          
-          const data = active ? await listActiveBanners(kind!) : await listBanners(kind);
-          
+          const linha = url.searchParams.get("linha") || undefined;
+
+          const { listActiveBanners, listBanners } = await import("@/lib/banners.server");
+          const data = active ? await listActiveBanners(kind!, linha) : await listBanners(kind, linha);
+
           return new Response(JSON.stringify(data), {
             status: 200,
             headers: { "Content-Type": "application/json" },

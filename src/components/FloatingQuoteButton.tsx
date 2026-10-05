@@ -9,8 +9,8 @@ export function FloatingQuoteButton() {
   return (
     <>
       <div className="fixed bottom-24 right-5 z-50 flex flex-col items-end gap-3">
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           variant="secondary"
           onClick={() => setOpen(true)}
           className="rounded-full shadow-md text-xs h-9 px-4 opacity-90 hover:opacity-100 transition-all border border-border"

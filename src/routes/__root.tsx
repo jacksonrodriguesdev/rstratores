@@ -81,17 +81,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "RS Trator Peças — Catálogo de Peças para Tratores" },
-      { name: "description", content: "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp." },
+      {
+        name: "description",
+        content:
+          "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
-      { property: "og:description", content: "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp." },
+      {
+        property: "og:description",
+        content:
+          "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
-      { name: "twitter:description", content: "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8bcfbd86-0bc1-4e3a-8f4e-68ffb7143950/id-preview-ddc31343--76a40171-f760-4a4e-8d75-3af114834768.lovable.app-1784509297468.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8bcfbd86-0bc1-4e3a-8f4e-68ffb7143950/id-preview-ddc31343--76a40171-f760-4a4e-8d75-3af114834768.lovable.app-1784509297468.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8bcfbd86-0bc1-4e3a-8f4e-68ffb7143950/id-preview-ddc31343--76a40171-f760-4a4e-8d75-3af114834768.lovable.app-1784509297468.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8bcfbd86-0bc1-4e3a-8f4e-68ffb7143950/id-preview-ddc31343--76a40171-f760-4a4e-8d75-3af114834768.lovable.app-1784509297468.png",
+      },
     ],
     links: [
       {

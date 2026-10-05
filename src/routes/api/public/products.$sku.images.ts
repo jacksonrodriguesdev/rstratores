@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/public/products/$sku/images")({
   server: {
     handlers: {
       GET: async ({ params }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const { sku } = params;
           const data = await prisma.products_img.findMany({

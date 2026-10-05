@@ -1,27 +1,38 @@
-import { createServerFn } from "@tanstack/react-start";
-import * as server from "./banners.server";
+export type Banner = {
+  id: number;
+  kind: "hero" | "strip";
+  position: number;
+  image_path: string;
+  link_url: string | null;
+  active: boolean;
+  linha: string;
+  created_at: string;
+};
 
-export type { Banner } from "./banners.server";
-import type { Banner } from "./banners.server";
+import { createServerFn } from "@tanstack/react-start";
+
+export type { Banner };
 
 const listBannersFn = createServerFn({ method: "GET" })
-  .validator((kind?: "hero" | "strip") => kind)
+  .validator((d: { kind?: "hero" | "strip"; linha?: string } = {}) => d)
   .handler(async ({ data }) => {
-    return server.listBanners(data);
+    const server = await import("./banners.server");
+    return server.listBanners(data.kind, data.linha);
   });
 
-export async function listBanners(kind?: "hero" | "strip"): Promise<Banner[]> {
-  return listBannersFn({ data: kind }) as unknown as Banner[];
+export async function listBanners(kind?: "hero" | "strip", linha?: string): Promise<Banner[]> {
+  return listBannersFn({ data: { kind, linha } }) as unknown as Banner[];
 }
 
 const listActiveBannersFn = createServerFn({ method: "GET" })
-  .validator((kind: "hero" | "strip") => kind)
+  .validator((d: { kind: "hero" | "strip"; linha?: string }) => d)
   .handler(async ({ data }) => {
-    return server.listActiveBanners(data);
+    const server = await import("./banners.server");
+    return server.listActiveBanners(data.kind, data.linha);
   });
 
-export async function listActiveBanners(kind: "hero" | "strip"): Promise<Banner[]> {
-  return listActiveBannersFn({ data: kind }) as unknown as Banner[];
+export async function listActiveBanners(kind: "hero" | "strip", linha?: string): Promise<Banner[]> {
+  return listActiveBannersFn({ data: { kind, linha } }) as unknown as Banner[];
 }
 
 // Admin API calls (client-side only)
@@ -45,6 +56,7 @@ export async function createBanner(input: {
   position?: number;
   link_url?: string | null;
   active?: boolean;
+  linha?: string;
 }) {
   const res = await fetch("/api/admin/banners", {
     method: "POST",

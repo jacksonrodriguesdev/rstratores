@@ -160,12 +160,7 @@ function CsvUploadCard() {
               </TableBody>
             </Table>
           </div>
-          <Button
-            className="mt-4 w-full"
-            onClick={runImport}
-            disabled={importing}
-            size="lg"
-          >
+          <Button className="mt-4 w-full" onClick={runImport} disabled={importing} size="lg">
             {importing ? "Importando…" : `Importar ${totalRows.toLocaleString("pt-BR")} produtos`}
           </Button>
         </>
@@ -175,7 +170,8 @@ function CsvUploadCard() {
         <div className="mt-4 space-y-2">
           <Progress value={pct} />
           <div className="text-xs text-muted-foreground">
-            {progress.processed.toLocaleString("pt-BR")} / {progress.total.toLocaleString("pt-BR")} ({pct}%)
+            {progress.processed.toLocaleString("pt-BR")} / {progress.total.toLocaleString("pt-BR")}{" "}
+            ({pct}%)
           </div>
         </div>
       )}

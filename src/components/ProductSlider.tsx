@@ -33,15 +33,25 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold tracking-tight md:text-2xl">{title}</h2>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
         </div>
         <div className="flex gap-1">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => scroll(-1)} aria-label="Anterior">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => scroll(-1)}
+            aria-label="Anterior"
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => scroll(1)} aria-label="Próximo">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => scroll(1)}
+            aria-label="Próximo"
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

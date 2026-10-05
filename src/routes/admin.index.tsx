@@ -92,7 +92,9 @@ function AdminDashboard() {
           <Card key={c.label} className="p-5 border shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">{c.label}</div>
+                <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  {c.label}
+                </div>
                 <div className="mt-2 text-3xl font-black text-foreground">
                   {stats.isLoading || analytics.isLoading
                     ? "…"
@@ -108,45 +110,59 @@ function AdminDashboard() {
       </div>
 
       {/* Analytics */}
-        <Card className="p-6 border shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Acessos nos últimos 30 dias</h2>
-              <p className="text-sm text-muted-foreground font-medium">Visitas por dia na loja</p>
-            </div>
+      <Card className="p-6 border shadow-sm">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Acessos nos últimos 30 dias</h2>
+            <p className="text-sm text-muted-foreground font-medium">Visitas por dia na loja</p>
           </div>
-          <div className="h-72 w-full">
-            {analytics.data ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analytics.data.days} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11 }}
-                    tickFormatter={(v: string) => v.slice(5)}
-                    axisLine={false}
-                    tickLine={false}
-                    dy={10}
-                  />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }} />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#colorVisits)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
+        </div>
+        <div className="h-72 w-full">
+          {analytics.data ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={analytics.data.days}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11 }}
+                  tickFormatter={(v: string) => v.slice(5)}
+                  axisLine={false}
+                  tickLine={false}
+                  dy={10}
+                />
+                <YAxis
+                  tick={{ fontSize: 11 }}
+                  allowDecimals={false}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "none",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorVisits)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               {analytics.isLoading ? "Carregando…" : "Sem dados ainda"}
             </div>
@@ -168,14 +184,38 @@ function AdminDashboard() {
                 >
                   <defs>
                     <linearGradient id="colorBar" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6}/>
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1}/>
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }} width={80} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11 }}
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                    width={80}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "hsl(var(--muted))" }}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "none",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
+                  />
                   <Bar dataKey="value" fill="url(#colorBar)" radius={[0, 4, 4, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
@@ -232,7 +272,10 @@ function AdminDashboard() {
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
                     {analytics.data.devices.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 0 ? "hsl(var(--primary))" : "hsl(var(--accent))"} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={index === 0 ? "hsl(var(--primary))" : "hsl(var(--accent))"}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -259,14 +302,38 @@ function AdminDashboard() {
                 >
                   <defs>
                     <linearGradient id="colorBar" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6}/>
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1}/>
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }} width={80} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11 }}
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                    width={80}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "hsl(var(--muted))" }}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "none",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
+                  />
                   <Bar dataKey="value" fill="url(#colorBar)" radius={[0, 4, 4, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
@@ -283,7 +350,8 @@ function AdminDashboard() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold">Importar produtos</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Envie um arquivo CSV com as colunas: sku, nome, preco_brl, categoria, marca, estoque, peso, url, imagem, descricao.
+            Envie um arquivo CSV com as colunas: sku, nome, preco_brl, categoria, marca, estoque,
+            peso, url, imagem, descricao.
           </p>
           <Button asChild className="mt-4">
             <Link to="/admin/upload">

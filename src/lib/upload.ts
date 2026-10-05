@@ -1,4 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
 import Papa from "papaparse";
 import JSZip from "jszip";
 
@@ -48,7 +47,7 @@ export function parseCsv(file: File): Promise<{ rows: CsvRow[]; errors: string[]
           const nome = str(raw.nome);
           if (!sku) {
             // Gera um SKU automaticamente baseado na data e aleatoriedade
-            sku = `AUTO_${Date.now().toString(36).toUpperCase()}_${Math.floor(Math.random()*1000)}`;
+            sku = `AUTO_${Date.now().toString(36).toUpperCase()}_${Math.floor(Math.random() * 1000)}`;
           }
           if (!nome) {
             errors.push(`Linha ${i + 2} (SKU ${sku}): nome vazio`);
@@ -159,11 +158,11 @@ export async function importImagesZip(
   }
 
   const result = await res.json();
-  
+
   if (onProgress) {
     onProgress(result as ZipImportProgress);
   }
-  
+
   return result as ZipImportProgress;
 }
 

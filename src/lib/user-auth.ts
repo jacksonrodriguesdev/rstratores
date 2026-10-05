@@ -1,8 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSession, type SessionPayload } from "./auth.server";
+import type { SessionPayload } from "./auth";
 
-export const getSessionFn = createServerFn({ method: "GET" })
-  .handler(async (ctx: any): Promise<SessionPayload | null> => {
+export const getSessionFn = createServerFn({ method: "GET" }).handler(
+  async (ctx: any): Promise<SessionPayload | null> => {
+    const { getSession } = await import("./auth.server");
     console.log("getSessionFn ctx keys:", Object.keys(ctx || {}));
     return await getSession();
-  });
+  },
+);

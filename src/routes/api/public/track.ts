@@ -23,10 +23,7 @@ export const Route = createFileRoute("/api/public/track")({
           // Cloudflare Workers geolocation headers
           const h = request.headers;
           const country = h.get("cf-ipcountry") || h.get("x-vercel-ip-country") || null;
-          const city =
-            h.get("cf-ipcity") ||
-            h.get("x-vercel-ip-city") ||
-            null;
+          const city = h.get("cf-ipcity") || h.get("x-vercel-ip-city") || null;
           const region =
             h.get("cf-region") ||
             h.get("cf-ipregion") ||
@@ -51,7 +48,7 @@ export const Route = createFileRoute("/api/public/track")({
               region: region ? decodeURIComponent(region) : null,
               referrer,
               user_agent: userAgent,
-            }
+            },
           });
 
           return new Response(JSON.stringify({ ok: true }), {

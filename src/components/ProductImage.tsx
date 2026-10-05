@@ -39,10 +39,17 @@ export function ProductImage({ src, alt, className }: Props) {
     };
   }, [src]);
 
-  if (!src || error || (url === null && src && !src.startsWith("http"))) {
+  const isPlaceholder = src?.toLowerCase().includes("redeparts");
+
+  if (!src || error || isPlaceholder || (url === null && src && !src.startsWith("http"))) {
     const Icon = currentSegment === "AUTOMOTIVA" ? Car : Tractor;
     return (
-      <div className={cn("flex flex-col items-center justify-center bg-zinc-50 border-2 border-dashed border-zinc-200 text-zinc-400 p-4 rounded-xl", className)}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center bg-zinc-50 border-2 border-dashed border-zinc-200 text-zinc-400 p-4 rounded-xl",
+          className,
+        )}
+      >
         <Icon className="h-10 w-10 mb-3 opacity-30 text-zinc-500" />
         <span className="text-[10px] font-medium text-center uppercase tracking-wider text-zinc-400 max-w-[180px] leading-snug">
           Não possuímos imagem desse produto catalogada ainda.

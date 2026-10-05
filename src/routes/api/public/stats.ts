@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/public/stats")({
   server: {
     handlers: {
       GET: async () => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const [totalProducts, sample] = await Promise.all([
             prisma.products.count(),

@@ -1,13 +1,7 @@
+import type { HomepageBlock } from "./homepage";
 import { prisma } from "./prisma";
 
-export type HomepageBlock = {
-  id: number;
-  type: string;
-  active: boolean;
-  position: number;
-  title: string | null;
-  config: string | null; // JSON string
-};
+
 
 export async function listHomepageBlocks(): Promise<HomepageBlock[]> {
   // @ts-ignore - prisma type may not be updated until dev server restarts
@@ -42,7 +36,7 @@ export async function updateHomepageBlock(
     position: number;
     title: string;
     config: string;
-  }>
+  }>,
 ) {
   // @ts-ignore
   return await prisma.homepage_blocks.update({

@@ -11,7 +11,7 @@ async function main() {
       estoque: 10,
       peso: 1.0,
       url: "https://realtrator.com.br",
-      imagem_principal: "https://4362.cdn.simplo7.net/img.jpg"
+      imagem_principal: "https://4362.cdn.simplo7.net/img.jpg",
     };
 
     const result = await prisma.products.upsert({

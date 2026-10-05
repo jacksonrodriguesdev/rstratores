@@ -32,17 +32,17 @@ function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, senha: password })
+        body: JSON.stringify({ email, senha: password }),
       });
-      
+
       const data = await res.json();
-      
+
       if (res.ok && data.success) {
         // Recarregar a página para o componente Root pegar a sessão (ou redirecionar)
         window.location.href = "/";
         return;
       }
-      
+
       // Fallback para admin legado (sem DB)
       if (legacyAdminLogin(email, password)) {
         window.location.href = "/admin";
@@ -63,10 +63,10 @@ function LoginPage() {
       <main className="mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 flex-1">
         <Card className="w-full p-8 shadow-xl border-t-4 border-primary rounded-2xl">
           <div className="mb-6 flex flex-col items-center text-center">
-            <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">Já sou Cliente</h1>
-            <p className="mt-2 text-sm text-zinc-500">
-              Faça login com seu e-mail e senha.
-            </p>
+            <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">
+              Já sou Cliente
+            </h1>
+            <p className="mt-2 text-sm text-zinc-500">Faça login com seu e-mail e senha.</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-5">
             <div>
@@ -100,10 +100,14 @@ function LoginPage() {
             {error && (
               <p className="text-sm font-semibold text-red-600 bg-red-50 p-3 rounded-md">{error}</p>
             )}
-            <Button type="submit" disabled={busy} className="w-full h-14 text-lg font-bold uppercase tracking-wider rounded-xl">
+            <Button
+              type="submit"
+              disabled={busy}
+              className="w-full h-14 text-lg font-bold uppercase tracking-wider rounded-xl"
+            >
               {busy ? "Entrando..." : "Entrar"}
             </Button>
-            
+
             <div className="mt-6 text-center text-sm text-zinc-600 border-t pt-6">
               Ainda não tem cadastro?{" "}
               <Link to="/cadastro" className="text-primary font-bold hover:underline">

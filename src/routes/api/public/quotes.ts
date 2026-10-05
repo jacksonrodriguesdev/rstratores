@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import * as fs from "fs/promises";
 import * as path from "path";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/public/quotes")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const formData = await request.formData();
           const nome = formData.get("nome") as string;
@@ -16,7 +16,10 @@ export const Route = createFileRoute("/api/public/quotes")({
           const file = formData.get("file") as File | null;
 
           if (!nome || !endereco || !whatsapp || (!mensagem && (!file || file.size === 0))) {
-            return new Response(JSON.stringify({ error: "Preencha todos os campos obrigatórios." }), { status: 400 });
+            return new Response(
+              JSON.stringify({ error: "Preencha todos os campos obrigatórios." }),
+              { status: 400 },
+            );
           }
 
           let relativePath: string | null = null;
@@ -25,7 +28,7 @@ export const Route = createFileRoute("/api/public/quotes")({
             const buffer = Buffer.from(await file.arrayBuffer());
             const ext = file.name.split(".").pop()?.toLowerCase() || "pdf";
             relativePath = `quotes/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-            
+
             const dest = path.join(process.cwd(), "public", "uploads", relativePath);
             await fs.mkdir(path.dirname(dest), { recursive: true });
             await fs.writeFile(dest, buffer);
@@ -39,7 +42,7 @@ export const Route = createFileRoute("/api/public/quotes")({
               mensagem: mensagem || null,
               file_path: relativePath,
               status: "NOVA",
-            }
+            },
           });
 
           return new Response(JSON.stringify({ success: true, quote }), {
@@ -49,7 +52,7 @@ export const Route = createFileRoute("/api/public/quotes")({
         } catch (err: any) {
           return new Response(JSON.stringify({ error: err.message }), { status: 500 });
         }
-      }
-    }
-  }
+      },
+    },
+  },
 });

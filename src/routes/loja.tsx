@@ -46,7 +46,10 @@ export const Route = createFileRoute("/loja")({
           "Todos os produtos do catálogo. Filtre por categoria, marca e busque por SKU ou nome.",
       },
       { property: "og:title", content: "Loja — RS Trator Peças" },
-      { property: "og:description", content: "Todos os produtos do catálogo com filtros por categoria e marca." },
+      {
+        property: "og:description",
+        content: "Todos os produtos do catálogo com filtros por categoria e marca.",
+      },
     ],
   }),
   component: LojaPage,
@@ -87,19 +90,13 @@ function LojaPage() {
     [search, segment, categorias, marcas, montadoras, sort],
   );
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-  } = useInfiniteQuery({
-    queryKey: ["loja", queryParams],
-    queryFn: ({ pageParam }) => listProducts({ ...queryParams, cursor: pageParam }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
+    useInfiniteQuery({
+      queryKey: ["loja", queryParams],
+      queryFn: ({ pageParam }) => listProducts({ ...queryParams, cursor: pageParam }),
+      initialPageParam: undefined as string | undefined,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    });
 
   const { data: facets } = useQuery({
     queryKey: ["facets", segment],
@@ -123,7 +120,7 @@ function LojaPage() {
           fetchNextPage();
         }
       },
-      { threshold: 0.1, rootMargin: "200px" } // Load before it comes fully into view
+      { threshold: 0.1, rootMargin: "200px" }, // Load before it comes fully into view
     );
     if (loaderRef.current) {
       observer.observe(loaderRef.current);
@@ -131,11 +128,7 @@ function LojaPage() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const toggle = (
-    value: string,
-    list: string[],
-    setter: (v: string[]) => void,
-  ) => {
+  const toggle = (value: string, list: string[], setter: (v: string[]) => void) => {
     if (list.includes(value)) setter(list.filter((x) => x !== value));
     else setter([...list, value]);
   };
@@ -156,7 +149,12 @@ function LojaPage() {
           Refinar Busca
         </div>
         {activeCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearAll} className="h-7 text-xs font-semibold text-muted-foreground hover:text-destructive">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="h-7 text-xs font-semibold text-muted-foreground hover:text-destructive"
+          >
             Limpar tudo
           </Button>
         )}
@@ -180,62 +178,98 @@ function LojaPage() {
       <Accordion type="multiple" defaultValue={["montadoras", "categorias"]} className="w-full">
         <AccordionItem value="montadoras" className="border-b-0">
           <AccordionTrigger className="hover:no-underline py-3 px-1 rounded-md hover:bg-muted/50">
-            <span className="font-semibold text-zinc-800 text-sm uppercase tracking-wider">Montadoras</span>
+            <span className="font-semibold text-zinc-800 text-sm uppercase tracking-wider">
+              Montadoras
+            </span>
           </AccordionTrigger>
           <AccordionContent className="px-1 pt-1 pb-4">
-              <div className="space-y-2.5">
-                {facets?.montadoras ? (facets as any).montadoras.sort((a: any, b: any) => b.count - a.count).map((opt: any) => (
-                <label key={opt.name} className="flex cursor-pointer items-center justify-between gap-3 rounded p-1.5 hover:bg-zinc-100 transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={montadoras.includes(opt.name)} onCheckedChange={() => toggle(opt.name, montadoras, setMontadoras)} className="rounded-[4px] border-zinc-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">{opt.name}</span>
-                  </div>
-                  <span className="text-xs font-semibold text-zinc-400 bg-white border border-zinc-200 px-1.5 py-0.5 rounded-full">{opt.count}</span>
-                </label>
-              )) : (
+            <div className="space-y-2.5">
+              {facets?.montadoras ? (
+                [...(facets as any).montadoras]
+                  .sort((a: any, b: any) => b.count - a.count)
+                  .map((opt: any) => (
+                    <label
+                      key={opt.name}
+                      className="flex cursor-pointer items-center justify-between gap-3 rounded p-1.5 hover:bg-zinc-100 transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={montadoras.includes(opt.name)}
+                          onCheckedChange={() => toggle(opt.name, montadoras, setMontadoras)}
+                          className="rounded-[4px] border-zinc-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                        <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">
+                          {opt.name}
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-zinc-400 bg-white border border-zinc-200 px-1.5 py-0.5 rounded-full">
+                        {opt.count}
+                      </span>
+                    </label>
+                  ))
+              ) : (
                 <div className="p-2 text-sm text-zinc-500">Carregando montadoras...</div>
               )}
             </div>
           </AccordionContent>
         </AccordionItem>
+      </Accordion>
 
+      <div className="mb-6">
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-800">
+          Acesso Rápido
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {["Hidráulica e Pneumática", "Elementos de Fixação", "Rolamentos e Mancais", "Estrutura e Suspensão", "Filtros", "Freios e Embreagens", "Elétrica e Sensores"].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => toggle(cat, categorias, setCategorias)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                categorias.includes(cat)
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "bg-white border-zinc-200 text-zinc-600 hover:border-primary hover:text-primary"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Accordion type="multiple" defaultValue={["categorias"]} className="w-full">
         <AccordionItem value="categorias" className="border-b-0">
-            <AccordionTrigger className="hover:no-underline py-3 px-1 rounded-md hover:bg-muted/50">
-              <span className="font-semibold text-zinc-800 text-sm uppercase tracking-wider">Subgrupo (Categoria)</span>
-            </AccordionTrigger>
-            <AccordionContent className="px-1 pt-1 pb-4">
-              <div className="space-y-2.5">
-                {facets?.categorias ? facets.categorias.sort((a,b) => b.count - a.count).map((cat) => (
-                <label key={cat.name} className="flex cursor-pointer items-center justify-between gap-3 rounded p-1.5 hover:bg-zinc-100 transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={categorias.includes(cat.name)} onCheckedChange={() => toggle(cat.name, categorias, setCategorias)} className="rounded-[4px] border-zinc-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">{cat.name}</span>
-                  </div>
-                  <span className="text-xs font-semibold text-zinc-400 bg-white border border-zinc-200 px-1.5 py-0.5 rounded-full">{cat.count}</span>
-                </label>
-              )) : (
-                <div className="p-2 text-sm text-zinc-500">Carregando categorias...</div>
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="marcas" className="border-b-0">
           <AccordionTrigger className="hover:no-underline py-3 px-1 rounded-md hover:bg-muted/50">
-            <span className="font-semibold text-zinc-800 text-sm uppercase tracking-wider">Marcas de Peças</span>
+            <span className="font-semibold text-zinc-800 text-sm uppercase tracking-wider">
+              Subgrupo (Categoria)
+            </span>
           </AccordionTrigger>
           <AccordionContent className="px-1 pt-1 pb-4">
-              <div className="space-y-2.5">
-                {facets?.marcas ? facets.marcas.sort((a,b) => b.count - a.count).map((marca) => (
-                <label key={marca.name} className="flex cursor-pointer items-center justify-between gap-3 rounded p-1.5 hover:bg-zinc-100 transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={marcas.includes(marca.name)} onCheckedChange={() => toggle(marca.name, marcas, setMarcas)} className="rounded-[4px] border-zinc-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">{marca.name}</span>
-                  </div>
-                  <span className="text-xs font-semibold text-zinc-400 bg-white border border-zinc-200 px-1.5 py-0.5 rounded-full">{marca.count}</span>
-                </label>
-              )) : (
-                <div className="p-2 text-sm text-zinc-500">Carregando marcas...</div>
+            <div className="space-y-2.5">
+              {facets?.categorias ? (
+                [...facets.categorias]
+                  .sort((a, b) => b.count - a.count)
+                  .map((cat) => (
+                    <label
+                      key={cat.name}
+                      className="flex cursor-pointer items-center justify-between gap-3 rounded p-1.5 hover:bg-zinc-100 transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={categorias.includes(cat.name)}
+                          onCheckedChange={() => toggle(cat.name, categorias, setCategorias)}
+                          className="rounded-[4px] border-zinc-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                        <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">
+                          {cat.name}
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-zinc-400 bg-white border border-zinc-200 px-1.5 py-0.5 rounded-full">
+                        {cat.count}
+                      </span>
+                    </label>
+                  ))
+              ) : (
+                <div className="p-2 text-sm text-zinc-500">Carregando categorias...</div>
               )}
             </div>
           </AccordionContent>
@@ -251,13 +285,18 @@ function LojaPage() {
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">
-               Catálogo <span className="text-primary font-medium text-2xl ml-2 tracking-normal">Linha {segment === "AGRICOLA" ? "Agrícola" : "Automotiva"}</span>
+              Catálogo{" "}
+              <span className="text-primary font-medium text-2xl ml-2 tracking-normal">
+                Linha {segment === "AGRICOLA" ? "Agrícola" : "Automotiva"}
+              </span>
             </h1>
             <p className="text-sm text-zinc-500 mt-2 font-medium">
               {isLoading ? (
-                 <span className="flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin"/> Sincronizando produtos...</span>
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Sincronizando produtos...
+                </span>
               ) : (
-                 `${rows.length}+ resultados encontrados para sua busca`
+                `${rows.length}+ resultados encontrados para sua busca`
               )}
             </p>
           </div>
@@ -276,7 +315,9 @@ function LojaPage() {
               )}
             </Button>
             <div className="bg-white rounded-md shadow-sm border border-zinc-200 flex items-center p-1">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider px-3">Ordenar:</span>
+              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider px-3">
+                Ordenar:
+              </span>
               <Select value={sort} onValueChange={(v) => setSort(v as ListParams["sort"])}>
                 <SelectTrigger className="w-[180px] border-0 focus:ring-0 bg-transparent font-medium text-zinc-800 shadow-none">
                   <SelectValue />
@@ -324,7 +365,9 @@ function LojaPage() {
                           SKU {p.sku}
                         </div>
                         {p.marca && (
-                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">{p.marca}</span>
+                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">
+                            {p.marca}
+                          </span>
                         )}
                       </div>
                       <Link
@@ -349,11 +392,11 @@ function LojaPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
               </div>
             )}
-            
+
             {!hasNextPage && rows.length > 0 && !isLoading && (
               <div className="flex justify-center py-10 opacity-60">
                 <div className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                  <Package className="h-4 w-4" /> 
+                  <Package className="h-4 w-4" />
                   Fim do Catálogo
                 </div>
               </div>
@@ -390,13 +433,21 @@ function LojaPage() {
           <div className="w-[85%] max-w-sm overflow-y-auto bg-[#f8f9fc] p-5 shadow-2xl animate-in slide-in-from-right-full duration-300">
             <div className="mb-5 flex items-center justify-between">
               <div className="text-lg font-bold text-zinc-900">Filtrar Produtos</div>
-              <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)} className="rounded-full bg-zinc-200/50 hover:bg-zinc-200">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-full bg-zinc-200/50 hover:bg-zinc-200"
+              >
                 <X className="h-5 w-5" />
               </Button>
             </div>
             {sidebar}
             <div className="mt-6 sticky bottom-4">
-              <Button className="w-full h-12 text-base font-bold shadow-lg" onClick={() => setMobileOpen(false)}>
+              <Button
+                className="w-full h-12 text-base font-bold shadow-lg"
+                onClick={() => setMobileOpen(false)}
+              >
                 Ver Resultados
               </Button>
             </div>

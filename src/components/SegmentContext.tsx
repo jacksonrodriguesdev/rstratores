@@ -25,9 +25,7 @@ export function SegmentProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SegmentContext.Provider value={{ segment, setSegment }}>
-      {children}
-    </SegmentContext.Provider>
+    <SegmentContext.Provider value={{ segment, setSegment }}>{children}</SegmentContext.Provider>
   );
 }
 

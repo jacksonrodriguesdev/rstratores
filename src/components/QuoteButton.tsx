@@ -11,7 +11,13 @@ type Props = {
   label?: string;
 };
 
-export function QuoteButton({ product, size = "sm", className, fullWidth, label = "Fazer cotação" }: Props) {
+export function QuoteButton({
+  product,
+  size = "sm",
+  className,
+  fullWidth,
+  label = "Fazer cotação",
+}: Props) {
   return (
     <Button
       asChild

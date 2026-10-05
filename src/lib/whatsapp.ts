@@ -1,6 +1,6 @@
-// +55 (Brasil) 53 9 9953-4631
-export const PHONE = "5553999534631";
-export const PHONE_DISPLAY = "(53) 99953-4631";
+// Número de contato
+export const PHONE = "553999428130";
+export const PHONE_DISPLAY = "55 39 9942-8130";
 
 // Usamos api.whatsapp.com/send diretamente (sem passar por wa.me).
 // O redirect do wa.me pode ser bloqueado dentro de iframes de preview

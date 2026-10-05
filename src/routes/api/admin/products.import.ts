@@ -1,25 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/admin/products/import")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const { rows } = await request.json();
-          
+
           if (!Array.isArray(rows)) {
-             return new Response(JSON.stringify({ error: "Invalid rows array" }), { status: 400 });
+            return new Response(JSON.stringify({ error: "Invalid rows array" }), { status: 400 });
           }
 
           const categoryNames = [...new Set(rows.map((r: any) => r.categoria).filter(Boolean))];
           const catMap = new Map<string, number>();
           for (const name of categoryNames) {
-             let c = await prisma.categories.findFirst({ where: { nome: String(name).trim() } });
-             if (!c) {
-                c = await prisma.categories.create({ data: { nome: String(name).trim() } });
-             }
-             catMap.set(String(name).trim(), c.id);
+            let c = await prisma.categories.findFirst({ where: { nome: String(name).trim() } });
+            if (!c) {
+              c = await prisma.categories.create({ data: { nome: String(name).trim() } });
+            }
+            catMap.set(String(name).trim(), c.id);
           }
 
           const ops = rows.map((r: any) => {
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/api/admin/products/import")({
             headers: { "Content-Type": "application/json" },
           });
         }
-      }
-    }
-  }
+      },
+    },
+  },
 });

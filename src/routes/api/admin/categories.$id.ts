@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { prisma } from "@/lib/prisma";
 
 export const Route = createFileRoute("/api/admin/categories/$id")({
   server: {
     handlers: {
       PATCH: async ({ request, params }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const id = Number(params.id);
           const body = await request.json();
@@ -15,28 +15,29 @@ export const Route = createFileRoute("/api/admin/categories/$id")({
               parent_id: body.parent_id,
               image_path: body.image_path,
               linha: body.linha,
-            } as any
+            } as any,
           });
           return new Response(JSON.stringify(cat), {
-             status: 200,
-             headers: { "Content-Type": "application/json" }
+            status: 200,
+            headers: { "Content-Type": "application/json" },
           });
         } catch (e: any) {
-           return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
         }
       },
       DELETE: async ({ params }) => {
+        const { prisma } = await import("@/lib/prisma");
         try {
           const id = Number(params.id);
           await prisma.categories.delete({ where: { id } });
           return new Response(JSON.stringify({ success: true }), {
-             status: 200,
-             headers: { "Content-Type": "application/json" }
+            status: 200,
+            headers: { "Content-Type": "application/json" },
           });
         } catch (e: any) {
-           return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
         }
-      }
-    }
-  }
+      },
+    },
+  },
 });

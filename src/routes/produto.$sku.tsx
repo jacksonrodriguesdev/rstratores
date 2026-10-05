@@ -38,15 +38,13 @@ export const Route = createFileRoute("/produto/$sku")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [
-          { title: "Produto não encontrado" },
-          { name: "robots", content: "noindex" },
-        ],
+        meta: [{ title: "Produto não encontrado" }, { name: "robots", content: "noindex" }],
       };
     }
     const p = loaderData.product;
     const title = `${p.nome} — SKU ${p.sku}`;
-    const desc = `${p.nome}. ${p.categoria ?? ""} ${p.marca ?? ""}. Faça sua cotação pelo WhatsApp.`.trim();
+    const desc =
+      `${p.nome}. ${p.categoria ?? ""} ${p.marca ?? ""}. Faça sua cotação pelo WhatsApp.`.trim();
     return {
       meta: [
         { title },
@@ -125,7 +123,9 @@ function ProductDetail() {
       <main className="mx-auto max-w-7xl px-4 py-6">
         {categoriesQuery.data && categoriesQuery.data.length > 0 && (
           <div className="mb-6">
-            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("product.categoriasQueTalvezPrecise")}</h3>
+            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
+              {t("product.categoriasQueTalvezPrecise")}
+            </h3>
             <div className="flex flex-wrap gap-2">
               {categoriesQuery.data.map((cat) => (
                 <Link
@@ -152,7 +152,10 @@ function ProductDetail() {
           {/* Gallery */}
           <div>
             <Card className="aspect-square overflow-hidden bg-muted p-0">
-              <ProductImage src={mainImage} alt={language === "es-UY" && product.nome_es ? product.nome_es : product.nome} />
+              <ProductImage
+                src={mainImage}
+                alt={language === "es-UY" && product.nome_es ? product.nome_es : product.nome}
+              />
             </Card>
             {gallery.length > 1 && (
               <div className="mt-3 grid grid-cols-5 gap-2">
@@ -161,7 +164,9 @@ function ProductDetail() {
                     key={path}
                     onClick={() => setMainImage(path)}
                     className={`aspect-square overflow-hidden rounded-md border-2 transition-colors ${
-                      mainImage === path ? "border-primary" : "border-transparent hover:border-muted-foreground/30"
+                      mainImage === path
+                        ? "border-primary"
+                        : "border-transparent hover:border-muted-foreground/30"
                     }`}
                   >
                     <ProductImage src={path} alt="" />
@@ -208,7 +213,10 @@ function ProductDetail() {
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <Tag className="h-3.5 w-3.5" /> {t("product.categoria")}
                   </div>
-                  <div className="mt-1 line-clamp-1 text-sm font-bold text-foreground" title={product.categoria}>
+                  <div
+                    className="mt-1 line-clamp-1 text-sm font-bold text-foreground"
+                    title={product.categoria}
+                  >
                     {product.categoria}
                   </div>
                 </div>
@@ -221,14 +229,21 @@ function ProductDetail() {
                   <div className="text-sm font-semibold uppercase tracking-wide text-primary">
                     Venda Direta
                   </div>
-                  <div className="mt-1 text-2xl font-black text-foreground">
-                    Consulte o Preço
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">Temos a melhor negociação do mercado para você.</p>
+                  <div className="mt-1 text-2xl font-black text-foreground">Consulte o Preço</div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Temos a melhor negociação do mercado para você.
+                  </p>
                 </div>
                 <div className="flex flex-col gap-3">
                   <button
-                    onClick={() => addItem({ sku: product.sku, name: product.nome, image: product.imagem_principal || undefined, quantity: 1 })}
+                    onClick={() =>
+                      addItem({
+                        sku: product.sku,
+                        name: product.nome,
+                        image: product.imagem_principal || undefined,
+                        quantity: 1,
+                      })
+                    }
                     className="w-full flex items-center justify-center gap-2 bg-primary text-white h-14 rounded-md font-bold text-lg uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-xl shadow-primary/20"
                   >
                     <ShoppingCart className="w-5 h-5" />
@@ -266,20 +281,29 @@ function ProductDetail() {
               <div className="mt-6 rounded-lg border bg-card p-5">
                 <h2 className="mb-2 text-base font-semibold">Descrição</h2>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
-                  {language === "es-UY" && product.descricao_es ? product.descricao_es : product.descricao}
+                  {language === "es-UY" && product.descricao_es
+                    ? product.descricao_es
+                    : product.descricao}
                 </p>
               </div>
             )}
 
             {(product as any).fichas_tecnicas?.length > 0 && (
               <div className="mt-8">
-                <h2 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-foreground"><Package2 className="h-6 w-6 text-primary" /> Ficha Técnica</h2>
+                <h2 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+                  <Package2 className="h-6 w-6 text-primary" /> Ficha Técnica
+                </h2>
                 <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
                   <div className="grid grid-cols-1 sm:grid-cols-2">
                     {(product as any).fichas_tecnicas.map((ficha: any, idx: number) => (
-                      <div key={idx} className="flex justify-between border-b border-muted/50 p-3 text-sm sm:even:border-l sm:last:border-b-0">
+                      <div
+                        key={idx}
+                        className="flex justify-between border-b border-muted/50 p-3 text-sm sm:even:border-l sm:last:border-b-0"
+                      >
                         <span className="font-medium text-muted-foreground">{ficha.chave}</span>
-                        <span className="text-right text-foreground font-semibold ml-4">{ficha.valor}</span>
+                        <span className="text-right text-foreground font-semibold ml-4">
+                          {ficha.valor}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -289,7 +313,9 @@ function ProductDetail() {
 
             {(product as any).aplicacoes?.length > 0 && (
               <div className="mt-6 rounded-lg border bg-card p-5">
-                <h2 className="mb-4 flex items-center gap-2 text-base font-semibold"><Tag className="h-5 w-5 text-primary" /> Aplicações (Veículos Compatíveis)</h2>
+                <h2 className="mb-4 flex items-center gap-2 text-base font-semibold">
+                  <Tag className="h-5 w-5 text-primary" /> Aplicações (Veículos Compatíveis)
+                </h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-muted/50 text-muted-foreground">
@@ -305,8 +331,8 @@ function ProductDetail() {
                         <tr key={idx} className="transition-colors hover:bg-muted/20">
                           <td className="px-3 py-2 font-semibold">{app.montadora}</td>
                           <td className="px-3 py-2">{app.veiculo}</td>
-                          <td className="px-3 py-2 text-muted-foreground">{app.ano || '-'}</td>
-                          <td className="px-3 py-2 text-muted-foreground">{app.motor || '-'}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{app.ano || "-"}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{app.motor || "-"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -317,11 +343,14 @@ function ProductDetail() {
 
             {(product as any).similares?.length > 0 && (
               <div className="mt-6 rounded-lg border bg-card p-5">
-                <h2 className="mb-3 text-base font-semibold text-muted-foreground">Códigos Similares (Outras Marcas)</h2>
+                <h2 className="mb-3 text-base font-semibold text-muted-foreground">
+                  Códigos Similares (Outras Marcas)
+                </h2>
                 <div className="flex flex-wrap gap-2">
                   {(product as any).similares.map((sim: any, idx: number) => (
                     <Badge key={idx} variant="outline" className="bg-muted/10 text-xs">
-                      <span className="opacity-70 mr-1">{sim.marca_similar}:</span> {sim.codigo_similar}
+                      <span className="opacity-70 mr-1">{sim.marca_similar}:</span>{" "}
+                      {sim.codigo_similar}
                     </Badge>
                   ))}
                 </div>
@@ -345,8 +374,12 @@ function ProductDetail() {
                 {product.categoria && <SpecRow label="Categoria" value={product.categoria} />}
                 {product.marca && <SpecRow label="Marca" value={product.marca} />}
                 {product.tamanho && <SpecRow label="Tamanho" value={product.tamanho} />}
-                {product.altura != null && <SpecRow label="Altura" value={`${product.altura} cm`} />}
-                {product.largura != null && <SpecRow label="Largura" value={`${product.largura} cm`} />}
+                {product.altura != null && (
+                  <SpecRow label="Altura" value={`${product.altura} cm`} />
+                )}
+                {product.largura != null && (
+                  <SpecRow label="Largura" value={`${product.largura} cm`} />
+                )}
               </dl>
             </div>
           </div>
@@ -358,7 +391,9 @@ function ProductDetail() {
         {/* Related */}
         {relatedQuery.data && relatedQuery.data.length > 0 && (
           <div className="mt-16 rounded-xl bg-muted/10 p-6 md:p-8">
-            <h2 className="mb-6 text-2xl font-bold tracking-tight">Produtos que podem interessar</h2>
+            <h2 className="mb-6 text-2xl font-bold tracking-tight">
+              Produtos que podem interessar
+            </h2>
             <ProductSlider title="" products={relatedQuery.data} />
           </div>
         )}

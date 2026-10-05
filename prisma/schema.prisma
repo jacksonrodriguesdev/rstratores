@@ -107,6 +107,7 @@ model site_banners {
   kind       String
   link_url   String?
   position   Int      @default(0)
+  linha      String   @default("AGRICOLA")
 }
 
 model site_visits {

@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createBanner } from "@/lib/banners.server";
 
 export const Route = createFileRoute("/api/admin/banners")({
   server: {
@@ -7,8 +6,9 @@ export const Route = createFileRoute("/api/admin/banners")({
       POST: async ({ request }) => {
         try {
           const body = await request.json();
-          await createBanner(body);
-          
+          const { createBanner } = await import("@/lib/banners.server");
+          const data = await createBanner(body);
+
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { "Content-Type": "application/json" },

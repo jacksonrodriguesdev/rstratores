@@ -11,8 +11,13 @@ export default defineConfig({
     server: {
       allowedHosts: true,
       watch: {
-        ignored: ['**/public/uploads/**']
-      }
+        ignored: ["**/public/uploads/**"],
+      },
+    },
+    optimizeDeps: {
+      noDiscovery: true,
+      include: ["react", "react-dom", "lucide-react", "@tanstack/react-router", "@tanstack/react-query", "recharts"],
+      exclude: ["@prisma/client", "prisma", "bcryptjs", "jose"],
     },
   },
   tanstackStart: {

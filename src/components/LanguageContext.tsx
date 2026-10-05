@@ -73,7 +73,8 @@ const translations: Record<Language, Record<string, string>> = {
     "home.destaquesDesc": "Produtos em destaque no catálogo",
     "home.verTodos": "Ver todos os produtos na loja",
     "home.naoEncontrou": "Não encontrou o que precisava?",
-    "home.naoEncontrouDesc": "Temos milhares de peças em estoque e recebemos novidades todos os dias. Fale com um de nossos especialistas para encontrar exatamente a peça que você precisa.",
+    "home.naoEncontrouDesc":
+      "Temos milhares de peças em estoque e recebemos novidades todos os dias. Fale com um de nossos especialistas para encontrar exatamente a peça que você precisa.",
     "home.falarEspecialista": "Falar com Especialista",
     "home.comprePorCategoria": "Compre por Categoria",
     "home.exploreVariedade": "Explore nossa ampla variedade de peças e acessórios",
@@ -84,7 +85,7 @@ const translations: Record<Language, Record<string, string>> = {
     "product.cotacao": "Solicitar Cotação",
     "product.categoriasQueTalvezPrecise": "Categorias que talvez você precise",
     "product.produtosQuePodemInteressar": "Produtos que podem interessar",
-    "product.voltar": "Voltar ao catálogo"
+    "product.voltar": "Voltar ao catálogo",
   },
   "es-UY": {
     "header.frete": "Envío gratis al Sur y Sureste",
@@ -114,7 +115,8 @@ const translations: Record<Language, Record<string, string>> = {
     "home.destaquesDesc": "Productos destacados en el catálogo",
     "home.verTodos": "Ver todos los productos en la tienda",
     "home.naoEncontrou": "¿No encontró lo que necesitaba?",
-    "home.naoEncontrouDesc": "Tenemos miles de repuestos en stock y recibimos novedades todos los días. Hable con uno de nuestros especialistas para encontrar exactamente la pieza que necesita.",
+    "home.naoEncontrouDesc":
+      "Tenemos miles de repuestos en stock y recibimos novedades todos los días. Hable con uno de nuestros especialistas para encontrar exactamente la pieza que necesita.",
     "home.falarEspecialista": "Hablar con un Especialista",
     "home.comprePorCategoria": "Comprar por Categoría",
     "home.exploreVariedade": "Explore nuestra amplia variedad de piezas y accesorios",
@@ -125,6 +127,6 @@ const translations: Record<Language, Record<string, string>> = {
     "product.cotacao": "Solicitar Cotización",
     "product.categoriasQueTalvezPrecise": "Categorías que tal vez necesite",
     "product.produtosQuePodemInteressar": "Productos que pueden interesarle",
-    "product.voltar": "Volver al catálogo"
-  }
+    "product.voltar": "Volver al catálogo",
+  },
 };

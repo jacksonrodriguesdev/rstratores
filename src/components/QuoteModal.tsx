@@ -1,17 +1,29 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Upload, X, CheckCircle2 } from "lucide-react";
 
-export function QuoteModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function QuoteModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  
+
   const [formData, setFormData] = useState({
     nome: "",
     endereco: "",
@@ -31,7 +43,7 @@ export function QuoteModal({ open, onOpenChange }: { open: boolean; onOpenChange
     }
 
     setLoading(true);
-    
+
     try {
       const data = new FormData();
       data.append("nome", formData.nome);
@@ -77,9 +89,12 @@ export function QuoteModal({ open, onOpenChange }: { open: boolean; onOpenChange
             <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
             <h2 className="text-2xl font-bold tracking-tight mb-2">Cotação Recebida!</h2>
             <p className="text-muted-foreground mb-6">
-              Nossa equipe vai analisar sua cotação e entrará em contato pelo WhatsApp com a melhor oferta.
+              Nossa equipe vai analisar sua cotação e entrará em contato pelo WhatsApp com a melhor
+              oferta.
             </p>
-            <Button onClick={handleClose} className="w-full">Fechar</Button>
+            <Button onClick={handleClose} className="w-full">
+              Fechar
+            </Button>
           </div>
         ) : (
           <>
@@ -137,14 +152,22 @@ export function QuoteModal({ open, onOpenChange }: { open: boolean; onOpenChange
                 {file ? (
                   <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
                     <span className="text-sm truncate mr-2">{file.name}</span>
-                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setFile(null)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0"
+                      onClick={() => setFile(null)}
+                    >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
                   <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-md cursor-pointer hover:bg-muted/50 transition-colors">
                     <Upload className="h-6 w-6 text-muted-foreground mb-2" />
-                    <span className="text-sm text-muted-foreground font-medium">Clique para anexar arquivo ou foto</span>
+                    <span className="text-sm text-muted-foreground font-medium">
+                      Clique para anexar arquivo ou foto
+                    </span>
                     <input
                       type="file"
                       className="hidden"

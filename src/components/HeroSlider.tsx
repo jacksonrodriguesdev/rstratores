@@ -14,6 +14,12 @@ export function HeroSlider({ banners, intervalMs = 5500 }: Props) {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
+    if (idx >= banners.length) {
+      setIdx(0);
+    }
+  }, [banners.length, idx]);
+
+  useEffect(() => {
     let cancelled = false;
     if (!banners.length) return;
     resolveImageUrls(banners.map((b) => b.image_path)).then((m) => {
@@ -34,8 +40,7 @@ export function HeroSlider({ banners, intervalMs = 5500 }: Props) {
 
   if (!banners.length) return null;
 
-  const go = (dir: 1 | -1) =>
-    setIdx((i) => (i + dir + banners.length) % banners.length);
+  const go = (dir: 1 | -1) => setIdx((i) => (i + dir + banners.length) % banners.length);
 
   return (
     <div className="relative h-[220px] w-full overflow-hidden bg-muted sm:h-[320px] md:h-[420px]">
