@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -25,7 +26,8 @@ export const Route = createFileRoute("/admin/banners")({
 
 const LINHAS = [
   { value: "AGRICOLA", label: "🚜 Agrícola" },
-  { value: "AUTOMOTIVA", label: "🚗 Automotiva" },
+  // Linha automotiva desligada — ver src/lib/linhas.ts
+  ...(AUTOMOTIVA_ATIVA ? [{ value: "AUTOMOTIVA", label: "🚗 Automotiva" }] : []),
 ] as const;
 
 function BannersPage() {

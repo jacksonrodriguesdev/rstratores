@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { z } from "zod";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -278,9 +279,10 @@ function AdminProducts() {
 
       <div className="mb-6 mt-2">
         <Tabs value={linha} onValueChange={(v) => navigate({ search: { linha: v } as any })}>
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+          <TabsList className={`grid w-full max-w-[400px] ${AUTOMOTIVA_ATIVA ? "grid-cols-2" : "grid-cols-1"}`}>
             <TabsTrigger value="AGRICOLA">Linha Agrícola</TabsTrigger>
-            <TabsTrigger value="AUTOMOTIVA">Linha Automotiva</TabsTrigger>
+            {/* Linha automotiva desligada — ver src/lib/linhas.ts */}
+            {AUTOMOTIVA_ATIVA && <TabsTrigger value="AUTOMOTIVA">Linha Automotiva</TabsTrigger>}
           </TabsList>
         </Tabs>
       </div>
@@ -448,7 +450,7 @@ function AdminProducts() {
                   onChange={(e) => setNewProduct({ ...newProduct, linha: e.target.value })}
                 >
                   <option value="AGRICOLA">Linha Agrícola</option>
-                  <option value="AUTOMOTIVA">Linha Automotiva</option>
+                  {AUTOMOTIVA_ATIVA && <option value="AUTOMOTIVA">Linha Automotiva</option>}
                 </select>
               </Field>
               <Field label="Categoria">
@@ -657,7 +659,7 @@ function AdminProducts() {
                     onChange={(e) => setEditing({ ...editing, linha: e.target.value })}
                   >
                     <option value="AGRICOLA">Linha Agrícola</option>
-                    <option value="AUTOMOTIVA">Linha Automotiva</option>
+                    {AUTOMOTIVA_ATIVA && <option value="AUTOMOTIVA">Linha Automotiva</option>}
                   </select>
                 </Field>
                 <Field label="Categoria">

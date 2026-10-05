@@ -1,5 +1,6 @@
 import type { Product, ProductImage, ListParams } from "./products";
 import { prisma } from "./prisma";
+import { AUTOMOTIVA_ATIVA } from "./linhas";
 
 
 
@@ -8,10 +9,11 @@ import { prisma } from "./prisma";
 
 
 export async function listProducts(params: ListParams) {
+  // Com a linha automotiva desligada, toda listagem vem da tabela agrícola.
+  const linha = AUTOMOTIVA_ATIVA ? params.linha : "AGRICOLA";
   const {
     search,
     categoria,
-    linha,
     marca,
     montadora,
     precoMin,
@@ -166,7 +168,8 @@ export async function listProducts(params: ListParams) {
 }
 
 export async function getProduct(sku: string) {
-  let data = await prisma.products.findUnique({
+  // Linha automotiva desligada: produtos da tabela `products` não são exibidos.
+  let data = !AUTOMOTIVA_ATIVA ? null : await prisma.products.findUnique({
     where: { sku },
     include: {
       aplicacoes: true,
@@ -190,7 +193,7 @@ export async function getProduct(sku: string) {
 }
 
 export async function getProductImages(sku: string) {
-  let data = await prisma.products_img.findMany({
+  let data = !AUTOMOTIVA_ATIVA ? [] : await prisma.products_img.findMany({
     where: { sku },
     orderBy: { sort_order: "asc" },
   });
@@ -207,7 +210,8 @@ export async function getProductImages(sku: string) {
 
 export async function getRelatedProducts(sku: string, category_id: number | null, limit = 8) {
   if (!category_id) return [];
-  const data = await prisma.products.findMany({
+  const table: any = AUTOMOTIVA_ATIVA ? prisma.products : prisma.agricolas;
+  const data = await table.findMany({
     where: {
       category_id,
       sku: { not: sku },
@@ -230,8 +234,7 @@ let facetsCache: Record<
 > = {};
 
 export async function getFacets(linha?: string) {
-  // forcing reload to clear cache
-  const cacheKey = linha || "all";
+  const cacheKey = (AUTOMOTIVA_ATIVA ? linha : "AGRICOLA") || "all";
   if (facetsCache[cacheKey] && Date.now() - facetsCache[cacheKey].timestamp < 1000 * 60 * 5) {
     return facetsCache[cacheKey].data;
   }

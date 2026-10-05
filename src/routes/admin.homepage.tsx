@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -444,7 +445,7 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                     >
                       <option value="AMBOS">Todos os Produtos (Ambos)</option>
                       <option value="AGRICOLA">Linha Agrícola</option>
-                      <option value="AUTOMOTIVA">Linha Pesada & Automotiva</option>
+                      {AUTOMOTIVA_ATIVA && <option value="AUTOMOTIVA">Linha Pesada & Automotiva</option>}
                     </select>
                   </div>
                   <div className="space-y-2 mt-4">

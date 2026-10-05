@@ -31,6 +31,7 @@ import { listProducts, getFacets } from "@/lib/products";
 import { listCategories } from "@/lib/categories";
 import { BannerImage } from "@/components/BannerImage";
 import { useSegment } from "@/components/SegmentContext";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useLanguage } from "@/components/LanguageContext";
 import { WelcomePortal } from "@/components/WelcomePortal";
 import {
@@ -76,7 +77,8 @@ function CatalogPage() {
   const [showPortal, setShowPortal] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem("store_segment")) {
+    // Portal de escolha de linha só faz sentido com a linha automotiva ligada.
+    if (AUTOMOTIVA_ATIVA && !localStorage.getItem("store_segment")) {
       setShowPortal(true);
     }
   }, []);

@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 import { useSegment } from "@/components/SegmentContext";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useLanguage } from "@/components/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
@@ -208,6 +209,8 @@ export function SiteHeader() {
 
           {/* Ações (Desktop) */}
           <div className="hidden items-center gap-6 md:flex shrink-0">
+            {/* Troca de linha Agrícola/Automotiva — oculta enquanto a automotiva estiver desligada */}
+            {AUTOMOTIVA_ATIVA && (
             <button
               onClick={toggleSegment}
               className="flex items-center gap-2 text-zinc-600 hover:text-primary transition-colors text-sm font-semibold"
@@ -220,6 +223,7 @@ export function SiteHeader() {
                 <span>{isAgricola ? "Agrícola" : "Automotiva"}</span>
               </div>
             </button>
+            )}
 
             {user ? (
               <DropdownMenu>
@@ -413,6 +417,7 @@ export function SiteHeader() {
               Atendimento via WhatsApp
             </a>
 
+            {AUTOMOTIVA_ATIVA && (
             <button
               onClick={() => {
                 toggleSegment();
@@ -423,6 +428,7 @@ export function SiteHeader() {
               {isAgricola ? <Car className="w-5 h-5" /> : <Tractor className="w-5 h-5" />}
               Mudar para Linha {isAgricola ? "Automotiva" : "Agrícola"}
             </button>
+            )}
           </div>
         </div>
       )}

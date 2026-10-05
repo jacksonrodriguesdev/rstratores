@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/LanguageContext";
 import { useSegment } from "@/components/SegmentContext";
+import { linhaPermitida } from "@/lib/linhas";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ProductSlider } from "@/components/ProductSlider";
 import { useQuery } from "@tanstack/react-query";
@@ -104,7 +105,7 @@ export function ProductsGridBlock({
   const limit = configData.limit || 8;
 
   // Quando o bloco está configurado como "AMBOS", seguir o segmento ativo do usuário
-  const linhaParam = segmentFilter === "AMBOS" ? userSegment : segmentFilter;
+  const linhaParam = linhaPermitida(segmentFilter === "AMBOS" ? userSegment : segmentFilter);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -259,7 +260,7 @@ export function ProductsCarouselBlock({
   const rows = configData.rows || 1;
 
   // Quando o bloco está configurado como "AMBOS", seguir o segmento ativo do usuário
-  const linhaParam = segmentFilter === "AMBOS" ? userSegment : segmentFilter;
+  const linhaParam = linhaPermitida(segmentFilter === "AMBOS" ? userSegment : segmentFilter);
 
   const { data, isLoading } = useQuery({
     queryKey: [
@@ -408,7 +409,8 @@ export function BrandsCarouselBlock({ config }: { config: string | null }) {
     { name: "Ford", img: "/site/brands/ford.png" },
     { name: "Valmet", img: "/site/brands/valmet.png" },
     { name: "MWM", img: "/site/brands/mwm.png" },
-    { name: "Pellegrino", img: "/site/brands/pellegrino.png" },
+    // Pellegrino é fornecedor da linha automotiva (desligada) — ver src/lib/linhas.ts
+    // { name: "Pellegrino", img: "/site/brands/pellegrino.png" },
     { name: "Massey Ferguson", img: "/site/brands/massey.png" },
   ];
 
@@ -499,7 +501,18 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
 
 // CAROUSEL MONTADORAS (Circulares)
 export function CarouselMontadorasBlock({ config }: { config: string | null }) {
-  const montadoras = ["Volvo", "Scania", "Mercedes", "Volkswagen", "Iveco", "Agrale"];
+  // Montadoras da linha pesada/automotiva (desligada — ver src/lib/linhas.ts):
+  // ["Volvo", "Scania", "Mercedes", "Volkswagen", "Iveco", "Agrale"]
+  // Nomes iguais ao campo `marca` da tabela agricolas, para o filtro da loja funcionar.
+  const montadoras = [
+    "Massey Ferguson",
+    "Valtra",
+    "New Holland",
+    "John Deere",
+    "Case IH",
+    "Ford",
+    "Agrale",
+  ];
   return (
     <section className="my-12">
       <h3 className="mb-8 text-center text-2xl font-bold tracking-tight text-zinc-800 uppercase">
@@ -507,14 +520,19 @@ export function CarouselMontadorasBlock({ config }: { config: string | null }) {
       </h3>
       <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12">
         {montadoras.map((m) => (
-          <div key={m} className="flex flex-col items-center gap-3 cursor-pointer group">
+          <Link
+            key={m}
+            to="/loja"
+            search={{ search: "", page: 1, linha: "AGRICOLA", marca: m } as never}
+            className="flex flex-col items-center gap-3 cursor-pointer group"
+          >
             <div className="w-24 h-24 rounded-full bg-white shadow-md border border-zinc-100 flex items-center justify-center p-4 group-hover:border-primary group-hover:shadow-lg transition-all">
               <span className="text-xs font-bold text-zinc-400 group-hover:text-primary">
                 {m.toUpperCase()}
               </span>
             </div>
             <span className="font-semibold text-zinc-700">{m}</span>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

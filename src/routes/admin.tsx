@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,7 +40,10 @@ const groups: any[] = [
         exact: false,
         sublinks: [
           { to: "/admin/produtos", search: { linha: "AGRICOLA" }, label: "Linha Agrícola" },
-          { to: "/admin/produtos", search: { linha: "AUTOMOTIVA" }, label: "Linha Automotiva" },
+          // Linha automotiva desligada — ver src/lib/linhas.ts
+          ...(AUTOMOTIVA_ATIVA
+            ? [{ to: "/admin/produtos", search: { linha: "AUTOMOTIVA" }, label: "Linha Automotiva" }]
+            : []),
         ],
       },
       {
@@ -48,7 +52,9 @@ const groups: any[] = [
         exact: false,
         sublinks: [
           { to: "/admin/categorias", search: { linha: "AGRICOLA" }, label: "Linha Agrícola" },
-          { to: "/admin/categorias", search: { linha: "AUTOMOTIVA" }, label: "Linha Automotiva" },
+          ...(AUTOMOTIVA_ATIVA
+            ? [{ to: "/admin/categorias", search: { linha: "AUTOMOTIVA" }, label: "Linha Automotiva" }]
+            : []),
         ],
       },
     ],
@@ -63,13 +69,18 @@ const groups: any[] = [
         icon: Upload,
         exact: false,
       },
-      {
-        to: "/admin/pellegrino",
-        search: undefined,
-        label: "Extração Pellegrino",
-        icon: Package,
-        exact: false,
-      },
+      // Extração Pellegrino alimenta o catálogo automotivo — oculta junto com a linha
+      ...(AUTOMOTIVA_ATIVA
+        ? [
+            {
+              to: "/admin/pellegrino",
+              search: undefined,
+              label: "Extração Pellegrino",
+              icon: Package,
+              exact: false,
+            },
+          ]
+        : []),
       {
         to: "/admin/analytics",
         search: undefined,

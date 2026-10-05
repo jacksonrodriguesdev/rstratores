@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { linhaPermitida } from "@/lib/linhas";
 
 type Segment = "AGRICOLA" | "AUTOMOTIVA";
 
@@ -15,13 +16,15 @@ export function SegmentProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("store_segment") as Segment;
     if (saved === "AGRICOLA" || saved === "AUTOMOTIVA") {
-      setSegmentState(saved);
+      setSegmentState(linhaPermitida(saved));
     }
   }, []);
 
   const setSegment = (s: Segment) => {
-    setSegmentState(s);
-    localStorage.setItem("store_segment", s);
+    // Com a linha automotiva desligada, o segmento fica sempre em AGRICOLA.
+    const linha = linhaPermitida(s);
+    setSegmentState(linha);
+    localStorage.setItem("store_segment", linha);
   };
 
   return (
