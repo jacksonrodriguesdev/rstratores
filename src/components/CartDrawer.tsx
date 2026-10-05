@@ -27,7 +27,7 @@ export function CartDrawer() {
     }
 
     // Formats a WhatsApp message
-    const lines = items.map((i) => `${i.quantity}x ${i.name} (SKU: ${i.sku})`);
+    const lines = items.map((i) => `${i.quantity}x ${i.name} (Cód: ${i.codigo || i.sku})`);
     const message = `Olá, gostaria de solicitar uma cotação para as seguintes peças:\n\n${lines.join("\n")}`;
 
     // Send to WhatsApp
@@ -89,7 +89,7 @@ export function CartDrawer() {
                     <h3 className="text-sm font-semibold text-zinc-800 line-clamp-2 leading-tight">
                       {item.name}
                     </h3>
-                    <p className="text-xs text-zinc-500 mt-1">SKU: {item.sku}</p>
+                    <p className="text-xs text-zinc-500 mt-1">Cód: {item.codigo || item.sku}</p>
 
                     <div className="flex items-center justify-between mt-auto pt-2">
                       <div className="flex items-center border rounded-md border-zinc-300 overflow-hidden">

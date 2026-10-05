@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
 import { useLanguage } from "@/components/LanguageContext";
-import type { Product } from "@/lib/products";
+import { codigoExibicao, type Product } from "@/lib/products";
 
 type Props = {
   title: string;
@@ -98,7 +98,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                       >
                         {language === "es-UY" && p.nome_es ? p.nome_es : p.nome}
                       </Link>
-                      <div className="text-[11px] text-muted-foreground">SKU {p.sku}</div>
+                      <div className="text-[11px] text-muted-foreground">Cód. {codigoExibicao(p)}</div>
                       <div className="mt-auto pt-2">
                         <QuoteButton product={p} fullWidth />
                       </div>

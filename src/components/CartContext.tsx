@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 
 export type CartItem = {
   sku: string;
+  codigo?: string; // código real da peça, mostrado ao cliente e na mensagem do WhatsApp
   name: string;
   image?: string;
   quantity: number;

@@ -26,7 +26,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { listProducts, getFacets, type ListParams } from "@/lib/products";
+import { listProducts, getFacets, codigoExibicao, type ListParams } from "@/lib/products";
 
 const searchSchema = z.object({
   q: z.string().optional(),
@@ -164,7 +164,7 @@ function LojaPage() {
 
       <div className="mb-6">
         <label className="mb-2 block text-sm font-semibold text-zinc-800">
-          Palavra-chave ou SKU
+          Palavra-chave ou código
         </label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -365,7 +365,7 @@ function LojaPage() {
                     <div className="flex flex-1 flex-col gap-2.5 p-4 border-t border-zinc-100">
                       <div className="flex flex-wrap gap-1.5 items-center justify-between">
                         <div className="text-[11px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200/80 tracking-wide">
-                          SKU {p.sku}
+                          Cód. {codigoExibicao(p)}
                         </div>
                         {p.marca && (
                           <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">

@@ -66,3 +66,4 @@ public/uploads/
 .env.*
 !.env.example
 lote1_imagens/
+dados/backup_*

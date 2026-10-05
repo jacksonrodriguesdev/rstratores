@@ -19,9 +19,16 @@ export type Product = {
   nome_es: string | null;
   descricao_es: string | null;
   imagem_principal: string | null;
+  codigo_fabricante?: string | null;
+  fabricante?: string | null;
   created_at: string;
   updated_at: string;
 };
+
+// Código mostrado ao cliente: o código real da peça quando existe, senão o SKU interno.
+export function codigoExibicao(p: Pick<Product, "sku" | "codigo_fabricante">) {
+  return p.codigo_fabricante || p.sku;
+}
 
 export type ProductImage = {
   id: number;

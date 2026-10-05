@@ -27,6 +27,7 @@ import {
   getProductImages,
   getRelatedProducts,
   getRelatedCategories,
+  codigoExibicao,
 } from "@/lib/products";
 
 export const Route = createFileRoute("/produto/$sku")({
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/produto/$sku")({
       };
     }
     const p = loaderData.product;
-    const title = `${p.nome} — SKU ${p.sku}`;
+    const title = `${p.nome} — Cód. ${codigoExibicao(p)}`;
     const desc =
       `${p.nome}. ${p.categoria ?? ""} ${p.marca ?? ""}. Faça sua cotação pelo WhatsApp.`.trim();
     return {
@@ -197,7 +198,7 @@ function ProductDetail() {
             <h1 className="text-2xl font-bold leading-tight md:text-3xl">
               {language === "es-UY" && product.nome_es ? product.nome_es : product.nome}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">SKU: {product.sku}</p>
+            <p className="mt-1 text-sm text-muted-foreground">Código: {codigoExibicao(product)}</p>
 
             {/* Detalhes Rápidos em Cards */}
             <div className="mt-4 grid grid-cols-2 gap-3">
@@ -240,6 +241,7 @@ function ProductDetail() {
                     onClick={() =>
                       addItem({
                         sku: product.sku,
+                        codigo: codigoExibicao(product),
                         name: product.nome,
                         image: product.imagem_principal || undefined,
                         quantity: 1,
@@ -371,7 +373,8 @@ function ProductDetail() {
             <div className="mt-6 rounded-lg border bg-card p-5">
               <h2 className="mb-3 text-base font-semibold">Especificações</h2>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                <SpecRow label="SKU / Código" value={product.sku} />
+                <SpecRow label="Código" value={codigoExibicao(product)} />
+                {product.fabricante && <SpecRow label="Fabricante" value={product.fabricante} />}
                 {product.categoria && <SpecRow label="Categoria" value={product.categoria} />}
                 {product.marca && <SpecRow label="Marca" value={product.marca} />}
                 {product.tamanho && <SpecRow label="Tamanho" value={product.tamanho} />}

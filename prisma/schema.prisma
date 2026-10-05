@@ -157,6 +157,7 @@ model agricolas {
   updated_at           DateTime     @updatedAt
   url                  String?      @db.Text
   codigo_fabricante    String?      @db.Text
+  fabricante           String?      @db.Text // fabricante da peça (DANA, MWM, FERSA...)
   ean                  String?      @db.Text
   ncm                  String?      @db.Text
   profundidade         Float?

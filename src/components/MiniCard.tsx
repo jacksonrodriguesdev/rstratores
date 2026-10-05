@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/components/LanguageContext";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
-import type { Product } from "@/lib/products";
+import { codigoExibicao, type Product } from "@/lib/products";
 import { useCart } from "@/components/CartContext";
 import { ShoppingCart } from "lucide-react";
 
@@ -30,7 +30,7 @@ export function MiniCard({ p }: { p: Product }) {
       <div className="flex flex-1 flex-col gap-2.5 p-4 bg-white/40">
         <div className="flex flex-wrap gap-1.5 items-center justify-between">
           <div className="text-[11px] font-medium text-muted-foreground/80 bg-muted/50 px-2 py-0.5 rounded-full border border-black/5">
-            SKU {p.sku}
+            Cód. {codigoExibicao(p)}
           </div>
           {p.marca && (
             <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
@@ -50,6 +50,7 @@ export function MiniCard({ p }: { p: Product }) {
             onClick={() =>
               addItem({
                 sku: p.sku,
+                codigo: codigoExibicao(p),
                 name: p.nome,
                 image: p.imagem_principal || undefined,
                 quantity: 1,

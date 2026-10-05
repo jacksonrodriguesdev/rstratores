@@ -52,6 +52,9 @@ export async function listProducts(params: ListParams) {
         OR: [
           { nome: { contains: s } },
           { sku: { contains: s } },
+          { codigo_fabricante: { contains: s } },
+          // `fabricante` só existe na tabela agricolas
+          ...(linha === "AGRICOLA" ? [{ fabricante: { contains: s } }] : []),
           { categoria: { contains: s } },
           { marca: { contains: s } },
           { descricao: { contains: s } },
