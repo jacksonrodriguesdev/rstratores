@@ -8,9 +8,11 @@ type Props = {
   src: string | null | undefined;
   alt: string;
   className?: string;
+  // Exibida no placeholder quando o produto não tem foto.
+  marca?: string | null;
 };
 
-export function ProductImage({ src, alt, className }: Props) {
+export function ProductImage({ src, alt, className, marca }: Props) {
   let currentSegment = "AGRICOLA";
   try {
     const segmentCtx = useSegment();
@@ -46,13 +48,20 @@ export function ProductImage({ src, alt, className }: Props) {
     return (
       <div
         className={cn(
-          "flex flex-col items-center justify-center bg-zinc-50 border-2 border-dashed border-zinc-200 text-zinc-400 p-4 rounded-xl",
+          "@container flex h-full w-full flex-col items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary/5 via-white to-primary/10 p-2",
           className,
         )}
       >
-        <Icon className="h-10 w-10 mb-3 opacity-30 text-zinc-500" />
-        <span className="text-[10px] font-medium text-center uppercase tracking-wider text-zinc-400 max-w-[180px] leading-snug">
-          Não possuímos imagem desse produto catalogada ainda.
+        <div className="flex items-center justify-center rounded-full bg-primary/10 p-[18%] @[120px]:p-4">
+          <Icon className="h-full w-full text-primary/50 @[120px]:h-10 @[120px]:w-10" />
+        </div>
+        {marca && (
+          <span className="hidden text-center text-[11px] font-black uppercase tracking-widest text-primary/70 @[120px]:block">
+            {marca}
+          </span>
+        )}
+        <span className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-400 @[120px]:block">
+          Foto em breve
         </span>
       </div>
     );

@@ -79,6 +79,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                       <ProductImage
                         src={p.imagem_principal}
                         alt={language === "es-UY" && p.nome_es ? p.nome_es : p.nome}
+                        marca={p.marca}
                         className="transition-transform hover:scale-105"
                       />
                     </Link>

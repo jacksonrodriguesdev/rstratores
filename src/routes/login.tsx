@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [{ title: "Entrar — RS Auto Parts" }],
+    meta: [{ title: "Entrar — RS Trator Peças" }],
   }),
   component: LoginPage,
 });

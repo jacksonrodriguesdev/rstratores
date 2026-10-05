@@ -44,6 +44,9 @@ export type ListParams = {
   pageSize?: number;
   cursor?: string;
   hasImage?: boolean;
+  // Só produtos apresentáveis (com categoria). Os sem categoria vieram da extração com o
+  // nome do fabricante no lugar do nome da peça ("GERAL", "EATON"...). A busca não usa isso.
+  vitrine?: boolean;
 };
 
 import { createServerFn } from "@tanstack/react-start";

@@ -63,7 +63,7 @@ function LojaPage() {
   const [categorias, setCategorias] = useState<string[]>(categoria ? [categoria] : []);
   const [marcas, setMarcas] = useState<string[]>(marca ? [marca] : []);
   const [montadoras, setMontadoras] = useState<string[]>([]);
-  const [sort, setSort] = useState<ListParams["sort"]>("sku");
+  const [sort, setSort] = useState<ListParams["sort"]>("nome-asc");
   const [mobileOpen, setMobileOpen] = useState(false);
   const { segment, setSegment } = useSegment();
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -86,6 +86,8 @@ function LojaPage() {
       montadora: montadoras.length > 0 ? montadoras : undefined,
       sort,
       pageSize: PAGE_SIZE,
+      // Navegando sem busca, mostra só produtos apresentáveis; a busca procura em tudo.
+      vitrine: !search.trim(),
     }),
     [search, segment, categorias, marcas, montadoras, sort],
   );
@@ -323,9 +325,9 @@ function LojaPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sku">Lançamentos (SKU)</SelectItem>
                   <SelectItem value="nome-asc">Ordem Alfabética (A-Z)</SelectItem>
                   <SelectItem value="nome-desc">Ordem Alfabética (Z-A)</SelectItem>
+                  <SelectItem value="created-desc">Mais recentes</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -355,6 +357,7 @@ function LojaPage() {
                       <ProductImage
                         src={p.imagem_principal}
                         alt={p.nome}
+                        marca={p.marca}
                         className="transition-transform duration-700 ease-out group-hover:scale-105 object-contain drop-shadow-sm mix-blend-multiply"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

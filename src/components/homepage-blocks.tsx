@@ -17,7 +17,17 @@ import { linhaPermitida } from "@/lib/linhas";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ProductSlider } from "@/components/ProductSlider";
 import { useQuery } from "@tanstack/react-query";
-import { listProducts } from "@/lib/products";
+import { listProducts, type ListParams } from "@/lib/products";
+
+// Produtos dos blocos da home. Se o bloco pede "só com imagem" e não há nenhum
+// (o catálogo agrícola ainda não tem fotos), mostra os produtos apresentáveis.
+async function listVitrine(params: ListParams, onlyWithImages: boolean) {
+  if (onlyWithImages) {
+    const comImagem = await listProducts({ ...params, hasImage: true });
+    if (comImagem.rows.length > 0) return comImagem;
+  }
+  return listProducts({ ...params, vitrine: true });
+}
 import { listActiveBanners } from "@/lib/banners";
 import { listCategories } from "@/lib/categories";
 import { MiniCard } from "@/components/MiniCard";
@@ -101,6 +111,7 @@ export function ProductsGridBlock({
   const segmentFilter = configData.segment || "AMBOS";
   const categoriaFilter = configData.categoria || undefined;
   const marcaFilter = configData.marca || undefined;
+  const sortFilter = configData.sort || undefined;
   const onlyWithImages = configData.onlyWithImages ?? true;
   const limit = configData.limit || 8;
 
@@ -115,24 +126,24 @@ export function ProductsGridBlock({
       onlyWithImages,
       categoriaFilter,
       marcaFilter,
+      sortFilter,
     ],
     queryFn: () =>
-      listProducts({
-        page: 1,
-        pageSize: limit,
-        linha: linhaParam,
-        categoria: categoriaFilter,
-        marca: marcaFilter,
-        hasImage: onlyWithImages ? true : undefined,
-      }),
+      listVitrine(
+        {
+          page: 1,
+          pageSize: limit,
+          linha: linhaParam,
+          categoria: categoriaFilter,
+          marca: marcaFilter,
+          sort: sortFilter,
+        },
+        onlyWithImages,
+      ),
   });
 
   const products = data?.rows ?? [];
-  const filteredProducts = onlyWithImages
-    ? products
-        .filter((p: any) => p.imagem_principal && p.imagem_principal.trim() !== "")
-        .slice(0, limit)
-    : products.slice(0, limit);
+  const filteredProducts = products.slice(0, limit);
 
   return (
     <section className="my-12">
@@ -254,6 +265,7 @@ export function ProductsCarouselBlock({
   const segmentFilter = configData.segment || "AMBOS";
   const categoriaFilter = configData.categoria || undefined;
   const marcaFilter = configData.marca || undefined;
+  const sortFilter = configData.sort || undefined;
   const onlyWithImages = configData.onlyWithImages ?? true;
   const limit = configData.limit || 12;
 
@@ -270,24 +282,24 @@ export function ProductsCarouselBlock({
       onlyWithImages,
       categoriaFilter,
       marcaFilter,
+      sortFilter,
     ],
     queryFn: () =>
-      listProducts({
-        page: 1,
-        pageSize: limit,
-        linha: linhaParam,
-        categoria: categoriaFilter,
-        marca: marcaFilter,
-        hasImage: onlyWithImages ? true : undefined,
-      }),
+      listVitrine(
+        {
+          page: 1,
+          pageSize: limit,
+          linha: linhaParam,
+          categoria: categoriaFilter,
+          marca: marcaFilter,
+          sort: sortFilter,
+        },
+        onlyWithImages,
+      ),
   });
 
   const products = data?.rows ?? [];
-  const filteredProducts = onlyWithImages
-    ? products
-        .filter((p: any) => p.imagem_principal && p.imagem_principal.trim() !== "")
-        .slice(0, limit)
-    : products.slice(0, limit);
+  const filteredProducts = products.slice(0, limit);
 
   return (
     <section className="my-8">
@@ -463,38 +475,44 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
 }
 
 // BANNERS DUPLOS
+// Antes: fotos genéricas de carro/motor (Unsplash) e sem link. Agora levam às categorias agrícolas.
+const PROMO_BANNERS = [
+  {
+    titulo: "Engrenagens e Transmissão",
+    texto: "Peças para câmbio, diferencial e tração do seu trator.",
+    categoria: "Engrenagens e Transmissão",
+    cta: "VER PEÇAS",
+    icon: Settings,
+  },
+  {
+    titulo: "Filtros",
+    texto: "Filtros de óleo, combustível e ar para a revisão do seu trator.",
+    categoria: "Filtros",
+    cta: "COMPRE AGORA",
+    icon: Droplet,
+  },
+];
+
 export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
-  // Normally config would have 2 images. Using placeholders.
   return (
     <section className="my-12 flex flex-col md:flex-row gap-6">
-      <div className="flex-1 h-48 md:h-64 rounded-xl overflow-hidden relative shadow-lg group cursor-pointer bg-zinc-900">
-        <img
-          src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?q=80&w=800&auto=format&fit=crop"
-          className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
-          alt="Promo 1"
-        />
-        <div className="absolute inset-0 flex flex-col justify-center p-8">
-          <h3 className="text-white text-3xl font-black mb-2 uppercase">Linha Motor</h3>
-          <p className="text-zinc-200 mb-4">As melhores marcas com descontos exclusivos.</p>
-          <span className="bg-primary text-white px-6 py-2 w-max font-bold rounded shadow-md">
-            VER OFERTAS
-          </span>
-        </div>
-      </div>
-      <div className="flex-1 h-48 md:h-64 rounded-xl overflow-hidden relative shadow-lg group cursor-pointer bg-zinc-900">
-        <img
-          src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=800&auto=format&fit=crop"
-          className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
-          alt="Promo 2"
-        />
-        <div className="absolute inset-0 flex flex-col justify-center p-8">
-          <h3 className="text-white text-3xl font-black mb-2 uppercase">Filtros & Óleos</h3>
-          <p className="text-zinc-200 mb-4">Kits completos para revisão do seu veículo.</p>
-          <span className="bg-primary text-white px-6 py-2 w-max font-bold rounded shadow-md">
-            COMPRE AGORA
-          </span>
-        </div>
-      </div>
+      {PROMO_BANNERS.map((b) => (
+        <Link
+          key={b.categoria}
+          to="/loja"
+          search={{ linha: "AGRICOLA", categoria: b.categoria } as never}
+          className="flex-1 h-48 md:h-64 rounded-xl overflow-hidden relative shadow-lg group bg-gradient-to-br from-primary to-primary/70"
+        >
+          <b.icon className="absolute -right-6 -bottom-6 h-48 w-48 text-white/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12" />
+          <div className="absolute inset-0 flex flex-col justify-center p-8">
+            <h3 className="text-white text-2xl md:text-3xl font-black mb-2 uppercase">{b.titulo}</h3>
+            <p className="text-white/85 mb-4 max-w-xs">{b.texto}</p>
+            <span className="bg-white text-primary px-6 py-2 w-max font-bold rounded shadow-md">
+              {b.cta}
+            </span>
+          </div>
+        </Link>
+      ))}
     </section>
   );
 }

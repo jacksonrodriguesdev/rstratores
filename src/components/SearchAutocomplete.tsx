@@ -118,7 +118,7 @@ export function SearchAutocomplete({
                     </div>
                   </div>
                   <div className="text-sm font-bold text-primary shrink-0 pl-2">
-                    {formatBRL(product.preco_brl)}
+                    {product.preco_brl ? formatBRL(product.preco_brl) : "Sob consulta"}
                   </div>
                 </button>
               ))}

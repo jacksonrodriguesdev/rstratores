@@ -23,6 +23,7 @@ export async function listProducts(params: ListParams) {
     pageSize = 36,
     cursor,
     hasImage,
+    vitrine,
   } = params;
 
   const where: any = { AND: [] };
@@ -38,6 +39,10 @@ export async function listProducts(params: ListParams) {
     where.AND.push({
       imagem_principal: { not: { contains: "redeparts" } },
     });
+  }
+
+  if (vitrine) {
+    where.AND.push({ category_id: { not: null } });
   }
 
   if (search && search.trim()) {
@@ -114,12 +119,12 @@ export async function listProducts(params: ListParams) {
   }
 
   const sortMap: Record<string, any> = {
-    "nome-asc": { sku: "asc" },
-    "nome-desc": { sku: "desc" },
+    "nome-asc": [{ nome: "asc" }, { sku: "asc" }],
+    "nome-desc": [{ nome: "desc" }, { sku: "asc" }],
     "preco-asc": { preco_brl: "asc" },
     "preco-desc": { preco_brl: "desc" },
     sku: { sku: "asc" },
-    "created-desc": { created_at: "desc" },
+    "created-desc": [{ created_at: "desc" }, { sku: "asc" }],
   };
 
   const orderBy = sortMap[sort] || { sku: "asc" };

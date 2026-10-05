@@ -155,6 +155,7 @@ function ProductDetail() {
               <ProductImage
                 src={mainImage}
                 alt={language === "es-UY" && product.nome_es ? product.nome_es : product.nome}
+                marca={product.marca}
               />
             </Card>
             {gallery.length > 1 && (
@@ -314,14 +315,14 @@ function ProductDetail() {
             {(product as any).aplicacoes?.length > 0 && (
               <div className="mt-6 rounded-lg border bg-card p-5">
                 <h2 className="mb-4 flex items-center gap-2 text-base font-semibold">
-                  <Tag className="h-5 w-5 text-primary" /> Aplicações (Veículos Compatíveis)
+                  <Tag className="h-5 w-5 text-primary" /> Aplicações (Tratores Compatíveis)
                 </h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-muted/50 text-muted-foreground">
                       <tr>
                         <th className="px-3 py-2 font-medium">Montadora</th>
-                        <th className="px-3 py-2 font-medium">Veículo</th>
+                        <th className="px-3 py-2 font-medium">Modelo</th>
                         <th className="px-3 py-2 font-medium">Ano</th>
                         <th className="px-3 py-2 font-medium">Motor</th>
                       </tr>
@@ -359,7 +360,7 @@ function ProductDetail() {
 
             {product.veiculos_compativeis && (
               <div className="mt-6 rounded-lg border bg-card p-5">
-                <h2 className="mb-2 text-base font-semibold">Veículos Compatíveis</h2>
+                <h2 className="mb-2 text-base font-semibold">Tratores Compatíveis</h2>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
                   {product.veiculos_compativeis}
                 </p>

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({
-    meta: [{ title: "Cadastro — RS Auto Parts" }],
+    meta: [{ title: "Cadastro — RS Trator Peças" }],
   }),
   component: CadastroPage,
 });
