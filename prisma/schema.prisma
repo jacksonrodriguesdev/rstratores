@@ -162,6 +162,10 @@ model agricolas {
   duplicado_de         String?      @db.VarChar(191)
   // false quando a marca é só o valor padrão da importação antiga e não pôde ser confirmada
   marca_confirmada     Boolean      @default(true)
+  // Foto obtida automaticamente pela busca de imagens: página de origem (para remover se preciso)
+  imagem_origem        String?      @db.Text
+  // Quando a busca automática de imagem foi feita (evita pesquisar e pagar duas vezes)
+  imagem_buscada_em    DateTime?
   ean                  String?      @db.Text
   ncm                  String?      @db.Text
   profundidade         Float?

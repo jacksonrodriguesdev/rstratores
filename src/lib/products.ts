@@ -23,6 +23,8 @@ export type Product = {
   fabricante?: string | null;
   // false quando a marca é só o valor padrão da importação antiga
   marca_confirmada?: boolean;
+  // Página de onde a foto foi baixada pela busca automática (foto ilustrativa).
+  imagem_origem?: string | null;
   // Preenchido nas versões: SKU do produto principal com o mesmo código.
   duplicado_de?: string | null;
   // Versões desta peça (outros fabricantes/sufixos), só na página do produto.

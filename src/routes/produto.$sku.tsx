@@ -170,6 +170,12 @@ function ProductDetail() {
                 marca={marca}
               />
             </Card>
+            {product.imagem_origem && mainImage === product.imagem_principal && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Imagem ilustrativa, obtida por busca automática. Confirme a peça pelo código antes de
+                comprar.
+              </p>
+            )}
             {gallery.length > 1 && (
               <div className="mt-3 grid grid-cols-5 gap-2">
                 {gallery.map((path) => (

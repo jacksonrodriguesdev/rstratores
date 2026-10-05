@@ -128,7 +128,7 @@ export function SiteHeader() {
           </div>
 
           <div className="hidden md:block text-center flex-1 text-zinc-400">
-            Seja bem-vindo à RS Trator Peças - A Maior Auto Peças do Sul!
+            Seja bem-vindo à RS Trator Peças - A Maior Loja de Peças Agrícolas do Sul!
           </div>
 
           <div className="flex items-center gap-4">
