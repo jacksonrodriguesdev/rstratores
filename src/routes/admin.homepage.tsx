@@ -60,7 +60,7 @@ const BLOCK_TYPES = [
     id: "CATEGORY_GRID",
     name: "Grade de Categorias",
     icon: Box,
-    desc: "Ícones de sistemas populares como Motor, Suspensão, Freios.",
+    desc: "Atalhos circulares para as categorias de peças agrícolas.",
     recommend: "Nenhuma imagem necessária",
   },
   {
@@ -109,15 +109,15 @@ const BLOCK_TYPES = [
   },
   {
     id: "DEPOIMENTOS",
-    name: "Depoimentos de Clientes",
+    name: "Avaliações do Google",
     icon: MessageSquare,
-    desc: "Avaliações de clientes sobre a loja.",
+    desc: "Nota e avaliações do perfil da loja no Google, com o logo do Google.",
   },
   {
     id: "NEWSLETTER_INSTAGRAM",
-    name: "Newsletter & Instagram",
+    name: "WhatsApp & Instagram",
     icon: Send,
-    desc: "Chamada dupla para cadastro de email e redes sociais.",
+    desc: "Chamada para receber ofertas no WhatsApp e seguir no Instagram.",
   },
 ];
 
@@ -223,8 +223,15 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
       setImagePath(currentConfig.image_path || "");
       setImages(currentConfig.images || []);
       setSegment(currentConfig.segment || "AMBOS");
+      setCategoria(currentConfig.categoria || "");
+      setMarca(currentConfig.marca || "");
       setOnlyWithImages(currentConfig.onlyWithImages ?? true);
       setLimit(currentConfig.limit || 8);
+      setRows(currentConfig.rows || 1);
+      setGoogleUrl(currentConfig.googleUrl || "");
+      setNota(currentConfig.nota ?? "");
+      setTotal(currentConfig.total ?? "");
+      setAvaliacoes(currentConfig.avaliacoes || []);
     }
   }, [configOpen, block]);
 
@@ -235,6 +242,16 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
   const [onlyWithImages, setOnlyWithImages] = useState(configData.onlyWithImages ?? true);
   const [limit, setLimit] = useState(configData.limit || 8);
   const [rows, setRows] = useState(configData.rows || 1);
+
+  // Avaliações do Google (bloco DEPOIMENTOS)
+  const [googleUrl, setGoogleUrl] = useState(configData.googleUrl || "");
+  const [nota, setNota] = useState<number | "">(configData.nota ?? "");
+  const [total, setTotal] = useState<number | "">(configData.total ?? "");
+  const [avaliacoes, setAvaliacoes] = useState<
+    Array<{ autor: string; nota: number; texto: string; quando?: string }>
+  >(configData.avaliacoes || []);
+  const editarAvaliacao = (i: number, campo: string, valor: string | number) =>
+    setAvaliacoes((lista) => lista.map((a, j) => (j === i ? { ...a, [campo]: valor } : a)));
 
   const toggleActive = async (v: boolean) => {
     setBusy(true);
@@ -275,6 +292,13 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
           id: block.id,
           title,
           config: JSON.stringify({
+            ...(block.config ? JSON.parse(block.config) : {}),
+            ...(block.type === "DEPOIMENTOS" && {
+              googleUrl,
+              nota: nota === "" ? undefined : Number(nota),
+              total: total === "" ? undefined : Number(total),
+              avaliacoes: avaliacoes.filter((a) => a.autor.trim() && a.texto.trim()),
+            }),
             link,
             image_path: imagePath,
             subtitle,
@@ -504,6 +528,99 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                       </select>
                     </div>
                   )}
+                </>
+              )}
+
+              {block.type === "DEPOIMENTOS" && (
+                <>
+                  <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+                    Com <strong>GOOGLE_PLACES_API_KEY</strong> e <strong>GOOGLE_PLACE_ID</strong> no
+                    .env, as avaliações vêm automaticamente do Google e os dados abaixo são ignorados.
+                    Sem isso, copie aqui avaliações reais do perfil da loja no Google.
+                  </p>
+                  <div className="space-y-2">
+                    <Label>Link do perfil no Google (para "Avaliar no Google")</Label>
+                    <Input
+                      value={googleUrl}
+                      onChange={(e) => setGoogleUrl(e.target.value)}
+                      placeholder="https://g.page/r/.../review"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Nota média</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min="1"
+                        max="5"
+                        value={nota}
+                        onChange={(e) => setNota(e.target.value === "" ? "" : Number(e.target.value))}
+                        placeholder="4.9"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Total de avaliações</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={total}
+                        onChange={(e) => setTotal(e.target.value === "" ? "" : Number(e.target.value))}
+                        placeholder="120"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Label>Avaliações</Label>
+                    {avaliacoes.map((a, i) => (
+                      <div key={i} className="space-y-2 rounded-md border p-3">
+                        <div className="flex gap-2">
+                          <Input
+                            value={a.autor}
+                            onChange={(e) => editarAvaliacao(i, "autor", e.target.value)}
+                            placeholder="Nome do cliente"
+                          />
+                          <select
+                            value={a.nota}
+                            onChange={(e) => editarAvaliacao(i, "nota", Number(e.target.value))}
+                            className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                          >
+                            {[5, 4, 3, 2, 1].map((n) => (
+                              <option key={n} value={n}>
+                                {n} ★
+                              </option>
+                            ))}
+                          </select>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setAvaliacoes((l) => l.filter((_, j) => j !== i))}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                        <Input
+                          value={a.quando || ""}
+                          onChange={(e) => editarAvaliacao(i, "quando", e.target.value)}
+                          placeholder="Quando (ex.: há 2 meses)"
+                        />
+                        <textarea
+                          value={a.texto}
+                          onChange={(e) => editarAvaliacao(i, "texto", e.target.value)}
+                          placeholder="Texto da avaliação, como está no Google"
+                          rows={3}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAvaliacoes((l) => [...l, { autor: "", nota: 5, texto: "" }])}
+                    >
+                      Adicionar avaliação
+                    </Button>
+                  </div>
                 </>
               )}
 

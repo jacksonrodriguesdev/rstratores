@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { FloatingContact } from "@/components/FloatingContact";
 import { VisitTracker } from "@/components/VisitTracker";
 import { SiteFooter } from "@/components/SiteFooter";
+import { MobileTabBar } from "@/components/MobileTabBar";
 
 function NotFoundComponent() {
   return (
@@ -79,7 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      // viewport-fit=cover: usa a tela inteira no iPhone (com pb-safe/pt-safe nas barras)
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      // Aparência de aplicativo: cor da barra do navegador e instalação na tela inicial
+      { name: "theme-color", content: "#2e7d32" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "RS Trator" },
       { title: "RS Trator Peças — Catálogo de Peças para Tratores" },
       {
         name: "description",
@@ -117,6 +125,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
       },
     ],
   }),
@@ -156,6 +173,7 @@ function RootComponent() {
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
             <SiteFooter />
+            <MobileTabBar />
             <FloatingContact />
             <VisitTracker />
             <CartDrawer />

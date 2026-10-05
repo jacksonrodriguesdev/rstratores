@@ -1,23 +1,34 @@
-import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
-  Settings,
-  Wrench,
-  OctagonAlert,
-  Droplet,
-  ArrowRight,
+  Search,
   Truck,
   ShieldCheck,
   Headset,
-  Package,
+  Settings,
+  Droplet,
+  MessageCircle,
+  Calculator,
+  LayoutGrid,
+  Tractor,
+  User,
+  Instagram,
+  ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/components/LanguageContext";
 import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
-import { HeroSlider } from "@/components/HeroSlider";
-import { ProductSlider } from "@/components/ProductSlider";
-import { useQuery } from "@tanstack/react-query";
 import { listProducts, type ListParams } from "@/lib/products";
+import { listActiveBanners } from "@/lib/banners";
+import { listCategories } from "@/lib/categories";
+import { whatsappContactUrl } from "@/lib/whatsapp";
+import { CATEGORIAS, MONTADORAS, INSTAGRAM_URL } from "@/lib/navegacao";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { ProductRail, RailCard } from "@/components/home/ProductRail";
+import { Reveal, Section } from "@/components/home/Reveal";
+import { GoogleReviews } from "@/components/home/GoogleReviews";
+import { QuoteModal } from "@/components/QuoteModal";
+import { BannerImage } from "@/components/BannerImage";
 
 // Produtos dos blocos da home. Se o bloco pede "só com imagem" e não há nenhum
 // (o catálogo agrícola ainda não tem fotos), mostra os produtos apresentáveis.
@@ -28,603 +39,472 @@ async function listVitrine(params: ListParams, onlyWithImages: boolean) {
   }
   return listProducts({ ...params, vitrine: true });
 }
-import { listActiveBanners } from "@/lib/banners";
-import { listCategories } from "@/lib/categories";
-import { MiniCard } from "@/components/MiniCard";
 
-// HERO SLIDER BLOCK
-export function HeroSliderBlock({
-  config,
-  title,
-}: {
-  config: string | null;
-  title: string | null;
-}) {
+function lerConfig(config: string | null): Record<string, any> {
+  try {
+    return config ? JSON.parse(config) : {};
+  } catch {
+    return {};
+  }
+}
+
+// Busca de produtos comum aos blocos de carrossel e grade.
+function useProdutosDoBloco(config: string | null, limitePadrao: number) {
   const { segment } = useSegment();
-  const configData = config ? JSON.parse(config) : {};
-  const subtitle = configData.subtitle;
-  const tag = configData.tag;
+  const c = lerConfig(config);
+  const segmento = c.segment || "AMBOS";
+  // Quando o bloco está configurado como "AMBOS", segue o segmento ativo do usuário.
+  const linha = linhaPermitida(segmento === "AMBOS" ? segment : segmento);
+  const filtros = {
+    linha,
+    categoria: c.categoria || undefined,
+    marca: c.marca || undefined,
+    sort: c.sort || undefined,
+  };
+  const limite = c.limit || limitePadrao;
+  const onlyWithImages = c.onlyWithImages ?? true;
 
-  // Buscar banners ativos do site_banners filtrados por segmento
-  const { data: heroBanners = [] } = useQuery({
+  const query = useQuery({
+    queryKey: ["home-produtos", filtros, limite, onlyWithImages],
+    queryFn: () => listVitrine({ page: 1, pageSize: limite, ...filtros }, onlyWithImages),
+  });
+  return {
+    produtos: (query.data?.rows ?? []).slice(0, limite),
+    carregando: query.isLoading,
+    // Parâmetros do "Ver todos" na loja
+    busca: { linha, ...(filtros.categoria && { categoria: filtros.categoria }), ...(filtros.marca && { marca: filtros.marca }) },
+  };
+}
+
+// BANNER PRINCIPAL + ATALHOS (os cartões se sobrepõem ao banner no desktop, como no Mercado Livre)
+export function HeroSliderBlock({ config, title }: { config: string | null; title: string | null }) {
+  const { segment } = useSegment();
+  const c = lerConfig(config);
+  const { data: banners = [], isLoading } = useQuery({
     queryKey: ["hero_banners", segment],
     queryFn: () => listActiveBanners("hero", segment),
   });
 
-  const mappedBanners = heroBanners;
-
-  if (mappedBanners.length === 0) {
-    return (
-      <section className="my-12 rounded-2xl bg-muted/30 p-12 text-center border-dashed border-2">
-        <h3 className="text-xl font-bold text-muted-foreground">Nenhum Banner Cadastrado</h3>
-        <p className="text-muted-foreground text-sm mt-2">
-          Acesse Admin {">"} Banners e cadastre banners para o segmento {segment}.
-        </p>
-      </section>
-    );
-  }
-
   return (
-    <section className="relative overflow-hidden min-h-[420px] flex items-center border-b border-zinc-800 rounded-b-2xl shadow-xl">
-      <div className="absolute inset-0 z-0">
-        <HeroSlider banners={mappedBanners} intervalMs={6000} />
-      </div>
-
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/40 to-transparent z-10 pointer-events-none"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/80 via-zinc-950/20 to-transparent z-10 pointer-events-none"></div>
-
-      <div className="relative mx-auto w-full max-w-7xl px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-12 animate-in fade-in duration-1000 z-20 pointer-events-none">
-        {(title || subtitle || tag) && (
-          <div className="flex-1 flex flex-col gap-6 drop-shadow-lg">
-            {tag && (
-              <span className="w-fit bg-accent/90 text-accent-foreground backdrop-blur-sm px-4 py-1.5 shadow-lg shadow-accent/20 rounded-full text-xs font-bold uppercase pointer-events-auto">
-                {tag}
-              </span>
-            )}
-            {title && (
-              <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl leading-[1.1] text-white">
-                {title}
-              </h1>
-            )}
-            {subtitle && (
-              <p className="text-zinc-200 md:text-lg leading-relaxed max-w-xl font-medium">
-                {subtitle}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// PRODUCTS GRID BLOCK
-export function ProductsGridBlock({
-  title,
-  config,
-}: {
-  title: string | null;
-  config: string | null;
-}) {
-  const { segment: userSegment } = useSegment();
-  const configData = config ? JSON.parse(config) : {};
-  const segmentFilter = configData.segment || "AMBOS";
-  const categoriaFilter = configData.categoria || undefined;
-  const marcaFilter = configData.marca || undefined;
-  const sortFilter = configData.sort || undefined;
-  const onlyWithImages = configData.onlyWithImages ?? true;
-  const limit = configData.limit || 8;
-
-  // Quando o bloco está configurado como "AMBOS", seguir o segmento ativo do usuário
-  const linhaParam = linhaPermitida(segmentFilter === "AMBOS" ? userSegment : segmentFilter);
-
-  const { data, isLoading } = useQuery({
-    queryKey: [
-      "home-products-grid",
-      linhaParam,
-      limit,
-      onlyWithImages,
-      categoriaFilter,
-      marcaFilter,
-      sortFilter,
-    ],
-    queryFn: () =>
-      listVitrine(
-        {
-          page: 1,
-          pageSize: limit,
-          linha: linhaParam,
-          categoria: categoriaFilter,
-          marca: marcaFilter,
-          sort: sortFilter,
-        },
-        onlyWithImages,
-      ),
-  });
-
-  const products = data?.rows ?? [];
-  const filteredProducts = products.slice(0, limit);
-
-  return (
-    <section className="my-12">
-      <div className="mb-6 flex items-end justify-between">
-        <h3 className="text-2xl font-bold tracking-tight">{title || "Produtos em Destaque"}</h3>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/loja" search={{ linha: linhaParam } as never}>
-            Ver todos <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-
+    <div className="relative">
       {isLoading ? (
-        <div className="py-12 text-center text-muted-foreground">Carregando produtos...</div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="border border-dashed rounded-lg p-12 text-center text-muted-foreground bg-muted/10">
-          <p>Nenhum produto encontrado com os filtros selecionados.</p>
+        // Esqueleto com a altura do banner: evita mostrar o banner reserva enquanto carrega
+        <div className="px-3 pt-3 md:px-0 md:pt-0">
+          <div className="h-[170px] animate-pulse rounded-2xl bg-zinc-200 sm:h-[240px] md:h-[400px] md:rounded-none" />
         </div>
+      ) : banners.length > 0 ? (
+        <HeroCarousel banners={banners} titulo={title} subtitulo={c.subtitle} tag={c.tag} />
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {filteredProducts.map((p: any) => (
-            <MiniCard key={p.sku} p={p} />
-          ))}
+        <div className="mx-3 mt-3 rounded-2xl bg-gradient-to-br from-primary to-emerald-900 px-6 py-10 text-white md:mx-0 md:mt-0 md:rounded-none md:px-0 md:pb-36 md:pt-16">
+          <div className="mx-auto max-w-7xl md:px-8">
+            <h1 className="max-w-xl text-2xl font-extrabold leading-tight md:text-5xl">
+              {title || "Peças para tratores com cotação rápida"}
+            </h1>
+            <p className="mt-2 max-w-lg text-white/85 md:text-lg">
+              {c.subtitle || "Busque pelo código original e receba sua cotação pelo WhatsApp."}
+            </p>
+          </div>
         </div>
       )}
-    </section>
-  );
-}
-
-// Mapa de ícones para categorias conhecidas (fallback)
-const CATEGORY_ICON_MAP: Record<string, React.ReactNode> = {
-  "Motor": <Settings className="h-8 w-8 text-primary" />,
-  "Suspensão": <Wrench className="h-8 w-8 text-primary" />,
-  "Freios": <OctagonAlert className="h-8 w-8 text-primary" />,
-  "Filtros e Óleos": <Droplet className="h-8 w-8 text-primary" />,
-  "Filtros": <Droplet className="h-8 w-8 text-primary" />,
-  "Engrenagens e Transmissão": <Settings className="h-8 w-8 text-primary" />,
-  "Hidráulica e Pneumática": <Wrench className="h-8 w-8 text-primary" />,
-  "Vedações": <OctagonAlert className="h-8 w-8 text-primary" />,
-};
-
-const DEFAULT_ICON = <Package className="h-8 w-8 text-primary" />;
-
-// CATEGORY GRID BLOCK
-export function CategoryGridBlock({ config }: { config: string | null }) {
-  const { t } = useLanguage();
-  const { segment } = useSegment();
-
-  // Buscar categorias reais do banco filtradas por segmento
-  const { data: dbCategories = [], isLoading } = useQuery({
-    queryKey: ["home_categories", segment],
-    queryFn: () => listCategories({ linha: segment, onlyWithProducts: true }),
-  });
-
-  // Categorias hardcoded como fallback caso o DB não retorne resultados
-  const fallback_auto = [
-    { name: "Motor", label: t("home.motor") },
-    { name: "Suspensão", label: t("home.suspensao") },
-    { name: "Freios", label: t("home.freios") },
-    { name: "Filtros e Óleos", label: t("home.filtros") },
-  ];
-
-  const fallback_agricola = [
-    { name: "Engrenagens e Transmissão", label: "Transmissão" },
-    { name: "Hidráulica e Pneumática", label: "Hidráulica" },
-    { name: "Filtros", label: "Filtros" },
-    { name: "Vedações", label: "Vedações" },
-  ];
-
-  // Usar categorias do DB (somente raízes / parent_id null) ou fallback
-  const rootCategories = dbCategories.filter((c: any) => c.parent_id === null);
-  const systems = rootCategories.length > 0
-    ? rootCategories.map((c: any) => ({
-        name: c.nome,
-        label: c.nome,
-        icon: CATEGORY_ICON_MAP[c.nome] || DEFAULT_ICON,
-      }))
-    : (segment === "AGRICOLA" ? fallback_agricola : fallback_auto).map((f) => ({
-        ...f,
-        icon: CATEGORY_ICON_MAP[f.name] || DEFAULT_ICON,
-      }));
-
-  return (
-    <section className="my-12 rounded-2xl bg-muted/30 p-6 md:p-10">
-      <h3 className="mb-6 text-2xl font-bold tracking-tight">{t("home.busquePorSistema")}</h3>
-      {isLoading ? (
-        <div className="py-8 text-center text-muted-foreground">Carregando categorias...</div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {systems.map((sys: any) => (
-            <Link
-              key={sys.name}
-              to="/loja"
-              search={{ search: "", page: 1, linha: segment, categoria: sys.name } as never}
-              className="flex flex-col items-center justify-center gap-4 rounded-xl border bg-background p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary hover:shadow-md"
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                {sys.icon}
-              </div>
-              <div className="font-semibold text-foreground/90">{sys.label}</div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
-
-// PRODUCTS CAROUSEL BLOCK
-export function ProductsCarouselBlock({
-  title,
-  config,
-}: {
-  title: string | null;
-  config: string | null;
-}) {
-  const { segment: userSegment } = useSegment();
-  const configData = config ? JSON.parse(config) : {};
-  const segmentFilter = configData.segment || "AMBOS";
-  const categoriaFilter = configData.categoria || undefined;
-  const marcaFilter = configData.marca || undefined;
-  const sortFilter = configData.sort || undefined;
-  const onlyWithImages = configData.onlyWithImages ?? true;
-  const limit = configData.limit || 12;
-
-  const rows = configData.rows || 1;
-
-  // Quando o bloco está configurado como "AMBOS", seguir o segmento ativo do usuário
-  const linhaParam = linhaPermitida(segmentFilter === "AMBOS" ? userSegment : segmentFilter);
-
-  const { data, isLoading } = useQuery({
-    queryKey: [
-      "home-products-carousel",
-      linhaParam,
-      limit,
-      onlyWithImages,
-      categoriaFilter,
-      marcaFilter,
-      sortFilter,
-    ],
-    queryFn: () =>
-      listVitrine(
-        {
-          page: 1,
-          pageSize: limit,
-          linha: linhaParam,
-          categoria: categoriaFilter,
-          marca: marcaFilter,
-          sort: sortFilter,
-        },
-        onlyWithImages,
-      ),
-  });
-
-  const products = data?.rows ?? [];
-  const filteredProducts = products.slice(0, limit);
-
-  return (
-    <section className="my-8">
-      {isLoading ? (
-        <div className="py-12 text-center text-muted-foreground">Carregando carrossel...</div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="border border-dashed rounded-lg p-12 text-center text-muted-foreground bg-muted/10">
-          <p>Nenhum produto encontrado com os filtros selecionados para o carrossel.</p>
-        </div>
-      ) : (
-        <ProductSlider
-          title={title || "Lançamentos e Destaques"}
-          subtitle=""
-          products={filteredProducts}
-          rows={rows}
-        />
-      )}
-    </section>
-  );
-}
-
-// PROMO STRIP BLOCK
-export function PromoStripBlock({
-  title,
-  config,
-}: {
-  title: string | null;
-  config: string | null;
-}) {
-  const configData = config ? JSON.parse(config) : {};
-  const imagePath = configData.image_path;
-  const link = configData.link || "";
-
-  const content = imagePath ? (
-    <section className="my-12 overflow-hidden rounded-xl shadow-lg border">
-      <img
-        src={imagePath}
-        alt={title || "Banner"}
-        className="w-full object-cover"
-        style={{ maxHeight: "300px" }}
-      />
-    </section>
-  ) : (
-    <section className="my-12 rounded-xl bg-accent p-8 text-center text-accent-foreground shadow-lg">
-      <h3 className="text-xl font-bold md:text-2xl">
-        {title ||
-          "Oferta Especial - Frete Grátis para todo o Brasil nas compras acima de R$ 5.000,00"}
-      </h3>
-    </section>
-  );
-
-  return link ? (
-    <a href={link} className="block cursor-pointer transition-transform hover:-translate-y-1">
-      {content}
-    </a>
-  ) : (
-    content
-  );
-}
-
-// FEATURES STRIP BLOCK
-export function FeaturesStripBlock({ config }: { config: string | null }) {
-  return (
-    <div className="bg-primary/5 py-6 my-6 rounded-lg border border-primary/10 shadow-sm overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="bg-primary/20 p-3 rounded-full flex-shrink-0">
-              <Truck className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-zinc-800">
-                Entregamos no Brasil inteiro
-              </h4>
-              <p className="text-xs md:text-sm text-zinc-600">
-                Frete rápido via Correios e Transportadoras.
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:block w-px h-10 bg-primary/20" />
-
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="bg-primary/20 p-3 rounded-full flex-shrink-0">
-              <ShieldCheck className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-zinc-800">Cotação 100% Segura</h4>
-              <p className="text-xs md:text-sm text-zinc-600">
-                Ambiente protegido para o seu pedido.
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:block w-px h-10 bg-primary/20" />
-
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="bg-primary/20 p-3 rounded-full flex-shrink-0">
-              <Headset className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-zinc-800">
-                Atendimento Especializado
-              </h4>
-              <p className="text-xs md:text-sm text-zinc-600">
-                Time pronto para encontrar a peça exata.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Atalhos />
     </div>
   );
 }
 
-// BRANDS CAROUSEL BLOCK
-export function BrandsCarouselBlock({ config }: { config: string | null }) {
-  const brands = [
-    { name: "Ford", img: "/site/brands/ford.png" },
-    { name: "Valmet", img: "/site/brands/valmet.png" },
-    { name: "MWM", img: "/site/brands/mwm.png" },
-    // Pellegrino é fornecedor da linha automotiva (desligada) — ver src/lib/linhas.ts
-    // { name: "Pellegrino", img: "/site/brands/pellegrino.png" },
-    { name: "Massey Ferguson", img: "/site/brands/massey.png" },
+function Atalhos() {
+  const [cotarAberto, setCotarAberto] = useState(false);
+  const card =
+    "flex min-w-0 flex-col justify-between gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.97]";
+  const icone = "flex h-11 w-11 items-center justify-center rounded-full";
+
+  const itens = [
+    {
+      titulo: "Busca por código",
+      texto: "Ache a peça exata pelo código original",
+      icon: Search,
+      cor: "bg-primary/10 text-primary",
+      to: "/loja",
+    },
+    {
+      titulo: "Categorias",
+      texto: "Transmissão, hidráulica, filtros e mais",
+      icon: LayoutGrid,
+      cor: "bg-amber-100 text-amber-700",
+      href: "#categorias",
+    },
+    {
+      titulo: "Montadoras",
+      texto: "Massey, Valtra, John Deere, New Holland…",
+      icon: Tractor,
+      cor: "bg-sky-100 text-sky-700",
+      href: "#montadoras",
+    },
+    {
+      titulo: "Cotação no WhatsApp",
+      texto: "Fale direto com nossa equipe",
+      icon: MessageCircle,
+      cor: "bg-[#25D366]/15 text-[#128C4B]",
+      externo: whatsappContactUrl("Olá! Quero fazer uma cotação de peças."),
+    },
+    {
+      titulo: "Cotar com concorrente",
+      texto: "Envie o orçamento de outra loja",
+      icon: Calculator,
+      cor: "bg-violet-100 text-violet-700",
+      acao: () => setCotarAberto(true),
+    },
+    {
+      titulo: "Minha conta",
+      texto: "Entre ou crie seu cadastro",
+      icon: User,
+      cor: "bg-zinc-100 text-zinc-700",
+      to: "/login",
+    },
   ];
 
   return (
-    <section className="my-12 px-6">
-      <h3 className="mb-6 text-center text-xl font-bold tracking-tight text-zinc-800">
-        Trabalhamos com as Maiores Marcas
-      </h3>
-      <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
-        {brands.map((brand) => (
-          <div key={brand.name} className="flex h-16 w-32 items-center justify-center">
-            {/* If the image doesn't exist yet, we just show text. */}
-            <span className="text-lg font-bold uppercase tracking-wider text-muted-foreground">
-              {brand.name}
+    <>
+      <div className="relative z-10 mx-auto max-w-7xl md:-mt-20 md:px-4">
+        <div className="scrollbar-none flex snap-x snap-mandatory scroll-px-3 gap-3 overflow-x-auto px-3 py-3 md:grid md:grid-cols-6 md:overflow-visible md:px-0">
+          {itens.map((it) => {
+            const conteudo = (
+              <>
+                <div>
+                  <h3 className="text-sm font-bold leading-tight text-zinc-900">{it.titulo}</h3>
+                  <p className="mt-1 text-xs leading-snug text-zinc-500">{it.texto}</p>
+                </div>
+                <div className="flex items-end justify-between">
+                  <span className={`${icone} ${it.cor}`}>
+                    <it.icon className="h-5 w-5" />
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-zinc-300" />
+                </div>
+              </>
+            );
+            const largura = "w-[42%] shrink-0 snap-start md:w-auto";
+            if (it.to)
+              return (
+                <Link key={it.titulo} to={it.to} className={`${largura} ${card}`}>
+                  {conteudo}
+                </Link>
+              );
+            if (it.acao)
+              return (
+                <button key={it.titulo} onClick={it.acao} className={`${largura} ${card} text-left`}>
+                  {conteudo}
+                </button>
+              );
+            return (
+              <a
+                key={it.titulo}
+                href={it.href ?? it.externo}
+                {...(it.externo && { target: "_blank", rel: "noreferrer noopener" })}
+                className={`${largura} ${card}`}
+              >
+                {conteudo}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+      <QuoteModal open={cotarAberto} onOpenChange={setCotarAberto} />
+    </>
+  );
+}
+
+// CATEGORIAS (círculos com ícone; rolagem horizontal no celular)
+export function CategoryGridBlock({ config, title }: { config: string | null; title?: string | null }) {
+  const { data: cats = [] } = useQuery({
+    queryKey: ["home_categories", "AGRICOLA"],
+    queryFn: () => listCategories({ linha: "AGRICOLA", onlyWithProducts: true }),
+  });
+  const totalPor = new Map(cats.map((c: any) => [c.nome, c.totalProducts as number]));
+
+  return (
+    <Section id="categorias" title={title || "Categorias"} verTodos={{ label: "Ver catálogo" }}>
+      <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:px-0">
+        {CATEGORIAS.map((c) => (
+          <Link
+            key={c.nome}
+            to="/loja"
+            search={{ linha: "AGRICOLA", categoria: c.nome } as never}
+            className="group flex w-[76px] shrink-0 flex-col items-center gap-2 rounded-2xl p-1 text-center active:scale-95 md:w-auto md:flex-row md:gap-3 md:border md:border-zinc-100 md:p-3 md:text-left md:hover:border-primary/40 md:hover:shadow-md"
+          >
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white md:h-12 md:w-12">
+              <c.icon className="h-7 w-7 md:h-6 md:w-6" />
             </span>
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold leading-tight text-zinc-800 md:text-sm">
+                <span className="md:hidden">{c.curto}</span>
+                <span className="hidden md:inline">{c.nome}</span>
+              </span>
+              {totalPor.get(c.nome) ? (
+                <span className="hidden text-xs text-zinc-500 md:block">
+                  {totalPor.get(c.nome)!.toLocaleString("pt-BR")} peças
+                </span>
+              ) : null}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// CARROSSEL DE PRODUTOS
+export function ProductsCarouselBlock({ title, config }: { title: string | null; config: string | null }) {
+  const { produtos, carregando, busca } = useProdutosDoBloco(config, 12);
+  if (!carregando && produtos.length === 0) return null;
+  return (
+    <Section title={title || "Destaques"} verTodos={{ search: busca }}>
+      <ProductRail products={produtos} loading={carregando} />
+    </Section>
+  );
+}
+
+// GRADE DE PRODUTOS
+export function ProductsGridBlock({ title, config }: { title: string | null; config: string | null }) {
+  const { produtos, carregando, busca } = useProdutosDoBloco(config, 10);
+  if (!carregando && produtos.length === 0) return null;
+  return (
+    <Section title={title || "Produtos"} verTodos={{ search: busca }}>
+      {carregando ? (
+        <ProductRail products={[]} loading />
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {produtos.map((p: any) => (
+            <RailCard key={p.sku} p={p} />
+          ))}
+        </div>
+      )}
+    </Section>
+  );
+}
+
+// FAIXA PROMOCIONAL (imagem enviada no admin)
+export function PromoStripBlock({ title, config }: { title: string | null; config: string | null }) {
+  const c = lerConfig(config);
+  if (!c.image_path) return null;
+  const img = (
+    <BannerImage
+      src={c.image_path}
+      alt={title || "Promoção"}
+      className="max-h-[260px] w-full rounded-2xl object-cover shadow-sm"
+    />
+  );
+  return (
+    <Reveal>
+      {c.link ? (
+        <a href={c.link} className="block transition hover:opacity-95 active:scale-[0.99]">
+          {img}
+        </a>
+      ) : (
+        img
+      )}
+    </Reveal>
+  );
+}
+
+// BENEFÍCIOS
+export function FeaturesStripBlock({ config }: { config: string | null }) {
+  const itens = [
+    { icon: Truck, titulo: "Entregamos no Brasil inteiro", texto: "Correios e transportadoras" },
+    { icon: ShieldCheck, titulo: "Cotação 100% segura", texto: "Sem compromisso, pelo WhatsApp" },
+    { icon: Headset, titulo: "Atendimento especializado", texto: "Ajudamos a achar a peça exata" },
+  ];
+  return (
+    <Reveal>
+      <div className="grid grid-cols-3 gap-2 rounded-2xl bg-white p-3 shadow-sm md:gap-6 md:p-5">
+        {itens.map((it) => (
+          <div
+            key={it.titulo}
+            className="flex flex-col items-center gap-2 text-center md:flex-row md:gap-4 md:text-left"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary md:h-12 md:w-12">
+              <it.icon className="h-5 w-5 md:h-6 md:w-6" />
+            </span>
+            <div>
+              <h4 className="text-[11px] font-bold leading-tight text-zinc-800 md:text-sm">{it.titulo}</h4>
+              <p className="hidden text-xs text-zinc-500 md:block">{it.texto}</p>
+            </div>
           </div>
         ))}
       </div>
-    </section>
+    </Reveal>
+  );
+}
+
+// MARCAS (faixa com rolagem contínua)
+export function BrandsCarouselBlock({ config }: { config: string | null }) {
+  const marcas = ["Massey Ferguson", "Valtra", "Valmet", "John Deere", "New Holland", "Case IH", "Ford", "Agrale", "MWM", "Perkins"];
+  return (
+    <Reveal>
+      <div className="overflow-hidden rounded-2xl bg-white py-5 shadow-sm">
+        <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-400">
+          Peças para as principais marcas
+        </p>
+        <div className="relative [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <div className="animate-marquee flex w-max gap-10">
+            {[...marcas, ...marcas].map((m, i) => (
+              <span key={i} className="whitespace-nowrap text-lg font-extrabold uppercase tracking-wide text-zinc-300">
+                {m}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }
 
 // BUSCA POR CÓDIGO
 export function BuscaCodigoBlock({ config }: { config: string | null }) {
+  const [codigo, setCodigo] = useState("");
+  const navigate = useNavigate();
   return (
-    <section className="my-12 bg-zinc-100 py-12 px-4 rounded-xl border border-zinc-200 shadow-inner">
-      <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-        <div className="flex-1 text-center md:text-left">
-          <h2 className="text-2xl font-bold text-zinc-800 mb-2">Busca Direta por Código</h2>
-          <p className="text-zinc-600">
-            Sabe o código original ou o código do fabricante? Digite abaixo para encontrar a peça
-            exata instantaneamente.
-          </p>
-        </div>
-        <div className="flex-1 w-full">
-          <div className="flex w-full relative shadow-md">
+    <Reveal>
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-emerald-900 p-5 text-white shadow-sm md:p-10">
+        <Search className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 text-white/5" />
+        <div className="relative mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center md:gap-10">
+          <div className="md:flex-1">
+            <h2 className="text-xl font-extrabold md:text-3xl">Sabe o código da peça?</h2>
+            <p className="mt-1 text-sm text-white/80 md:text-base">
+              Digite o código original ou do fabricante e encontre a peça exata.
+            </p>
+          </div>
+          <form
+            className="flex w-full gap-2 md:flex-1"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (codigo.trim()) navigate({ to: "/loja", search: { q: codigo.trim() } as never });
+            }}
+          >
             <input
-              type="text"
-              placeholder="Ex: 8N3002, 94614... "
-              className="w-full h-14 pl-4 pr-16 text-lg border-2 border-primary/30 rounded-l-lg focus:outline-none focus:border-primary"
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value)}
+              placeholder="Ex.: AL81843, 807045…"
+              className="h-12 min-w-0 flex-1 rounded-full bg-white px-5 text-base text-zinc-900 outline-none ring-accent placeholder:text-zinc-400 focus:ring-2"
             />
-            <button className="h-14 px-8 bg-primary text-white font-bold rounded-r-lg hover:bg-primary/90 transition-colors uppercase tracking-wide">
+            <button className="h-12 rounded-full bg-accent px-6 font-bold text-zinc-900 transition hover:brightness-95 active:scale-95">
               Buscar
             </button>
-          </div>
+          </form>
         </div>
-      </div>
-    </section>
+      </section>
+    </Reveal>
   );
 }
 
-// BANNERS DUPLOS
-// Antes: fotos genéricas de carro/motor (Unsplash) e sem link. Agora levam às categorias agrícolas.
+// BANNERS DUPLOS (levam às categorias)
 const PROMO_BANNERS = [
   {
     titulo: "Engrenagens e Transmissão",
     texto: "Peças para câmbio, diferencial e tração do seu trator.",
     categoria: "Engrenagens e Transmissão",
-    cta: "VER PEÇAS",
+    cta: "Ver peças",
     icon: Settings,
+    fundo: "from-primary to-emerald-800",
   },
   {
     titulo: "Filtros",
     texto: "Filtros de óleo, combustível e ar para a revisão do seu trator.",
     categoria: "Filtros",
-    cta: "COMPRE AGORA",
+    cta: "Comprar agora",
     icon: Droplet,
+    fundo: "from-amber-500 to-orange-600",
   },
 ];
 
 export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
   return (
-    <section className="my-12 flex flex-col md:flex-row gap-6">
-      {PROMO_BANNERS.map((b) => (
-        <Link
-          key={b.categoria}
-          to="/loja"
-          search={{ linha: "AGRICOLA", categoria: b.categoria } as never}
-          className="flex-1 h-48 md:h-64 rounded-xl overflow-hidden relative shadow-lg group bg-gradient-to-br from-primary to-primary/70"
-        >
-          <b.icon className="absolute -right-6 -bottom-6 h-48 w-48 text-white/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12" />
-          <div className="absolute inset-0 flex flex-col justify-center p-8">
-            <h3 className="text-white text-2xl md:text-3xl font-black mb-2 uppercase">{b.titulo}</h3>
-            <p className="text-white/85 mb-4 max-w-xs">{b.texto}</p>
-            <span className="bg-white text-primary px-6 py-2 w-max font-bold rounded shadow-md">
-              {b.cta}
-            </span>
-          </div>
-        </Link>
-      ))}
-    </section>
-  );
-}
-
-// CAROUSEL MONTADORAS (Circulares)
-export function CarouselMontadorasBlock({ config }: { config: string | null }) {
-  // Montadoras da linha pesada/automotiva (desligada — ver src/lib/linhas.ts):
-  // ["Volvo", "Scania", "Mercedes", "Volkswagen", "Iveco", "Agrale"]
-  // Nomes iguais ao campo `marca` da tabela agricolas, para o filtro da loja funcionar.
-  const montadoras = [
-    "Massey Ferguson",
-    "Valtra",
-    "New Holland",
-    "John Deere",
-    "Case IH",
-    "Ford",
-    "Agrale",
-  ];
-  return (
-    <section className="my-12">
-      <h3 className="mb-8 text-center text-2xl font-bold tracking-tight text-zinc-800 uppercase">
-        Compre por Montadora
-      </h3>
-      <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12">
-        {montadoras.map((m) => (
+    <Reveal>
+      <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+        {PROMO_BANNERS.map((b) => (
           <Link
-            key={m}
+            key={b.categoria}
             to="/loja"
-            search={{ search: "", page: 1, linha: "AGRICOLA", marca: m } as never}
-            className="flex flex-col items-center gap-3 cursor-pointer group"
+            search={{ linha: "AGRICOLA", categoria: b.categoria } as never}
+            className={`group relative flex h-36 overflow-hidden rounded-2xl bg-gradient-to-br ${b.fundo} shadow-sm transition active:scale-[0.98] md:h-52`}
           >
-            <div className="w-24 h-24 rounded-full bg-white shadow-md border border-zinc-100 flex items-center justify-center p-4 group-hover:border-primary group-hover:shadow-lg transition-all">
-              <span className="text-xs font-bold text-zinc-400 group-hover:text-primary">
-                {m.toUpperCase()}
+            <b.icon className="absolute -bottom-8 -right-8 h-44 w-44 text-white/10 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 md:h-56 md:w-56" />
+            <div className="relative flex flex-col justify-center p-5 md:p-8">
+              <h3 className="text-xl font-extrabold text-white md:text-3xl">{b.titulo}</h3>
+              <p className="mt-1 max-w-xs text-sm text-white/85">{b.texto}</p>
+              <span className="mt-3 inline-flex w-max items-center gap-1 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-zinc-900 shadow">
+                {b.cta} <ChevronRight className="h-4 w-4" />
               </span>
             </div>
-            <span className="font-semibold text-zinc-700">{m}</span>
           </Link>
         ))}
       </div>
-    </section>
+    </Reveal>
   );
 }
 
-// DEPOIMENTOS
-export function DepoimentosBlock({ config }: { config: string | null }) {
+// COMPRE POR MONTADORA
+export function CarouselMontadorasBlock({ config }: { config: string | null }) {
   return (
-    <section className="my-16 bg-zinc-50 py-16 px-4 rounded-3xl border border-zinc-100">
-      <h3 className="mb-10 text-center text-3xl font-black tracking-tight text-zinc-900 uppercase">
-        O que os clientes dizem
-      </h3>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-white p-8 rounded-2xl shadow-sm border border-zinc-100 relative"
+    <Section id="montadoras" title="Compre por montadora">
+      <div className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-7 md:px-0">
+        {MONTADORAS.map((m) => (
+          <Link
+            key={m}
+            to="/loja"
+            search={{ linha: "AGRICOLA", marca: m } as never}
+            className="group flex w-[84px] shrink-0 flex-col items-center gap-2 text-center active:scale-95 md:w-auto"
           >
-            <div className="text-primary text-4xl font-serif absolute top-4 left-6">"</div>
-            <p className="text-zinc-600 mt-4 italic mb-6">
-              "Excelente atendimento e peças originais de qualidade. Chegou super rápido na minha
-              oficina!"
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-500">
-                CL
-              </div>
-              <div>
-                <div className="font-bold text-zinc-800">Cliente Satisfeito</div>
-                <div className="text-xs text-zinc-400">Há 2 dias</div>
-              </div>
-            </div>
-          </div>
+            <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-zinc-100 bg-zinc-50 text-lg font-extrabold text-primary transition group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+              {m
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 2)}
+            </span>
+            <span className="text-xs font-semibold text-zinc-700 md:text-sm">{m}</span>
+          </Link>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }
 
-// NEWSLETTER & INSTAGRAM
+// AVALIAÇÕES DO GOOGLE (antigo "Depoimentos", que tinha textos fictícios)
+export function DepoimentosBlock({ config, title }: { config: string | null; title?: string | null }) {
+  return <GoogleReviews config={lerConfig(config)} titulo={title} />;
+}
+
+// CONTATO: ofertas pelo WhatsApp e Instagram (o cadastro de e-mail antigo não enviava nada)
 export function NewsletterInstagramBlock({ config }: { config: string | null }) {
   return (
-    <section className="my-16 flex flex-col md:flex-row rounded-2xl overflow-hidden shadow-xl">
-      {/* Instagram */}
-      <div className="flex-1 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-12 text-white flex flex-col justify-center items-center text-center">
-        <h3 className="text-3xl font-black mb-4 uppercase tracking-wider">Siga nosso Instagram</h3>
-        <p className="mb-8 text-white/90">
-          Fique por dentro das novidades, lançamentos e dicas exclusivas para o seu negócio.
-        </p>
+    <Reveal>
+      <div className={`grid gap-3 md:gap-4 ${INSTAGRAM_URL ? "md:grid-cols-2" : ""}`}>
         <a
-          href="#"
-          className="bg-white text-purple-600 px-8 py-3 rounded-full font-bold uppercase tracking-wide hover:scale-105 transition-transform shadow-lg"
+          href={whatsappContactUrl("Olá! Quero receber ofertas de peças pelo WhatsApp.")}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="flex items-center gap-4 rounded-2xl bg-[#25D366] p-5 text-white shadow-sm transition active:scale-[0.98] md:p-8"
         >
-          @rstratorpecas
+          <MessageCircle className="h-12 w-12 shrink-0" />
+          <div>
+            <h3 className="text-lg font-extrabold md:text-2xl">Ofertas no WhatsApp</h3>
+            <p className="text-sm text-white/90">Receba novidades e promoções direto no celular.</p>
+          </div>
         </a>
+        {INSTAGRAM_URL && (
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="flex items-center gap-4 rounded-2xl bg-gradient-to-br from-fuchsia-600 via-rose-500 to-amber-400 p-5 text-white shadow-sm transition active:scale-[0.98] md:p-8"
+          >
+            <Instagram className="h-12 w-12 shrink-0" />
+            <div>
+              <h3 className="text-lg font-extrabold md:text-2xl">Siga no Instagram</h3>
+              <p className="text-sm text-white/90">Dicas, lançamentos e bastidores.</p>
+            </div>
+          </a>
+        )}
       </div>
-      {/* Newsletter */}
-      <div className="flex-1 bg-zinc-900 p-12 text-white flex flex-col justify-center items-center text-center">
-        <h3 className="text-3xl font-black mb-4 uppercase tracking-wider">Ofertas Exclusivas</h3>
-        <p className="mb-8 text-zinc-400">
-          Cadastre seu e-mail e receba descontos especiais antes de todo mundo.
-        </p>
-        <div className="flex w-full max-w-sm">
-          <input
-            type="email"
-            placeholder="Seu melhor e-mail"
-            className="w-full h-12 px-4 rounded-l-md text-zinc-900 focus:outline-none"
-          />
-          <button className="bg-primary px-6 font-bold rounded-r-md hover:bg-primary/90">
-            ASSINAR
-          </button>
-        </div>
-      </div>
-    </section>
+    </Reveal>
   );
 }
