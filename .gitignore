@@ -67,3 +67,6 @@ uploads/
 !.env.example
 lote1_imagens/
 dados/backup_*
+
+# Pacotes de deploy (banco com dados de clientes, imagens)
+dados/deploy/

@@ -14,6 +14,7 @@ npm start          # roda o build (node .output/server/index.mjs)
 ```
 
 Variáveis em `.env` (modelo em `.env.example`). `.env` não vai para o git.
+Deploy na Hostinger: ver `docs/DEPLOY_HOSTINGER.md`.
 
 ## Pontos importantes
 
