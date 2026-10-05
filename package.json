@@ -10,13 +10,13 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "debug": "node debug_query.cjs",
-    "test-page": "node test_page.cjs",
-    "generate-facets": "node generate_facets.cjs",
-    "test-blocks": "node test_blocks.cjs",
-    "test-page-8081": "node test_page_8081.cjs",
-    "test-loja-8081": "node test_loja_8081.cjs",
-    "test-list-products": "node test_listProducts.cjs"
+    "debug": "node scripts/diagnostico/debug_query.cjs",
+    "test-page": "node scripts/diagnostico/test_page.cjs",
+    "generate-facets": "node scripts/catalogo/generate_facets.cjs",
+    "test-blocks": "node scripts/diagnostico/test_blocks.cjs",
+    "test-page-8081": "node scripts/diagnostico/test_page_8081.cjs",
+    "test-loja-8081": "node scripts/diagnostico/test_loja_8081.cjs",
+    "test-list-products": "node scripts/diagnostico/test_listProducts.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
