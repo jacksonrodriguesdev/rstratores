@@ -150,7 +150,7 @@ function LojaPage() {
   };
 
   const sidebar = (
-    <aside className="rounded-xl border bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <aside className="rounded-xl border bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 sticky top-[calc(var(--altura-header,96px)+1rem)] max-h-[calc(100vh-var(--altura-header,96px)-2rem)] transition-[top] duration-300 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2 text-base font-bold text-zinc-900 tracking-tight">
           <Filter className="h-5 w-5 text-primary" />

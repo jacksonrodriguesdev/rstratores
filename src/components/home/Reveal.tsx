@@ -54,7 +54,7 @@ export function Section({
     <Reveal>
       <section
         id={id}
-        className={cn("scroll-mt-28 rounded-2xl bg-white p-4 shadow-sm md:p-6", className)}
+        className={cn("scroll-mt-[calc(var(--altura-header,112px)+12px)] rounded-2xl bg-white p-4 shadow-sm md:p-6", className)}
       >
         {(title || verTodos) && (
           <div className="mb-3 flex items-end justify-between gap-3 md:mb-4">
