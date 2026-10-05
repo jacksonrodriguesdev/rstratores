@@ -4,6 +4,9 @@ export const Route = createFileRoute("/api/admin/categories/$id")({
   server: {
     handlers: {
       PATCH: async ({ request, params }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
         try {
           const id = Number(params.id);
@@ -25,7 +28,10 @@ export const Route = createFileRoute("/api/admin/categories/$id")({
           return new Response(JSON.stringify({ error: e.message }), { status: 500 });
         }
       },
-      DELETE: async ({ params }) => {
+      DELETE: async ({ request, params }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
         try {
           const id = Number(params.id);

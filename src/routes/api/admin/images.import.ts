@@ -7,6 +7,9 @@ export const Route = createFileRoute("/api/admin/images/import")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
         try {
           const formData = await request.formData();

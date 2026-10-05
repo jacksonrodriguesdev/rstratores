@@ -4,6 +4,9 @@ export const Route = createFileRoute("/api/admin/categories")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
         try {
           const body = await request.json();

@@ -53,7 +53,8 @@ export async function listProducts(params: ListParams) {
       });
     }
   }
-  // if (linha) where.linha = linha; // Temporariamente desativado, pois a base atual está 100% como linha 'PELLEGRINO'
+  // A linha é separada por tabela (AGRICOLA → agricolas, demais → products), não pela coluna
+  // `linha`: todos os registros de `products` estão com linha = 'PELLEGRINO'.
   if (categoria) {
     if (Array.isArray(categoria) && categoria.length > 0) {
       where.AND.push({ OR: categoria.map((c) => ({ categoria: { contains: c } })) });

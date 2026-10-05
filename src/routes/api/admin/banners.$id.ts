@@ -4,6 +4,9 @@ export const Route = createFileRoute("/api/admin/banners/$id")({
   server: {
     handlers: {
       PATCH: async ({ request, params }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         try {
           const { id } = params;
           const body = await request.json();
@@ -17,7 +20,10 @@ export const Route = createFileRoute("/api/admin/banners/$id")({
           return new Response(JSON.stringify({ error: err.message }), { status: 500 });
         }
       },
-      DELETE: async ({ params }) => {
+      DELETE: async ({ request, params }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         try {
           const { id } = params;
           const { deleteBanner } = await import("@/lib/banners.server");

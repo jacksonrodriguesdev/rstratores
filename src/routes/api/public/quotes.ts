@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import * as fs from "fs/promises";
 import * as path from "path";
 
+const ALLOWED_EXTS = ["pdf", "jpg", "jpeg", "png", "webp", "doc", "docx", "xls", "xlsx"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 export const Route = createFileRoute("/api/public/quotes")({
   server: {
     handlers: {
@@ -25,8 +28,19 @@ export const Route = createFileRoute("/api/public/quotes")({
           let relativePath: string | null = null;
 
           if (file && file.size > 0) {
+            const ext = file.name.split(".").pop()?.toLowerCase() || "";
+            if (!ALLOWED_EXTS.includes(ext)) {
+              return new Response(
+                JSON.stringify({ error: `Tipo de arquivo não permitido. Use: ${ALLOWED_EXTS.join(", ")}.` }),
+                { status: 400 },
+              );
+            }
+            if (file.size > MAX_FILE_SIZE) {
+              return new Response(JSON.stringify({ error: "Arquivo maior que 10 MB." }), {
+                status: 400,
+              });
+            }
             const buffer = Buffer.from(await file.arrayBuffer());
-            const ext = file.name.split(".").pop()?.toLowerCase() || "pdf";
             relativePath = `quotes/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
             const dest = path.join(process.cwd(), "public", "uploads", relativePath);

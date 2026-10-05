@@ -5,7 +5,6 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { login as legacyAdminLogin } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -39,13 +38,7 @@ function LoginPage() {
 
       if (res.ok && data.success) {
         // Recarregar a página para o componente Root pegar a sessão (ou redirecionar)
-        window.location.href = "/";
-        return;
-      }
-
-      // Fallback para admin legado (sem DB)
-      if (legacyAdminLogin(email, password)) {
-        window.location.href = "/admin";
+        window.location.href = data.role === "ADMIN" ? "/admin" : "/";
         return;
       }
 

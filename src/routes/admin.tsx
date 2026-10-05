@@ -14,7 +14,7 @@ import {
   Image,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { isAuthenticated, logout } from "@/lib/auth";
+import { getSessionFn } from "@/lib/user-auth";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -100,16 +100,25 @@ function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [authorized, setAuthorized] = useState(false);
+
   useEffect(() => {
-    if (!isAuthenticated()) {
-      window.location.href = "/login";
-    }
+    getSessionFn()
+      .then((session) => {
+        if (session?.role === "ADMIN") setAuthorized(true);
+        else window.location.href = "/login";
+      })
+      .catch(() => {
+        window.location.href = "/login";
+      });
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     navigate({ to: "/login" });
   };
+
+  if (!authorized) return null;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background lg:flex-row">

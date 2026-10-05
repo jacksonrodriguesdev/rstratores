@@ -10,7 +10,10 @@ export const Route = createFileRoute("/api/public/analytics")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: async ({ request }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         try {
           const { prisma } = await import("@/lib/prisma");
 

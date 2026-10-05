@@ -11,7 +11,6 @@ export type Banner = {
 
 import { createServerFn } from "@tanstack/react-start";
 
-export type { Banner };
 
 const listBannersFn = createServerFn({ method: "GET" })
   .validator((d: { kind?: "hero" | "strip"; linha?: string } = {}) => d)

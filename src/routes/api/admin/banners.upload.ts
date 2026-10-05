@@ -6,6 +6,9 @@ export const Route = createFileRoute("/api/admin/banners/upload")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         try {
           const formData = await request.formData();
           const file = formData.get("file") as File;

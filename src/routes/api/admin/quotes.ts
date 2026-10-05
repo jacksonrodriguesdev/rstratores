@@ -3,7 +3,10 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/admin/quotes")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        const { requireAdmin } = await import("@/lib/auth.server");
+        const denied = await requireAdmin(request);
+        if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
         try {
           const rows = await prisma.quotes.findMany({

@@ -19,6 +19,7 @@ export const createHomepageBlock = createServerFn({ method: "POST" })
     (d: { type: string; active: boolean; position: number; title?: string; config?: string }) => d,
   )
   .handler(async ({ data }) => {
+    await (await import("./auth.server")).assertAdmin();
     const server = await import("./homepage.server");
     return await server.createHomepageBlock(data);
   });
@@ -28,6 +29,7 @@ export const updateHomepageBlock = createServerFn({ method: "POST" })
     (d: { id: number; active?: boolean; position?: number; title?: string; config?: string }) => d,
   )
   .handler(async ({ data }) => {
+    await (await import("./auth.server")).assertAdmin();
     const server = await import("./homepage.server");
     const { id, ...rest } = data;
     return await server.updateHomepageBlock(id, rest);
@@ -36,8 +38,7 @@ export const updateHomepageBlock = createServerFn({ method: "POST" })
 export const deleteHomepageBlock = createServerFn({ method: "POST" })
   .validator((d: { id: number }) => d)
   .handler(async ({ data }) => {
+    await (await import("./auth.server")).assertAdmin();
     const server = await import("./homepage.server");
     return await server.deleteHomepageBlock(data.id);
   });
-
-export type { HomepageBlock };

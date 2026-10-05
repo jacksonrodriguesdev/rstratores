@@ -39,7 +39,7 @@ export const Route = createFileRoute("/api/auth/login")({
             role: user.role,
           });
 
-          return new Response(JSON.stringify({ success: true }), {
+          return new Response(JSON.stringify({ success: true, role: user.role }), {
             status: 200,
             headers: {
               "Set-Cookie": `${AUTH_COOKIE}=${token}; Path=/; HttpOnly; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`,
