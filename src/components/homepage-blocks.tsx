@@ -582,6 +582,13 @@ function BanderaUruguay({ className }: { className?: string }) {
 
 export function EnvioDacBlock({ config }: { config: string | null }) {
   const c = lerConfig(config);
+  // Imagem de fundo enviada em Admin > Banners > "Seção DAC (Uruguai)" (a primeira ativa)
+  const { data: fundos = [] } = useQuery({
+    queryKey: ["home_banners", "dac"],
+    queryFn: () => listActiveBanners("dac", "AGRICOLA"),
+  });
+  const fundo = fundos[0];
+  const urlFundo = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
   const logo = c.image_path
     ? c.image_path.startsWith("http") || c.image_path.startsWith("/")
       ? c.image_path
@@ -600,7 +607,25 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
         lang="es-UY"
         className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900 p-5 text-white shadow-sm md:p-10"
       >
-        <Truck className="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 text-white/5" />
+        {fundo ? (
+          <>
+            <picture>
+              {fundo.image_path_mobile && (
+                <source media="(max-width: 767px)" srcSet={urlFundo(fundo.image_path_mobile)} />
+              )}
+              <img
+                src={urlFundo(fundo.image_path)}
+                alt={fundo.titulo ?? ""}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </picture>
+            {/* Camada azul: mantém o texto legível sobre qualquer foto */}
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-950/85 via-blue-900/70 to-blue-900/40 md:bg-gradient-to-r md:from-blue-950/90 md:via-blue-900/65 md:to-blue-900/10" />
+          </>
+        ) : (
+          <Truck className="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 text-white/5" />
+        )}
         <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">

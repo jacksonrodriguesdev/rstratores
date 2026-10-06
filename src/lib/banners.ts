@@ -4,7 +4,8 @@ import { createServerFn } from "@tanstack/react-start";
 // - hero:  carrossel principal no topo
 // - duplo: banners promocionais lado a lado
 // - strip: faixa promocional larga entre as seções
-export type BannerKind = "hero" | "duplo" | "strip";
+// - dac:   imagem de fundo da seção de envios para o Uruguai pela DAC
+export type BannerKind = "hero" | "duplo" | "strip" | "dac";
 
 export type Banner = {
   id: number;
@@ -39,6 +40,14 @@ export const TIPOS_BANNER: Record<
     celular: "800 × 350 px (opcional)",
     aspecto: "aspect-[900/350]",
     aspectoCelular: "aspect-[800/350]",
+  },
+  dac: {
+    nome: "Seção DAC (Uruguai)",
+    onde: "Imagem de fundo da seção de envios para o Uruguai pela DAC. Só a primeira ativa é usada. O texto fica por cima, à esquerda, com uma camada azul para continuar legível.",
+    desktop: "1600 × 600 px, com o lado esquerdo mais limpo (é onde fica o texto)",
+    celular: "800 × 1400 px, vertical (opcional)",
+    aspecto: "aspect-[1248/404]",
+    aspectoCelular: "aspect-[366/690]",
   },
   strip: {
     nome: "Faixa promocional",

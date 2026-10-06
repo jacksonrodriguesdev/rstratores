@@ -37,7 +37,7 @@ export const Route = createFileRoute("/admin/banners")({
   component: BannersPage,
 });
 
-const ORDEM_TIPOS: BannerKind[] = ["hero", "duplo", "strip"];
+const ORDEM_TIPOS: BannerKind[] = ["hero", "duplo", "strip", "dac"];
 
 const urlImagem = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
 
@@ -153,8 +153,8 @@ function BannersPage() {
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
             <p>
-              <strong className="text-foreground">Arquivados ({arquivados.length})</strong>: banners da
-              linha automotiva, que está desligada. Eles não aparecem no site. Use{" "}
+              <strong className="text-foreground">Arquivados ({arquivados.length})</strong>: banners
+              da linha automotiva, que está desligada. Eles não aparecem no site. Use{" "}
               <em>Usar na linha agrícola</em> para reaproveitar um banner, ou remova.
             </p>
           </div>
@@ -270,7 +270,11 @@ function BannerCard({
               icone={Monitor}
               faixaAtalhos={banner.kind === "hero"}
             />
-            <BotaoArquivo rotulo="Trocar imagem do computador" onFile={trocarImagem("image_path")} disabled={busy} />
+            <BotaoArquivo
+              rotulo="Trocar imagem do computador"
+              onFile={trocarImagem("image_path")}
+              disabled={busy}
+            />
           </div>
           <div className="space-y-2">
             <Moldura
@@ -292,7 +296,10 @@ function BannerCard({
                   variant="ghost"
                   disabled={busy}
                   onClick={() =>
-                    executar(() => updateBanner(banner.id, { image_path_mobile: null }), "Arte do celular removida")
+                    executar(
+                      () => updateBanner(banner.id, { image_path_mobile: null }),
+                      "Arte do celular removida",
+                    )
                   }
                 >
                   Remover
@@ -310,13 +317,29 @@ function BannerCard({
                 disabled={busy}
                 onCheckedChange={(v) => executar(() => updateBanner(banner.id, { active: v }))}
               />
-              <span className="text-sm font-medium">{banner.active ? "Ativo no site" : "Desativado"}</span>
+              <span className="text-sm font-medium">
+                {banner.active ? "Ativo no site" : "Desativado"}
+              </span>
             </div>
             <div className="flex gap-1">
-              <Button size="icon" variant="outline" className="h-8 w-8" disabled={busy || !anterior} onClick={() => mover(anterior)} aria-label="Mover para cima">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-8 w-8"
+                disabled={busy || !anterior}
+                onClick={() => mover(anterior)}
+                aria-label="Mover para cima"
+              >
                 <ArrowUp className="h-4 w-4" />
               </Button>
-              <Button size="icon" variant="outline" className="h-8 w-8" disabled={busy || !proximo} onClick={() => mover(proximo)} aria-label="Mover para baixo">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-8 w-8"
+                disabled={busy || !proximo}
+                onClick={() => mover(proximo)}
+                aria-label="Mover para baixo"
+              >
                 <ArrowDown className="h-4 w-4" />
               </Button>
             </div>
@@ -349,22 +372,31 @@ function BannerCard({
               onChange={(e) => setTitulo(e.target.value)}
               onBlur={() =>
                 titulo !== (banner.titulo ?? "") &&
-                executar(() => updateBanner(banner.id, { titulo: titulo.trim() || null }), "Nome salvo")
+                executar(
+                  () => updateBanner(banner.id, { titulo: titulo.trim() || null }),
+                  "Nome salvo",
+                )
               }
             />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Link ao clicar (opcional)</Label>
-            <Input
-              value={link}
-              placeholder="/loja?categoria=Filtros ou https://…"
-              onChange={(e) => setLink(e.target.value)}
-              onBlur={() =>
-                link !== (banner.link_url ?? "") &&
-                executar(() => updateBanner(banner.id, { link_url: link.trim() || null }), "Link salvo")
-              }
-            />
-          </div>
+          {/* A seção da DAC tem botões próprios: o fundo não é clicável */}
+          {banner.kind !== "dac" && (
+            <div className="space-y-1">
+              <Label className="text-xs">Link ao clicar (opcional)</Label>
+              <Input
+                value={link}
+                placeholder="/loja?categoria=Filtros ou https://…"
+                onChange={(e) => setLink(e.target.value)}
+                onBlur={() =>
+                  link !== (banner.link_url ?? "") &&
+                  executar(
+                    () => updateBanner(banner.id, { link_url: link.trim() || null }),
+                    "Link salvo",
+                  )
+                }
+              />
+            </div>
+          )}
           <Button
             variant="ghost"
             className="mt-auto justify-start text-destructive hover:text-destructive"
@@ -429,7 +461,10 @@ function NovoBanner({
   const [busy, setBusy] = useState(false);
 
   // Pré-visualização local antes de enviar
-  const [previa, setPrevia] = useState<{ d: string | null; c: string | null }>({ d: null, c: null });
+  const [previa, setPrevia] = useState<{ d: string | null; c: string | null }>({
+    d: null,
+    c: null,
+  });
   useEffect(() => {
     const d = desktop ? URL.createObjectURL(desktop) : null;
     const c = celular ? URL.createObjectURL(celular) : null;
@@ -475,23 +510,52 @@ function NovoBanner({
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="grid flex-1 gap-3 sm:grid-cols-[2fr_1fr]">
           <div className="space-y-2">
-            <Moldura src={previa.d} aspecto={tipo.aspecto} rotulo="Computador (obrigatória)" icone={Monitor} faixaAtalhos={kind === "hero"} />
-            <BotaoArquivo rotulo={desktop ? "Trocar" : "Escolher imagem"} onFile={setDesktop} disabled={busy} />
+            <Moldura
+              src={previa.d}
+              aspecto={tipo.aspecto}
+              rotulo="Computador (obrigatória)"
+              icone={Monitor}
+              faixaAtalhos={kind === "hero"}
+            />
+            <BotaoArquivo
+              rotulo={desktop ? "Trocar" : "Escolher imagem"}
+              onFile={setDesktop}
+              disabled={busy}
+            />
           </div>
           <div className="space-y-2">
-            <Moldura src={previa.c ?? previa.d} aspecto={tipo.aspectoCelular} rotulo="Celular (opcional)" icone={Smartphone} />
-            <BotaoArquivo rotulo={celular ? "Trocar" : "Escolher imagem"} onFile={setCelular} disabled={busy} />
+            <Moldura
+              src={previa.c ?? previa.d}
+              aspecto={tipo.aspectoCelular}
+              rotulo="Celular (opcional)"
+              icone={Smartphone}
+            />
+            <BotaoArquivo
+              rotulo={celular ? "Trocar" : "Escolher imagem"}
+              onFile={setCelular}
+              disabled={busy}
+            />
           </div>
         </div>
         <div className="flex w-full flex-col gap-3 lg:w-72">
           <div className="space-y-1">
             <Label className="text-xs">Nome (texto alternativo)</Label>
-            <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Promoção de filtros" />
+            <Input
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              placeholder="Ex.: Promoção de filtros"
+            />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Link ao clicar (opcional)</Label>
-            <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="/loja?categoria=Filtros" />
-          </div>
+          {kind !== "dac" && (
+            <div className="space-y-1">
+              <Label className="text-xs">Link ao clicar (opcional)</Label>
+              <Input
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="/loja?categoria=Filtros"
+              />
+            </div>
+          )}
           <Button onClick={enviar} disabled={busy || !desktop} className="mt-auto">
             <Upload className="mr-2 h-4 w-4" />
             {busy ? "Enviando…" : "Publicar banner"}

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/admin/banners/upload")({
           }
 
           // `kind` vira parte do caminho: só tipos conhecidos, para não gravar fora de uploads/site
-          if (!["hero", "duplo", "strip"].includes(kind)) {
+          if (!["hero", "duplo", "strip", "dac"].includes(kind)) {
             return new Response(JSON.stringify({ error: "Tipo de banner inválido" }), { status: 400 });
           }
           const ext = file.name.split(".").pop()?.toLowerCase() || "";
