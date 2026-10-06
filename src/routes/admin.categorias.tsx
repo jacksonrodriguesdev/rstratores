@@ -198,7 +198,9 @@ function AdminCategorias() {
             Categorias do Sistema
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Gerencie as categorias principais, subcategorias e imagens.
+            Gerencie as categorias principais, subcategorias e imagens. Categorias são por{" "}
+            <strong>tipo de peça</strong> (Filtros, Vedações…). A marca do trator (Massey, Valtra…) é o
+            campo <strong>Marca</strong> de cada produto e já aparece em "Montadoras" na loja.
           </p>
         </div>
         <Button onClick={handleOpenCreate}>
