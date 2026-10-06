@@ -31,6 +31,7 @@ import { Reveal, Section } from "@/components/home/Reveal";
 import { GoogleReviews } from "@/components/home/GoogleReviews";
 import { QuoteModal } from "@/components/QuoteModal";
 import { BannerImage } from "@/components/BannerImage";
+import { BandeiraUruguay } from "@/components/Bandeiras";
 
 // Produtos dos blocos da home. Se o bloco pede "só com imagem" e não há nenhum
 // (o catálogo agrícola ainda não tem fotos), mostra os produtos apresentáveis.
@@ -567,19 +568,6 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
 // el nombre en texto. No se copian imágenes del sitio de DAC.
 const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
 
-function BanderaUruguay({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 27 18" className={className} aria-label="Uruguay" role="img">
-      <rect width="27" height="18" fill="#fff" />
-      {[2, 6, 10, 14].map((y) => (
-        <rect key={y} y={y} width="27" height="2" fill="#0038A8" />
-      ))}
-      <rect width="10" height="10" fill="#fff" />
-      <circle cx="5" cy="5" r="3" fill="#FCD116" stroke="#7B3F00" strokeWidth="0.3" />
-    </svg>
-  );
-}
-
 export function EnvioDacBlock({ config }: { config: string | null }) {
   const c = lerConfig(config);
   // Imagem de fundo enviada em Admin > Banners > "Seção DAC (Uruguai)" (a primeira ativa)
@@ -604,8 +592,9 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
   return (
     <Reveal>
       <section
+        id="envios-uruguay"
         lang="es-UY"
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900 p-5 text-white shadow-sm md:p-10"
+        className="relative scroll-mt-[calc(var(--altura-header,112px)+12px)] overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900 p-5 text-white shadow-sm md:p-10"
       >
         {fundo ? (
           <>
@@ -629,7 +618,7 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
         <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
-              <BanderaUruguay className="h-3.5 w-5 rounded-sm" /> Envíos a todo Uruguay
+              <BandeiraUruguay className="h-3.5 w-5 rounded-sm" /> Envíos a todo Uruguay
             </span>
             <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">
               Recibí tus repuestos en cualquier punto de Uruguay

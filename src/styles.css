@@ -169,3 +169,21 @@
     animation: none;
   }
 }
+
+/* Linha de luz na base do header */
+@keyframes brilho {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+.animate-brilho {
+  animation: brilho 6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-brilho {
+    animation: none;
+  }
+}
