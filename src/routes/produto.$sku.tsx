@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   MessageCircle,
   Search,
+  Share2,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductImage } from "@/components/ProductImage";
@@ -183,6 +184,21 @@ function ProductDetail() {
     setIsCartOpen(true);
   };
 
+  // Compartilhar: menu nativo do celular; no computador, abre o WhatsApp com o link
+  const compartilhar = async () => {
+    const url = `${SITE_URL}/produto/${encodeURIComponent(product.sku)}`;
+    const texto = `${nome} — Cód. ${codigo}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: texto, text: texto, url });
+        return;
+      }
+    } catch {
+      return; // cliente cancelou
+    }
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`${texto}\n${url}`)}`, "_blank");
+  };
+
   const copiarCodigo = async () => {
     try {
       await navigator.clipboard.writeText(codigo);
@@ -273,6 +289,12 @@ function ProductDetail() {
               <span className="text-zinc-500">Código:</span>
               <span className="font-mono font-bold">{codigo}</span>
               {copiado ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={compartilhar}
+              className="mt-2 flex w-max items-center gap-1.5 text-sm font-medium text-zinc-500 transition hover:text-primary"
+            >
+              <Share2 className="h-4 w-4" /> Compartir
             </button>
             {nome !== product.nome && (
               <p className="mt-2 break-words text-xs text-zinc-400">Descripción original: {product.nome}</p>
