@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getProduct, getProductImages, getRelatedProducts, codigoExibicao, marcaExibicao } from "@/lib/products";
-import { categoriaEs, descricaoEs, nomeEs } from "@/lib/pecas-es";
+import { categoriaEs, descricaoEs, nomeEs, nomeProduto } from "@/lib/pecas-es";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/produto/$sku")({
       return { meta: [{ title: "Repuesto no encontrado" }, { name: "robots", content: "noindex" }] };
     }
     const p = loaderData.product;
-    const nome = nomeEs(p.nome);
+    const nome = nomeProduto(p);
     const marca = marcaExibicao(p);
     const codigo = codigoExibicao(p);
     // "RODAMIENTO 6205 Massey Ferguson — Cód. 6205 | RS Auto Peças": nome, marca e código são o que se busca
@@ -143,7 +143,7 @@ function ProductDetail() {
   const { product } = Route.useLoaderData();
   const { items, addItem, setIsCartOpen } = useCart();
   const marca = marcaExibicao(product);
-  const nome = nomeEs(product.nome);
+  const nome = nomeProduto(product);
   const codigo = codigoExibicao(product);
   const naCotacao = items.some((i) => i.sku === product.sku);
   const [mainImage, setMainImage] = useState<string | null>(product.imagem_principal);
@@ -175,6 +175,7 @@ function ProductDetail() {
         sku: product.sku,
         codigo,
         name: product.nome,
+        nameEs: nome,
         image: product.imagem_principal || undefined,
         quantity: 1,
       });

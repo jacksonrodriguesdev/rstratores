@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
-import { categoriaCurtaEs, nomeEs } from "@/lib/pecas-es";
+import { categoriaCurtaEs, nomeProduto } from "@/lib/pecas-es";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
 
 type Props = {
@@ -77,7 +77,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                     >
                       <ProductImage
                         src={p.imagem_principal}
-                        alt={nomeEs(p.nome)}
+                        alt={nomeProduto(p)}
                         marca={marcaExibicao(p)}
                         className="transition-transform hover:scale-105"
                       />
@@ -95,7 +95,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                         params={{ sku: p.sku }}
                         className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug hover:text-primary"
                       >
-                        {nomeEs(p.nome)}
+                        {nomeProduto(p)}
                       </Link>
                       <div className="text-[11px] text-muted-foreground">Cód. {codigoExibicao(p)}</div>
                       <div className="mt-auto pt-2">

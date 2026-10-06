@@ -1,4 +1,4 @@
-import { nomeEs } from "./pecas-es";
+import { nomeProduto } from "./pecas-es";
 import { SITE_URL } from "./site";
 
 // Número de contato
@@ -14,8 +14,8 @@ function buildUrl(text: string): string {
 
 // Mensagem em espanhol para o cliente; o nome original em português e o link da peça
 // vão junto para a equipe identificar a peça sem dúvida.
-export function whatsappQuoteUrl(product: { sku: string; nome: string }): string {
-  const es = nomeEs(product.nome);
+export function whatsappQuoteUrl(product: { sku: string; nome: string; nome_es?: string | null }): string {
+  const es = nomeProduto(product);
   const link = `${SITE_URL}/produto/${encodeURIComponent(product.sku)}`;
   const msg =
     `¡Hola! Quiero cotizar este repuesto:\n\n` +

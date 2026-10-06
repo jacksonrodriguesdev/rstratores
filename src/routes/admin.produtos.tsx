@@ -1,3 +1,4 @@
+import { nomeEs } from "@/lib/pecas-es";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { z } from "zod";
@@ -166,6 +167,8 @@ function AdminProducts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: p.nome,
+          // Vazio = o site usa a tradução automática
+          nome_es: p.nome_es?.trim() || null,
           preco_brl: p.preco_brl,
           categoria: p.categoria,
           category_id: p.category_id,
@@ -609,6 +612,16 @@ function AdminProducts() {
                   value={editing.nome}
                   onChange={(e) => setEditing({ ...editing, nome: e.target.value })}
                 />
+              </Field>
+              <Field label="Nome em espanhol (como aparece no site)">
+                <Input
+                  value={editing.nome_es ?? ""}
+                  placeholder={nomeEs(editing.nome || "")}
+                  onChange={(e) => setEditing({ ...editing, nome_es: e.target.value })}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Deixe vazio para usar a tradução automática (mostrada em cinza). Preencha só para corrigir.
+                </p>
               </Field>
 
               <div className="grid grid-cols-3 gap-3">

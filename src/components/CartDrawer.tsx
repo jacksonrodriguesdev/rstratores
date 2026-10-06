@@ -17,7 +17,7 @@ export function CartDrawer() {
   // O nome em português vai entre parênteses para a equipe identificar a peça.
   const handleSendQuote = () => {
     const lines = items.map((i) => {
-      const es = nomeEs(i.name);
+      const es = i.nameEs || nomeEs(i.name);
       return `• ${i.quantity}x ${es}${es !== i.name ? ` (${i.name})` : ""} — Cód: ${i.codigo || i.sku}`;
     });
     const message = `¡Hola! Quiero cotizar estos repuestos:\n\n${lines.join("\n")}`;
@@ -70,7 +70,7 @@ export function CartDrawer() {
                     {item.image ? (
                       <ProductImage
                         src={item.image}
-                        alt={nomeEs(item.name)}
+                        alt={item.nameEs || nomeEs(item.name)}
                         className="object-contain h-full w-full"
                       />
                     ) : (
@@ -80,7 +80,7 @@ export function CartDrawer() {
 
                   <div className="flex flex-1 flex-col">
                     <h3 className="text-sm font-semibold text-zinc-800 line-clamp-2 leading-tight">
-                      {nomeEs(item.name)}
+                      {item.nameEs || nomeEs(item.name)}
                     </h3>
                     <p className="text-xs text-zinc-500 mt-1">Cód: {item.codigo || item.sku}</p>
 

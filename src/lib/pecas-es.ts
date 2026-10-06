@@ -235,13 +235,14 @@ export function categoriaCurtaEs(nome: string | null | undefined): string {
 // seguem um modelo fixo em português, então é mais fiel gerar de novo do que traduzir).
 export function descricaoEs(p: {
   nome: string;
+  nome_es?: string | null;
   sku: string;
   codigo_fabricante?: string | null;
   fabricante?: string | null;
   marca?: string | null;
   categoria?: string | null;
 }): string {
-  const nome = nomeEs(p.nome);
+  const nome = nomeProduto(p);
   const frase = nome.charAt(0) + nome.slice(1).toLowerCase();
   const codigo = p.codigo_fabricante || p.sku;
   const partes = [
@@ -340,4 +341,10 @@ export function prepararBusca(q: string): string[] {
 // Frase de apresentação da categoria (topo da loja filtrada; ajuda no Google)
 export function categoriaFraseEs(nome: string | null | undefined): string {
   return (nome && CATEGORIAS_ES[nome]?.frase) || "";
+}
+
+// Nome da peça no site: o nome em espanhol escrito no admin (coluna nome_es) quando existe;
+// senão, a tradução automática do glossário.
+export function nomeProduto(p: { nome: string; nome_es?: string | null }): string {
+  return p.nome_es?.trim() || nomeEs(p.nome);
 }

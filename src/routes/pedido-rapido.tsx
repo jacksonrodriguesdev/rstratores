@@ -4,7 +4,7 @@ import { ListChecks, Loader2, MessageCircle, ShoppingCart, CheckCircle2, HelpCir
 import { SiteHeader } from "@/components/SiteHeader";
 import { useCart } from "@/components/CartContext";
 import { acharPorCodigos, codigoExibicao, type Product } from "@/lib/products";
-import { nomeEs } from "@/lib/pecas-es";
+import { nomeProduto } from "@/lib/pecas-es";
 import { PHONE } from "@/lib/whatsapp";
 import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 
@@ -65,7 +65,7 @@ function PedidoRapido() {
   const agregarTodos = () => {
     for (const r of encontrados) {
       const p = r.produto!;
-      addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, image: p.imagem_principal || undefined, quantity: r.qtd });
+      addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, nameEs: nomeProduto(p), image: p.imagem_principal || undefined, quantity: r.qtd });
     }
     setIsCartOpen(true);
   };
@@ -74,7 +74,7 @@ function PedidoRapido() {
     const linhas = [
       ...encontrados.map((r) => {
         const p = r.produto!;
-        const es = nomeEs(p.nome);
+        const es = nomeProduto(p);
         return `• ${r.qtd}x ${es}${es !== p.nome ? ` (${p.nome})` : ""} — Cód: ${p.sku}`;
       }),
       ...(faltantes.length
@@ -159,7 +159,7 @@ function PedidoRapido() {
                         params={{ sku: r.produto.sku }}
                         className="block truncate font-semibold text-zinc-900 hover:text-primary"
                       >
-                        {nomeEs(r.produto.nome)}
+                        {nomeProduto(r.produto)}
                       </Link>
                     ) : (
                       <span className="block font-semibold text-zinc-900">{r.codigo}</span>

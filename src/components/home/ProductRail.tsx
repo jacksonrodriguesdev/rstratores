@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
 import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/components/CartContext";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
-import { nomeEs } from "@/lib/pecas-es";
+import { nomeProduto } from "@/lib/pecas-es";
 import { cn } from "@/lib/utils";
 
 // Larguras por tela: no celular aparece um pedaço do próximo cartão, convidando a arrastar.
@@ -80,7 +80,7 @@ export function ProductRail({ products, loading }: { products: Product[]; loadin
 export function RailCard({ p }: { p: Product }) {
   const { items, addItem } = useCart();
   const noCarrinho = items.some((i) => i.sku === p.sku);
-  const nome = nomeEs(p.nome);
+  const nome = nomeProduto(p);
   const marca = marcaExibicao(p);
 
   return (
@@ -115,7 +115,7 @@ export function RailCard({ p }: { p: Product }) {
             addItem({
               sku: p.sku,
               codigo: codigoExibicao(p),
-              name: p.nome,
+              name: p.nome, nameEs: nomeProduto(p),
               image: p.imagem_principal || undefined,
               quantity: 1,
             });

@@ -8,7 +8,7 @@ import { ProductImage } from "@/components/ProductImage";
 import { useDebounce } from "@/hooks/use-debounce";
 import { listProducts, marcaExibicao } from "@/lib/products";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { categoriaEs, nomeEs } from "@/lib/pecas-es";
+import { categoriaEs, nomeProduto } from "@/lib/pecas-es";
 
 interface SearchAutocompleteProps {
   segment: "AGRICOLA" | "AUTOMOTIVA";
@@ -117,11 +117,11 @@ export function SearchAutocomplete({
                   className="flex items-center gap-4 p-3 hover:bg-accent/10 transition-colors text-left border-b last:border-b-0"
                 >
                   <div className="h-12 w-12 shrink-0 bg-muted rounded-md overflow-hidden flex items-center justify-center">
-                    <ProductImage src={product.imagem_principal} alt={nomeEs(product.nome)} />
+                    <ProductImage src={product.imagem_principal} alt={nomeProduto(product)} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold truncate text-foreground">
-                      {nomeEs(product.nome)}
+                      {nomeProduto(product)}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
                       Cód. {product.sku}

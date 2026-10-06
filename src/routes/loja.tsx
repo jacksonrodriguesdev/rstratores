@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useDebounce } from "@/hooks/use-debounce";
 import { listProducts, getFacets, codigoExibicao, marcaExibicao, type ListParams, type Product } from "@/lib/products";
-import { categoriaEs, categoriaFraseEs, nomeEs } from "@/lib/pecas-es";
+import { categoriaEs, categoriaFraseEs, nomeProduto } from "@/lib/pecas-es";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { registrarEvento } from "@/lib/eventos";
@@ -413,7 +413,7 @@ function LojaPage() {
 function CardLoja({ p }: { p: Product }) {
   const { items, addItem } = useCart();
   const naCotacao = items.some((i) => i.sku === p.sku);
-  const nome = nomeEs(p.nome);
+  const nome = nomeProduto(p);
   const marca = marcaExibicao(p);
 
   return (
@@ -430,7 +430,7 @@ function CardLoja({ p }: { p: Product }) {
       <button
         onClick={() => {
           if (!naCotacao)
-            addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, image: p.imagem_principal || undefined, quantity: 1 });
+            addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, nameEs: nomeProduto(p), image: p.imagem_principal || undefined, quantity: 1 });
         }}
         aria-label={naCotacao ? "Ya está en tu cotización" : "Agregar a la cotización"}
         title={naCotacao ? "Ya está en tu cotización" : "Agregar a la cotización"}

@@ -45,6 +45,7 @@ async function carregar(): Promise<Item[]> {
     select: {
       sku: true,
       nome: true,
+      nome_es: true,
       categoria: true,
       category_id: true,
       marca: true,
@@ -78,7 +79,7 @@ async function carregar(): Promise<Item[]> {
         nomeN: normalizar(l.nome),
         codigos,
         texto: normalizar(
-          [l.nome, l.sku, l.codigo_fabricante, l.fabricante, l.marca, l.categoria, l.veiculos_compativeis, ...ext].join(" "),
+          [l.nome, l.nome_es, l.sku, l.codigo_fabricante, l.fabricante, l.marca, l.categoria, l.veiculos_compativeis, ...ext].join(" "),
         ),
         categoria: l.categoria,
         categoriaN: normalizar(l.categoria),
