@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Send,
   Upload,
+  Truck,
 } from "lucide-react";
 import {
   listHomepageBlocks,
@@ -118,6 +119,13 @@ const BLOCK_TYPES = [
     name: "WhatsApp & Instagram",
     icon: Send,
     desc: "Chamada para receber ofertas no WhatsApp e seguir no Instagram.",
+  },
+  {
+    id: "ENVIO_DAC",
+    name: "Envios para o Uruguai (DAC)",
+    icon: Truck,
+    desc: "Seção em espanhol: envio para todo o Uruguai pela DAC, com rastreio e WhatsApp.",
+    recommend: "Logo da DAC em PNG com fundo transparente (cerca de 300 × 100px)",
   },
 ];
 
@@ -633,7 +641,7 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                 </p>
               )}
 
-              {block.type === "PROMO_STRIP" && (
+              {(block.type === "PROMO_STRIP" || block.type === "ENVIO_DAC") && (
                 <>
                   <div className="space-y-2">
                     <Label>Imagem do Bloco</Label>

@@ -19,6 +19,7 @@ import {
   CarouselMontadorasBlock,
   DepoimentosBlock,
   NewsletterInstagramBlock,
+  EnvioDacBlock,
 } from "@/components/homepage-blocks";
 import type { HomepageBlock } from "@/lib/homepage";
 
@@ -69,6 +70,8 @@ function Bloco({ block }: { block: HomepageBlock }) {
       return <DepoimentosBlock config={config} title={title} />;
     case "NEWSLETTER_INSTAGRAM":
       return <NewsletterInstagramBlock config={config} />;
+    case "ENVIO_DAC":
+      return <EnvioDacBlock config={config} />;
     default:
       return null;
   }
