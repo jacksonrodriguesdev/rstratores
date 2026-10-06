@@ -18,6 +18,7 @@ type Item = {
   temCategoria: boolean;
   marca: string | null;
   comImagem: boolean;
+  fotoPropria: boolean; // foto real da peça em public/catalogo (aparece primeiro)
   criado: number;
 };
 
@@ -86,6 +87,7 @@ async function carregar(): Promise<Item[]> {
         temCategoria: l.category_id != null,
         marca: l.marca,
         comImagem: img !== "" && !img.includes("redeparts"),
+        fotoPropria: img.startsWith("/catalogo/"),
         criado: l.created_at.getTime(),
       };
     });
@@ -111,6 +113,7 @@ export type FiltrosBusca = {
 };
 
 const comoLista = (v?: string | string[]) => (v == null ? [] : Array.isArray(v) ? v : [v]).filter(Boolean);
+const fotoPeso = (i: Item) => (i.fotoPropria ? 2 : i.comImagem ? 1 : 0);
 const compararNome = (a: Item, b: Item) => (a.nome < b.nome ? -1 : a.nome > b.nome ? 1 : a.sku < b.sku ? -1 : 1);
 
 // Devolve os SKUs na ordem de exibição.
@@ -155,6 +158,7 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
       else if (primeiro.some((v) => i.nomeN.includes(` ${v}`))) p += 5;
       if (i.temCategoria) p += 2;
       if (i.comImagem) p += 1;
+      if (i.fotoPropria) p += 3;
       return p;
     };
     const comPontos = lista.map((i) => ({ i, p: pontos(i) }));
@@ -166,7 +170,8 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
   if (f.sort === "nome-desc") ordenada.sort((a, b) => compararNome(b, a));
   else if (f.sort === "created-desc") ordenada.sort((a, b) => b.criado - a.criado || (a.sku < b.sku ? -1 : 1));
   else if (f.sort === "sku") ordenada.sort((a, b) => (a.sku < b.sku ? -1 : 1));
-  else ordenada.sort(compararNome);
+  // Ordem padrão: peças com foto própria primeiro, depois as com alguma foto, depois o resto
+  else ordenada.sort((a, b) => fotoPeso(b) - fotoPeso(a) || compararNome(a, b));
   return ordenada.map((i) => i.sku);
 }
 
