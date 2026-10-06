@@ -214,9 +214,8 @@ export function SiteHeader() {
           )}
         >
           <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="RS Trator Peças — início">
-            <div className="relative rounded-xl bg-gradient-to-br from-white to-emerald-50 p-1.5 text-primary shadow-lg shadow-emerald-950/40 ring-1 ring-white/40 transition group-hover:scale-105 md:p-2">
-              <Tractor className="h-6 w-6 md:h-7 md:w-7" />
-              <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-emerald-950" />
+            <div className="rounded-2xl bg-white p-1 shadow-lg shadow-emerald-950/40 ring-1 ring-white/40 transition group-hover:scale-105">
+              <img src="/logo.png" alt="" width={48} height={48} className="h-9 w-9 md:h-12 md:w-12" />
             </div>
             <div className="hidden flex-col leading-none md:flex">
               <span className="text-lg font-extrabold tracking-tight lg:text-xl">RS Trator</span>

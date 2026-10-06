@@ -132,6 +132,7 @@ function AdminLayout() {
       <aside className="flex border-r bg-card lg:w-64 lg:shrink-0 lg:flex-col lg:justify-between shadow-sm z-10">
         <div className="flex flex-col p-4 lg:p-6 w-full">
           <div className="mb-8 hidden lg:block">
+            <img src="/logo.png" alt="" width={56} height={56} className="mb-3 h-14 w-14" />
             <h1 className="text-2xl font-black tracking-tight text-primary">RS Admin</h1>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mt-1">
               Painel de Controle
@@ -243,7 +244,9 @@ function AdminLayout() {
       <main className="flex-1 overflow-y-auto bg-muted/30">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">
           <div className="mb-6 flex items-center justify-between lg:hidden bg-card p-4 rounded-lg shadow-sm border">
-            <h1 className="text-xl font-bold tracking-tight text-primary">RS Admin</h1>
+            <h1 className="flex items-center gap-2 text-xl font-bold tracking-tight text-primary">
+              <img src="/logo.png" alt="" width={32} height={32} className="h-8 w-8" /> RS Admin
+            </h1>
             <Button
               variant="ghost"
               size="icon"
