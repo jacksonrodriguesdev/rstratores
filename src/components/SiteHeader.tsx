@@ -343,7 +343,7 @@ export function SiteHeader() {
 
           {/* Desktop */}
           <div className="border-t border-white/10 bg-black/15">
-            <div className="mx-auto hidden h-11 max-w-7xl items-center gap-1 px-4 text-sm font-medium md:flex">
+            <div className="mx-auto hidden h-11 max-w-7xl items-center gap-1 whitespace-nowrap px-4 text-sm font-medium md:flex">
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex h-8 cursor-pointer items-center gap-2 rounded-lg bg-accent px-3 font-semibold text-zinc-900 shadow outline-none transition hover:brightness-95">
                   <LayoutGrid className="h-4 w-4" /> Categorías
@@ -386,12 +386,16 @@ export function SiteHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {categorias.slice(0, 6).map((c) => (
+              {/* Atalhos de categoria: 2 até 1280px, 4 até 1536px, 6 acima (o resto fica no menu) */}
+              {categorias.slice(0, 6).map((c, i) => (
                 <Link
                   key={c.nome}
                   to="/loja"
                   search={{ linha: "AGRICOLA", categoria: c.nome } as never}
-                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition-colors hover:bg-white/10 hover:text-white"
+                  className={cn(
+                    "items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition-colors hover:bg-white/10 hover:text-white",
+                    i < 2 ? "flex" : i < 4 ? "hidden xl:flex" : "hidden 2xl:flex",
+                  )}
                 >
                   <c.icon className="h-3.5 w-3.5 text-emerald-300" />
                   {c.curto}
@@ -407,7 +411,7 @@ export function SiteHeader() {
               </Link>
               <a
                 href="/#envios-uruguay"
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
+                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white xl:flex"
               >
                 <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
                 Envíos a todo Uruguay
