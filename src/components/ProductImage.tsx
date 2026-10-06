@@ -61,7 +61,7 @@ export function ProductImage({ src, alt, className, marca }: Props) {
           </span>
         )}
         <span className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-400 @[120px]:block">
-          Foto em breve
+          Foto próximamente
         </span>
       </div>
     );

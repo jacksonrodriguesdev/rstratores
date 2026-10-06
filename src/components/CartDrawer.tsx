@@ -2,39 +2,25 @@ import { X, Trash2, ShoppingCart, Send } from "lucide-react";
 import { useCart } from "@/components/CartContext";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
-import { getSessionFn } from "@/lib/user-auth";
-import { useQuery } from "@tanstack/react-query";
 import { PHONE } from "@/lib/whatsapp";
+import { nomeEs } from "@/lib/pecas-es";
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart } = useCart();
-
-  const sessionQuery = useQuery({
-    queryKey: ["auth_session"],
-    queryFn: () => getSessionFn(),
-  });
-  const user = sessionQuery.data;
 
   if (!isCartOpen) return null;
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // A cotação vai direto para o WhatsApp, sem exigir cadastro (cada passo a mais perde cliente).
+  // O nome em português vai entre parênteses para a equipe identificar a peça.
   const handleSendQuote = () => {
-    if (!user) {
-      // Redirect to login if not logged in
-      window.location.href = "/login?redirect=/carrinho";
-      return;
-    }
-
-    // Formats a WhatsApp message
-    const lines = items.map((i) => `${i.quantity}x ${i.name} (Cód: ${i.codigo || i.sku})`);
-    const message = `Olá, gostaria de solicitar uma cotação para as seguintes peças:\n\n${lines.join("\n")}`;
-
-    // Send to WhatsApp
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://api.whatsapp.com/send?phone=${PHONE}&text=${encodedMessage}`, "_blank");
-
-    // Clear cart after sending
+    const lines = items.map((i) => {
+      const es = nomeEs(i.name);
+      return `• ${i.quantity}x ${es}${es !== i.name ? ` (${i.name})` : ""} — Cód: ${i.codigo || i.sku}`;
+    });
+    const message = `¡Hola! Quiero cotizar estos repuestos:\n\n${lines.join("\n")}`;
+    window.open(`https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`, "_blank");
     clearCart();
     setIsCartOpen(false);
   };
@@ -50,10 +36,11 @@ export function CartDrawer() {
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <ShoppingCart className="h-6 w-6 text-primary" />
-            Carrinho
+            Mi cotización
           </h2>
           <button
             onClick={() => setIsCartOpen(false)}
+            aria-label="Cerrar"
             className="p-2 hover:bg-zinc-100 rounded-full transition-colors"
           >
             <X className="h-6 w-6 text-zinc-500" />
@@ -64,9 +51,12 @@ export function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
               <ShoppingCart className="h-16 w-16 opacity-20" />
-              <p className="text-lg font-medium">Seu carrinho está vazio</p>
+              <p className="text-lg font-medium">Todavía no agregaste repuestos</p>
+              <p className="max-w-xs text-center text-sm">
+                Sumá las piezas que necesitás y mandanos todo junto por WhatsApp para recibir el precio.
+              </p>
               <Button onClick={() => setIsCartOpen(false)} variant="outline" className="mt-4">
-                Continuar Comprando
+                Seguir buscando
               </Button>
             </div>
           ) : (
@@ -77,7 +67,7 @@ export function CartDrawer() {
                     {item.image ? (
                       <ProductImage
                         src={item.image}
-                        alt={item.name}
+                        alt={nomeEs(item.name)}
                         className="object-contain h-full w-full"
                       />
                     ) : (
@@ -87,7 +77,7 @@ export function CartDrawer() {
 
                   <div className="flex flex-1 flex-col">
                     <h3 className="text-sm font-semibold text-zinc-800 line-clamp-2 leading-tight">
-                      {item.name}
+                      {nomeEs(item.name)}
                     </h3>
                     <p className="text-xs text-zinc-500 mt-1">Cód: {item.codigo || item.sku}</p>
 
@@ -112,7 +102,8 @@ export function CartDrawer() {
                       <button
                         onClick={() => removeItem(item.sku)}
                         className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
-                        title="Remover item"
+                        title="Quitar"
+                        aria-label="Quitar"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
@@ -127,27 +118,28 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t p-6 bg-zinc-50 space-y-4">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-zinc-600 font-medium">Total de Itens</span>
+              <span className="text-zinc-600 font-medium">Total de repuestos</span>
               <span className="font-bold text-zinc-900">
-                {totalItems} {totalItems === 1 ? "item" : "itens"}
+                {totalItems} {totalItems === 1 ? "unidad" : "unidades"}
               </span>
             </div>
 
             <div className="pt-2">
               <Button
                 onClick={handleSendQuote}
-                className="w-full h-14 text-lg font-bold flex items-center justify-center gap-2 uppercase tracking-wide"
+                className="w-full h-14 text-lg font-bold flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE57] text-white"
               >
                 <Send className="h-5 w-5" />
-                {user ? "Enviar para Cotação" : "Faça Login para Cotar"}
+                Pedir precio por WhatsApp
               </Button>
             </div>
+            <p className="text-center text-xs text-zinc-500">Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.</p>
 
             <button
               onClick={clearCart}
               className="w-full text-sm font-semibold text-zinc-500 hover:text-zinc-800 transition-colors py-2"
             >
-              Limpar Carrinho
+              Vaciar lista
             </button>
           </div>
         )}

@@ -78,3 +78,46 @@ export async function assertAdmin(): Promise<SessionPayload> {
   }
   return session;
 }
+
+// Cookie da sessão. `Secure` quando o acesso é por HTTPS (em produção a Hostinger encaminha
+// a requisição ao Node por http, então vale também o cabeçalho x-forwarded-proto).
+export function cookieSessao(request: Request, token: string | null): string {
+  const https =
+    new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto") === "https";
+  const valor = token ? `${AUTH_COOKIE}=${token}; Max-Age=${60 * 60 * 24 * 7}` : `${AUTH_COOKIE}=; Max-Age=0`;
+  return `${valor}; Path=/; HttpOnly; SameSite=Lax${https ? "; Secure" : ""}`;
+}
+
+// Limite de tentativas de login por IP + e-mail (em memória): atrasa quem tenta adivinhar senhas.
+const tentativas = new Map<string, { n: number; desde: number }>();
+const JANELA = 15 * 60 * 1000;
+const MAX_TENTATIVAS = 8;
+
+function chaveTentativa(request: Request, email: string) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("x-real-ip") || "local";
+  return `${ip}|${email.toLowerCase()}`;
+}
+
+export function loginBloqueado(request: Request, email: string): boolean {
+  const t = tentativas.get(chaveTentativa(request, email));
+  if (!t) return false;
+  if (Date.now() - t.desde > JANELA) {
+    tentativas.delete(chaveTentativa(request, email));
+    return false;
+  }
+  return t.n >= MAX_TENTATIVAS;
+}
+
+export function registrarFalhaLogin(request: Request, email: string) {
+  const chave = chaveTentativa(request, email);
+  const t = tentativas.get(chave);
+  if (!t || Date.now() - t.desde > JANELA) tentativas.set(chave, { n: 1, desde: Date.now() });
+  else t.n++;
+  // Evita crescer sem limite
+  if (tentativas.size > 5000) tentativas.clear();
+}
+
+export function limparFalhasLogin(request: Request, email: string) {
+  tentativas.delete(chaveTentativa(request, email));
+}

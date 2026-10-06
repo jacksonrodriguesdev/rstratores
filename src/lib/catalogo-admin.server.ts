@@ -1,4 +1,5 @@
 import { AUTOMOTIVA_ATIVA } from "./linhas";
+import { limparCacheFacets } from "./products.server";
 
 // Tabelas do catálogo que o admin edita. O site lista a linha agrícola da tabela
 // `agricolas`; antes, criar/editar/excluir/importar no admin gravava em `products`
@@ -47,7 +48,10 @@ export function dadosProduto(body: Record<string, unknown>, agricola: boolean) {
   return data;
 }
 
+// Toda escrita do admin no catálogo passa por aqui: aproveita para a loja recarregar
+// o índice de busca e os filtros na próxima consulta.
 export function delegates(tx: any, linha?: string | null) {
+  limparCacheFacets();
   const t = tabelasCatalogo(linha);
   return { produtos: tx[t.produtos], imagens: tx[t.imagens], agricola: t.agricola };
 }

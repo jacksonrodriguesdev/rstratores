@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Home, LayoutGrid, MessageCircle, ShoppingCart, User, Tractor, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/components/CartContext";
-import { useLanguage } from "@/components/LanguageContext";
 import { getSessionFn } from "@/lib/user-auth";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { MONTADORAS } from "@/lib/navegacao";
@@ -17,7 +16,6 @@ export function MobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [sheet, setSheet] = useState<"categorias" | "conta" | null>(null);
   const { items, setIsCartOpen } = useCart();
-  const { language, setLanguage } = useLanguage();
   const { data: user } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const cartItemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const categorias = useCategoriasLoja();
@@ -33,25 +31,25 @@ export function MobileTabBar() {
       {/* Espaço no fim da página para a barra não cobrir o rodapé */}
       <div className="h-20 md:hidden" aria-hidden />
       <nav
-        aria-label="Navegação principal"
+        aria-label="Navegación principal"
         className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 pb-safe backdrop-blur-md md:hidden"
       >
         <div className="flex h-16 items-stretch">
           <Link to="/" className={cn(tab, pathname === "/" && ativo)}>
             <Home className="h-6 w-6" />
-            Início
+            Inicio
           </Link>
           <button
             onClick={() => setSheet("categorias")}
             className={cn(tab, (sheet === "categorias" || pathname.startsWith("/loja")) && ativo)}
           >
             <LayoutGrid className="h-6 w-6" />
-            Categorias
+            Categorías
           </button>
 
           {/* Ação principal: cotação pelo WhatsApp */}
           <a
-            href={whatsappContactUrl()}
+            href={whatsappContactUrl("¡Hola! Quiero cotizar repuestos.")}
             target="_blank"
             rel="noreferrer noopener"
             className="flex flex-1 flex-col items-center justify-start text-[11px] font-semibold text-[#128C4B] active:scale-95"
@@ -59,7 +57,7 @@ export function MobileTabBar() {
             <span className="-mt-5 mb-0.5 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/40 ring-4 ring-white">
               <MessageCircle className="h-7 w-7" />
             </span>
-            Cotação
+            Cotizar
           </a>
 
           <button onClick={() => setIsCartOpen(true)} className={tab}>
@@ -71,17 +69,17 @@ export function MobileTabBar() {
                 </span>
               )}
             </span>
-            Carrinho
+            Carrito
           </button>
           {user ? (
             <button onClick={() => setSheet("conta")} className={cn(tab, sheet === "conta" && ativo)}>
               <User className="h-6 w-6" />
-              Conta
+              Cuenta
             </button>
           ) : (
             <Link to="/login" className={cn(tab, pathname === "/login" && ativo)}>
               <User className="h-6 w-6" />
-              Entrar
+              Ingresar
             </Link>
           )}
         </div>
@@ -91,7 +89,7 @@ export function MobileTabBar() {
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl pb-safe">
           <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-zinc-200" />
           <SheetHeader>
-            <SheetTitle>Categorias</SheetTitle>
+            <SheetTitle>Categorías</SheetTitle>
           </SheetHeader>
           <div className="grid grid-cols-3 gap-2 px-4">
             {categorias.map((c) => (
@@ -110,7 +108,7 @@ export function MobileTabBar() {
             ))}
           </div>
 
-          <h3 className="mt-6 px-4 text-sm font-semibold text-zinc-900">Montadoras</h3>
+          <h3 className="mt-6 px-4 text-sm font-semibold text-zinc-900">Marcas de tractor</h3>
           <div className="scrollbar-none mt-2 flex gap-2 overflow-x-auto px-4">
             {MONTADORAS.map((m) => (
               <Link
@@ -125,20 +123,14 @@ export function MobileTabBar() {
             ))}
           </div>
 
-          <div className="mt-6 flex items-center justify-between gap-3 px-4 pb-4">
+          <div className="mt-6 px-4 pb-4">
             <Link
               to="/loja"
               onClick={() => setSheet(null)}
-              className="flex-1 rounded-xl bg-primary py-3 text-center text-sm font-semibold text-white active:scale-95"
+              className="block rounded-xl bg-primary py-3 text-center text-sm font-semibold text-white active:scale-95"
             >
-              Ver todo o catálogo
+              Ver todo el catálogo
             </Link>
-            <button
-              onClick={() => setLanguage(language === "pt-BR" ? "es-UY" : "pt-BR")}
-              className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium active:scale-95"
-            >
-              {language === "pt-BR" ? "🇺🇾 Español" : "🇧🇷 Português"}
-            </button>
           </div>
         </SheetContent>
       </Sheet>
@@ -147,7 +139,7 @@ export function MobileTabBar() {
         <SheetContent side="bottom" className="rounded-t-3xl pb-safe">
           <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-zinc-200" />
           <SheetHeader>
-            <SheetTitle>Olá, {user?.nome.split(" ")[0]}</SheetTitle>
+            <SheetTitle>Hola, {user?.nome.split(" ")[0]}</SheetTitle>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </SheetHeader>
           <div className="flex flex-col gap-2 px-4 pb-4">
@@ -157,7 +149,7 @@ export function MobileTabBar() {
                 onClick={() => setSheet(null)}
                 className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium"
               >
-                Painel administrativo
+                Panel de administración
               </Link>
             )}
             <button
@@ -167,7 +159,7 @@ export function MobileTabBar() {
               }}
               className="flex items-center gap-2 rounded-xl border border-red-100 px-4 py-3 text-sm font-medium text-red-600"
             >
-              <LogOut className="h-4 w-4" /> Sair da conta
+              <LogOut className="h-4 w-4" /> Cerrar sesión
             </button>
           </div>
         </SheetContent>

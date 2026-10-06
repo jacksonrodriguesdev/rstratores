@@ -1,8 +1,8 @@
 {
   "name": "RS Auto Peças",
   "short_name": "RS Auto Peças",
-  "description": "Peças para tratores com cotação rápida pelo WhatsApp.",
-  "lang": "pt-BR",
+  "description": "Repuestos para tractores con cotización rápida por WhatsApp. Envíos a todo Uruguay.",
+  "lang": "es-UY",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

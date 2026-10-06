@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
-import { useLanguage } from "@/components/LanguageContext";
+import { categoriaCurtaEs, nomeEs } from "@/lib/pecas-es";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
 
 type Props = {
@@ -18,7 +18,6 @@ type Props = {
 
 export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const { language } = useLanguage();
 
   if (!products || products.length === 0) return null;
 
@@ -50,7 +49,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
             size="icon"
             className="h-8 w-8"
             onClick={() => scroll(1)}
-            aria-label="Próximo"
+            aria-label="Siguiente"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -78,7 +77,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                     >
                       <ProductImage
                         src={p.imagem_principal}
-                        alt={language === "es-UY" && p.nome_es ? p.nome_es : p.nome}
+                        alt={nomeEs(p.nome)}
                         marca={marcaExibicao(p)}
                         className="transition-transform hover:scale-105"
                       />
@@ -87,7 +86,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                       <div className="flex flex-wrap gap-1">
                         {p.categoria && (
                           <Badge variant="secondary" className="text-[10px]">
-                            {p.categoria}
+                            {categoriaCurtaEs(p.categoria)}
                           </Badge>
                         )}
                       </div>
@@ -96,7 +95,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                         params={{ sku: p.sku }}
                         className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug hover:text-primary"
                       >
-                        {language === "es-UY" && p.nome_es ? p.nome_es : p.nome}
+                        {nomeEs(p.nome)}
                       </Link>
                       <div className="text-[11px] text-muted-foreground">Cód. {codigoExibicao(p)}</div>
                       <div className="mt-auto pt-2">

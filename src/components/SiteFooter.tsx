@@ -1,163 +1,134 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, MapPin, Instagram, Facebook, QrCode, CreditCard, Barcode } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram, Facebook, Lock, Truck, MessageCircle } from "lucide-react";
 import { whatsappContactUrl } from "@/lib/whatsapp";
+import { INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
+import { BandeiraUruguay } from "@/components/Bandeiras";
+
+const AYUDA = [
+  { label: "Cómo comprar", hash: "como-comprar" },
+  { label: "Envíos a Uruguay", hash: "envios" },
+  { label: "Formas de pago", hash: "pagos" },
+  { label: "Garantía y devoluciones", hash: "garantia" },
+  { label: "Preguntas frecuentes", hash: "preguntas" },
+];
 
 export function SiteFooter() {
   return (
-    <footer className="bg-zinc-900 text-zinc-400 py-12 mt-auto border-t-4 border-primary">
-      <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-        {/* Coluna 1: Atendimento */}
+    <footer className="mt-auto border-t-4 border-primary bg-zinc-900 py-12 text-zinc-400">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Marca */}
         <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
-            Atendimento
-          </h3>
+          <Link to="/" className="mb-4 flex items-center gap-3">
+            <span className="rounded-2xl bg-white p-1">
+              <img src="/logo.png" alt="" width={44} height={44} className="h-11 w-11" loading="lazy" />
+            </span>
+            <span className="leading-tight">
+              <span className="block text-lg font-extrabold text-white">RS Auto Peças</span>
+              <span className="block text-xs font-semibold tracking-wider text-accent">REPUESTOS AGRÍCOLAS</span>
+            </span>
+          </Link>
+          <p className="text-sm leading-relaxed">
+            Más de 29.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New
+            Holland, Case IH y Ford. Enviamos a todo Uruguay por DAC.
+          </p>
+        </div>
+
+        {/* Atención */}
+        <div>
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white">Atención</h3>
           <ul className="space-y-3 text-sm">
             <li>
               <a
-                href={whatsappContactUrl()}
+                href={whatsappContactUrl("¡Hola! Quiero consultar por repuestos.")}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 hover:text-white transition-colors"
+                className="flex items-center gap-2 transition-colors hover:text-white"
               >
-                <Phone className="w-4 h-4 text-primary" /> Fale via WhatsApp (53) 99953-4631
+                <Phone className="h-4 w-4 text-primary" /> WhatsApp (53) 99953-4631
               </a>
             </li>
             <li>
               <a
                 href="mailto:comercialrsautoparts@gmail.com"
-                className="flex items-center gap-2 hover:text-white transition-colors"
+                className="flex items-center gap-2 break-all transition-colors hover:text-white"
               >
-                <Mail className="w-4 h-4 text-primary" /> comercialrsautoparts@gmail.com
+                <Mail className="h-4 w-4 shrink-0 text-primary" /> comercialrsautoparts@gmail.com
               </a>
             </li>
             <li className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <span>
-                Av justino amonte anacker 812, centro
+                Av. Justino Amonte Anacker 812, centro
                 <br />
-                Santa Vitoria do Palmar - RS
+                Santa Vitória do Palmar - RS, Brasil
               </span>
             </li>
           </ul>
         </div>
 
-        {/* Coluna 2: Institucional */}
+        {/* Ayuda */}
         <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
-            Institucional
-          </h3>
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white">Ayuda</h3>
           <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Quem Somos
-              </Link>
-            </li>
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Nossas Lojas
-              </Link>
-            </li>
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Trabalhe Conosco
-              </Link>
-            </li>
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Política de Privacidade
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Coluna 3: Ajuda */}
-        <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Ajuda</h3>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Como Comprar
-              </Link>
-            </li>
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Prazos e Entregas
-              </Link>
-            </li>
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Trocas e Devoluções
-              </Link>
-            </li>
-            <li>
-              <Link to="/" className="hover:text-white transition-colors">
-                Perguntas Frequentes
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Coluna 4: Pagamento */}
-        <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
-            Formas de Pagamento
-          </h3>
-          {/* Selos próprios: os logos vinham de um site externo que bloqueia o uso (logospng.org) */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { icon: QrCode, nome: "Pix" },
-              { icon: CreditCard, nome: "Cartão" },
-              { icon: Barcode, nome: "Boleto" },
-            ].map(({ icon: Icone, nome }) => (
-              <span
-                key={nome}
-                className="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-zinc-800"
-              >
-                <Icone className="h-4 w-4 text-primary" /> {nome}
-              </span>
+            {AYUDA.map((a) => (
+              <li key={a.hash}>
+                <Link to="/ayuda" hash={a.hash} className="transition-colors hover:text-white">
+                  {a.label}
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
-        {/* Coluna 5: Redes e Segurança */}
+        {/* Garantías */}
         <div>
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
-            Redes Sociais
-          </h3>
-          <div className="flex gap-4 mb-6">
-            <a
-              href="#"
-              className="bg-zinc-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors text-zinc-400"
-            >
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a
-              href="#"
-              className="bg-zinc-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors text-zinc-400"
-            >
-              <Facebook className="w-5 h-5" />
-            </a>
-          </div>
-
-          <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Segurança</h3>
-          <div className="flex gap-2">
-            <div className="bg-white px-2 py-1 rounded border border-zinc-700 text-xs font-bold text-black text-center leading-tight">
-              SITE
-              <br />
-              SEGURO
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white">Comprá tranquilo</h3>
+          <ul className="space-y-3 text-sm">
+            <li className="flex items-center gap-2">
+              <Truck className="h-4 w-4 text-primary" /> Envíos por DAC con rastreo
+            </li>
+            <li className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4 text-primary" /> Atención personalizada por WhatsApp
+            </li>
+            <li className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-primary" /> Sitio seguro (HTTPS)
+            </li>
+            <li className="flex items-center gap-2">
+              <BandeiraUruguay className="h-3.5 w-5 rounded-[2px]" /> Atendemos todo Uruguay
+            </li>
+          </ul>
+          {(INSTAGRAM_URL || FACEBOOK_URL) && (
+            <div className="mt-5 flex gap-3">
+              {INSTAGRAM_URL && (
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Instagram"
+                  className="rounded-full bg-zinc-800 p-2 transition-colors hover:bg-primary hover:text-white"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+              )}
+              {FACEBOOK_URL && (
+                <a
+                  href={FACEBOOK_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Facebook"
+                  className="rounded-full bg-zinc-800 p-2 transition-colors hover:bg-primary hover:text-white"
+                >
+                  <Facebook className="h-5 w-5" />
+                </a>
+              )}
             </div>
-            <div className="bg-white px-2 py-1 rounded border border-zinc-700 text-xs font-bold text-black text-center leading-tight">
-              SSL
-              <br />
-              BLINDADO
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      <div className="mt-12 pt-6 border-t border-zinc-800 text-center text-xs text-zinc-500">
+      <div className="mt-12 border-t border-zinc-800 px-4 pt-6 text-center text-xs text-zinc-500">
         <p>
-          &copy; {new Date().getFullYear()} RS Auto Peças. Todos os direitos reservados. CNPJ:
+          &copy; {new Date().getFullYear()} RS Auto Peças. Todos los derechos reservados. CNPJ:
           33.443.027/0001-08
         </p>
       </div>

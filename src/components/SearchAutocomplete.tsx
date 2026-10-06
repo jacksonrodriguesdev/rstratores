@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { useDebounce } from "@/hooks/use-debounce";
-import { listProducts, formatBRL, marcaExibicao } from "@/lib/products";
+import { listProducts, marcaExibicao } from "@/lib/products";
+import { whatsappContactUrl } from "@/lib/whatsapp";
+import { categoriaEs, nomeEs } from "@/lib/pecas-es";
 
 interface SearchAutocompleteProps {
   segment: "AGRICOLA" | "AUTOMOTIVA";
@@ -18,7 +20,7 @@ interface SearchAutocompleteProps {
 
 export function SearchAutocomplete({
   segment,
-  placeholder = "Buscar...",
+  placeholder = "Buscar…",
   className = "",
   inputClassName = "",
   showButton = false,
@@ -91,7 +93,15 @@ export function SearchAutocomplete({
         <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-background border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {!isLoading && !hasResults && (
             <div className="p-4 text-center text-sm text-muted-foreground">
-              Nenhum produto encontrado para "{debouncedQuery}"
+              No encontramos repuestos para "{debouncedQuery}".
+              <a
+                href={whatsappContactUrl(`¡Hola! Busco este repuesto: ${debouncedQuery}`)}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="mt-2 block font-semibold text-[#128C4B] hover:underline"
+              >
+                Preguntanos por WhatsApp, lo conseguimos →
+              </a>
             </div>
           )}
 
@@ -107,18 +117,16 @@ export function SearchAutocomplete({
                   className="flex items-center gap-4 p-3 hover:bg-accent/10 transition-colors text-left border-b last:border-b-0"
                 >
                   <div className="h-12 w-12 shrink-0 bg-muted rounded-md overflow-hidden flex items-center justify-center">
-                    <ProductImage src={product.imagem_principal} alt={product.nome} />
+                    <ProductImage src={product.imagem_principal} alt={nomeEs(product.nome)} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold truncate text-foreground">
-                      {product.nome}
+                      {nomeEs(product.nome)}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      {marcaExibicao(product) || product.categoria || product.sku}
+                      Cód. {product.sku}
+                      {(marcaExibicao(product) || product.categoria) && ` · ${marcaExibicao(product) || categoriaEs(product.categoria)}`}
                     </div>
-                  </div>
-                  <div className="text-sm font-bold text-primary shrink-0 pl-2">
-                    {product.preco_brl ? formatBRL(product.preco_brl) : "Sob consulta"}
                   </div>
                 </button>
               ))}
@@ -127,7 +135,7 @@ export function SearchAutocomplete({
                 onClick={() => handleSubmit()}
                 className="p-3 text-sm font-semibold text-center text-primary bg-muted/30 hover:bg-muted/60 transition-colors"
               >
-                Ver todos os resultados
+                Ver todos los resultados
               </button>
             </div>
           )}

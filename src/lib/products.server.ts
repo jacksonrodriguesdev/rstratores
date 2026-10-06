@@ -1,6 +1,8 @@
 import type { Product, ProductImage, ListParams } from "./products";
 import { prisma } from "./prisma";
 import { AUTOMOTIVA_ATIVA } from "./linhas";
+import { buscaParaPortugues } from "./pecas-es";
+import { limparCacheCatalogo } from "./busca-catalogo.server";
 
 
 
@@ -25,6 +27,36 @@ export async function listProducts(params: ListParams) {
     hasImage,
     vitrine,
   } = params;
+
+  // Linha agrícola: filtra e ordena em memória (src/lib/busca-catalogo.server.ts) e só busca
+  // no banco as peças da página. Preço não entra: o catálogo agrícola não tem preços.
+  if (linha === "AGRICOLA" && precoMin == null && precoMax == null) {
+    const { buscarSkus } = await import("./busca-catalogo.server");
+    const skus = await buscarSkus({ search, categoria, marca, montadora, sort, hasImage, vitrine });
+    let inicio = 0;
+    if (cursor) {
+      const i = skus.indexOf(cursor);
+      inicio = i === -1 ? skus.length : i + 1;
+    } else if (page > 1) {
+      inicio = (page - 1) * pageSize;
+    }
+    const pagina = skus.slice(inicio, inicio + pageSize);
+    const encontrados = pagina.length
+      ? await prisma.agricolas.findMany({
+          where: { sku: { in: pagina } },
+          include: { images: { orderBy: { sort_order: "asc" }, take: 1 } },
+        })
+      : [];
+    const porSku = new Map(encontrados.map((r) => [r.sku, r]));
+    const rows = pagina.map((s) => porSku.get(s)).filter(Boolean);
+    const hasNextPage = inicio + pageSize < skus.length;
+    return {
+      rows: rows as any,
+      hasNextPage,
+      nextCursor: rows.length ? (rows[rows.length - 1] as any).sku : undefined,
+      total: skus.length,
+    };
+  }
 
   const where: any = { AND: [] };
 
@@ -52,9 +84,12 @@ export async function listProducts(params: ListParams) {
 
   if (search && search.trim()) {
     const terms = search.trim().split(/\s+/);
-    for (const s of terms) {
+    for (const termo of terms) {
+      // O catálogo está em português: "rodamiento" também procura "ROLAMENTO".
+      const pt = buscaParaPortugues(termo);
+      const variantes = pt.toUpperCase() === termo.toUpperCase() ? [termo] : [termo, pt];
       where.AND.push({
-        OR: [
+        OR: variantes.flatMap((s) => [
           { nome: { contains: s } },
           { sku: { contains: s } },
           { codigo_fabricante: { contains: s } },
@@ -75,7 +110,7 @@ export async function listProducts(params: ListParams) {
           { marca: { contains: s } },
           { descricao: { contains: s } },
           { veiculos_compativeis: { contains: s } },
-        ],
+        ]),
       });
     }
   }
@@ -263,8 +298,10 @@ let facetsCache: Record<
 > = {};
 
 // Chamado quando categorias mudam no admin, para a loja refletir na hora.
+// Limpa os caches da loja (filtros e índice de busca) depois de mudanças no catálogo
 export function limparCacheFacets() {
   facetsCache = {};
+  limparCacheCatalogo();
 }
 
 export async function getFacets(linha?: string) {

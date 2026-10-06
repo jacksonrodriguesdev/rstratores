@@ -34,11 +34,11 @@ export function QuoteModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nome || !formData.endereco || !formData.whatsapp) {
-      toast.error("Preencha todos os campos obrigatórios (Nome, Endereço e WhatsApp).");
+      toast.error("Completá los campos obligatorios (nombre, ciudad y WhatsApp).");
       return;
     }
     if (!formData.mensagem && !file) {
-      toast.error("Por favor, anexe a cotação do concorrente ou digite uma mensagem.");
+      toast.error("Adjuntá el presupuesto o escribí qué repuestos necesitás.");
       return;
     }
 
@@ -61,7 +61,7 @@ export function QuoteModal({
 
       if (!res.ok) {
         const json = await res.json();
-        throw new Error(json.error || "Erro ao enviar cotação");
+        throw new Error(json.error || "No pudimos enviar el presupuesto");
       }
 
       setSuccess(true);
@@ -87,31 +87,30 @@ export function QuoteModal({
         {success ? (
           <div className="flex flex-col items-center justify-center py-10 text-center animate-in zoom-in-95 duration-300">
             <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold tracking-tight mb-2">Cotação Recebida!</h2>
+            <h2 className="text-2xl font-bold tracking-tight mb-2">¡Presupuesto recibido!</h2>
             <p className="text-muted-foreground mb-6">
-              Nossa equipe vai analisar sua cotação e entrará em contato pelo WhatsApp com a melhor
-              oferta.
+              Nuestro equipo lo revisa y te escribe por WhatsApp con la mejor oferta.
             </p>
             <Button onClick={handleClose} className="w-full">
-              Fechar
+              Cerrar
             </Button>
           </div>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Cobrimos a Oferta</DialogTitle>
+              <DialogTitle>Mejoramos tu presupuesto</DialogTitle>
               <DialogDescription>
-                Tem um orçamento da concorrência? Envie para nós e faremos o possível para cobrir!
+                ¿Tenés un presupuesto de otro proveedor? Mandánoslo y hacemos lo posible por mejorarlo.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="nome">Nome Completo *</Label>
+                <Label htmlFor="nome">Nombre completo *</Label>
                 <Input
                   id="nome"
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  placeholder="Seu nome"
+                  placeholder="Tu nombre"
                   required
                 />
               </div>
@@ -122,33 +121,33 @@ export function QuoteModal({
                     id="whatsapp"
                     value={formData.whatsapp}
                     onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                    placeholder="(00) 00000-0000"
+                    placeholder="09X XXX XXX"
                     required
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="endereco">Cidade/Endereço *</Label>
+                  <Label htmlFor="endereco">Ciudad / Departamento *</Label>
                   <Input
                     id="endereco"
                     value={formData.endereco}
                     onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                    placeholder="Sua cidade"
+                    placeholder="Ej.: Tacuarembó"
                     required
                   />
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="mensagem">Mensagem / Produtos Desejados</Label>
+                <Label htmlFor="mensagem">Mensaje / repuestos que necesitás</Label>
                 <Textarea
                   id="mensagem"
                   value={formData.mensagem}
                   onChange={(e) => setFormData({ ...formData, mensagem: e.target.value })}
-                  placeholder="Escreva os produtos ou detalhes adicionais..."
+                  placeholder="Escribí los repuestos, códigos o el modelo del tractor…"
                   rows={3}
                 />
               </div>
               <div className="grid gap-2">
-                <Label>Anexo (Orçamento da Concorrência)</Label>
+                <Label>Adjunto (presupuesto de otro proveedor)</Label>
                 {file ? (
                   <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
                     <span className="text-sm truncate mr-2">{file.name}</span>
@@ -166,7 +165,7 @@ export function QuoteModal({
                   <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-md cursor-pointer hover:bg-muted/50 transition-colors">
                     <Upload className="h-6 w-6 text-muted-foreground mb-2" />
                     <span className="text-sm text-muted-foreground font-medium">
-                      Clique para anexar arquivo ou foto
+                      Tocá para adjuntar un archivo o una foto
                     </span>
                     <input
                       type="file"
@@ -182,7 +181,7 @@ export function QuoteModal({
                 )}
               </div>
               <Button type="submit" className="w-full mt-2" disabled={loading}>
-                {loading ? "Enviando..." : "Enviar Cotação"}
+                {loading ? "Enviando…" : "Enviar presupuesto"}
               </Button>
             </form>
           </>

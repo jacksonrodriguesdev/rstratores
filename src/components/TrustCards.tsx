@@ -4,18 +4,18 @@ import { cn } from "@/lib/utils";
 const CARDS = [
   {
     icon: Truck,
-    title: "Entrega rápida para todo o Uruguai",
-    desc: "Enviamos por DAC com rastreio para todo o território uruguaio.",
+    title: "Envíos a todo Uruguay",
+    desc: "Despachamos por DAC con número de rastreo a cualquier punto del país.",
   },
   {
     icon: ShieldCheck,
-    title: "Confiança e procedência",
-    desc: "Peças originais e paralelas de fornecedores selecionados.",
+    title: "Repuestos de confianza",
+    desc: "Originales y alternativos de proveedores seleccionados.",
   },
   {
     icon: Clock,
-    title: "Cotação em minutos",
-    desc: "Responda pelo WhatsApp e receba orçamento no mesmo dia.",
+    title: "Cotización en minutos",
+    desc: "Escribinos por WhatsApp y te pasamos el precio sin compromiso.",
   },
 ];
 

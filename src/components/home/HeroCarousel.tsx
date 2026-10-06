@@ -112,7 +112,7 @@ export function HeroCarousel({
                   {tag}
                 </span>
               )}
-              {titulo && <h1 className="text-xl font-extrabold leading-tight md:text-4xl">{titulo}</h1>}
+              {titulo && <h2 className="text-xl font-extrabold leading-tight md:text-4xl">{titulo}</h2>}
               {subtitulo && <p className="mt-1 text-sm text-white/90 md:text-base">{subtitulo}</p>}
             </div>
           </div>
@@ -135,7 +135,7 @@ export function HeroCarousel({
           </button>
           <button
             onClick={() => api?.scrollNext()}
-            aria-label="Próximo banner"
+            aria-label="Banner siguiente"
             className="absolute right-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-zinc-800 shadow-lg transition hover:bg-white md:flex"
           >
             <ChevronRight className="h-6 w-6" />

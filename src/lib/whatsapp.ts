@@ -1,3 +1,6 @@
+import { nomeEs } from "./pecas-es";
+import { SITE_URL } from "./site";
+
 // Número de contato
 export const PHONE = "553999428130";
 export const PHONE_DISPLAY = "55 39 9942-8130";
@@ -9,14 +12,19 @@ function buildUrl(text: string): string {
   return `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(text)}`;
 }
 
+// Mensagem em espanhol para o cliente; o nome original em português e o link da peça
+// vão junto para a equipe identificar a peça sem dúvida.
 export function whatsappQuoteUrl(product: { sku: string; nome: string }): string {
+  const es = nomeEs(product.nome);
+  const link = `${SITE_URL}/produto/${encodeURIComponent(product.sku)}`;
   const msg =
-    `Olá! Gostaria de fazer uma cotação do seguinte produto:\n\n` +
-    `*${product.nome}*\n` +
-    `SKU: ${product.sku}`;
+    `¡Hola! Quiero cotizar este repuesto:\n\n` +
+    `*${es}*\n` +
+    (es !== product.nome ? `(${product.nome})\n` : "") +
+    `Código: ${product.sku}\n${link}`;
   return buildUrl(msg);
 }
 
 export function whatsappContactUrl(text?: string): string {
-  return buildUrl(text ?? "Olá! Gostaria de mais informações.");
+  return buildUrl(text ?? "¡Hola! Quiero más información.");
 }

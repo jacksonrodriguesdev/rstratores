@@ -6,31 +6,32 @@ export const Route = createFileRoute("/api/auth/login")({
       POST: async ({ request }) => {
         try {
           const body = await request.json();
-          const { email, senha } = body;
+          const email = String(body.email ?? "").trim().toLowerCase();
+          const senha = String(body.senha ?? "");
 
           if (!email || !senha) {
-            return new Response(JSON.stringify({ error: "Preencha todos os campos." }), {
-              status: 400,
-            });
+            return Response.json({ error: "Completá el e-mail y la contraseña." }, { status: 400 });
           }
 
           const { prisma } = await import("@/lib/prisma");
           const bcrypt = (await import("bcryptjs")).default;
-          const { createSessionToken, AUTH_COOKIE } = await import("@/lib/auth.server");
+          const { createSessionToken, cookieSessao, loginBloqueado, registrarFalhaLogin, limparFalhasLogin } =
+            await import("@/lib/auth.server");
+
+          if (loginBloqueado(request, email)) {
+            return Response.json(
+              { error: "Demasiados intentos. Esperá 15 minutos y probá de nuevo." },
+              { status: 429 },
+            );
+          }
 
           const user = await prisma.users.findUnique({ where: { email } });
-          if (!user) {
-            return new Response(JSON.stringify({ error: "E-mail ou senha incorretos." }), {
-              status: 401,
-            });
+          const valid = user ? await bcrypt.compare(senha, user.senha_hash) : false;
+          if (!user || !valid) {
+            registrarFalhaLogin(request, email);
+            return Response.json({ error: "E-mail o contraseña incorrectos." }, { status: 401 });
           }
-
-          const valid = await bcrypt.compare(senha, user.senha_hash);
-          if (!valid) {
-            return new Response(JSON.stringify({ error: "E-mail ou senha incorretos." }), {
-              status: 401,
-            });
-          }
+          limparFalhasLogin(request, email);
 
           const token = await createSessionToken({
             id: user.id,
@@ -39,14 +40,13 @@ export const Route = createFileRoute("/api/auth/login")({
             role: user.role,
           });
 
-          return new Response(JSON.stringify({ success: true, role: user.role }), {
-            status: 200,
-            headers: {
-              "Set-Cookie": `${AUTH_COOKIE}=${token}; Path=/; HttpOnly; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`,
-            },
-          });
-        } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          return Response.json(
+            { success: true, role: user.role },
+            { headers: { "Set-Cookie": cookieSessao(request, token) } },
+          );
+        } catch (err) {
+          console.error("Erro no login:", err);
+          return Response.json({ error: "No pudimos iniciar sesión. Probá de nuevo." }, { status: 500 });
         }
       },
     },

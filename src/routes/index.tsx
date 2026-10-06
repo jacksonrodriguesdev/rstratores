@@ -22,21 +22,22 @@ import {
   EnvioDacBlock,
 } from "@/components/homepage-blocks";
 import type { HomepageBlock } from "@/lib/homepage";
+import { tituloEs } from "@/lib/pecas-es";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RS Auto Peças — Catálogo de Peças para Tratores" },
+      { title: "RS Auto Peças — Repuestos para tractores en Uruguay" },
       {
         name: "description",
         content:
-          "Catálogo de peças para tratores Massey Ferguson, Valtra, John Deere, New Holland e outras marcas. Faça sua cotação pelo WhatsApp.",
+          "Más de 29.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
       },
-      { property: "og:title", content: "RS Auto Peças — Catálogo de Peças para Tratores" },
+      { property: "og:title", content: "RS Auto Peças — Repuestos para tractores en Uruguay" },
       {
         property: "og:description",
         content:
-          "Catálogo de peças para tratores Massey Ferguson, Valtra, John Deere, New Holland e outras marcas. Faça sua cotação pelo WhatsApp.",
+          "Más de 29.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
       },
     ],
   }),
@@ -44,7 +45,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Bloco({ block }: { block: HomepageBlock }) {
-  const { config, title } = block;
+  const { config } = block;
+  const title = tituloEs(block.title);
   switch (block.type) {
     case "HERO_SLIDER":
       return <HeroSliderBlock config={config} title={title} />;
@@ -108,6 +110,7 @@ function HomePage() {
       <SiteHeader />
 
       <main>
+        <h1 className="sr-only">Repuestos para tractores y maquinaria agrícola en Uruguay</h1>
         {hero.map((b) => (
           <Bloco key={b.id} block={b} />
         ))}
@@ -120,7 +123,7 @@ function HomePage() {
 
           {!isLoading && ativos.length === 0 && (
             <div className="rounded-2xl bg-white py-16 text-center">
-              <p className="mb-4 text-muted-foreground">A página inicial não possui blocos configurados.</p>
+              <p className="mb-4 text-muted-foreground">Estamos preparando la página de inicio.</p>
               <Button asChild>
                 <Link to="/loja">Ver catálogo</Link>
               </Button>

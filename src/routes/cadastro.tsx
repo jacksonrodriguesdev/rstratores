@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({
-    meta: [{ title: "Cadastro — RS Auto Peças" }],
+    meta: [{ title: "Crear cuenta — RS Auto Peças" }, { name: "robots", content: "noindex" }],
   }),
   component: CadastroPage,
 });
@@ -23,7 +23,7 @@ function CadastroPage() {
     numero_casa: "",
     ponto_referencia: "",
     cep: "",
-    pais: "Brasil",
+    pais: "Uruguai",
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -52,7 +52,7 @@ function CadastroPage() {
         return;
       }
 
-      setError(data.error || "Erro ao realizar cadastro.");
+      setError(data.error || "No pudimos crear la cuenta.");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -67,10 +67,10 @@ function CadastroPage() {
         <Card className="w-full p-8 shadow-xl border-t-4 border-primary rounded-2xl">
           <div className="mb-6 flex flex-col items-center text-center">
             <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">
-              Criar Conta
+              Crear cuenta
             </h1>
             <p className="mt-2 text-sm text-zinc-500">
-              Preencha seus dados para comprar mais rápido.
+              Completá tus datos para cotizar y comprar más rápido.
             </p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
@@ -79,7 +79,7 @@ function CadastroPage() {
                 className="mb-1.5 block text-sm font-bold text-zinc-700"
                 htmlFor="nome_completo"
               >
-                Nome Completo / Razão Social
+                Nombre completo / Razón social
               </label>
               <Input
                 id="nome_completo"
@@ -108,7 +108,7 @@ function CadastroPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-bold text-zinc-700" htmlFor="telefone">
-                  Telefone / WhatsApp
+                  Teléfono / WhatsApp
                 </label>
                 <Input
                   id="telefone"
@@ -123,7 +123,7 @@ function CadastroPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-bold text-zinc-700" htmlFor="senha">
-                Senha
+                Contraseña (mínimo 6 caracteres)
               </label>
               <Input
                 id="senha"
@@ -140,7 +140,7 @@ function CadastroPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="mb-1.5 block text-sm font-bold text-zinc-700" htmlFor="cep">
-                  CEP (Opcional)
+                  Código postal (opcional)
                 </label>
                 <Input
                   id="cep"
@@ -161,8 +161,8 @@ function CadastroPage() {
                   onChange={(e) => setFormData((prev) => ({ ...prev, pais: e.target.value }))}
                   className="w-full h-12 bg-zinc-100/50 border border-zinc-200 focus:border-primary rounded-md px-3"
                 >
+                  <option value="Uruguai">Uruguay</option>
                   <option value="Brasil">Brasil</option>
-                  <option value="Uruguai">Uruguai</option>
                 </select>
               </div>
             </div>
@@ -170,7 +170,7 @@ function CadastroPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="mb-1.5 block text-sm font-bold text-zinc-700" htmlFor="cidade">
-                  Cidade
+                  Ciudad / Departamento
                 </label>
                 <Input
                   id="cidade"
@@ -183,7 +183,7 @@ function CadastroPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-bold text-zinc-700" htmlFor="endereco">
-                  Endereço
+                  Dirección
                 </label>
                 <Input
                   id="endereco"
@@ -192,7 +192,7 @@ function CadastroPage() {
                   value={formData.endereco}
                   onChange={handleChange}
                   className="h-12 bg-zinc-100/50 border-zinc-200 focus:border-primary"
-                  placeholder="Rua, Bairro"
+                  placeholder="Calle, barrio"
                 />
               </div>
             </div>
@@ -219,12 +219,11 @@ function CadastroPage() {
                   className="mb-1.5 block text-sm font-bold text-zinc-700"
                   htmlFor="ponto_referencia"
                 >
-                  Ponto de Referência
+                  Referencia (opcional)
                 </label>
                 <Input
                   id="ponto_referencia"
                   name="ponto_referencia"
-                  required
                   value={formData.ponto_referencia}
                   onChange={handleChange}
                   className="h-12 bg-zinc-100/50 border-zinc-200 focus:border-primary"
@@ -241,13 +240,13 @@ function CadastroPage() {
               disabled={busy}
               className="w-full h-14 text-lg font-bold uppercase tracking-wider rounded-xl mt-4"
             >
-              {busy ? "Cadastrando..." : "Cadastrar"}
+              {busy ? "Creando cuenta…" : "Crear cuenta"}
             </Button>
 
             <div className="mt-6 text-center text-sm text-zinc-600 border-t pt-6">
-              Já tem uma conta?{" "}
+              ¿Ya tenés cuenta?{" "}
               <Link to="/login" className="text-primary font-bold hover:underline">
-                Faça login
+                Ingresá
               </Link>
             </div>
           </form>

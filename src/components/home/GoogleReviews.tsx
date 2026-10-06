@@ -71,7 +71,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
         <div className="flex shrink-0 flex-col justify-center gap-3 md:w-64">
           <div className="flex items-center gap-2">
             <GoogleLogo className="h-7 w-7" />
-            <h2 className="text-lg font-bold text-zinc-900">{titulo || "Avaliações no Google"}</h2>
+            <h2 className="text-lg font-bold text-zinc-900">{titulo || "Opiniones en Google"}</h2>
           </div>
           {dados.nota != null && (
             <div className="flex items-end gap-3">
@@ -81,14 +81,14 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
               <div className="pb-1">
                 <Estrelas nota={dados.nota} />
                 {dados.total != null && (
-                  <span className="text-xs text-zinc-500">{dados.total} avaliações</span>
+                  <span className="text-xs text-zinc-500">{dados.total} opiniones</span>
                 )}
               </div>
             </div>
           )}
           {dados.avaliacoes.length === 0 && (
             <p className="text-sm text-zinc-600">
-              Comprou com a gente? Sua avaliação ajuda outros produtores a nos encontrar.
+              ¿Compraste con nosotros? Tu opinión ayuda a otros productores a encontrarnos.
             </p>
           )}
           {link && (
@@ -99,7 +99,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
                 rel="noreferrer noopener"
                 className="flex-1 rounded-full bg-[#1a73e8] px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-[#1765cc] active:scale-95"
               >
-                {dados.avaliacoes.length ? "Avaliar no Google" : "Avaliar agora"}
+                {dados.avaliacoes.length ? "Opinar en Google" : "Dejar mi opinión"}
               </a>
             </div>
           )}

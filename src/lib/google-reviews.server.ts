@@ -14,7 +14,7 @@ export async function buscarAvaliacoesGoogle(): Promise<AvaliacoesGoogle | null>
 
   try {
     const res = await fetch(
-      `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?languageCode=pt-BR`,
+      `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?languageCode=es`,
       {
         headers: {
           "X-Goog-Api-Key": chave,

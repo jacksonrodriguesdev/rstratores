@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
@@ -53,6 +54,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AyudaRoute = AyudaRouteImport.update({
+  id: '/ayuda',
+  path: '/ayuda',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CadastroRoute = CadastroRouteImport.update({
@@ -225,6 +231,7 @@ const ApiAdminQuotesIdRoute = ApiAdminQuotesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ayuda': typeof AyudaRoute
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ayuda': typeof AyudaRoute
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ayuda': typeof AyudaRoute
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/ayuda'
     | '/cadastro'
     | '/login'
     | '/loja'
@@ -374,6 +384,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ayuda'
     | '/cadastro'
     | '/login'
     | '/loja'
@@ -411,6 +422,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/ayuda'
     | '/cadastro'
     | '/login'
     | '/loja'
@@ -449,6 +461,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AyudaRoute: typeof AyudaRoute
   CadastroRoute: typeof CadastroRoute
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
@@ -481,6 +494,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ayuda': {
+      id: '/ayuda'
+      path: '/ayuda'
+      fullPath: '/ayuda'
+      preLoaderRoute: typeof AyudaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cadastro': {
@@ -800,6 +820,7 @@ const ApiAdminQuotesRouteWithChildren = ApiAdminQuotesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AyudaRoute: AyudaRoute,
   CadastroRoute: CadastroRoute,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,

@@ -100,11 +100,11 @@ export function HeroSliderBlock({ config, title }: { config: string | null; titl
       ) : (
         <div className="mx-3 mt-3 rounded-2xl bg-gradient-to-br from-primary to-emerald-900 px-6 py-10 text-white md:mx-0 md:mt-0 md:rounded-none md:px-0 md:pb-36 md:pt-16">
           <div className="mx-auto max-w-7xl md:px-8">
-            <h1 className="max-w-xl text-2xl font-extrabold leading-tight md:text-5xl">
-              {title || "Peças para tratores com cotação rápida"}
-            </h1>
+            <h2 className="max-w-xl text-2xl font-extrabold leading-tight md:text-5xl">
+              {title || "Repuestos para tractores con cotización rápida"}
+            </h2>
             <p className="mt-2 max-w-lg text-white/85 md:text-lg">
-              {c.subtitle || "Busque pelo código original e receba sua cotação pelo WhatsApp."}
+              {c.subtitle || "Buscá por el código original y recibí tu cotización por WhatsApp."}
             </p>
           </div>
         </div>
@@ -122,43 +122,43 @@ function Atalhos() {
 
   const itens = [
     {
-      titulo: "Busca por código",
-      texto: "Ache a peça exata pelo código original",
+      titulo: "Buscar por código",
+      texto: "Encontrá la pieza exacta por el código original",
       icon: Search,
       cor: "bg-primary/10 text-primary",
       to: "/loja",
     },
     {
-      titulo: "Categorias",
-      texto: "Transmissão, hidráulica, filtros e mais",
+      titulo: "Categorías",
+      texto: "Transmisión, hidráulica, filtros y más",
       icon: LayoutGrid,
       cor: "bg-amber-100 text-amber-700",
       href: "#categorias",
     },
     {
-      titulo: "Montadoras",
+      titulo: "Marcas",
       texto: "Massey, Valtra, John Deere, New Holland…",
       icon: Tractor,
       cor: "bg-sky-100 text-sky-700",
       href: "#montadoras",
     },
     {
-      titulo: "Cotação no WhatsApp",
-      texto: "Fale direto com nossa equipe",
+      titulo: "Cotizá por WhatsApp",
+      texto: "Hablá directo con nuestro equipo",
       icon: MessageCircle,
       cor: "bg-[#25D366]/15 text-[#128C4B]",
-      externo: whatsappContactUrl("Olá! Quero fazer uma cotação de peças."),
+      externo: whatsappContactUrl("¡Hola! Quiero cotizar repuestos."),
     },
     {
-      titulo: "Cotar com concorrente",
-      texto: "Envie o orçamento de outra loja",
+      titulo: "Mejoramos tu precio",
+      texto: "Mandanos el presupuesto de otro proveedor",
       icon: Calculator,
       cor: "bg-violet-100 text-violet-700",
       acao: () => setCotarAberto(true),
     },
     {
-      titulo: "Minha conta",
-      texto: "Entre ou crie seu cadastro",
+      titulo: "Mi cuenta",
+      texto: "Ingresá o creá tu cuenta",
       icon: User,
       cor: "bg-zinc-100 text-zinc-700",
       to: "/login",
@@ -221,7 +221,7 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
   const categorias = useCategoriasLoja();
 
   return (
-    <Section id="categorias" title={title || "Categorias"} verTodos={{ label: "Ver catálogo" }}>
+    <Section id="categorias" title={title || "Categorías"} verTodos={{ label: "Ver catálogo" }}>
       <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:px-0">
         {categorias.map((c) => (
           <Link
@@ -241,11 +241,11 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
             <span className="min-w-0">
               <span className="block text-xs font-semibold leading-tight text-zinc-800 md:text-sm">
                 <span className="md:hidden">{c.curto}</span>
-                <span className="hidden md:inline">{c.nome}</span>
+                <span className="hidden md:inline">{c.rotulo}</span>
               </span>
               {c.total ? (
                 <span className="hidden text-xs text-zinc-500 md:block">
-                  {c.total.toLocaleString("pt-BR")} peças
+                  {c.total.toLocaleString("es-UY")} repuestos
                 </span>
               ) : null}
             </span>
@@ -261,7 +261,7 @@ export function ProductsCarouselBlock({ title, config }: { title: string | null;
   const { produtos, carregando, busca } = useProdutosDoBloco(config, 12);
   if (!carregando && produtos.length === 0) return null;
   return (
-    <Section title={title || "Destaques"} verTodos={{ search: busca }}>
+    <Section title={title || "Destacados"} verTodos={{ search: busca }}>
       <ProductRail products={produtos} loading={carregando} />
     </Section>
   );
@@ -272,7 +272,7 @@ export function ProductsGridBlock({ title, config }: { title: string | null; con
   const { produtos, carregando, busca } = useProdutosDoBloco(config, 10);
   if (!carregando && produtos.length === 0) return null;
   return (
-    <Section title={title || "Produtos"} verTodos={{ search: busca }}>
+    <Section title={title || "Productos"} verTodos={{ search: busca }}>
       {carregando ? (
         <ProductRail products={[]} loading />
       ) : (
@@ -305,7 +305,7 @@ export function PromoStripBlock({ title, config }: { title: string | null; confi
   const img = (
     <BannerImage
       src={c.image_path}
-      alt={title || "Promoção"}
+      alt={title || "Promoción"}
       className="max-h-[260px] w-full rounded-2xl object-cover shadow-sm"
     />
   );
@@ -325,9 +325,9 @@ export function PromoStripBlock({ title, config }: { title: string | null; confi
 // BENEFÍCIOS
 export function FeaturesStripBlock({ config }: { config: string | null }) {
   const itens = [
-    { icon: Truck, titulo: "Entregamos no Brasil inteiro", texto: "Correios e transportadoras" },
-    { icon: ShieldCheck, titulo: "Cotação 100% segura", texto: "Sem compromisso, pelo WhatsApp" },
-    { icon: Headset, titulo: "Atendimento especializado", texto: "Ajudamos a achar a peça exata" },
+    { icon: Truck, titulo: "Envíos a todo Uruguay", texto: "Por DAC, con número de rastreo" },
+    { icon: ShieldCheck, titulo: "Cotización sin compromiso", texto: "Rápida y segura por WhatsApp" },
+    { icon: Headset, titulo: "Atención especializada", texto: "Te ayudamos a encontrar la pieza exacta" },
   ];
   return (
     <Reveal>
@@ -358,7 +358,7 @@ export function BrandsCarouselBlock({ config }: { config: string | null }) {
     <Reveal>
       <div className="overflow-hidden rounded-2xl bg-white py-5 shadow-sm">
         <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-400">
-          Peças para as principais marcas
+          Repuestos para las principales marcas
         </p>
         <div className="relative [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
           <div className="animate-marquee flex w-max gap-10">
@@ -384,9 +384,9 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
         <Search className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 text-white/5" />
         <div className="relative mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center md:gap-10">
           <div className="md:flex-1">
-            <h2 className="text-xl font-extrabold md:text-3xl">Sabe o código da peça?</h2>
+            <h2 className="text-xl font-extrabold md:text-3xl">¿Sabés el código de la pieza?</h2>
             <p className="mt-1 text-sm text-white/80 md:text-base">
-              Digite o código original ou do fabricante e encontre a peça exata.
+              Escribí el código original o del fabricante y encontrá la pieza exacta.
             </p>
           </div>
           <form
@@ -399,7 +399,7 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
             <input
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
-              placeholder="Ex.: AL81843, 807045…"
+              placeholder="Ej.: AL81843, 807045…"
               className="h-12 min-w-0 flex-1 rounded-full bg-white px-5 text-base text-zinc-900 outline-none ring-accent placeholder:text-zinc-400 focus:ring-2"
             />
             <button className="h-12 rounded-full bg-accent px-6 font-bold text-zinc-900 transition hover:brightness-95 active:scale-95">
@@ -415,18 +415,18 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
 // BANNERS DUPLOS (levam às categorias)
 const PROMO_BANNERS = [
   {
-    titulo: "Engrenagens e Transmissão",
-    texto: "Peças para câmbio, diferencial e tração do seu trator.",
+    titulo: "Engranajes y Transmisión",
+    texto: "Repuestos para caja, diferencial y tracción de tu tractor.",
     categoria: "Engrenagens e Transmissão",
-    cta: "Ver peças",
+    cta: "Ver repuestos",
     icon: Settings,
     fundo: "from-primary to-emerald-800",
   },
   {
     titulo: "Filtros",
-    texto: "Filtros de óleo, combustível e ar para a revisão do seu trator.",
+    texto: "Filtros de aceite, combustible y aire para el service de tu tractor.",
     categoria: "Filtros",
-    cta: "Comprar agora",
+    cta: "Comprar ahora",
     icon: Droplet,
     fundo: "from-amber-500 to-orange-600",
   },
@@ -500,7 +500,7 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
 // COMPRE POR MONTADORA
 export function CarouselMontadorasBlock({ config }: { config: string | null }) {
   return (
-    <Section id="montadoras" title="Compre por montadora">
+    <Section id="montadoras" title="Comprá por marca de tractor">
       <div className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-7 md:px-0">
         {MONTADORAS.map((m) => (
           <Link
@@ -535,15 +535,15 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
     <Reveal>
       <div className={`grid gap-3 md:gap-4 ${INSTAGRAM_URL ? "md:grid-cols-2" : ""}`}>
         <a
-          href={whatsappContactUrl("Olá! Quero receber ofertas de peças pelo WhatsApp.")}
+          href={whatsappContactUrl("¡Hola! Quiero recibir ofertas de repuestos por WhatsApp.")}
           target="_blank"
           rel="noreferrer noopener"
           className="flex items-center gap-4 rounded-2xl bg-[#25D366] p-5 text-white shadow-sm transition active:scale-[0.98] md:p-8"
         >
           <MessageCircle className="h-12 w-12 shrink-0" />
           <div>
-            <h3 className="text-lg font-extrabold md:text-2xl">Ofertas no WhatsApp</h3>
-            <p className="text-sm text-white/90">Receba novidades e promoções direto no celular.</p>
+            <h3 className="text-lg font-extrabold md:text-2xl">Ofertas por WhatsApp</h3>
+            <p className="text-sm text-white/90">Recibí novedades y promociones directo en tu celular.</p>
           </div>
         </a>
         {INSTAGRAM_URL && (
@@ -555,8 +555,8 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
           >
             <Instagram className="h-12 w-12 shrink-0" />
             <div>
-              <h3 className="text-lg font-extrabold md:text-2xl">Siga no Instagram</h3>
-              <p className="text-sm text-white/90">Dicas, lançamentos e bastidores.</p>
+              <h3 className="text-lg font-extrabold md:text-2xl">Seguinos en Instagram</h3>
+              <p className="text-sm text-white/90">Consejos, novedades y el día a día del taller.</p>
             </div>
           </a>
         )}

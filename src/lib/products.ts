@@ -102,7 +102,8 @@ export async function resolveImageUrls(
 }
 
 const listProductsFn = createServerFn({ method: "GET" })
-  .validator((d: ListParams) => d)
+  // Rota pública: limita o tamanho da página para ninguém pedir o catálogo inteiro de uma vez
+  .validator((d: ListParams) => ({ ...d, pageSize: Math.min(Math.max(Number(d.pageSize) || 36, 1), 100) }))
   .handler(async ({ data }) => {
     const server = await import("./products.server");
     return server.listProducts(data);

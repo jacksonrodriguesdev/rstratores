@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [{ title: "Entrar — RS Auto Peças" }],
+    meta: [{ title: "Ingresar — RS Auto Peças" }, { name: "robots", content: "noindex" }],
   }),
   component: LoginPage,
 });
@@ -42,7 +42,7 @@ function LoginPage() {
         return;
       }
 
-      setError(data.error || "E-mail ou senha inválidos.");
+      setError(data.error || "E-mail o contraseña incorrectos.");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -58,9 +58,9 @@ function LoginPage() {
           <div className="mb-6 flex flex-col items-center text-center">
             <img src="/logo.png" alt="RS Auto Peças" width={80} height={80} className="mb-4 h-20 w-20" />
             <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">
-              Já sou Cliente
+              Ingresá a tu cuenta
             </h1>
-            <p className="mt-2 text-sm text-zinc-500">Faça login com seu e-mail e senha.</p>
+            <p className="mt-2 text-sm text-zinc-500">Usá tu e-mail y contraseña.</p>
           </div>
           <form onSubmit={onSubmit} className="space-y-5">
             <div>
@@ -79,7 +79,7 @@ function LoginPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-bold text-zinc-700" htmlFor="password">
-                Senha
+                Contraseña
               </label>
               <Input
                 id="password"
@@ -99,13 +99,13 @@ function LoginPage() {
               disabled={busy}
               className="w-full h-14 text-lg font-bold uppercase tracking-wider rounded-xl"
             >
-              {busy ? "Entrando..." : "Entrar"}
+              {busy ? "Ingresando…" : "Ingresar"}
             </Button>
 
             <div className="mt-6 text-center text-sm text-zinc-600 border-t pt-6">
-              Ainda não tem cadastro?{" "}
+              ¿Todavía no tenés cuenta?{" "}
               <Link to="/cadastro" className="text-primary font-bold hover:underline">
-                Crie sua conta agora
+                Creala ahora
               </Link>
             </div>
           </form>

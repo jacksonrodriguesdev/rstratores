@@ -16,7 +16,7 @@ export function QuoteButton({
   size = "sm",
   className,
   fullWidth,
-  label = "Fazer cotação",
+  label = "Consultar precio",
 }: Props) {
   return (
     <Button

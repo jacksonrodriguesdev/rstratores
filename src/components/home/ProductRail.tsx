@@ -4,8 +4,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
 import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/components/CartContext";
-import { useLanguage } from "@/components/LanguageContext";
-import { codigoExibicao, formatBRL, marcaExibicao, type Product } from "@/lib/products";
+import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
+import { nomeEs } from "@/lib/pecas-es";
 import { cn } from "@/lib/utils";
 
 // Larguras por tela: no celular aparece um pedaço do próximo cartão, convidando a arrastar.
@@ -67,7 +67,7 @@ export function ProductRail({ products, loading }: { products: Product[]; loadin
       {pode.next && (
         <button
           onClick={() => api?.scrollNext()}
-          aria-label="Próximos"
+          aria-label="Siguientes"
           className="absolute -right-4 top-1/3 hidden h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-700 opacity-0 shadow-lg ring-1 ring-zinc-200 transition group-hover/rail:opacity-100 md:flex"
         >
           <ChevronRight className="h-5 w-5" />
@@ -78,10 +78,9 @@ export function ProductRail({ products, loading }: { products: Product[]; loadin
 }
 
 export function RailCard({ p }: { p: Product }) {
-  const { language } = useLanguage();
   const { items, addItem } = useCart();
   const noCarrinho = items.some((i) => i.sku === p.sku);
-  const nome = language === "es-UY" && p.nome_es ? p.nome_es : p.nome;
+  const nome = nomeEs(p.nome);
   const marca = marcaExibicao(p);
 
   return (
@@ -93,7 +92,7 @@ export function RailCard({ p }: { p: Product }) {
       <div className="aspect-square bg-white p-2">
         <ProductImage
           src={p.imagem_principal}
-          alt={p.nome}
+          alt={nome}
           marca={marca}
           className="object-contain transition-transform duration-500 group-hover:scale-105"
         />
@@ -102,7 +101,7 @@ export function RailCard({ p }: { p: Product }) {
         <span className="text-[11px] font-medium text-zinc-400">Cód. {codigoExibicao(p)}</span>
         <span className="line-clamp-2 min-h-[2.75em] text-[13px] leading-snug text-zinc-800">{nome}</span>
         <span className="mt-auto pt-1 text-sm font-semibold text-primary">
-          {p.preco_brl ? formatBRL(p.preco_brl) : "Consulte o preço"}
+          Consultá el precio
         </span>
         {marca && <span className="truncate text-[11px] uppercase tracking-wide text-zinc-400">{marca}</span>}
       </div>
@@ -122,7 +121,7 @@ export function RailCard({ p }: { p: Product }) {
             });
           }
         }}
-        aria-label={noCarrinho ? "Já está no carrinho" : "Adicionar ao carrinho"}
+        aria-label={noCarrinho ? "Ya está en tu cotización" : "Agregar a la cotización"}
         className={cn(
           "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 transition active:scale-90",
           noCarrinho
