@@ -138,7 +138,10 @@ const GLOSSARIO: Record<string, string> = {
   DESLIZAMENTO: "DESLIZAMIENTO", APALPADOR: "PALPADOR", BORRIFADOR: "ROCIADOR", LEVANTAMENTO: "LEVANTE",
   FLUTUACAO: "FLOTACIÓN", SEPARACAO: "SEPARACIÓN", EMPUNHADEIRA: "EMPUÑADURA", EXTENCAO: "EXTENSIÓN",
   TRAVAMENTO: "TRABA", SANFONADO: "CORRUGADO", REMANOFATURADO: "REMANUFACTURADO", MAO: "MANO",
-  PARAFUSADO: "ATORNILLADO", ESTACIONADO: "ESTACIONAMIENTO", VEDANTE: "SELLADOR", ENGRAXADEIRA: "ALEMITE",
+  PARAFUSADO: "ATORNILLADO", AR: "AIRE", POEIRA: "POLVO", ENCHIMENTO: "LLENADO", CACAMBA: "BALDE",
+  TAQUIMETRO: "TACÓMETRO", PRIMEIRA: "PRIMERA", PRIMEIRO: "PRIMER", SEGUNDA: "SEGUNDA", TERCEIRA: "TERCERA",
+  QUARTA: "CUARTA", QUINTA: "QUINTA", SEXTA: "SEXTA", POTENCIA: "POTENCIA", SAPATILHA: "ZAPATILLA",
+  ESCOVA: "CEPILLO", ESCOVAS: "CEPILLOS", CORDAO: "CORDÓN", ARAME: "ALAMBRE", GARRA: "GARRA", GARRAS: "GARRAS", ESTACIONADO: "ESTACIONAMIENTO", VEDANTE: "SELLADOR", ENGRAXADEIRA: "ALEMITE",
 };
 
 // Abreviações e palavras que só existem em português; usadas também na busca ao contrário.
@@ -148,7 +151,8 @@ const semAcento = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
 export function nomeEs(nome: string | null | undefined): string {
   if (!nome) return "";
   const maiusculo = nome === nome.toUpperCase();
-  const traduzido = nome.replace(/[A-Za-zÀ-ÿ]+/g, (palavra) => {
+  // Só palavras inteiras: letras grudadas em números fazem parte de códigos ("Z34 10E", "6205ZZ")
+  const traduzido = nome.replace(/(?<![A-Za-zÀ-ÿ0-9])[A-Za-zÀ-ÿ]+(?![A-Za-zÀ-ÿ0-9])/g, (palavra) => {
     const chave = semAcento(palavra).toUpperCase();
     const es = GLOSSARIO[chave];
     if (!es) return palavra;
@@ -157,7 +161,14 @@ export function nomeEs(nome: string | null | undefined): string {
     const minus = es.toLowerCase();
     return palavra[0] === palavra[0].toUpperCase() ? minus[0].toUpperCase() + minus.slice(1) : minus;
   });
-  return traduzido.replace(/\bDE EL\b/g, "DEL").replace(/\bde el\b/g, "del");
+  return (
+    traduzido
+      .replace(/\bDE EL\b/g, "DEL")
+      .replace(/\bde el\b/g, "del")
+      // CABEÇOTE (masculino) vira "TAPA DE CILINDROS" (feminino)
+      .replace(/\bDEL TAPA\b/g, "DE LA TAPA")
+      .replace(/\bdel tapa\b/g, "de la tapa")
+  );
 }
 
 const CATEGORIAS_ES: Record<string, { nome: string; curto: string; frase: string }> = {
