@@ -26,13 +26,13 @@ import type { HomepageBlock } from "@/lib/homepage";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RS Trator Peças — Catálogo de Peças para Tratores" },
+      { title: "RS Auto Peças — Catálogo de Peças para Tratores" },
       {
         name: "description",
         content:
           "Catálogo de peças para tratores Massey Ferguson, Valtra, John Deere, New Holland e outras marcas. Faça sua cotação pelo WhatsApp.",
       },
-      { property: "og:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
+      { property: "og:title", content: "RS Auto Peças — Catálogo de Peças para Tratores" },
       {
         property: "og:description",
         content:

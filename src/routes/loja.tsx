@@ -45,13 +45,13 @@ export const Route = createFileRoute("/loja")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Loja — RS Trator Peças" },
+      { title: "Loja — RS Auto Peças" },
       {
         name: "description",
         content:
           "Todos os produtos do catálogo. Filtre por categoria, marca e busque por SKU ou nome.",
       },
-      { property: "og:title", content: "Loja — RS Trator Peças" },
+      { property: "og:title", content: "Loja — RS Auto Peças" },
       {
         property: "og:description",
         content: "Todos os produtos do catálogo com filtros por categoria e marca.",

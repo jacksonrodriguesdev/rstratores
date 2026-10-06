@@ -157,7 +157,7 @@ export function SiteFooter() {
 
       <div className="mt-12 pt-6 border-t border-zinc-800 text-center text-xs text-zinc-500">
         <p>
-          &copy; {new Date().getFullYear()} RS Auto Parts. Todos os direitos reservados. CNPJ:
+          &copy; {new Date().getFullYear()} RS Auto Peças. Todos os direitos reservados. CNPJ:
           33.443.027/0001-08
         </p>
       </div>

@@ -213,12 +213,12 @@ export function SiteHeader() {
             scrolled ? "py-2" : "py-2.5 md:py-4",
           )}
         >
-          <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="RS Trator Peças — início">
+          <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="RS Auto Peças — início">
             <div className="rounded-2xl bg-white p-1 shadow-lg shadow-emerald-950/40 ring-1 ring-white/40 transition group-hover:scale-105">
               <img src="/logo.png" alt="" width={48} height={48} className="h-9 w-9 md:h-12 md:w-12" />
             </div>
             <div className="hidden flex-col leading-none md:flex">
-              <span className="text-lg font-extrabold tracking-tight lg:text-xl">RS Trator</span>
+              <span className="text-lg font-extrabold tracking-tight lg:text-xl">RS Auto Peças</span>
               <span className="mt-0.5 bg-gradient-to-r from-accent to-amber-200 bg-clip-text text-[11px] font-bold tracking-[0.18em] text-transparent lg:text-xs">
                 PEÇAS AGRÍCOLAS
               </span>

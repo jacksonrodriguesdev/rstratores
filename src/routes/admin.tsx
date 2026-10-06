@@ -18,7 +18,7 @@ import { getSessionFn } from "@/lib/user-auth";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
-    meta: [{ title: "Admin — RS Trator Peças" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Admin — RS Auto Peças" }, { name: "robots", content: "noindex" }],
   }),
   component: AdminLayout,
 });

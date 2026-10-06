@@ -39,7 +39,7 @@ export function AdminSidebar({ onLogout }: { onLogout: () => void }) {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <div className="truncate text-sm font-bold">RS Trator</div>
+              <div className="truncate text-sm font-bold">RS Auto Peças</div>
               <div className="truncate text-xs text-muted-foreground">Painel admin</div>
             </div>
           )}

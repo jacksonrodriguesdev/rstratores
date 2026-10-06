@@ -85,15 +85,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "RS Trator" },
-      { title: "RS Trator Peças — Catálogo de Peças para Tratores" },
+      { name: "apple-mobile-web-app-title", content: "RS Auto Peças" },
+      { title: "RS Auto Peças — Catálogo de Peças para Tratores" },
       {
         name: "description",
         content:
           "Catálogo completo de peças para tratores Ford, Valmet, Massey Ferguson e outras marcas. Faça sua cotação pelo WhatsApp.",
       },
-      { name: "author", content: "RS Trator Peças" },
-      { property: "og:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
+      { name: "author", content: "RS Auto Peças" },
+      { property: "og:title", content: "RS Auto Peças — Catálogo de Peças para Tratores" },
       {
         property: "og:description",
         content:
@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "RS Trator Peças — Catálogo de Peças para Tratores" },
+      { name: "twitter:title", content: "RS Auto Peças — Catálogo de Peças para Tratores" },
       {
         name: "twitter:description",
         content:
