@@ -93,7 +93,7 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                       <Link
                         to="/produto/$sku"
                         params={{ sku: p.sku }}
-                        className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug hover:text-primary"
+                        className="line-clamp-2 h-10 text-sm font-medium leading-5 hover:text-primary"
                       >
                         {nomeProduto(p)}
                       </Link>

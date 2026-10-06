@@ -15889,3 +15889,25 @@ INSERT INTO agricolas_img (sku, image_path, image_type, sort_order, created_at) 
 INSERT INTO agricolas_img (sku, image_path, image_type, sort_order, created_at) VALUES ('H217663MCL', '/catalogo/H217663MCL-2.jpg', 'thumb', 1, '2026-10-06 11:08:02');
 INSERT INTO agricolas_img (sku, image_path, image_type, sort_order, created_at) VALUES ('H217663MCL', '/catalogo/H217663MCL-3.jpg', 'thumb', 2, '2026-10-06 11:08:02');
 COMMIT;
+
+-- Página inicial: peças com foto no começo e carrosséis por categoria (home_com_fotos.cjs)
+UPDATE homepage_blocks SET position = 0 WHERE type = 'HERO_SLIDER';
+UPDATE homepage_blocks SET position = 1 WHERE type = 'CATEGORY_GRID';
+UPDATE homepage_blocks SET position = 2, title = 'Novedades', config = '{"segment":"AMBOS","onlyWithImages":true,"limit":16,"rows":1,"sort":"created-desc"}' WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Lançamentos' OR (type = 'PRODUCTS_CAROUSEL' AND title = 'Novedades');
+UPDATE homepage_blocks SET position = 3 WHERE type = 'FEATURES_STRIP';
+INSERT INTO homepage_blocks (type, active, position, title, config, created_at, updated_at) SELECT 'PRODUCTS_CAROUSEL', 1, 4, 'Engrenagens e Transmissão', '{"segment":"AMBOS","onlyWithImages":true,"limit":12,"rows":1,"categoria":"Engrenagens e Transmissão"}', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM homepage_blocks WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Engrenagens e Transmissão');
+UPDATE homepage_blocks SET position = 4, config = '{"segment":"AMBOS","onlyWithImages":true,"limit":12,"rows":1,"categoria":"Engrenagens e Transmissão"}' WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Engrenagens e Transmissão';
+UPDATE homepage_blocks SET position = 5 WHERE type = 'ENVIO_DAC';
+UPDATE homepage_blocks SET position = 6 WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Filtros';
+UPDATE homepage_blocks SET position = 7 WHERE type = 'PROMO_STRIP';
+INSERT INTO homepage_blocks (type, active, position, title, config, created_at, updated_at) SELECT 'PRODUCTS_CAROUSEL', 1, 8, 'Hidráulica e Pneumática', '{"segment":"AMBOS","onlyWithImages":true,"limit":12,"rows":1,"categoria":"Hidráulica e Pneumática"}', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM homepage_blocks WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Hidráulica e Pneumática');
+UPDATE homepage_blocks SET position = 8, config = '{"segment":"AMBOS","onlyWithImages":true,"limit":12,"rows":1,"categoria":"Hidráulica e Pneumática"}' WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Hidráulica e Pneumática';
+UPDATE homepage_blocks SET position = 9 WHERE type = 'PROMO_BANNERS_DUPLOS';
+UPDATE homepage_blocks SET position = 10 WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Rolamentos e Mancais';
+UPDATE homepage_blocks SET position = 11 WHERE type = 'CAROUSEL_MONTADORAS';
+INSERT INTO homepage_blocks (type, active, position, title, config, created_at, updated_at) SELECT 'PRODUCTS_CAROUSEL', 1, 12, 'Vedações', '{"segment":"AMBOS","onlyWithImages":true,"limit":12,"rows":1,"categoria":"Vedações"}', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM homepage_blocks WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Vedações');
+UPDATE homepage_blocks SET position = 12, config = '{"segment":"AMBOS","onlyWithImages":true,"limit":12,"rows":1,"categoria":"Vedações"}' WHERE type = 'PRODUCTS_CAROUSEL' AND title = 'Vedações';
+UPDATE homepage_blocks SET position = 13 WHERE type = 'BUSCA_CODIGO';
+UPDATE homepage_blocks SET position = 14 WHERE type = 'DEPOIMENTOS';
+UPDATE homepage_blocks SET position = 15 WHERE type = 'BRANDS_CAROUSEL';
+UPDATE homepage_blocks SET position = 16 WHERE type = 'NEWSLETTER_INSTAGRAM';

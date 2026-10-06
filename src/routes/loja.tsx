@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
-import { Search, Package, X, SlidersHorizontal, Loader2, Filter, Plus, Check, MessageCircle } from "lucide-react";
+import { Search, Package, X, SlidersHorizontal, Loader2, Filter, Plus, Check, MessageCircle, Camera } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductImage } from "@/components/ProductImage";
@@ -66,6 +66,8 @@ function LojaPage() {
   const [categorias, setCategorias] = useState<string[]>(categoria ? [categoria] : []);
   const [marcas, setMarcas] = useState<string[]>(marca ? [marca] : []);
   const [sort, setSort] = useState<ListParams["sort"]>("nome-asc");
+  // Navegando, a loja abre só com peças com foto (vitrine bonita); a busca procura em tudo
+  const [soComFoto, setSoComFoto] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { segment, setSegment } = useSegment();
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -90,8 +92,9 @@ function LojaPage() {
       pageSize: PAGE_SIZE,
       // Navegando sem busca, mostra só produtos apresentáveis; a busca procura em tudo.
       vitrine: !busca,
+      hasImage: soComFoto && !busca,
     }),
-    [busca, segment, categorias, marcas, sort],
+    [busca, segment, categorias, marcas, sort, soComFoto],
   );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
@@ -109,6 +112,15 @@ function LojaPage() {
 
   const rows = useMemo(() => (data ? data.pages.flatMap((page) => page.rows as Product[]) : []), [data]);
   const total = data?.pages[0]?.total ?? -1;
+  const filtroFoto = soComFoto && !busca;
+
+  // Trocou categoria/marca: volta a mostrar primeiro só as com foto
+  useEffect(() => setSoComFoto(true), [categorias, marcas]);
+
+  // Categoria ou marca sem nenhuma peça com foto: mostra todas em vez de uma lista vazia
+  useEffect(() => {
+    if (filtroFoto && !isLoading && total === 0) setSoComFoto(false);
+  }, [filtroFoto, isLoading, total]);
 
   // Registra o que o cliente buscou e quantas peças achou (buscas sem resultado mostram
   // peças que faltam no catálogo). Uma vez por termo.
@@ -260,6 +272,20 @@ function LojaPage() {
                 `${rows.length} repuestos`
               )}
             </p>
+            {!busca && !isLoading && (
+              <button
+                onClick={() => setSoComFoto(!soComFoto)}
+                className={cn(
+                  "mt-2 flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition",
+                  soComFoto
+                    ? "border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
+                    : "border-zinc-200 bg-white text-zinc-600 hover:border-primary hover:text-primary",
+                )}
+              >
+                <Camera className="h-3.5 w-3.5" />
+                {soComFoto ? "Mostrando solo repuestos con foto · Ver todos" : "Ver solo repuestos con foto"}
+              </button>
+            )}
             {/* Filtros ativos, removíveis com um toque */}
             {(categorias.length > 0 || marcas.length > 0) && (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -453,7 +479,7 @@ function CardLoja({ p }: { p: Product }) {
         <Link
           to="/produto/$sku"
           params={{ sku: p.sku }}
-          className="mt-0.5 line-clamp-2 min-h-[2.6rem] text-[14px] font-bold leading-tight text-zinc-800 transition-colors group-hover:text-primary md:text-[15px]"
+          className="mt-0.5 line-clamp-2 h-10 text-[14px] font-bold leading-5 text-zinc-800 transition-colors group-hover:text-primary md:text-[15px]"
         >
           {nome}
         </Link>
