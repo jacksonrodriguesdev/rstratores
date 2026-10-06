@@ -49,8 +49,7 @@ export async function createCategory(data: {
     body: JSON.stringify(data),
   });
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Failed to create category");
+    throw new Error((await res.json().catch(() => null))?.error || "Falha ao criar a categoria");
   }
 }
 
@@ -63,14 +62,15 @@ export async function updateCategory(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update category");
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao salvar a categoria");
 }
 
-export async function deleteCategory(id: number) {
-  const res = await fetch(`/api/admin/categories/${id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to delete category");
+// moverPara: categoria que recebe as peças (obrigatória se a categoria tiver peças)
+export async function deleteCategory(id: number, moverPara?: number | null) {
+  const qs = moverPara ? `?mover_para=${moverPara}` : "";
+  const res = await fetch(`/api/admin/categories/${id}${qs}`, { method: "DELETE" });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao excluir a categoria");
+  return (await res.json()) as { movidas: number };
 }
 
 export async function uploadCategoryImage(file: File): Promise<string> {

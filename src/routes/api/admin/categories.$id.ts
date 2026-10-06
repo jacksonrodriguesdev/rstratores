@@ -7,41 +7,26 @@ export const Route = createFileRoute("/api/admin/categories/$id")({
         const { requireAdmin } = await import("@/lib/auth.server");
         const denied = await requireAdmin(request);
         if (denied) return denied;
-        const { prisma } = await import("@/lib/prisma");
         try {
-          const id = Number(params.id);
           const body = await request.json();
-          const cat = await prisma.categories.update({
-            where: { id },
-            data: {
-              nome: body.nome,
-              parent_id: body.parent_id,
-              image_path: body.image_path,
-              linha: body.linha,
-            } as any,
-          });
-          return new Response(JSON.stringify(cat), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          const { updateCategory } = await import("@/lib/categories.server");
+          const cat = await updateCategory(Number(params.id), body);
+          return Response.json(cat);
         } catch (e: any) {
-          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return Response.json({ error: e.message }, { status: 400 });
         }
       },
       DELETE: async ({ request, params }) => {
         const { requireAdmin } = await import("@/lib/auth.server");
         const denied = await requireAdmin(request);
         if (denied) return denied;
-        const { prisma } = await import("@/lib/prisma");
         try {
-          const id = Number(params.id);
-          await prisma.categories.delete({ where: { id } });
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          const mover = new URL(request.url).searchParams.get("mover_para");
+          const { deleteCategory } = await import("@/lib/categories.server");
+          const r = await deleteCategory(Number(params.id), mover ? Number(mover) : null);
+          return Response.json({ success: true, ...r });
         } catch (e: any) {
-          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return Response.json({ error: e.message }, { status: 400 });
         }
       },
     },

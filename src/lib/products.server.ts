@@ -262,10 +262,38 @@ let facetsCache: Record<
   }
 > = {};
 
+// Chamado quando categorias mudam no admin, para a loja refletir na hora.
+export function limparCacheFacets() {
+  facetsCache = {};
+}
+
 export async function getFacets(linha?: string) {
   const cacheKey = (AUTOMOTIVA_ATIVA ? linha : "AGRICOLA") || "all";
   if (facetsCache[cacheKey] && Date.now() - facetsCache[cacheKey].timestamp < 1000 * 60 * 5) {
     return facetsCache[cacheKey].data;
+  }
+
+  // Linha agrícola: contagens vindas do banco (antes, de um facets.json gerado à mão, que
+  // ficava desatualizado ao criar/renomear/excluir categorias no admin). Mesmo critério da
+  // vitrine da loja: só peças principais e com categoria.
+  if (cacheKey === "AGRICOLA") {
+    const where = { duplicado_de: null, category_id: { not: null } };
+    const [cats, marcas] = await Promise.all([
+      prisma.agricolas.groupBy({ by: ["categoria"], where, _count: { _all: true } }),
+      prisma.agricolas.groupBy({ by: ["marca"], where: { ...where, marca: { not: null } }, _count: { _all: true } }),
+    ]);
+    const lista = (rows: any[], campo: string) =>
+      rows
+        .filter((r) => r[campo])
+        .map((r) => ({ name: r[campo] as string, count: r._count._all as number }))
+        .sort((a, b) => b.count - a.count);
+    const data = {
+      categorias: lista(cats, "categoria"),
+      marcas: lista(marcas, "marca"),
+      montadoras: lista(marcas, "marca"),
+    };
+    facetsCache[cacheKey] = { data, timestamp: Date.now() };
+    return data;
   }
 
   try {

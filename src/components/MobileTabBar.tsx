@@ -7,7 +7,8 @@ import { useCart } from "@/components/CartContext";
 import { useLanguage } from "@/components/LanguageContext";
 import { getSessionFn } from "@/lib/user-auth";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { CATEGORIAS, MONTADORAS } from "@/lib/navegacao";
+import { MONTADORAS } from "@/lib/navegacao";
+import { useCategoriasLoja } from "@/hooks/use-categorias-loja";
 import { cn } from "@/lib/utils";
 
 // Barra de navegação inferior no celular, como em aplicativo.
@@ -19,6 +20,7 @@ export function MobileTabBar() {
   const { language, setLanguage } = useLanguage();
   const { data: user } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const cartItemCount = items.reduce((sum, i) => sum + i.quantity, 0);
+  const categorias = useCategoriasLoja();
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -92,7 +94,7 @@ export function MobileTabBar() {
             <SheetTitle>Categorias</SheetTitle>
           </SheetHeader>
           <div className="grid grid-cols-3 gap-2 px-4">
-            {CATEGORIAS.map((c) => (
+            {categorias.map((c) => (
               <Link
                 key={c.nome}
                 to="/loja"

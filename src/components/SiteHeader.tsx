@@ -35,7 +35,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getSessionFn } from "@/lib/user-auth";
 import { useCart } from "@/components/CartContext";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
-import { CATEGORIAS, MONTADORAS, INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
+import { MONTADORAS, INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
+import { useCategoriasLoja } from "@/hooks/use-categorias-loja";
 import { cn } from "@/lib/utils";
 
 const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
@@ -75,6 +76,7 @@ export function SiteHeader() {
   const { language, setLanguage } = useLanguage();
   const es = language === "es-UY";
   const { scrolled, hidden } = useScrollDirection();
+  const categorias = useCategoriasLoja();
 
   const headerRef = useRef<HTMLElement>(null);
   const [alturaTopo, setAlturaTopo] = useState<number | null>(null);
@@ -360,7 +362,7 @@ export function SiteHeader() {
         >
           {/* Celular */}
           <div className="scrollbar-none flex gap-2 overflow-x-auto px-3 pb-2.5 md:hidden">
-            {CATEGORIAS.map((c) => (
+            {categorias.map((c) => (
               <Link
                 key={c.nome}
                 to="/loja"
@@ -386,7 +388,7 @@ export function SiteHeader() {
                     <div className="p-3">
                       <DropdownMenuLabel>{es ? "Categorías" : "Categorias"}</DropdownMenuLabel>
                       <div className="grid grid-cols-2 gap-1">
-                        {CATEGORIAS.map((c) => (
+                        {categorias.map((c) => (
                           <DropdownMenuItem key={c.nome} asChild className="cursor-pointer gap-3 py-2">
                             <Link to="/loja" search={{ linha: "AGRICOLA", categoria: c.nome } as never}>
                               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -418,7 +420,7 @@ export function SiteHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {CATEGORIAS.slice(0, 6).map((c) => (
+              {categorias.slice(0, 6).map((c) => (
                 <Link
                   key={c.nome}
                   to="/loja"

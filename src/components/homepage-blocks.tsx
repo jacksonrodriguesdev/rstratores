@@ -22,9 +22,9 @@ import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
 import { listProducts, type ListParams } from "@/lib/products";
 import { listActiveBanners } from "@/lib/banners";
-import { listCategories } from "@/lib/categories";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { CATEGORIAS, MONTADORAS, INSTAGRAM_URL } from "@/lib/navegacao";
+import { MONTADORAS, INSTAGRAM_URL } from "@/lib/navegacao";
+import { useCategoriasLoja } from "@/hooks/use-categorias-loja";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { ProductRail, RailCard } from "@/components/home/ProductRail";
 import { Reveal, Section } from "@/components/home/Reveal";
@@ -217,33 +217,35 @@ function Atalhos() {
 
 // CATEGORIAS (círculos com ícone; rolagem horizontal no celular)
 export function CategoryGridBlock({ config, title }: { config: string | null; title?: string | null }) {
-  const { data: cats = [] } = useQuery({
-    queryKey: ["home_categories", "AGRICOLA"],
-    queryFn: () => listCategories({ linha: "AGRICOLA", onlyWithProducts: true }),
-  });
-  const totalPor = new Map(cats.map((c: any) => [c.nome, c.totalProducts as number]));
+  // Categorias do banco: o que for criado/renomeado/excluído no admin aparece aqui
+  const categorias = useCategoriasLoja();
 
   return (
     <Section id="categorias" title={title || "Categorias"} verTodos={{ label: "Ver catálogo" }}>
       <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:px-0">
-        {CATEGORIAS.map((c) => (
+        {categorias.map((c) => (
           <Link
             key={c.nome}
             to="/loja"
             search={{ linha: "AGRICOLA", categoria: c.nome } as never}
             className="group flex w-[76px] shrink-0 flex-col items-center gap-2 rounded-2xl p-1 text-center active:scale-95 md:w-auto md:flex-row md:gap-3 md:border md:border-zinc-100 md:p-3 md:text-left md:hover:border-primary/40 md:hover:shadow-md"
           >
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white md:h-12 md:w-12">
-              <c.icon className="h-7 w-7 md:h-6 md:w-6" />
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white md:h-12 md:w-12">
+              {/* Imagem enviada em Admin > Categorias; sem imagem, o ícone */}
+              {c.imagem ? (
+                <img src={c.imagem} alt="" loading="lazy" className="h-full w-full object-cover" />
+              ) : (
+                <c.icon className="h-7 w-7 md:h-6 md:w-6" />
+              )}
             </span>
             <span className="min-w-0">
               <span className="block text-xs font-semibold leading-tight text-zinc-800 md:text-sm">
                 <span className="md:hidden">{c.curto}</span>
                 <span className="hidden md:inline">{c.nome}</span>
               </span>
-              {totalPor.get(c.nome) ? (
+              {c.total ? (
                 <span className="hidden text-xs text-zinc-500 md:block">
-                  {totalPor.get(c.nome)!.toLocaleString("pt-BR")} peças
+                  {c.total.toLocaleString("pt-BR")} peças
                 </span>
               ) : null}
             </span>

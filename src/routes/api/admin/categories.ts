@@ -7,26 +7,13 @@ export const Route = createFileRoute("/api/admin/categories")({
         const { requireAdmin } = await import("@/lib/auth.server");
         const denied = await requireAdmin(request);
         if (denied) return denied;
-        const { prisma } = await import("@/lib/prisma");
         try {
           const body = await request.json();
-          if (!body.nome) {
-            return new Response(JSON.stringify({ error: "Nome é obrigatório" }), { status: 400 });
-          }
-          const cat = await prisma.categories.create({
-            data: {
-              nome: body.nome,
-              parent_id: body.parent_id,
-              image_path: body.image_path,
-              linha: body.linha || "AGRICOLA",
-            } as any,
-          });
-          return new Response(JSON.stringify(cat), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          const { createCategory } = await import("@/lib/categories.server");
+          const cat = await createCategory(body);
+          return Response.json(cat);
         } catch (e: any) {
-          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return Response.json({ error: e.message }, { status: 400 });
         }
       },
     },
