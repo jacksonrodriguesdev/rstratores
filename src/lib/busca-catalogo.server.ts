@@ -22,8 +22,18 @@ type Item = {
   criado: number;
 };
 
-const VALIDADE = 5 * 60 * 1000;
-let cache: { itens: Item[]; em: number } | null = null;
+const VALIDADE = 30 * 60 * 1000;
+// A cada 30 s confere se o catálogo mudou (quantidade e última alteração). Assim mudanças
+// feitas direto no banco (importação pelo phpMyAdmin, scripts) aparecem na loja em até 30 s.
+const CONFERIR = 30 * 1000;
+let cache: { itens: Item[]; em: number; assinatura: string; conferido: number } | null = null;
+
+async function assinaturaCatalogo(): Promise<string> {
+  const [r] = await prisma.$queryRawUnsafe<Array<{ n: bigint; u: Date | null }>>(
+    "SELECT COUNT(*) AS n, MAX(updated_at) AS u FROM agricolas",
+  );
+  return `${r?.n ?? 0}|${r?.u ? new Date(r.u).getTime() : 0}`;
+}
 let carregando: Promise<Item[]> | null = null;
 
 export const normalizar = (s: string | null | undefined) =>
@@ -94,12 +104,23 @@ async function carregar(): Promise<Item[]> {
 }
 
 async function itens(): Promise<Item[]> {
-  if (cache && Date.now() - cache.em < VALIDADE) return cache.itens;
+  if (cache && Date.now() - cache.em < VALIDADE) {
+    if (Date.now() - cache.conferido < CONFERIR) return cache.itens;
+    cache.conferido = Date.now();
+    try {
+      if ((await assinaturaCatalogo()) === cache.assinatura) return cache.itens;
+    } catch {
+      return cache.itens; // banco indisponível: segue com o índice atual
+    }
+  }
   // Várias requisições juntas esperam a mesma carga
-  carregando ??= carregar().finally(() => (carregando = null));
-  const lista = await carregando;
-  cache = { itens: lista, em: Date.now() };
-  return lista;
+  carregando ??= (async () => {
+    const assinatura = await assinaturaCatalogo().catch(() => "");
+    const lista = await carregar();
+    cache = { itens: lista, em: Date.now(), assinatura, conferido: Date.now() };
+    return lista;
+  })().finally(() => (carregando = null));
+  return carregando;
 }
 
 export type FiltrosBusca = {
