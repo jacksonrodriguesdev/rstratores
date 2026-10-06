@@ -173,7 +173,7 @@ export function SiteHeader() {
             <SearchAutocomplete
               segment={segment}
               placeholder="Buscar por código ou nome da peça…"
-              inputClassName="h-10 md:h-11 rounded-full border-0 bg-white text-zinc-900 text-[15px] pl-11 shadow-sm placeholder:text-zinc-400 focus-visible:ring-2 focus-visible:ring-accent"
+              inputClassName="h-10 md:h-11 rounded-full border-0 bg-white text-zinc-900 text-base pl-11 shadow-sm placeholder:text-zinc-400 focus-visible:ring-2 focus-visible:ring-accent"
             />
           </div>
 

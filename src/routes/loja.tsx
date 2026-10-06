@@ -289,12 +289,12 @@ function LojaPage() {
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
       <SiteHeader />
-      <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <main className="mx-auto max-w-[1600px] px-3 sm:px-6 lg:px-8 py-4 md:py-8">
+        <div className="mb-5 flex flex-col md:mb-8 md:flex-row md:items-end justify-between gap-3 md:gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">
+            <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 md:text-3xl">
               Catálogo{" "}
-              <span className="text-primary font-medium text-2xl ml-2 tracking-normal">
+              <span className="text-primary font-medium text-lg ml-1 tracking-normal md:text-2xl md:ml-2">
                 Linha {segment === "AGRICOLA" ? "Agrícola" : "Automotiva"}
               </span>
             </h1>
@@ -308,10 +308,10 @@ function LojaPage() {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full min-w-0 items-center gap-2 md:w-auto md:gap-3">
             <Button
               variant="outline"
-              className="lg:hidden h-10 bg-white shadow-sm"
+              className="lg:hidden h-10 shrink-0 bg-white shadow-sm"
               onClick={() => setMobileOpen(true)}
             >
               <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
@@ -322,12 +322,12 @@ function LojaPage() {
                 </Badge>
               )}
             </Button>
-            <div className="bg-white rounded-md shadow-sm border border-zinc-200 flex items-center p-1">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider px-3">
+            <div className="bg-white rounded-md shadow-sm border border-zinc-200 flex min-w-0 flex-1 items-center p-1 md:flex-none">
+              <span className="hidden text-xs font-semibold text-zinc-500 uppercase tracking-wider px-3 sm:inline">
                 Ordenar:
               </span>
               <Select value={sort} onValueChange={(v) => setSort(v as ListParams["sort"])}>
-                <SelectTrigger className="w-[180px] border-0 focus:ring-0 bg-transparent font-medium text-zinc-800 shadow-none">
+                <SelectTrigger className="w-full min-w-0 border-0 focus:ring-0 bg-transparent font-medium text-zinc-800 shadow-none sm:w-[190px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -415,7 +415,7 @@ function LojaPage() {
       </main>
 
       {/* Floating Filter Button (Mobile) */}
-      <div className="fixed bottom-6 right-6 z-40 lg:hidden">
+      <div className="fixed bottom-24 right-4 z-40 md:bottom-6 md:right-6 lg:hidden">
         <Button
           size="icon"
           className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
