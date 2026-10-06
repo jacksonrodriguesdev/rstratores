@@ -70,3 +70,6 @@ dados/backup_*
 
 # Pacotes de deploy (banco com dados de clientes, imagens)
 dados/deploy/
+
+# Dados brutos de extração (CSV + fotos originais); as fotos convertidas ficam em public/catalogo
+PRODUCTS/
