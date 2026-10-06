@@ -21,6 +21,7 @@ import { listProducts, getFacets, codigoExibicao, marcaExibicao, type ListParams
 import { categoriaEs, nomeEs } from "@/lib/pecas-es";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { registrarEvento } from "@/lib/eventos";
 
 // O roteador lê "?q=6205" como número; aceita os dois e converte para texto (código só com
 // dígitos derrubava a página)
@@ -108,6 +109,17 @@ function LojaPage() {
 
   const rows = useMemo(() => (data ? data.pages.flatMap((page) => page.rows as Product[]) : []), [data]);
   const total = data?.pages[0]?.total ?? -1;
+
+  // Registra o que o cliente buscou e quantas peças achou (buscas sem resultado mostram
+  // peças que faltam no catálogo). Uma vez por termo.
+  const buscasRegistradas = useRef(new Set<string>());
+  useEffect(() => {
+    if (busca.length < 3 || isLoading || total < 0) return;
+    const chave = busca.toLowerCase();
+    if (buscasRegistradas.current.has(chave)) return;
+    buscasRegistradas.current.add(chave);
+    registrarEvento("busca", `${total}|${busca}`);
+  }, [busca, total, isLoading]);
 
   // Rolagem infinita
   useEffect(() => {

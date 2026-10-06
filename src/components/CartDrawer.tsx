@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { PHONE } from "@/lib/whatsapp";
 import { nomeEs } from "@/lib/pecas-es";
+import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart } = useCart();
@@ -20,7 +21,9 @@ export function CartDrawer() {
       return `• ${i.quantity}x ${es}${es !== i.name ? ` (${i.name})` : ""} — Cód: ${i.codigo || i.sku}`;
     });
     const message = `¡Hola! Quiero cotizar estos repuestos:\n\n${lines.join("\n")}`;
-    window.open(`https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`, "_blank");
+    const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`;
+    eventoDoLinkWhatsapp(url);
+    window.open(url, "_blank");
     clearCart();
     setIsCartOpen(false);
   };

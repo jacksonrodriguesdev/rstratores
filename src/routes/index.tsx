@@ -23,6 +23,41 @@ import {
 } from "@/components/homepage-blocks";
 import type { HomepageBlock } from "@/lib/homepage";
 import { tituloEs } from "@/lib/pecas-es";
+import { SITE_URL } from "@/lib/site";
+import { PHONE } from "@/lib/whatsapp";
+
+// Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
+const lojaLd = {
+  "@context": "https://schema.org",
+  "@type": "Store",
+  name: "RS Auto Peças",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
+  image: `${SITE_URL}/icon-512.png`,
+  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC.",
+  telephone: `+${PHONE}`,
+  email: "comercialrsautoparts@gmail.com",
+  areaServed: { "@type": "Country", name: "Uruguay" },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Av. Justino Amonte Anacker 812",
+    addressLocality: "Santa Vitória do Palmar",
+    addressRegion: "RS",
+    addressCountry: "BR",
+  },
+};
+const siteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "RS Auto Peças",
+  url: SITE_URL,
+  inLanguage: "es-UY",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/loja?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,6 +74,11 @@ export const Route = createFileRoute("/")({
         content:
           "Más de 29.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
       },
+    ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+    scripts: [
+      { type: "application/ld+json", children: JSON.stringify(lojaLd) },
+      { type: "application/ld+json", children: JSON.stringify(siteLd) },
     ],
   }),
   component: HomePage,

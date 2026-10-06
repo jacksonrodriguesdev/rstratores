@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/public/track")({
             null;
 
           // Skip obvious bots
-          if (userAgent && /bot|crawler|spider|preview|lighthouse/i.test(userAgent)) {
+          if (userAgent && /bot|crawler|spider|preview|lighthouse|headless/i.test(userAgent)) {
             return new Response(JSON.stringify({ skipped: true }), {
               status: 200,
               headers: { "Content-Type": "application/json", ...CORS },

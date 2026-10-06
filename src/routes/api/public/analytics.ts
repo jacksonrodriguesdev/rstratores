@@ -19,12 +19,14 @@ export const Route = createFileRoute("/api/public/analytics")({
 
           const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+          // Eventos (cliques no WhatsApp, buscas) ficam na mesma tabela e não são visitas
+          const soVisitas = { NOT: { path: { startsWith: "/_evento/" } } };
           const [total, last30, rows] = await Promise.all([
-            prisma.site_visits.count(),
-            prisma.site_visits.count({ where: { created_at: { gte: since30 } } }),
+            prisma.site_visits.count({ where: soVisitas }),
+            prisma.site_visits.count({ where: { ...soVisitas, created_at: { gte: since30 } } }),
             prisma.site_visits.findMany({
               select: { country: true, city: true, created_at: true, path: true, user_agent: true },
-              where: { created_at: { gte: since30 } },
+              where: { ...soVisitas, created_at: { gte: since30 } },
               take: 20000,
             }),
           ]);

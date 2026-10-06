@@ -57,7 +57,9 @@ export const Route = createFileRoute("/produto/$sku")({
       marca ? `, para ${marca}` : ""
     }. Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.`;
     const url = `${SITE}/produto/${encodeURIComponent(p.sku)}`;
-    const imagem = p.imagem_principal ? urlImagem(p.imagem_principal) : `${SITE}/icon-512.png`;
+    // "redeparts" é o logo do fornecedor usado como foto provisória: não serve como imagem da peça
+    const temFoto = !!p.imagem_principal && !p.imagem_principal.includes("redeparts");
+    const imagem = temFoto ? urlImagem(p.imagem_principal!) : `${SITE}/icon-512.png`;
     // Dados estruturados: o Google entende nome, código e marca da peça (resultado mais completo)
     const produtoLd = {
       "@context": "https://schema.org",

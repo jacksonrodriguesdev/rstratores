@@ -15,11 +15,14 @@ import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
+import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
@@ -76,6 +79,16 @@ const LojaRoute = LojaRouteImport.update({
   path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -99,6 +112,11 @@ const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
 const AdminHomepageRoute = AdminHomepageRouteImport.update({
   id: '/homepage',
   path: '/homepage',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInteresseRoute = AdminInteresseRouteImport.update({
+  id: '/interesse',
+  path: '/interesse',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPellegrinoRoute = AdminPellegrinoRouteImport.update({
@@ -235,10 +253,13 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
@@ -272,10 +293,13 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
@@ -311,10 +335,13 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
@@ -351,10 +378,13 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/loja'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/cotacoes'
     | '/admin/homepage'
+    | '/admin/interesse'
     | '/admin/pellegrino'
     | '/admin/produtos'
     | '/admin/upload'
@@ -388,10 +418,13 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/loja'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/cotacoes'
     | '/admin/homepage'
+    | '/admin/interesse'
     | '/admin/pellegrino'
     | '/admin/produtos'
     | '/admin/upload'
@@ -426,10 +459,13 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/loja'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/cotacoes'
     | '/admin/homepage'
+    | '/admin/interesse'
     | '/admin/pellegrino'
     | '/admin/produtos'
     | '/admin/upload'
@@ -465,6 +501,8 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
@@ -524,6 +562,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -557,6 +609,13 @@ declare module '@tanstack/react-router' {
       path: '/homepage'
       fullPath: '/admin/homepage'
       preLoaderRoute: typeof AdminHomepageRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/interesse': {
+      id: '/admin/interesse'
+      path: '/interesse'
+      fullPath: '/admin/interesse'
+      preLoaderRoute: typeof AdminInteresseRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/pellegrino': {
@@ -742,6 +801,7 @@ interface AdminRouteChildren {
   AdminCategoriasRoute: typeof AdminCategoriasRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
+  AdminInteresseRoute: typeof AdminInteresseRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
   AdminUploadRoute: typeof AdminUploadRoute
@@ -753,6 +813,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriasRoute: AdminCategoriasRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
   AdminHomepageRoute: AdminHomepageRoute,
+  AdminInteresseRoute: AdminInteresseRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
   AdminProdutosRoute: AdminProdutosRoute,
   AdminUploadRoute: AdminUploadRoute,
@@ -824,6 +885,8 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   UploadsSplatRoute: UploadsSplatRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
