@@ -57,6 +57,8 @@ hPanel → **Websites** → app Node.js → importar do **GitHub** (`rstratores`
 | `NODE_ENV` | `production` |
 | `BRAVE_SEARCH_API_KEY` | opcional (busca de fotos) |
 | `GOOGLE_PLACES_API_KEY` / `GOOGLE_PLACE_ID` | opcionais (avaliações do Google) |
+| `VITE_GA4_ID` | opcional: Google Analytics 4 (`G-XXXXXXX`). Entra no build: faça novo deploy depois de mudar |
+| `VITE_META_PIXEL_ID` | opcional: Meta Pixel (Facebook/Instagram), só números. Também entra no build |
 
 A porta (`PORT`) é definida pela Hostinger; o servidor usa a que receber.
 
@@ -76,6 +78,9 @@ Se a senha do banco tiver caracteres especiais (`@`, `#`, `/`, `:`), codifique-o
 - `/admin` pede login; entre com uma conta de papel `ADMIN`.
 - Envie um banner de teste no admin: ele deve aparecer na home na hora (e a imagem
   ficar em `UPLOADS_DIR`).
+- `/sitemap.xml` lista as peças. Cadastre o site no Google Search Console
+  (https://search.google.com/search-console) e envie `https://rsautopecas.com/sitemap.xml`.
+- Admin > Interesse dos clientes mostra cliques no WhatsApp e buscas (inclusive as sem resultado).
 
 ## Atualizações
 

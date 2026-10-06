@@ -1,10 +1,15 @@
 // Eventos de interesse do cliente (cliques no WhatsApp, buscas). Vão para a mesma tabela das
 // visitas (site_visits) com o caminho "/_evento/<tipo>/<dado>", sem precisar mudar o banco.
 // O painel lê em Admin > Interesse dos clientes (src/lib/interesse.server.ts).
+import { conversaoWhatsapp, eventoBusca } from "./marketing";
+
 export const PREFIXO_EVENTO = "/_evento/";
 
 export function registrarEvento(tipo: "whatsapp" | "busca" | "cotacao", dado: string) {
   if (typeof window === "undefined") return;
+  // Também avisa o Google Analytics / Meta Pixel, quando configurados
+  if (tipo === "busca") eventoBusca(dado.slice(dado.indexOf("|") + 1));
+  else conversaoWhatsapp(dado);
   try {
     fetch("/api/public/track", {
       method: "POST",

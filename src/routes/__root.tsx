@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/site";
+import { scriptsMarketing } from "@/lib/marketing";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -109,17 +111,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
       },
-      {
-        property: "og:image",
-        content:
-          "/icon-512.png",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "/icon-512.png",
-      },
+      { property: "og:image", content: `${SITE_URL}/icon-512.png` },
+      { name: "twitter:image", content: `${SITE_URL}/icon-512.png` },
     ],
+    scripts: scriptsMarketing(),
     links: [
       {
         rel: "stylesheet",
