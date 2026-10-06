@@ -8,39 +8,37 @@ export const Route = createFileRoute("/api/admin/products")({
         const denied = await requireAdmin(request);
         if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
+        const { delegates, dadosProduto } = await import("@/lib/catalogo-admin.server");
         try {
           const body = await request.json();
-          const { images, ...data } = body;
+          const { images, sku, linha } = body;
+          if (!sku || !body.nome) {
+            return Response.json({ error: "SKU e nome são obrigatórios." }, { status: 400 });
+          }
 
           await prisma.$transaction(async (tx) => {
-            await tx.products.create({ data });
+            const t = delegates(tx, linha);
+            const data = dadosProduto(body, t.agricola);
+            await t.produtos.create({ data: { sku, ...data } });
             if (images && images.length > 0) {
-              const imgData = images.map((path: string, i: number) => ({
-                sku: data.sku,
-                image_path: path,
-                image_type: i === 0 && !data.imagem_principal ? "main" : "thumb",
-                sort_order: i + 10, // put after existing
-              }));
-              await tx.products_img.createMany({ data: imgData });
-
+              await t.imagens.createMany({
+                data: images.map((path: string, i: number) => ({
+                  sku,
+                  image_path: path,
+                  image_type: i === 0 && !data.imagem_principal ? "main" : "thumb",
+                  sort_order: i + 10,
+                })),
+              });
               if (!data.imagem_principal) {
-                await tx.products.update({
-                  where: { sku: data.sku },
-                  data: { imagem_principal: images[0] },
-                });
+                await t.produtos.update({ where: { sku }, data: { imagem_principal: images[0] } });
               }
             }
           });
 
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          return Response.json({ success: true });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+          const msg = err?.code === "P2002" ? "Já existe um produto com esse SKU." : err.message;
+          return Response.json({ error: msg }, { status: 500 });
         }
       },
     },

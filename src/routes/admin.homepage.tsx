@@ -381,7 +381,7 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
   return (
     <Card
       className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4 border-l-4"
-      style={{ borderLeftColor: block.active ? "hsl(var(--primary))" : "transparent" }}
+      style={{ borderLeftColor: block.active ? "var(--primary)" : "transparent" }}
     >
       <div className="cursor-grab text-muted-foreground flex items-center justify-center p-2 hover:bg-muted rounded">
         <GripVertical className="h-5 w-5" />
@@ -622,6 +622,15 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                     </Button>
                   </div>
                 </>
+              )}
+
+              {(block.type === "PROMO_STRIP" || block.type === "PROMO_BANNERS_DUPLOS") && (
+                <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+                  As imagens deste bloco são gerenciadas em <strong>Admin {">"} Banners</strong>
+                  {block.type === "PROMO_STRIP" ? " (aba Faixa promocional)" : " (aba Banners promocionais)"}.
+                  {block.type === "PROMO_STRIP" &&
+                    " A imagem abaixo só é usada se não houver nenhuma faixa ativa lá."}
+                </p>
               )}
 
               {block.type === "PROMO_STRIP" && (

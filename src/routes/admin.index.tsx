@@ -55,10 +55,11 @@ function AdminDashboard() {
   const analytics = useQuery({ queryKey: ["admin-analytics"], queryFn: fetchAnalytics });
 
   const cards = [
-    { label: "Produtos", value: stats.data?.totalProducts, icon: Package, color: "text-primary" },
-    { label: "Categorias", value: stats.data?.totalCategorias, icon: Tag, color: "text-accent" },
-    { label: "Marcas", value: stats.data?.totalMarcas, icon: Factory, color: "text-primary" },
-    { label: "Estoque total", value: stats.data?.estoqueTotal, icon: Boxes, color: "text-accent" },
+    // Linha agrícola (a automotiva está desligada)
+    { label: "Peças no catálogo", value: stats.data?.pecas, icon: Package, color: "text-primary" },
+    { label: "Peças com foto", value: stats.data?.comFoto, icon: Boxes, color: "text-accent" },
+    { label: "Categorias", value: stats.data?.categorias, icon: Tag, color: "text-primary" },
+    { label: "Cotações novas", value: stats.data?.cotacoesNovas, icon: Factory, color: "text-accent" },
     {
       label: "Acessos (total)",
       value: analytics.data?.total,
@@ -126,11 +127,11 @@ function AdminDashboard() {
               >
                 <defs>
                   <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis
                   dataKey="name"
                   tick={{ fontSize: 11 }}
@@ -155,7 +156,7 @@ function AdminDashboard() {
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--primary)"
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorVisits)"
@@ -184,13 +185,13 @@ function AdminDashboard() {
                 >
                   <defs>
                     <linearGradient id="colorBar" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={1} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
+                    stroke="var(--border)"
                     horizontal={false}
                   />
                   <XAxis
@@ -203,13 +204,13 @@ function AdminDashboard() {
                   <YAxis
                     type="category"
                     dataKey="name"
-                    tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                    tick={{ fontSize: 11, fill: "var(--foreground)" }}
                     width={80}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
-                    cursor={{ fill: "hsl(var(--muted))" }}
+                    cursor={{ fill: "var(--muted)" }}
                     contentStyle={{
                       borderRadius: "8px",
                       border: "none",
@@ -238,11 +239,11 @@ function AdminDashboard() {
                   layout="vertical"
                   margin={{ left: 20, right: 20 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} />
                   <Tooltip />
-                  <Bar dataKey="value" fill="hsl(var(--accent))" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" fill="var(--accent)" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -274,7 +275,7 @@ function AdminDashboard() {
                     {analytics.data.devices.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={index === 0 ? "hsl(var(--primary))" : "hsl(var(--accent))"}
+                        fill={index === 0 ? "var(--primary)" : "var(--accent)"}
                       />
                     ))}
                   </Pie>
@@ -302,13 +303,13 @@ function AdminDashboard() {
                 >
                   <defs>
                     <linearGradient id="colorBar" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={1} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
+                    stroke="var(--border)"
                     horizontal={false}
                   />
                   <XAxis
@@ -321,13 +322,13 @@ function AdminDashboard() {
                   <YAxis
                     type="category"
                     dataKey="name"
-                    tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                    tick={{ fontSize: 11, fill: "var(--foreground)" }}
                     width={80}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
-                    cursor={{ fill: "hsl(var(--muted))" }}
+                    cursor={{ fill: "var(--muted)" }}
                     contentStyle={{
                       borderRadius: "8px",
                       border: "none",

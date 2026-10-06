@@ -8,40 +8,38 @@ export const Route = createFileRoute("/api/admin/products/$sku")({
         const denied = await requireAdmin(request);
         if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
+        const { delegates, dadosProduto } = await import("@/lib/catalogo-admin.server");
         try {
           const { sku } = params;
           const body = await request.json();
-          const { images, ...data } = body;
+          const { images, linha } = body;
 
           await prisma.$transaction(async (tx) => {
-            await tx.products.update({ where: { sku }, data });
+            const t = delegates(tx, linha);
+            const data = dadosProduto(body, t.agricola);
+            await t.produtos.update({ where: { sku }, data });
             if (images && images.length > 0) {
-              const imgData = images.map((path: string, i: number) => ({
-                sku,
-                image_path: path,
-                image_type: "thumb",
-                sort_order: i + 10,
-              }));
-              await tx.products_img.createMany({ data: imgData });
-
-              if (!data.imagem_principal) {
-                const p = await tx.products.findUnique({ where: { sku } });
-                if (p && !p.imagem_principal) {
-                  await tx.products.update({
-                    where: { sku },
-                    data: { imagem_principal: images[0] },
-                  });
-                }
+              await t.imagens.createMany({
+                data: images.map((path: string, i: number) => ({
+                  sku,
+                  image_path: path,
+                  image_type: "thumb",
+                  sort_order: i + 10,
+                })),
+                skipDuplicates: true,
+              });
+              // Produto sem foto (ou com o logo usado como placeholder) passa a usar a primeira enviada
+              const p = await t.produtos.findUnique({ where: { sku } });
+              if (p && (!p.imagem_principal || /redeparts/i.test(p.imagem_principal))) {
+                await t.produtos.update({ where: { sku }, data: { imagem_principal: images[0] } });
               }
             }
           });
 
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          return Response.json({ success: true });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          const msg = err?.code === "P2025" ? "Produto não encontrado." : err.message;
+          return Response.json({ error: msg }, { status: 500 });
         }
       },
       DELETE: async ({ request, params }) => {
@@ -49,15 +47,14 @@ export const Route = createFileRoute("/api/admin/products/$sku")({
         const denied = await requireAdmin(request);
         if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
+        const { delegates } = await import("@/lib/catalogo-admin.server");
         try {
-          const { sku } = params;
-          await prisma.products.delete({ where: { sku } });
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          const linha = new URL(request.url).searchParams.get("linha");
+          await delegates(prisma, linha).produtos.delete({ where: { sku: params.sku } });
+          return Response.json({ success: true });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          const msg = err?.code === "P2025" ? "Produto não encontrado." : err.message;
+          return Response.json({ error: msg }, { status: 500 });
         }
       },
     },

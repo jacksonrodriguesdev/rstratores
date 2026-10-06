@@ -11,6 +11,9 @@ export const Route = createFileRoute("/api/admin/images/import")({
         const denied = await requireAdmin(request);
         if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
+        const { delegates } = await import("@/lib/catalogo-admin.server");
+        // Fotos em lote vão para o catálogo ativo (linha agrícola)
+        const t = delegates(prisma);
         try {
           const formData = await request.formData();
           const file = formData.get("file") as File;
@@ -38,7 +41,7 @@ export const Route = createFileRoute("/api/admin/images/import")({
 
           const allSkus = Array.from(bySku.keys());
 
-          const existingProducts = await prisma.products.findMany({
+          const existingProducts: { sku: string }[] = await t.produtos.findMany({
             where: { sku: { in: allSkus } },
             select: { sku: true },
           });
@@ -83,7 +86,7 @@ export const Route = createFileRoute("/api/admin/images/import")({
 
             if (imageRows.length > 0) {
               const ops = imageRows.map((r) =>
-                prisma.products_img.upsert({
+                t.imagens.upsert({
                   where: { sku_image_path: { sku: r.sku, image_path: r.image_path } },
                   create: r,
                   update: r,
@@ -92,7 +95,7 @@ export const Route = createFileRoute("/api/admin/images/import")({
               await prisma.$transaction(ops);
             }
             if (mainPath) {
-              await prisma.products.update({
+              await t.produtos.update({
                 where: { sku },
                 data: { imagem_principal: mainPath },
               });

@@ -32,11 +32,7 @@ import { Route as ApiAuthLoginRouteImport } from './routes/api/auth.login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth.logout'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
-import { Route as ApiPublicBannersRouteImport } from './routes/api/public/banners'
-import { Route as ApiPublicFacetsRouteImport } from './routes/api/public/facets'
-import { Route as ApiPublicProductsRouteImport } from './routes/api/public/products'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
-import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
 import { Route as ApiAdminBannersUploadRouteImport } from './routes/api/admin/banners.upload'
@@ -44,12 +40,10 @@ import { Route as ApiAdminCategoriesIdRouteImport } from './routes/api/admin/cat
 import { Route as ApiAdminCategoriesUploadRouteImport } from './routes/api/admin/categories.upload'
 import { Route as ApiAdminImagesImportRouteImport } from './routes/api/admin/images.import'
 import { Route as ApiAdminProductsSkuRouteImport } from './routes/api/admin/products.$sku'
+import { Route as ApiAdminProductsExportRouteImport } from './routes/api/admin/products.export'
 import { Route as ApiAdminProductsImportRouteImport } from './routes/api/admin/products.import'
 import { Route as ApiAdminProductsUploadRouteImport } from './routes/api/admin/products.upload'
 import { Route as ApiAdminQuotesIdRouteImport } from './routes/api/admin/quotes.$id'
-import { Route as ApiPublicProductsSkuRouteImport } from './routes/api/public/products.$sku'
-import { Route as ApiPublicProductsSkuImagesRouteImport } from './routes/api/public/products.$sku.images'
-import { Route as ApiPublicProductsSkuRelatedRouteImport } from './routes/api/public/products.$sku.related'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -166,29 +160,9 @@ const ApiPublicAnalyticsRoute = ApiPublicAnalyticsRouteImport.update({
   path: '/api/public/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicBannersRoute = ApiPublicBannersRouteImport.update({
-  id: '/api/public/banners',
-  path: '/api/public/banners',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicFacetsRoute = ApiPublicFacetsRouteImport.update({
-  id: '/api/public/facets',
-  path: '/api/public/facets',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicProductsRoute = ApiPublicProductsRouteImport.update({
-  id: '/api/public/products',
-  path: '/api/public/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicQuotesRoute = ApiPublicQuotesRouteImport.update({
   id: '/api/public/quotes',
   path: '/api/public/quotes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicStatsRoute = ApiPublicStatsRouteImport.update({
-  id: '/api/public/stats',
-  path: '/api/public/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
@@ -227,6 +201,11 @@ const ApiAdminProductsSkuRoute = ApiAdminProductsSkuRouteImport.update({
   path: '/$sku',
   getParentRoute: () => ApiAdminProductsRoute,
 } as any)
+const ApiAdminProductsExportRoute = ApiAdminProductsExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => ApiAdminProductsRoute,
+} as any)
 const ApiAdminProductsImportRoute = ApiAdminProductsImportRouteImport.update({
   id: '/import',
   path: '/import',
@@ -242,23 +221,6 @@ const ApiAdminQuotesIdRoute = ApiAdminQuotesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminQuotesRoute,
 } as any)
-const ApiPublicProductsSkuRoute = ApiPublicProductsSkuRouteImport.update({
-  id: '/$sku',
-  path: '/$sku',
-  getParentRoute: () => ApiPublicProductsRoute,
-} as any)
-const ApiPublicProductsSkuImagesRoute =
-  ApiPublicProductsSkuImagesRouteImport.update({
-    id: '/images',
-    path: '/images',
-    getParentRoute: () => ApiPublicProductsSkuRoute,
-  } as any)
-const ApiPublicProductsSkuRelatedRoute =
-  ApiPublicProductsSkuRelatedRouteImport.update({
-    id: '/related',
-    path: '/related',
-    getParentRoute: () => ApiPublicProductsSkuRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -284,11 +246,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
-  '/api/public/banners': typeof ApiPublicBannersRoute
-  '/api/public/facets': typeof ApiPublicFacetsRoute
-  '/api/public/products': typeof ApiPublicProductsRouteWithChildren
   '/api/public/quotes': typeof ApiPublicQuotesRoute
-  '/api/public/stats': typeof ApiPublicStatsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
@@ -296,12 +254,10 @@ export interface FileRoutesByFullPath {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
+  '/api/admin/products/export': typeof ApiAdminProductsExportRoute
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
-  '/api/public/products/$sku': typeof ApiPublicProductsSkuRouteWithChildren
-  '/api/public/products/$sku/images': typeof ApiPublicProductsSkuImagesRoute
-  '/api/public/products/$sku/related': typeof ApiPublicProductsSkuRelatedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -326,11 +282,7 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
-  '/api/public/banners': typeof ApiPublicBannersRoute
-  '/api/public/facets': typeof ApiPublicFacetsRoute
-  '/api/public/products': typeof ApiPublicProductsRouteWithChildren
   '/api/public/quotes': typeof ApiPublicQuotesRoute
-  '/api/public/stats': typeof ApiPublicStatsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
@@ -338,12 +290,10 @@ export interface FileRoutesByTo {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
+  '/api/admin/products/export': typeof ApiAdminProductsExportRoute
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
-  '/api/public/products/$sku': typeof ApiPublicProductsSkuRouteWithChildren
-  '/api/public/products/$sku/images': typeof ApiPublicProductsSkuImagesRoute
-  '/api/public/products/$sku/related': typeof ApiPublicProductsSkuRelatedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -370,11 +320,7 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
-  '/api/public/banners': typeof ApiPublicBannersRoute
-  '/api/public/facets': typeof ApiPublicFacetsRoute
-  '/api/public/products': typeof ApiPublicProductsRouteWithChildren
   '/api/public/quotes': typeof ApiPublicQuotesRoute
-  '/api/public/stats': typeof ApiPublicStatsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
@@ -382,12 +328,10 @@ export interface FileRoutesById {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
+  '/api/admin/products/export': typeof ApiAdminProductsExportRoute
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
-  '/api/public/products/$sku': typeof ApiPublicProductsSkuRouteWithChildren
-  '/api/public/products/$sku/images': typeof ApiPublicProductsSkuImagesRoute
-  '/api/public/products/$sku/related': typeof ApiPublicProductsSkuRelatedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -415,11 +359,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/register'
     | '/api/public/analytics'
-    | '/api/public/banners'
-    | '/api/public/facets'
-    | '/api/public/products'
     | '/api/public/quotes'
-    | '/api/public/stats'
     | '/api/public/track'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
@@ -427,12 +367,10 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/images/import'
     | '/api/admin/products/$sku'
+    | '/api/admin/products/export'
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
-    | '/api/public/products/$sku'
-    | '/api/public/products/$sku/images'
-    | '/api/public/products/$sku/related'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -457,11 +395,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/register'
     | '/api/public/analytics'
-    | '/api/public/banners'
-    | '/api/public/facets'
-    | '/api/public/products'
     | '/api/public/quotes'
-    | '/api/public/stats'
     | '/api/public/track'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
@@ -469,12 +403,10 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/images/import'
     | '/api/admin/products/$sku'
+    | '/api/admin/products/export'
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
-    | '/api/public/products/$sku'
-    | '/api/public/products/$sku/images'
-    | '/api/public/products/$sku/related'
   id:
     | '__root__'
     | '/'
@@ -500,11 +432,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/register'
     | '/api/public/analytics'
-    | '/api/public/banners'
-    | '/api/public/facets'
-    | '/api/public/products'
     | '/api/public/quotes'
-    | '/api/public/stats'
     | '/api/public/track'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
@@ -512,12 +440,10 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/images/import'
     | '/api/admin/products/$sku'
+    | '/api/admin/products/export'
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
-    | '/api/public/products/$sku'
-    | '/api/public/products/$sku/images'
-    | '/api/public/products/$sku/related'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -536,11 +462,7 @@ export interface RootRouteChildren {
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
-  ApiPublicBannersRoute: typeof ApiPublicBannersRoute
-  ApiPublicFacetsRoute: typeof ApiPublicFacetsRoute
-  ApiPublicProductsRoute: typeof ApiPublicProductsRouteWithChildren
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
-  ApiPublicStatsRoute: typeof ApiPublicStatsRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
 }
@@ -708,39 +630,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/banners': {
-      id: '/api/public/banners'
-      path: '/api/public/banners'
-      fullPath: '/api/public/banners'
-      preLoaderRoute: typeof ApiPublicBannersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/facets': {
-      id: '/api/public/facets'
-      path: '/api/public/facets'
-      fullPath: '/api/public/facets'
-      preLoaderRoute: typeof ApiPublicFacetsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/products': {
-      id: '/api/public/products'
-      path: '/api/public/products'
-      fullPath: '/api/public/products'
-      preLoaderRoute: typeof ApiPublicProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/quotes': {
       id: '/api/public/quotes'
       path: '/api/public/quotes'
       fullPath: '/api/public/quotes'
       preLoaderRoute: typeof ApiPublicQuotesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/stats': {
-      id: '/api/public/stats'
-      path: '/api/public/stats'
-      fullPath: '/api/public/stats'
-      preLoaderRoute: typeof ApiPublicStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/track': {
@@ -792,6 +686,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminProductsSkuRouteImport
       parentRoute: typeof ApiAdminProductsRoute
     }
+    '/api/admin/products/export': {
+      id: '/api/admin/products/export'
+      path: '/export'
+      fullPath: '/api/admin/products/export'
+      preLoaderRoute: typeof ApiAdminProductsExportRouteImport
+      parentRoute: typeof ApiAdminProductsRoute
+    }
     '/api/admin/products/import': {
       id: '/api/admin/products/import'
       path: '/import'
@@ -812,27 +713,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/quotes/$id'
       preLoaderRoute: typeof ApiAdminQuotesIdRouteImport
       parentRoute: typeof ApiAdminQuotesRoute
-    }
-    '/api/public/products/$sku': {
-      id: '/api/public/products/$sku'
-      path: '/$sku'
-      fullPath: '/api/public/products/$sku'
-      preLoaderRoute: typeof ApiPublicProductsSkuRouteImport
-      parentRoute: typeof ApiPublicProductsRoute
-    }
-    '/api/public/products/$sku/images': {
-      id: '/api/public/products/$sku/images'
-      path: '/images'
-      fullPath: '/api/public/products/$sku/images'
-      preLoaderRoute: typeof ApiPublicProductsSkuImagesRouteImport
-      parentRoute: typeof ApiPublicProductsSkuRoute
-    }
-    '/api/public/products/$sku/related': {
-      id: '/api/public/products/$sku/related'
-      path: '/related'
-      fullPath: '/api/public/products/$sku/related'
-      preLoaderRoute: typeof ApiPublicProductsSkuRelatedRouteImport
-      parentRoute: typeof ApiPublicProductsSkuRoute
     }
   }
 }
@@ -890,12 +770,14 @@ const ApiAdminCategoriesRouteWithChildren =
 
 interface ApiAdminProductsRouteChildren {
   ApiAdminProductsSkuRoute: typeof ApiAdminProductsSkuRoute
+  ApiAdminProductsExportRoute: typeof ApiAdminProductsExportRoute
   ApiAdminProductsImportRoute: typeof ApiAdminProductsImportRoute
   ApiAdminProductsUploadRoute: typeof ApiAdminProductsUploadRoute
 }
 
 const ApiAdminProductsRouteChildren: ApiAdminProductsRouteChildren = {
   ApiAdminProductsSkuRoute: ApiAdminProductsSkuRoute,
+  ApiAdminProductsExportRoute: ApiAdminProductsExportRoute,
   ApiAdminProductsImportRoute: ApiAdminProductsImportRoute,
   ApiAdminProductsUploadRoute: ApiAdminProductsUploadRoute,
 }
@@ -915,30 +797,6 @@ const ApiAdminQuotesRouteWithChildren = ApiAdminQuotesRoute._addFileChildren(
   ApiAdminQuotesRouteChildren,
 )
 
-interface ApiPublicProductsSkuRouteChildren {
-  ApiPublicProductsSkuImagesRoute: typeof ApiPublicProductsSkuImagesRoute
-  ApiPublicProductsSkuRelatedRoute: typeof ApiPublicProductsSkuRelatedRoute
-}
-
-const ApiPublicProductsSkuRouteChildren: ApiPublicProductsSkuRouteChildren = {
-  ApiPublicProductsSkuImagesRoute: ApiPublicProductsSkuImagesRoute,
-  ApiPublicProductsSkuRelatedRoute: ApiPublicProductsSkuRelatedRoute,
-}
-
-const ApiPublicProductsSkuRouteWithChildren =
-  ApiPublicProductsSkuRoute._addFileChildren(ApiPublicProductsSkuRouteChildren)
-
-interface ApiPublicProductsRouteChildren {
-  ApiPublicProductsSkuRoute: typeof ApiPublicProductsSkuRouteWithChildren
-}
-
-const ApiPublicProductsRouteChildren: ApiPublicProductsRouteChildren = {
-  ApiPublicProductsSkuRoute: ApiPublicProductsSkuRouteWithChildren,
-}
-
-const ApiPublicProductsRouteWithChildren =
-  ApiPublicProductsRoute._addFileChildren(ApiPublicProductsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -955,11 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
-  ApiPublicBannersRoute: ApiPublicBannersRoute,
-  ApiPublicFacetsRoute: ApiPublicFacetsRoute,
-  ApiPublicProductsRoute: ApiPublicProductsRouteWithChildren,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,
-  ApiPublicStatsRoute: ApiPublicStatsRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
 }

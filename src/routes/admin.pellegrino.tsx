@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
@@ -17,6 +18,10 @@ import {
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/pellegrino")({
+  // Catálogo Pellegrino é da linha automotiva, desligada
+  beforeLoad: () => {
+    if (!AUTOMOTIVA_ATIVA) throw redirect({ to: "/admin" });
+  },
   component: AdminPellegrino,
 });
 

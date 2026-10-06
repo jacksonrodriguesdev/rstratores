@@ -11,7 +11,6 @@ import {
   ImageIcon,
   Tags,
   Calculator,
-  LineChart,
   Image,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -81,13 +80,6 @@ const groups: any[] = [
             },
           ]
         : []),
-      {
-        to: "/admin/analytics",
-        search: undefined,
-        label: "Analytics",
-        icon: LineChart,
-        exact: false,
-      },
       {
         to: "/admin/homepage",
         search: undefined,

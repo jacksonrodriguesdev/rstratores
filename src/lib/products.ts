@@ -72,6 +72,8 @@ export type ListParams = {
   // Só produtos apresentáveis (com categoria). Os sem categoria vieram da extração com o
   // nome do fabricante no lugar do nome da peça ("GERAL", "EATON"...). A busca não usa isso.
   vitrine?: boolean;
+  // Conta o total de resultados (usado no admin para paginar; a loja pública não precisa)
+  contar?: boolean;
 };
 
 import { createServerFn } from "@tanstack/react-start";
@@ -166,6 +168,7 @@ export async function getFacets(linha?: string) {
 }
 
 const getStatsFn = createServerFn({ method: "GET" }).handler(async () => {
+  await (await import("./auth.server")).assertAdmin();
   const server = await import("./products.server");
   return server.getStats();
 });

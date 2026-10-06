@@ -57,7 +57,11 @@ function BannersPage() {
     qc.invalidateQueries({ queryKey: ["home_banners"] });
   };
 
-  const daLinhaAutomotiva = AUTOMOTIVA_ATIVA ? [] : todos.filter((b) => b.linha === "AUTOMOTIVA");
+  // O site vende só a linha agrícola: banners marcados como automotivos não aparecem e
+  // ficam numa seção de arquivados, fora das abas.
+  const arquivado = (b: Banner) => !AUTOMOTIVA_ATIVA && b.linha === "AUTOMOTIVA";
+  const doSite = todos.filter((b) => !arquivado(b));
+  const arquivados = todos.filter(arquivado);
 
   return (
     <div className="space-y-6">
@@ -75,35 +79,11 @@ function BannersPage() {
         </Button>
       </div>
 
-      {daLinhaAutomotiva.length > 0 && (
-        <Card className="flex flex-wrap items-center gap-3 border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-          <AlertTriangle className="h-5 w-5 shrink-0" />
-          <span className="flex-1">
-            {daLinhaAutomotiva.length === 1 ? "1 banner está" : `${daLinhaAutomotiva.length} banners estão`}{" "}
-            marcado(s) como <strong>linha automotiva</strong> e não aparece(m) no site, que hoje vende só
-            peças agrícolas.
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={async () => {
-              for (const b of daLinhaAutomotiva) await updateBanner(b.id, { linha: "AGRICOLA" });
-              toast.success("Banners movidos para a linha agrícola");
-              refresh();
-            }}
-          >
-            Mostrar no site
-          </Button>
-        </Card>
-      )}
-
       <Tabs value={tipo} onValueChange={(v) => setTipo(v as BannerKind)}>
         <TabsList className="h-auto flex-wrap">
           {ORDEM_TIPOS.map((k) => {
             // Conta só o que realmente aparece no site
-            const ativos = todos.filter(
-              (b) => b.kind === k && b.active && (AUTOMOTIVA_ATIVA || b.linha !== "AUTOMOTIVA"),
-            ).length;
+            const ativos = doSite.filter((b) => b.kind === k && b.active).length;
             return (
               <TabsTrigger key={k} value={k} className="gap-2">
                 {TIPOS_BANNER[k].nome}
@@ -116,7 +96,7 @@ function BannersPage() {
         </TabsList>
 
         {ORDEM_TIPOS.map((k) => {
-          const lista = todos.filter((b) => b.kind === k);
+          const lista = doSite.filter((b) => b.kind === k);
           return (
             <TabsContent key={k} value={k} className="mt-4 space-y-4">
               <Card className="grid gap-2 bg-muted/40 p-4 text-sm md:grid-cols-3">
@@ -167,6 +147,22 @@ function BannersPage() {
           );
         })}
       </Tabs>
+
+      {arquivados.length > 0 && (
+        <section className="space-y-3 border-t pt-6">
+          <div className="flex items-start gap-2 text-sm text-muted-foreground">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <p>
+              <strong className="text-foreground">Arquivados ({arquivados.length})</strong>: banners da
+              linha automotiva, que está desligada. Eles não aparecem no site. Use{" "}
+              <em>Usar na linha agrícola</em> para reaproveitar um banner, ou remova.
+            </p>
+          </div>
+          {arquivados.map((b) => (
+            <BannerCard key={b.id} banner={b} onChange={refresh} />
+          ))}
+        </section>
+      )}
     </div>
   );
 }
@@ -326,9 +322,24 @@ function BannerCard({
             </div>
           </div>
           {!AUTOMOTIVA_ATIVA && banner.linha === "AUTOMOTIVA" && (
-            <Badge variant="outline" className="w-fit border-amber-400 text-amber-800">
-              Linha automotiva: não aparece no site
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="w-fit border-amber-400 text-amber-800">
+                Linha automotiva: não aparece no site
+              </Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() =>
+                  executar(
+                    () => updateBanner(banner.id, { linha: "AGRICOLA" }),
+                    "Banner movido para a linha agrícola",
+                  )
+                }
+              >
+                Usar na linha agrícola
+              </Button>
+            </div>
           )}
           <div className="space-y-1">
             <Label className="text-xs">Nome (texto alternativo da imagem)</Label>

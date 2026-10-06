@@ -58,6 +58,9 @@ export default defineConfig(({ command }) => ({
       "@tanstack/react-query",
       "recharts",
       "embla-carousel-react",
+      // CommonJS usados no navegador (CSV e ZIP do admin): precisam ser pré-empacotados
+      "papaparse",
+      "jszip",
     ],
     exclude: ["@prisma/client", "prisma", "bcryptjs", "jose"],
   },

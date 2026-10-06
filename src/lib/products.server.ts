@@ -165,12 +165,11 @@ export async function listProducts(params: ListParams) {
     queryOptions.skip = (page - 1) * pageSize; // Fallback para paginação clássica
   }
 
-  let data;
-  if (linha === "AGRICOLA") {
-    data = (await prisma.agricolas.findMany(queryOptions)) as unknown as Product[];
-  } else {
-    data = (await prisma.products.findMany(queryOptions)) as unknown as Product[];
-  }
+  const tabela: any = linha === "AGRICOLA" ? prisma.agricolas : prisma.products;
+  const [data, total] = await Promise.all([
+    tabela.findMany(queryOptions) as Promise<Product[]>,
+    params.contar ? (tabela.count({ where }) as Promise<number>) : Promise.resolve(-1),
+  ]);
 
   const hasNextPage = data.length > pageSize;
   let nextCursor: string | undefined = undefined;
@@ -187,7 +186,8 @@ export async function listProducts(params: ListParams) {
     rows: data as any,
     hasNextPage,
     nextCursor,
-    total: -1, // Não fazemos mais o count() pesado no banco, o total será indefinido para não travar o banco.
+    // Só conta quando pedido (admin): na loja o count() em cada rolagem pesaria no banco.
+    total,
   };
 }
 
@@ -309,26 +309,36 @@ export async function getRelatedCategories(category_id: number | null) {
   return siblings;
 }
 
+// Números do Dashboard do admin, da linha agrícola (antes contava a tabela automotiva
+// e devolvia valores fixos: "200 categorias", estoque = produtos × 10...).
 export async function getStats() {
-  const totalProducts = await prisma.products.count();
-
-  // Como são mais de 100 mil itens, puxar tudo para agrupar categorias e marcas
-  // quebra o servidor (OOM). Vamos mockar os dados ou usar tabelas agregadas no futuro.
-  const stats = {
-    totalProducts,
-    totalCategorias: 200,
-    totalMarcas: 100,
-    estoqueTotal: totalProducts * 10,
-    linhas: [{ name: "PELLEGRINO", value: totalProducts }],
-    produtosSemEstoque: 0,
-    topCategorias: [
-      { name: "Motor", value: Math.floor(totalProducts * 0.2) },
-      { name: "Suspensão", value: Math.floor(totalProducts * 0.15) },
+  const visiveis = { duplicado_de: null };
+  const semFoto = {
+    OR: [
+      { imagem_principal: null },
+      { imagem_principal: "" },
+      { imagem_principal: { contains: "redeparts" } },
     ],
-    topMarcas: [{ name: "Massey Ferguson", value: Math.floor(totalProducts * 0.1) }],
   };
-
-  return stats;
+  const [pecas, semFotoN, semCategoria, marcasConfirmadas, categorias, cotacoesNovas, bannersAtivos] =
+    await Promise.all([
+      prisma.agricolas.count({ where: visiveis }),
+      prisma.agricolas.count({ where: { ...visiveis, ...semFoto } }),
+      prisma.agricolas.count({ where: { ...visiveis, category_id: null } }),
+      prisma.agricolas.count({ where: { ...visiveis, marca_confirmada: true, marca: { not: null } } }),
+      prisma.categories.count({ where: { linha: "AGRICOLA", agricolas: { some: {} } } }),
+      prisma.quotes.count({ where: { status: "NOVA" } }),
+      prisma.site_banners.count({ where: { active: true, linha: "AGRICOLA" } }),
+    ]);
+  return {
+    pecas,
+    comFoto: pecas - semFotoN,
+    semCategoria,
+    marcasConfirmadas,
+    categorias,
+    cotacoesNovas,
+    bannersAtivos,
+  };
 }
 
 export async function getPellegrinoStats() {

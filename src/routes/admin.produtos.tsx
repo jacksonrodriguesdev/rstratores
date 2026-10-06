@@ -67,7 +67,8 @@ function AdminProducts() {
 
   const q = useQuery({
     queryKey: ["admin-products", { search, page, linha }],
-    queryFn: () => listProducts({ search, page, pageSize: PAGE_SIZE, sort: "nome-asc", linha }),
+    queryFn: () =>
+      listProducts({ search, page, pageSize: PAGE_SIZE, sort: "nome-asc", linha, contar: true }),
   });
 
   const catQ = useQuery({
@@ -77,10 +78,11 @@ function AdminProducts() {
 
   const del = useMutation({
     mutationFn: async (sku: string) => {
-      const res = await fetch(`/api/admin/products/${encodeURIComponent(sku)}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete product");
+      const res = await fetch(
+        `/api/admin/products/${encodeURIComponent(sku)}?linha=${encodeURIComponent(linha)}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao remover o produto");
     },
     onSuccess: () => {
       toast.success("Produto removido");
@@ -133,7 +135,7 @@ function AdminProducts() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to create product");
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao criar o produto");
     },
     onSuccess: () => {
       toast.success("Produto criado com sucesso");
@@ -182,7 +184,7 @@ function AdminProducts() {
           images: uploadedImages,
         }),
       });
-      if (!res.ok) throw new Error("Failed to update product");
+      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao salvar o produto");
     },
     onSuccess: () => {
       toast.success("Produto atualizado");
@@ -197,7 +199,7 @@ function AdminProducts() {
   const exportAll = async () => {
     toast.info("Exportando todos os produtos…");
     try {
-      const res = await fetch("/api/public/products?pageSize=50000");
+      const res = await fetch("/api/admin/products/export");
       if (!res.ok) throw new Error("Falha ao exportar");
       const { rows } = await res.json();
       const csv = exportProductsCsv(rows);

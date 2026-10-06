@@ -8,55 +8,52 @@ export const Route = createFileRoute("/api/admin/products/import")({
         const denied = await requireAdmin(request);
         if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
+        const { delegates, dadosProduto, tabelasCatalogo } = await import("@/lib/catalogo-admin.server");
         try {
           const { rows } = await request.json();
-
           if (!Array.isArray(rows)) {
-            return new Response(JSON.stringify({ error: "Invalid rows array" }), { status: 400 });
+            return Response.json({ error: "Envie um array de linhas" }, { status: 400 });
           }
 
-          const categoryNames = [...new Set(rows.map((r: any) => r.categoria).filter(Boolean))];
+          // Categorias da mesma linha do produto (há categorias com o mesmo nome nas duas linhas)
           const catMap = new Map<string, number>();
-          for (const name of categoryNames) {
-            let c = await prisma.categories.findFirst({ where: { nome: String(name).trim() } });
-            if (!c) {
-              c = await prisma.categories.create({ data: { nome: String(name).trim() } });
-            }
-            catMap.set(String(name).trim(), c.id);
+          for (const r of rows) {
+            const nome = r.categoria ? String(r.categoria).trim() : "";
+            const linhaCat = tabelasCatalogo(r.linha).agricola ? "AGRICOLA" : "AUTOMOTIVA";
+            const chave = `${linhaCat}|${nome}`;
+            if (!nome || catMap.has(chave)) continue;
+            const c =
+              (await prisma.categories.findFirst({ where: { nome, linha: linhaCat } })) ??
+              (await prisma.categories.create({ data: { nome, linha: linhaCat } }));
+            catMap.set(chave, c.id);
           }
 
-          const ops = rows.map((r: any) => {
-            const data = {
-              nome: r.nome,
-              preco_brl: r.preco_brl,
-              categoria: r.categoria,
-              category_id: r.categoria ? catMap.get(String(r.categoria).trim()) || null : null,
-              marca: r.marca,
-              estoque: r.estoque,
-              peso: r.peso,
-              url: r.url,
-              descricao: r.descricao,
-              imagem_principal: r.imagem_principal,
-              linha: r.linha || "AGRICOLA",
-            };
-            return prisma.products.upsert({
-              where: { sku: r.sku },
-              create: { sku: r.sku, ...data },
-              update: data,
+          const ops = rows
+            .filter((r: any) => r.sku && r.nome)
+            .map((r: any) => {
+              const t = delegates(prisma, r.linha);
+              const nomeCat = r.categoria ? String(r.categoria).trim() : "";
+              const data = dadosProduto(
+                {
+                  ...r,
+                  categoria: nomeCat || null,
+                  category_id: nomeCat
+                    ? catMap.get(`${t.agricola ? "AGRICOLA" : "AUTOMOTIVA"}|${nomeCat}`) ?? null
+                    : null,
+                },
+                t.agricola,
+              );
+              return t.produtos.upsert({
+                where: { sku: String(r.sku) },
+                create: { sku: String(r.sku), ...data },
+                update: data,
+              });
             });
-          });
 
           await prisma.$transaction(ops);
-
-          return new Response(JSON.stringify({ count: rows.length }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          return Response.json({ count: ops.length });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+          return Response.json({ error: err.message }, { status: 500 });
         }
       },
     },
