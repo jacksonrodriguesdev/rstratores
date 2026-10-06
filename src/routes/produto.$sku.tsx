@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Package2,
   Tag,
@@ -29,6 +29,7 @@ import { categoriaEs, descricaoEs, nomeEs } from "@/lib/pecas-es";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { registrarVisto } from "@/hooks/use-vistos";
 
 const SITE = SITE_URL;
 const urlImagem = (p: string) => (p.startsWith("http") ? p : `${SITE}${p.startsWith("/") ? p : `/uploads/${p}`}`);
@@ -147,6 +148,11 @@ function ProductDetail() {
   const naCotacao = items.some((i) => i.sku === product.sku);
   const [mainImage, setMainImage] = useState<string | null>(product.imagem_principal);
   const [copiado, setCopiado] = useState(false);
+
+  useEffect(() => {
+    registrarVisto(product.sku);
+    setMainImage(product.imagem_principal);
+  }, [product.sku]);
 
   const imagesQuery = useQuery({
     queryKey: ["product-images", product.sku],

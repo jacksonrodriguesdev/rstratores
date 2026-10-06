@@ -146,6 +146,21 @@ export async function getRelatedProducts(sku: string, category_id: number | null
   return getRelatedProductsFn({ data: { sku, category_id, limit } });
 }
 
+// Peças por lista de SKUs, na mesma ordem (usado em "Vistos recientemente")
+const getProductsBySkusFn = createServerFn({ method: "GET" })
+  .validator((skus: string[]) => (Array.isArray(skus) ? skus.map(String).slice(0, 24) : []))
+  .handler(async ({ data }) => {
+    if (!data.length) return [];
+    const { prisma } = await import("./prisma");
+    const rows = await prisma.agricolas.findMany({ where: { sku: { in: data }, duplicado_de: null } });
+    const porSku = new Map(rows.map((r) => [r.sku, r]));
+    return data.map((s) => porSku.get(s)).filter(Boolean) as unknown as Product[];
+  });
+
+export async function getProductsBySkus(skus: string[]) {
+  return getProductsBySkusFn({ data: skus });
+}
+
 const getRelatedCategoriesFn = createServerFn({ method: "GET" })
   .validator((category_id: number | null) => category_id)
   .handler(async ({ data }) => {

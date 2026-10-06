@@ -20,7 +20,8 @@ import {
 } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
-import { listProducts, type ListParams } from "@/lib/products";
+import { getProductsBySkus, listProducts, type ListParams } from "@/lib/products";
+import { useVistos } from "@/hooks/use-vistos";
 import { listActiveBanners } from "@/lib/banners";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { MONTADORAS, INSTAGRAM_URL } from "@/lib/navegacao";
@@ -672,5 +673,22 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
         </div>
       </section>
     </Reveal>
+  );
+}
+
+// VISTOS RECIENTEMENTE: peças que o cliente abriu (guardadas no navegador dele).
+// Não é um bloco do admin: aparece sozinho quando há histórico.
+export function VistosRecientesBlock() {
+  const vistos = useVistos();
+  const { data: produtos = [] } = useQuery({
+    queryKey: ["vistos", vistos],
+    queryFn: () => getProductsBySkus(vistos),
+    enabled: vistos.length > 0,
+  });
+  if (produtos.length === 0) return null;
+  return (
+    <Section title="Vistos recientemente">
+      <ProductRail products={produtos} />
+    </Section>
   );
 }

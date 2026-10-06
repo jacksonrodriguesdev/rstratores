@@ -325,3 +325,8 @@ export function prepararBusca(q: string): string[] {
   const uteis = termos.filter((t) => !CONECTIVOS.has(t));
   return uteis.length ? uteis : termos;
 }
+
+// Frase de apresentação da categoria (topo da loja filtrada; ajuda no Google)
+export function categoriaFraseEs(nome: string | null | undefined): string {
+  return (nome && CATEGORIAS_ES[nome]?.frase) || "";
+}

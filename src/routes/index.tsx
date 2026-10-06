@@ -20,6 +20,7 @@ import {
   DepoimentosBlock,
   NewsletterInstagramBlock,
   EnvioDacBlock,
+  VistosRecientesBlock,
 } from "@/components/homepage-blocks";
 import type { HomepageBlock } from "@/lib/homepage";
 import { tituloEs } from "@/lib/pecas-es";
@@ -170,9 +171,11 @@ function HomePage() {
             </div>
           )}
 
-          {resto.map((b) => (
+          {resto.map((b, i) => (
             <Fragment key={b.id}>
               <Bloco block={b} />
+              {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
+              {i === 0 && <VistosRecientesBlock />}
             </Fragment>
           ))}
         </div>

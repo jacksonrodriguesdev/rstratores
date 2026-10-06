@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useDebounce } from "@/hooks/use-debounce";
 import { listProducts, getFacets, codigoExibicao, marcaExibicao, type ListParams, type Product } from "@/lib/products";
-import { categoriaEs, nomeEs } from "@/lib/pecas-es";
+import { categoriaEs, categoriaFraseEs, nomeEs } from "@/lib/pecas-es";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { registrarEvento } from "@/lib/eventos";
@@ -244,6 +244,11 @@ function LojaPage() {
         <div className="mb-5 flex flex-col justify-between gap-3 md:mb-8 md:flex-row md:items-end md:gap-4">
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 md:text-3xl">{titulo}</h1>
+            {categorias.length === 1 && categoriaFraseEs(categorias[0]) && !busca && (
+              <p className="mt-1 max-w-2xl text-sm text-zinc-600">
+                {categoriaFraseEs(categorias[0])} Envíos a todo Uruguay por DAC.
+              </p>
+            )}
             <p className="mt-2 text-sm font-medium text-zinc-500">
               {isLoading ? (
                 <span className="flex items-center gap-2">
