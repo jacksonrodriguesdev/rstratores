@@ -463,7 +463,7 @@ function ProductDetail() {
       </main>
 
       {/* Barra de compra fixa no celular (acima da barra de navegação) */}
-      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-zinc-200 bg-white/95 px-3 py-2 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-[var(--barra-inferior)] z-40 border-t border-zinc-200 bg-white px-3 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
         <div className="flex gap-2">
           <button
             onClick={adicionar}

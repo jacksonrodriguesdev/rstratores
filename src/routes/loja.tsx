@@ -386,7 +386,7 @@ function LojaPage() {
       </main>
 
       {/* Botão de filtros flutuante (celular) */}
-      <div className="fixed bottom-24 right-4 z-40 md:bottom-6 md:right-6 lg:hidden">
+      <div className="fixed bottom-[calc(var(--barra-inferior)+1rem)] right-4 z-40 md:bottom-6 md:right-6 lg:hidden">
         <Button
           size="icon"
           className="h-14 w-14 rounded-full bg-primary shadow-2xl transition-transform hover:scale-105 hover:bg-primary/90"

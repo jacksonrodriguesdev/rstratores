@@ -20,7 +20,7 @@ export function SiteFooter() {
         <div>
           <Link to="/" className="mb-4 flex items-center gap-3">
             <span className="rounded-2xl bg-white p-1">
-              <img src="/logo.png" alt="" width={44} height={44} className="h-11 w-11" loading="lazy" />
+              <img decoding="async" src="/logo.png" alt="" width={44} height={44} className="h-11 w-11" loading="lazy" />
             </span>
             <span className="leading-tight">
               <span className="block text-lg font-extrabold text-white">RS Auto Peças</span>

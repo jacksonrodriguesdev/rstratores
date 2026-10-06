@@ -235,7 +235,7 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
             <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white md:h-12 md:w-12">
               {/* Imagem enviada em Admin > Categorias; sem imagem, o ícone */}
               {c.imagem ? (
-                <img src={c.imagem} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img decoding="async" src={c.imagem} alt="" loading="lazy" className="h-full w-full object-cover" />
               ) : (
                 <c.icon className="h-7 w-7 md:h-6 md:w-6" />
               )}
@@ -452,7 +452,7 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
                 {b.image_path_mobile && (
                   <source media="(max-width: 767px)" srcSet={url(b.image_path_mobile)} />
                 )}
-                <img
+                <img decoding="async"
                   src={url(b.image_path)}
                   alt={b.titulo ?? ""}
                   loading="lazy"
@@ -606,7 +606,7 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
               {fundo.image_path_mobile && (
                 <source media="(max-width: 767px)" srcSet={urlFundo(fundo.image_path_mobile)} />
               )}
-              <img
+              <img decoding="async"
                 src={urlFundo(fundo.image_path)}
                 alt={fundo.titulo ?? ""}
                 loading="lazy"
@@ -634,7 +634,7 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
             <div className="mt-5 flex items-center gap-3">
               <div className="flex h-14 min-w-28 items-center justify-center rounded-xl bg-white px-4 shadow-sm">
                 {logo ? (
-                  <img src={logo} alt="DAC" className="max-h-10 w-auto object-contain" />
+                  <img decoding="async" src={logo} alt="DAC" className="max-h-10 w-auto object-contain" />
                 ) : (
                   <span className="text-2xl font-black tracking-tight text-blue-900">DAC</span>
                 )}

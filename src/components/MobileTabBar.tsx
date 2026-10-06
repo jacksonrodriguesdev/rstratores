@@ -21,6 +21,8 @@ export function MobileTabBar() {
   const categorias = useCategoriasLoja();
 
   if (pathname.startsWith("/admin")) return null;
+  // Páginas com barra fixa própria logo acima desta (ex.: comprar na página do produto)
+  const barraPropria = pathname.startsWith("/produto/");
 
   const tab =
     "flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-medium text-zinc-500 transition-colors active:scale-95";
@@ -29,10 +31,10 @@ export function MobileTabBar() {
   return (
     <>
       {/* Espaço no fim da página para a barra não cobrir o rodapé */}
-      <div className="h-20 md:hidden" aria-hidden />
+      <div className="h-[calc(var(--barra-inferior)+1rem)] md:hidden" aria-hidden />
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 pb-safe backdrop-blur-md md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white pb-safe md:hidden"
       >
         <div className="flex h-16 items-stretch">
           <Link to="/" className={cn(tab, pathname === "/" && ativo)}>
@@ -47,18 +49,31 @@ export function MobileTabBar() {
             Categorías
           </button>
 
-          {/* Ação principal: cotação pelo WhatsApp */}
-          <a
-            href={whatsappContactUrl("¡Hola! Quiero cotizar repuestos.")}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="flex flex-1 flex-col items-center justify-start text-[11px] font-semibold text-[#128C4B] active:scale-95"
-          >
-            <span className="-mt-5 mb-0.5 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/40 ring-4 ring-white">
-              <MessageCircle className="h-7 w-7" />
-            </span>
-            Cotizar
-          </a>
+          {/* Ação principal: cotação pelo WhatsApp. Na página do produto há uma barra própria
+              de compra logo acima; lá o botão fica plano para não cobrir "Consultar precio". */}
+          {barraPropria ? (
+            <a
+              href={whatsappContactUrl("¡Hola! Quiero cotizar repuestos.")}
+              target="_blank"
+              rel="noreferrer noopener"
+              className={cn(tab, "text-[#128C4B]")}
+            >
+              <MessageCircle className="h-6 w-6" />
+              Cotizar
+            </a>
+          ) : (
+            <a
+              href={whatsappContactUrl("¡Hola! Quiero cotizar repuestos.")}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex flex-1 flex-col items-center justify-start text-[11px] font-semibold text-[#128C4B] active:scale-95"
+            >
+              <span className="-mt-5 mb-0.5 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/40 ring-4 ring-white">
+                <MessageCircle className="h-7 w-7" />
+              </span>
+              Cotizar
+            </a>
+          )}
 
           <button onClick={() => setIsCartOpen(true)} className={tab}>
             <span className="relative">

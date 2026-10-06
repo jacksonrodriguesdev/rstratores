@@ -68,7 +68,7 @@ export function ProductImage({ src, alt, className, marca }: Props) {
   }
 
   return (
-    <img
+    <img decoding="async"
       src={url ?? undefined}
       alt={alt}
       loading="lazy"

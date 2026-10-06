@@ -117,7 +117,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
                   <GoogleLogo className="absolute right-4 top-4 h-5 w-5" />
                   <div className="flex items-center gap-3 pr-6">
                     {a.foto ? (
-                      <img src={a.foto} alt="" className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
+                      <img decoding="async" src={a.foto} alt="" className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
                     ) : (
                       <span
                         className={cn(

@@ -80,7 +80,7 @@ export function HeroCarousel({
                 {b.image_path_mobile && (
                   <source media="(max-width: 767px)" srcSet={urlImagem(b.image_path_mobile)} />
                 )}
-                <img
+                <img decoding="async"
                   src={urlImagem(b.image_path)}
                   alt={b.titulo ?? ""}
                   loading={i === 0 && variante === "hero" ? "eager" : "lazy"}

@@ -69,16 +69,30 @@ export function SiteHeader() {
   useEffect(() => {
     const el = headerRef.current;
     if (!el) return;
+    let ultima = -1;
+    let espera: ReturnType<typeof setTimeout> | undefined;
     const medir = () => {
       const h = el.offsetHeight;
-      document.documentElement.style.setProperty("--altura-header", `${h}px`);
+      // Grava só quando muda: cada escrita na variável do <html> recalcula o estilo da página
+      // inteira, e durante a animação do header isso acontecia a cada quadro (travadas).
+      if (h !== ultima) {
+        ultima = h;
+        document.documentElement.style.setProperty("--altura-header", `${h}px`);
+      }
       // O espaçador usa a altura do header aberto (medida no topo da página)
-      if (window.scrollY <= 8) setAlturaTopo(h);
+      if (window.scrollY <= 8) setAlturaTopo((a) => (a === h ? a : h));
     };
-    const ro = new ResizeObserver(medir);
+    // Espera a animação de abrir/recolher (300ms) terminar antes de medir
+    const ro = new ResizeObserver(() => {
+      clearTimeout(espera);
+      espera = setTimeout(medir, 320);
+    });
     ro.observe(el);
     medir();
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      clearTimeout(espera);
+    };
   }, []);
 
   // Faixa de avisos rotativa
@@ -117,7 +131,7 @@ export function SiteHeader() {
   const acao =
     "flex items-center gap-2.5 rounded-xl px-2 py-1.5 text-left outline-none transition hover:bg-white/10";
   const icone =
-    "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15 backdrop-blur-sm";
+    "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15";
 
   return (
     <>
@@ -140,7 +154,7 @@ export function SiteHeader() {
         {/* Faixa de avisos */}
         <div
           className={cn(
-            "relative overflow-hidden border-b border-white/10 bg-black/25 text-[12px] font-medium text-white/85 transition-all duration-300",
+            "relative overflow-hidden border-b border-white/10 bg-black/25 text-[12px] font-medium text-white/85 transition-[max-height,border-color] duration-300",
             scrolled ? "max-h-0 border-transparent" : "max-h-10",
           )}
         >
@@ -176,7 +190,7 @@ export function SiteHeader() {
         {/* Barra principal: logo, busca e ações */}
         <div
           className={cn(
-            "relative mx-auto flex max-w-7xl items-center gap-3 px-3 transition-all duration-300 md:gap-6 md:px-4",
+            "relative mx-auto flex max-w-7xl items-center gap-3 px-3 md:gap-6 md:px-4",
             scrolled ? "py-2" : "py-2.5 md:py-4",
           )}
         >
@@ -206,7 +220,7 @@ export function SiteHeader() {
             {/* Mais buscados (desktop, só no topo da página) */}
             <div
               className={cn(
-                "mx-auto hidden items-center gap-2 overflow-hidden text-[12px] text-white/70 transition-all duration-300 md:flex md:max-w-2xl",
+                "mx-auto hidden items-center gap-2 overflow-hidden text-[12px] text-white/70 transition-[max-height,opacity,margin] duration-300 md:flex md:max-w-2xl",
                 scrolled ? "mt-0 max-h-0 opacity-0" : "mt-2 max-h-6 opacity-100",
               )}
             >
@@ -322,7 +336,7 @@ export function SiteHeader() {
         <nav
           aria-label="Categorías"
           className={cn(
-            "relative overflow-hidden transition-all duration-300",
+            "relative overflow-hidden transition-[max-height,opacity] duration-300",
             hidden ? "max-h-0 opacity-0" : "max-h-14 opacity-100",
           )}
         >
@@ -427,10 +441,11 @@ export function SiteHeader() {
         </nav>
 
         {/* Linha de luz na base */}
-        <div
-          aria-hidden
-          className="animate-brilho h-[2px] w-full bg-[linear-gradient(90deg,transparent,var(--color-emerald-300),var(--accent),var(--color-emerald-300),transparent)] bg-[length:200%_100%]"
-        />
+        {/* Anima por transform (só a placa de vídeo trabalha); animar background-position
+            repintava o header inteiro a cada quadro */}
+        <div aria-hidden className="h-[2px] w-full overflow-hidden">
+          <div className="animate-brilho h-full w-[200%] bg-[linear-gradient(90deg,transparent,var(--color-emerald-300),var(--accent),var(--color-emerald-300),transparent)] bg-[length:50%_100%] bg-repeat-x" />
+        </div>
       </header>
       {/* Ocupa o lugar do header no fluxo da página, sempre com a mesma altura */}
       <div

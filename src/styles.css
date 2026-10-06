@@ -173,17 +173,30 @@
 /* Linha de luz na base do header */
 @keyframes brilho {
   from {
-    background-position: 200% 0;
+    transform: translateX(-50%);
   }
   to {
-    background-position: 0% 0;
+    transform: translateX(0);
   }
 }
 .animate-brilho {
   animation: brilho 6s linear infinite;
+  will-change: transform;
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-brilho {
     animation: none;
+  }
+}
+
+/* Altura real da barra inferior do celular (MobileTabBar: 4rem + área segura do iPhone).
+   Todo elemento flutuante no rodapé usa esta variável para ficar ACIMA dela.
+   No desktop a barra não existe (0). */
+:root {
+  --barra-inferior: calc(4rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  :root {
+    --barra-inferior: 0px;
   }
 }

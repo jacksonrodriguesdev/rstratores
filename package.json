@@ -18,7 +18,9 @@
     "test-blocks": "node scripts/diagnostico/test_blocks.cjs",
     "test-page-8081": "node scripts/diagnostico/test_page_8081.cjs",
     "test-loja-8081": "node scripts/diagnostico/test_loja_8081.cjs",
-    "test-list-products": "node scripts/diagnostico/test_listProducts.cjs"
+    "test-list-products": "node scripts/diagnostico/test_listProducts.cjs",
+    "qa:botoes": "node scripts/qa/botoes_flutuantes.cjs",
+    "qa:fluidez": "node scripts/qa/fluidez.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

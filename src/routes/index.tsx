@@ -82,6 +82,7 @@ export const Route = createFileRoute("/")({
       { type: "application/ld+json", children: JSON.stringify(siteLd) },
     ],
   }),
+  loader: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
   component: HomePage,
 });
 
@@ -129,9 +130,14 @@ function HomePage() {
     if (AUTOMOTIVA_ATIVA && !localStorage.getItem("store_segment")) setShowPortal(true);
   }, []);
 
+  // Os blocos vêm prontos do servidor (loader): a página já nasce com a estrutura certa,
+  // sem os retângulos provisórios que depois "pulavam" ao trocar pelo conteúdo.
+  const iniciais = Route.useLoaderData();
   const { data: blocks = [], isLoading } = useQuery({
     queryKey: ["homepage_blocks"],
     queryFn: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
+    initialData: iniciais,
+    staleTime: 60 * 1000,
   });
   const ativos = blocks.filter((b) => b.active);
   // O banner ocupa a largura toda; os demais blocos ficam no container, sobre fundo cinza.
