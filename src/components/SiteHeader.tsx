@@ -16,6 +16,7 @@ import {
   Search,
   PackageSearch,
   ArrowRight,
+  ListChecks,
 } from "lucide-react";
 import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
 import {
@@ -398,6 +399,12 @@ export function SiteHeader() {
               ))}
 
               <div className="flex-1" />
+              <Link
+                to="/pedido-rapido"
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
+              >
+                <ListChecks className="h-3.5 w-3.5 text-emerald-300" /> Pedido rápido
+              </Link>
               <a
                 href="/#envios-uruguay"
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"

@@ -25,6 +25,7 @@ async function gerar() {
     url(`${SITE_URL}/`, "<changefreq>daily</changefreq><priority>1.0</priority>"),
     url(`${SITE_URL}/loja`, "<changefreq>daily</changefreq><priority>0.9</priority>"),
     url(`${SITE_URL}/ayuda`, "<priority>0.5</priority>"),
+    url(`${SITE_URL}/pedido-rapido`, "<priority>0.6</priority>"),
     ...categorias
       .filter((c) => c.categoria)
       .map((c) => url(`${SITE_URL}/loja?categoria=${encodeURIComponent(c.categoria!)}`, "<priority>0.8</priority>")),

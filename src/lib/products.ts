@@ -146,6 +146,28 @@ export async function getRelatedProducts(sku: string, category_id: number | null
   return getRelatedProductsFn({ data: { sku, category_id, limit } });
 }
 
+// Pedido rápido: lista de códigos → peça encontrada (ou não) para cada um
+const acharPorCodigosFn = createServerFn({ method: "POST" })
+  .validator((codigos: string[]) =>
+    (Array.isArray(codigos) ? codigos : [])
+      .map((c) => String(c).trim().slice(0, 60))
+      .filter(Boolean)
+      .slice(0, 100),
+  )
+  .handler(async ({ data }) => {
+    const { acharPorCodigos } = await import("./busca-catalogo.server");
+    const achados = await acharPorCodigos(data);
+    const skus = [...new Set(achados.map((a) => a.sku).filter(Boolean))] as string[];
+    const { prisma } = await import("./prisma");
+    const rows = skus.length ? await prisma.agricolas.findMany({ where: { sku: { in: skus } } }) : [];
+    const porSku = new Map(rows.map((r) => [r.sku, r]));
+    return achados.map((a) => ({ codigo: a.codigo, produto: (a.sku ? porSku.get(a.sku) ?? null : null) as Product | null }));
+  });
+
+export async function acharPorCodigos(codigos: string[]) {
+  return acharPorCodigosFn({ data: codigos });
+}
+
 // Peças por lista de SKUs, na mesma ordem (usado em "Vistos recientemente")
 const getProductsBySkusFn = createServerFn({ method: "GET" })
   .validator((skus: string[]) => (Array.isArray(skus) ? skus.map(String).slice(0, 24) : []))

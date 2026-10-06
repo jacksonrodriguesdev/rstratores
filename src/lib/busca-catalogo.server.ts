@@ -168,3 +168,14 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
   else ordenada.sort(compararNome);
   return ordenada.map((i) => i.sku);
 }
+
+// Pedido rápido: acha cada código digitado pelo cliente (SKU, código do fabricante ou de uma
+// versão). Devolve, para cada código, o SKU da peça ou null.
+export async function acharPorCodigos(codigos: string[]): Promise<Array<{ codigo: string; sku: string | null }>> {
+  const lista = await itens();
+  const porCodigo = new Map<string, string>();
+  for (const i of lista) {
+    for (const c of i.codigos.split(" ")) if (c && !porCodigo.has(c)) porCodigo.set(c, i.sku);
+  }
+  return codigos.map((codigo) => ({ codigo, sku: porCodigo.get(soCodigo(codigo)) ?? null }));
+}

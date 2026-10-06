@@ -17,6 +17,7 @@ import {
   ChevronRight,
   MapPin,
   PackageCheck,
+  ListChecks,
 } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
@@ -158,11 +159,11 @@ function Atalhos() {
       acao: () => setCotarAberto(true),
     },
     {
-      titulo: "Mi cuenta",
-      texto: "Ingresá o creá tu cuenta",
-      icon: User,
+      titulo: "Pedido rápido",
+      texto: "Pegá tu lista de códigos y cotizá todo junto",
+      icon: ListChecks,
       cor: "bg-zinc-100 text-zinc-700",
-      to: "/login",
+      to: "/pedido-rapido",
     },
   ];
 

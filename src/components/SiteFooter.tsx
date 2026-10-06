@@ -70,6 +70,11 @@ export function SiteFooter() {
         <div>
           <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white">Ayuda</h3>
           <ul className="space-y-2 text-sm">
+            <li>
+              <Link to="/pedido-rapido" className="font-semibold text-white/90 transition-colors hover:text-white">
+                Pedido rápido por códigos
+              </Link>
+            </li>
             {AYUDA.map((a) => (
               <li key={a.hash}>
                 <Link to="/ayuda" hash={a.hash} className="transition-colors hover:text-white">

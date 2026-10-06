@@ -15,6 +15,7 @@ import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
+import { Route as PedidoRapidoRouteImport } from './routes/pedido-rapido'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -77,6 +78,11 @@ const LoginRoute = LoginRouteImport.update({
 const LojaRoute = LojaRouteImport.update({
   id: '/loja',
   path: '/loja',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidoRapidoRoute = PedidoRapidoRouteImport.update({
+  id: '/pedido-rapido',
+  path: '/pedido-rapido',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -253,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
+  '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -293,6 +300,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
+  '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
+  '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -378,6 +387,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/loja'
+    | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/banners'
@@ -418,6 +428,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/loja'
+    | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/banners'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/loja'
+    | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/banners'
@@ -501,6 +513,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
+  PedidoRapidoRoute: typeof PedidoRapidoRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
@@ -560,6 +573,13 @@ declare module '@tanstack/react-router' {
       path: '/loja'
       fullPath: '/loja'
       preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedido-rapido': {
+      id: '/pedido-rapido'
+      path: '/pedido-rapido'
+      fullPath: '/pedido-rapido'
+      preLoaderRoute: typeof PedidoRapidoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -885,6 +905,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
+  PedidoRapidoRoute: PedidoRapidoRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
