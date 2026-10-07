@@ -23,7 +23,7 @@ export function SiteFooter() {
               <img decoding="async" src="/logo.png" alt="" width={44} height={44} className="h-11 w-11" loading="lazy" />
             </span>
             <span className="leading-tight">
-              <span className="block text-lg font-extrabold text-white">RS Auto Peças</span>
+              <span className="block text-lg font-extrabold text-white">AGRO PARTS</span>
               <span className="block text-xs font-semibold tracking-wider text-accent">REPUESTOS AGRÍCOLAS</span>
             </span>
           </Link>
@@ -133,7 +133,7 @@ export function SiteFooter() {
 
       <div className="mt-12 border-t border-zinc-800 px-4 pt-6 text-center text-xs text-zinc-500">
         <p>
-          &copy; {new Date().getFullYear()} RS Auto Peças. Todos los derechos reservados. CNPJ:
+          &copy; {new Date().getFullYear()} AGRO PARTS. Todos los derechos reservados. CNPJ:
           33.443.027/0001-08
         </p>
       </div>

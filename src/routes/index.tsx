@@ -31,7 +31,7 @@ import { PHONE } from "@/lib/whatsapp";
 const lojaLd = {
   "@context": "https://schema.org",
   "@type": "Store",
-  name: "RS Auto Peças",
+  name: "AGRO PARTS",
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/icon-512.png`,
@@ -50,7 +50,7 @@ const lojaLd = {
 const siteLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "RS Auto Peças",
+  name: "AGRO PARTS",
   url: SITE_URL,
   inLanguage: "es-UY",
   potentialAction: {
@@ -63,13 +63,13 @@ const siteLd = {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RS Auto Peças — Repuestos para tractores en Uruguay" },
+      { title: "AGRO PARTS — Repuestos para tractores en Uruguay" },
       {
         name: "description",
         content:
           "Más de 29.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
       },
-      { property: "og:title", content: "RS Auto Peças — Repuestos para tractores en Uruguay" },
+      { property: "og:title", content: "AGRO PARTS — Repuestos para tractores en Uruguay" },
       {
         property: "og:description",
         content:

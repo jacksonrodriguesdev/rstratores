@@ -53,8 +53,8 @@ export const Route = createFileRoute("/produto/$sku")({
     const nome = nomeProduto(p);
     const marca = marcaExibicao(p);
     const codigo = codigoExibicao(p);
-    // "RODAMIENTO 6205 Massey Ferguson — Cód. 6205 | RS Auto Peças": nome, marca e código são o que se busca
-    const title = `${nome}${marca ? ` ${marca}` : ""} — Cód. ${codigo} | RS Auto Peças`;
+    // "RODAMIENTO 6205 Massey Ferguson — Cód. 6205 | AGRO PARTS": nome, marca e código são o que se busca
+    const title = `${nome}${marca ? ` ${marca}` : ""} — Cód. ${codigo} | AGRO PARTS`;
     const desc = `${nome.charAt(0)}${nome.slice(1).toLowerCase()}, código ${codigo}${
       marca ? `, para ${marca}` : ""
     }. Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.`;

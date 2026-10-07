@@ -45,9 +45,9 @@ export const Route = createFileRoute("/loja")({
     const desc = `${alvo} con envío a todo Uruguay por DAC. Buscá por código original y cotizá por WhatsApp.`;
     return {
       meta: [
-        { title: `${titulo} | RS Auto Peças` },
+        { title: `${titulo} | AGRO PARTS` },
         { name: "description", content: desc },
-        { property: "og:title", content: `${titulo} | RS Auto Peças` },
+        { property: "og:title", content: `${titulo} | AGRO PARTS` },
         { property: "og:description", content: desc },
         // Buscas internas não devem ir para o índice do Google
         ...(q ? [{ name: "robots", content: "noindex, follow" }] : []),

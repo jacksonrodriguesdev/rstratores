@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [{ title: "Ingresar — RS Auto Peças" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Ingresar — AGRO PARTS" }, { name: "robots", content: "noindex" }],
   }),
   component: LoginPage,
 });
@@ -56,7 +56,7 @@ function LoginPage() {
       <main className="mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 flex-1">
         <Card className="w-full p-8 shadow-xl border-t-4 border-primary rounded-2xl">
           <div className="mb-6 flex flex-col items-center text-center">
-            <img src="/logo.png" alt="RS Auto Peças" width={80} height={80} className="mb-4 h-20 w-20" />
+            <img src="/logo.png" alt="AGRO PARTS" width={80} height={80} className="mb-4 h-20 w-20" />
             <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">
               Ingresá a tu cuenta
             </h1>

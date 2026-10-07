@@ -11,7 +11,7 @@ import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 export const Route = createFileRoute("/pedido-rapido")({
   head: () => ({
     meta: [
-      { title: "Pedido rápido por códigos | RS Auto Peças" },
+      { title: "Pedido rápido por códigos | AGRO PARTS" },
       {
         name: "description",
         content:

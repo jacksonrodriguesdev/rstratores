@@ -87,17 +87,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "RS Auto Peças" },
-      { title: "RS Auto Peças — Repuestos para tractores en Uruguay" },
+      { name: "apple-mobile-web-app-title", content: "AGRO PARTS" },
+      { title: "AGRO PARTS — Repuestos para tractores en Uruguay" },
       {
         name: "description",
         content:
           "Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
       },
       { property: "og:locale", content: "es_UY" },
-      { property: "og:site_name", content: "RS Auto Peças" },
-      { name: "author", content: "RS Auto Peças" },
-      { property: "og:title", content: "RS Auto Peças — Repuestos para tractores en Uruguay" },
+      { property: "og:site_name", content: "AGRO PARTS" },
+      { name: "author", content: "AGRO PARTS" },
+      { property: "og:title", content: "AGRO PARTS — Repuestos para tractores en Uruguay" },
       {
         property: "og:description",
         content:
@@ -105,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "RS Auto Peças — Repuestos para tractores en Uruguay" },
+      { name: "twitter:title", content: "AGRO PARTS — Repuestos para tractores en Uruguay" },
       {
         name: "twitter:description",
         content:
