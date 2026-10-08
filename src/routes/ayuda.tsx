@@ -36,11 +36,11 @@ const PREGUNTAS = [
 export const Route = createFileRoute("/ayuda")({
   head: () => ({
     meta: [
-      { title: "Ayuda — Cómo comprar, envíos y preguntas frecuentes | RS Auto Peças" },
+      { title: "Ayuda — Cómo comprar, envíos y preguntas frecuentes | AGRO PARTS" },
       {
         name: "description",
         content:
-          "Cómo comprar repuestos agrícolas en RS Auto Peças: cotización por WhatsApp, envíos a todo Uruguay por DAC, formas de pago y preguntas frecuentes.",
+          "Cómo comprar repuestos agrícolas en AGRO PARTS: cotización por WhatsApp, envíos a todo Uruguay por DAC, formas de pago y preguntas frecuentes.",
       },
     ],
     scripts: [

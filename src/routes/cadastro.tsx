@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({
-    meta: [{ title: "Crear cuenta — RS Auto Peças" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Crear cuenta — AGRO PARTS" }, { name: "robots", content: "noindex" }],
   }),
   component: CadastroPage,
 });
