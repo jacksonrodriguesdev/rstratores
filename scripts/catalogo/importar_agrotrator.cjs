@@ -97,8 +97,8 @@ const fabricanteDe = (m) =>
     .map((w) => (w.length <= 4 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1).toLowerCase()))
     .join(" ") || null;
 
-function lerCsv() {
-  const r = Papa.parse(fs.readFileSync(path.join(PASTA, "agrotrator.csv"), "utf8"), {
+function lerCsv(pasta = PASTA) {
+  const r = Papa.parse(fs.readFileSync(path.join(pasta, "agrotrator.csv"), "utf8"), {
     header: true,
     delimiter: ";",
     skipEmptyLines: true,
@@ -297,7 +297,12 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exitCode = 1;
-});
+// Rodado direto: importa. Usado com require (ex.: marketing/estudio): só exporta a leitura do CSV.
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { lerCsv };

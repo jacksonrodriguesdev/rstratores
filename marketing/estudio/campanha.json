@@ -1,0 +1,27 @@
+{
+  "nome": "campanha-1",
+  "site": "agropartsuy.com",
+  "seed": 7,
+  "oferta": {
+    "ativa": true,
+    "prefixo": "HASTA",
+    "percentual": 30,
+    "sufixo": "OFF",
+    "titulo": "Ofertas de la semana",
+    "condicoes": "Promoción sujeta a stock. Consultá condiciones por WhatsApp."
+  },
+  "categorias": [
+    "Filtros",
+    "Rolamentos e Mancais",
+    "Vedações",
+    "Freios e Embreagens",
+    "Engrenagens e Transmissão",
+    "Hidráulica e Pneumática"
+  ],
+  "marcas": ["Massey Ferguson", "Valtra", "John Deere", "New Holland", "Case IH"],
+  "quantidade": {
+    "ofertaProduto": 8,
+    "codigoGigante": 4,
+    "stories": 6
+  }
+}
