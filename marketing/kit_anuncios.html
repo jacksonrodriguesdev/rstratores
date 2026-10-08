@@ -1,0 +1,378 @@
+<title>Kit de Anúncios AGRO PARTS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Documento de trabalho: barra de seções fixa, colunas de texto estreitas, blocos copiáveis */
+:root {
+  --fundo: #f4f6f1; --papel: #ffffff; --tinta: #16211a; --suave: #5a6a5f; --linha: #dde4da;
+  --verde: #14532d; --verde-claro: #e3efe5; --oro: #946c00; --oro-fundo: #fff4cf; --alerta: #9a2b16; --alerta-fundo: #fde8e2; --whats: #128c4b;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif; --texto: "Source Sans 3", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fundo: #0e1511; --papel: #16201a; --tinta: #e6efe8; --suave: #9fb2a5; --linha: #2a3a30;
+  --verde: #7fd39c; --verde-claro: #1d3326; --oro: #f2c544; --oro-fundo: #3a3112; --alerta: #ffab95; --alerta-fundo: #3d1d15; --whats: #4fd38a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --fundo: #0e1511; --papel: #16201a; --tinta: #e6efe8; --suave: #9fb2a5; --linha: #2a3a30;
+  --verde: #7fd39c; --verde-claro: #1d3326; --oro: #f2c544; --oro-fundo: #3a3112; --alerta: #ffab95; --alerta-fundo: #3d1d15; --whats: #4fd38a; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--fundo); color: var(--tinta); font: 17px/1.55 var(--texto) }
+.pagina { max-width: 1040px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 80px }
+h1, h2, h3, h4 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0 }
+h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 900; font-stretch: 85% }
+h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 900; font-stretch: 88%; margin-top: 56px; scroll-margin-top: 70px }
+h3 { font-size: 22px; font-weight: 800; margin-top: 34px }
+h4 { font-size: 16px; font-weight: 800; letter-spacing: .02em }
+p { margin: 10px 0; max-width: 68ch }
+.olho { font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--oro) }
+.lead { font-size: 19px; color: var(--suave); max-width: 62ch }
+nav.secoes { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--fundo); border-bottom: 1px solid var(--linha);
+  display: flex; gap: 6px; overflow-x: auto; padding: 10px 0; margin-top: 22px; scrollbar-width: none }
+nav.secoes a { flex: none; text-decoration: none; color: var(--tinta); font-weight: 700; font-size: 15px; padding: 7px 14px; border-radius: 999px; background: var(--papel); border: 1px solid var(--linha) }
+nav.secoes a:hover, nav.secoes a:focus-visible { border-color: var(--verde); color: var(--verde); outline: none }
+.fatos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 22px }
+.fato { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 14px 16px }
+.fato b { display: block; font-family: var(--display); font-size: 26px; font-weight: 900; color: var(--verde); font-variant-numeric: tabular-nums }
+.fato span { color: var(--suave); font-size: 15px }
+.alerta { background: var(--alerta-fundo); border-left: 4px solid var(--alerta); border-radius: 8px; padding: 14px 18px; margin-top: 18px }
+.alerta b { color: var(--alerta) }
+.check { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px }
+.check li { background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; padding: 12px 14px 12px 44px; position: relative }
+.check li::before { content: ""; position: absolute; left: 14px; top: 15px; width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--verde) }
+.check li.urgente::before { border-color: var(--alerta) }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 12px }
+.galeria figure { margin: 0; background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; padding: 8px }
+.galeria img { width: 100%; height: auto; display: block; border-radius: 6px; max-width: 100% }
+.galeria figcaption { font-size: 12px; color: var(--suave); margin-top: 6px; word-break: break-all }
+.bloco { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 14px 16px; margin-top: 14px; min-width: 0 }
+.bloco-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.linhas { margin: 10px 0 0; padding-left: 22px; display: grid; gap: 6px }
+.linhas li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline }
+.linhas .txt { min-width: 0; overflow-wrap: anywhere }
+.cont { flex: none; font-size: 12px; color: var(--suave); font-variant-numeric: tabular-nums }
+.cont.ruim { color: var(--alerta); font-weight: 700 }
+button.copiar { flex: none; font: 700 14px var(--texto); color: var(--verde); background: var(--verde-claro); border: 0; border-radius: 999px; padding: 7px 14px; cursor: pointer }
+button.copiar:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px }
+button.copiar.ok { background: var(--verde); color: var(--papel) }
+.duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px }
+.tabela { overflow-x: auto; margin-top: 12px; border: 1px solid var(--linha); border-radius: 12px; background: var(--papel) }
+table { border-collapse: collapse; width: 100%; font-size: 15px }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--linha); vertical-align: top }
+th { font-family: var(--display); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--suave) }
+tr:last-child td { border-bottom: 0 }
+code, .url { font-family: ui-monospace, Consolas, monospace; font-size: 13px; overflow-wrap: anywhere; color: var(--verde) }
+.tag { display: inline-block; font-size: 13px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--oro-fundo); color: var(--oro); margin: 2px 4px 2px 0 }
+.camp { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 16px 18px; margin-top: 14px }
+.camp h4 { font-size: 19px }
+.camp .porque { color: var(--suave); margin: 6px 0 0 }
+.roteiro { display: grid; grid-template-columns: 74px 1fr; gap: 6px 14px; margin-top: 10px; font-size: 15px }
+.roteiro b { font-variant-numeric: tabular-nums; color: var(--oro) }
+footer { margin-top: 60px; color: var(--suave); font-size: 14px }
+</style>
+
+<div class="pagina">
+  <div class="olho">AGRO PARTS · agropartsuy.com</div>
+  <h1>Kit de anúncios para Google, Instagram e Facebook</h1>
+  <p class="lead">Criativos com telas reais do site, textos prontos em espanhol do Uruguai e a estrutura das campanhas. Todo texto tem botão para copiar; os limites de caracteres do Google já foram conferidos.</p>
+
+  <div class="fatos">
+    <div class="fato"><b>29.000+</b><span>repuestos no catálogo</span></div>
+    <div class="fato"><b>999</b><span>com foto do produto</span></div>
+    <div class="fato"><b>19</b><span>departamentos com envio DAC</span></div>
+    <div class="fato"><b>15</b><span>criativos prontos</span></div>
+  </div>
+
+  <nav class="secoes" aria-label="Seções">
+    <a href="#antes">Antes de anunciar</a><a href="#criativos">Criativos</a><a href="#google">Google Ads</a><a href="#meta">Instagram e Facebook</a><a href="#organico">Posts orgânicos</a><a href="#medicao">Medição e verba</a>
+  </nav>
+
+  <h2 id="antes">Antes de anunciar</h2>
+  <p>Anúncio leva o cliente direto para o WhatsApp e para o site. Estes pontos precisam estar certos antes de colocar dinheiro.</p>
+  <div class="alerta"><b>Número do WhatsApp.</b> Os botões do site abrem o número <code>55 39 9942-8130</code>, mas o rodapé mostra <code>(53) 99953-4631</code>. Confirme qual é o certo antes de qualquer campanha: se estiver errado, todo clique pago se perde. Para clientes no Uruguai, um número uruguaio (+598) também passa mais confiança.</div>
+  <ul class="check">
+    <li class="urgente"><b>Domínio novo no sitemap.</b> O sitemap e o robots.txt ainda apontam para rsautopecas.com. Defina <code>VITE_SITE_URL=https://agropartsuy.com</code> na Hostinger e faça o redeploy.</li>
+    <li class="urgente"><b>Seção de envios DAC na home.</b> Ela não aparece em agropartsuy.com. Em Admin → Página Inicial, adicione o bloco «Envíos a Uruguay».</li>
+    <li><b>Ofertas do banner.</b> O site anuncia «Envío gratis desde $5.000 UYU», «Hasta 10x sin interés» e «30% OFF». Se usar nos anúncios, confirme que estão valendo.</li>
+    <li><b>Google Analytics 4 e Meta Pixel.</b> Crie as contas e coloque <code>VITE_GA4_ID</code> e <code>VITE_META_PIXEL_ID</code> na Hostinger. O site já envia «generate_lead» e «Contact» a cada clique no WhatsApp.</li>
+    <li><b>Google Search Console.</b> Cadastre agropartsuy.com e envie <code>https://agropartsuy.com/sitemap.xml</code>.</li>
+    <li><b>Perfil da Empresa no Google</b> (Google Maps) e página no Facebook/Instagram com o mesmo nome, logo e WhatsApp.</li>
+    <li><b>Fotos dos produtos.</b> As 999 fotos vieram da extração de outra loja. Para anúncios por muito tempo, prefira fotos próprias ou peça autorização.</li>
+  </ul>
+
+  <h2 id="criativos">Criativos</h2>
+  <p>Todos estão na pasta <code>marketing/criativos</code> do projeto (e no GitHub). No celular, toque e segure a imagem para salvar.</p>
+  <h3>Carrossel · 1:1</h3><div class="galeria"><figure><img src="criativos/carrusel_01_engranajes.png" alt="carrusel_01_engranajes.png" loading="lazy"><figcaption>carrusel_01_engranajes.png</figcaption></figure><figure><img src="criativos/carrusel_02_rodamientos.png" alt="carrusel_02_rodamientos.png" loading="lazy"><figcaption>carrusel_02_rodamientos.png</figcaption></figure><figure><img src="criativos/carrusel_03_embragues.png" alt="carrusel_03_embragues.png" loading="lazy"><figcaption>carrusel_03_embragues.png</figcaption></figure><figure><img src="criativos/carrusel_04_hidraulica.png" alt="carrusel_04_hidraulica.png" loading="lazy"><figcaption>carrusel_04_hidraulica.png</figcaption></figure><figure><img src="criativos/carrusel_05_filtros.png" alt="carrusel_05_filtros.png" loading="lazy"><figcaption>carrusel_05_filtros.png</figcaption></figure><figure><img src="criativos/carrusel_06_cotiza.png" alt="carrusel_06_cotiza.png" loading="lazy"><figcaption>carrusel_06_cotiza.png</figcaption></figure></div><h3>Feed Instagram/Facebook · 4:5</h3><div class="galeria"><figure><img src="criativos/feed_01_catalogo.png" alt="feed_01_catalogo.png" loading="lazy"><figcaption>feed_01_catalogo.png</figcaption></figure><figure><img src="criativos/feed_02_cotizar_whatsapp.png" alt="feed_02_cotizar_whatsapp.png" loading="lazy"><figcaption>feed_02_cotizar_whatsapp.png</figcaption></figure><figure><img src="criativos/feed_03_envios_dac.png" alt="feed_03_envios_dac.png" loading="lazy"><figcaption>feed_03_envios_dac.png</figcaption></figure></div><h3>Google (Display e Performance Max)</h3><div class="galeria"><figure><img src="criativos/google_paisagem_1200x628.png" alt="google_paisagem_1200x628.png" loading="lazy"><figcaption>google_paisagem_1200x628.png</figcaption></figure><figure><img src="criativos/google_quadrado_1200x1200.png" alt="google_quadrado_1200x1200.png" loading="lazy"><figcaption>google_quadrado_1200x1200.png</figcaption></figure><figure><img src="criativos/logo_paisagem_1200x300.png" alt="logo_paisagem_1200x300.png" loading="lazy"><figcaption>logo_paisagem_1200x300.png</figcaption></figure><figure><img src="criativos/logo_quadrado_1200x1200.png" alt="logo_quadrado_1200x1200.png" loading="lazy"><figcaption>logo_quadrado_1200x1200.png</figcaption></figure></div><h3>Stories e Reels · 9:16</h3><div class="galeria"><figure><img src="criativos/story_01_pedido_rapido.png" alt="story_01_pedido_rapido.png" loading="lazy"><figcaption>story_01_pedido_rapido.png</figcaption></figure><figure><img src="criativos/story_02_te_lo_conseguimos.png" alt="story_02_te_lo_conseguimos.png" loading="lazy"><figcaption>story_02_te_lo_conseguimos.png</figcaption></figure></div>
+
+  <h2 id="google">Google Ads</h2>
+  <p><b>Configuração:</b> local <span class="tag">Uruguay</span> idioma <span class="tag">Español</span> rede <span class="tag">Pesquisa</span> (desligue «Rede de Display» nas campanhas de pesquisa). Lances: comece com «Maximizar cliques» com teto de CPC e, quando houver 15–30 conversões, troque para «Maximizar conversões».</p>
+
+  <h3>Anúncio responsivo (vale para todos os grupos)</h3>
+  <div class="duas">
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Títulos (até 30)</h4><button class="copiar" data-copiar="Repuestos para Tractores
+AGRO PARTS Uruguay
+Más de 29.000 Repuestos
+Cotizá por WhatsApp
+Envíos a Todo Uruguay
+Envío por DAC con Rastreo
+Buscá por Código Original
+Massey, Valtra, John Deere
+New Holland y Case IH
+Cotización Sin Compromiso
+Repuestos Agrícolas
+Confirmamos Compatibilidad
+Pedido Rápido por Códigos
+Filtros, Rodamientos, Retenes
+Te Conseguimos la Pieza">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Repuestos para Tractores</span><span class="cont ">24/30</span></li><li><span class="txt">AGRO PARTS Uruguay</span><span class="cont ">18/30</span></li><li><span class="txt">Más de 29.000 Repuestos</span><span class="cont ">23/30</span></li><li><span class="txt">Cotizá por WhatsApp</span><span class="cont ">19/30</span></li><li><span class="txt">Envíos a Todo Uruguay</span><span class="cont ">21/30</span></li><li><span class="txt">Envío por DAC con Rastreo</span><span class="cont ">25/30</span></li><li><span class="txt">Buscá por Código Original</span><span class="cont ">25/30</span></li><li><span class="txt">Massey, Valtra, John Deere</span><span class="cont ">26/30</span></li><li><span class="txt">New Holland y Case IH</span><span class="cont ">21/30</span></li><li><span class="txt">Cotización Sin Compromiso</span><span class="cont ">25/30</span></li><li><span class="txt">Repuestos Agrícolas</span><span class="cont ">19/30</span></li><li><span class="txt">Confirmamos Compatibilidad</span><span class="cont ">26/30</span></li><li><span class="txt">Pedido Rápido por Códigos</span><span class="cont ">25/30</span></li><li><span class="txt">Filtros, Rodamientos, Retenes</span><span class="cont ">29/30</span></li><li><span class="txt">Te Conseguimos la Pieza</span><span class="cont ">23/30</span></li></ol>
+</div>
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Descrições (até 90)</h4><button class="copiar" data-copiar="Más de 29.000 repuestos para tractores y cosechadoras. Cotizá por WhatsApp sin compromiso.
+Buscá por el código original, armá tu lista y recibí precio y envío a tu localidad.
+Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Confirmamos compatibilidad.
+¿No encontrás la pieza? Mandanos el código o una foto por WhatsApp y te la conseguimos.">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Más de 29.000 repuestos para tractores y cosechadoras. Cotizá por WhatsApp sin compromiso.</span><span class="cont ">90/90</span></li><li><span class="txt">Buscá por el código original, armá tu lista y recibí precio y envío a tu localidad.</span><span class="cont ">83/90</span></li><li><span class="txt">Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Confirmamos compatibilidad.</span><span class="cont ">87/90</span></li><li><span class="txt">¿No encontrás la pieza? Mandanos el código o una foto por WhatsApp y te la conseguimos.</span><span class="cont ">87/90</span></li></ol>
+</div>
+  </div>
+
+  <h3>Campanhas e grupos de anúncios</h3>
+  <div class="camp"><h4>Search · Marcas de tractor</h4><p class="porque">Quem busca a marca do trator já sabe o que precisa: é o clique mais perto da compra.</p>
+      <div class="tabela"><table><thead><tr><th>Grupo</th><th>Palavras-chave</th><th>Página de destino</th></tr></thead><tbody>
+      <tr><td><b>Massey Ferguson</b><br><span style="color:var(--suave);font-size:13px">Títulos extra: Repuestos Massey Ferguson · Massey Ferguson en Uruguay</span></td>
+          <td><code>&quot;repuestos massey ferguson&quot;</code><br><code>&quot;repuestos massey ferguson uruguay&quot;</code><br><code>[repuestos tractor massey ferguson]</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?marca=Massey%20Ferguson&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?marca=Massey%20Ferguson&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas">Copiar</button></td></tr><tr><td><b>Valtra</b><br><span style="color:var(--suave);font-size:13px">Títulos extra: Repuestos Valtra · Valtra en Uruguay</span></td>
+          <td><code>&quot;repuestos valtra&quot;</code><br><code>&quot;repuestos valtra uruguay&quot;</code><br><code>[repuestos tractor valtra]</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?marca=Valtra&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?marca=Valtra&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas">Copiar</button></td></tr><tr><td><b>John Deere</b><br><span style="color:var(--suave);font-size:13px">Títulos extra: Repuestos John Deere · John Deere en Uruguay</span></td>
+          <td><code>&quot;repuestos john deere&quot;</code><br><code>&quot;repuestos john deere uruguay&quot;</code><br><code>[repuestos tractor john deere]</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?marca=John%20Deere&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?marca=John%20Deere&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas">Copiar</button></td></tr><tr><td><b>New Holland</b><br><span style="color:var(--suave);font-size:13px">Títulos extra: Repuestos New Holland · New Holland en Uruguay</span></td>
+          <td><code>&quot;repuestos new holland&quot;</code><br><code>&quot;repuestos new holland uruguay&quot;</code><br><code>[repuestos tractor new holland]</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?marca=New%20Holland&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?marca=New%20Holland&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas">Copiar</button></td></tr><tr><td><b>Case IH</b><br><span style="color:var(--suave);font-size:13px">Títulos extra: Repuestos Case IH · Case IH en Uruguay</span></td>
+          <td><code>&quot;repuestos case ih&quot;</code><br><code>&quot;repuestos case ih uruguay&quot;</code><br><code>[repuestos tractor case ih]</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?marca=Case%20IH&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?marca=Case%20IH&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas">Copiar</button></td></tr><tr><td><b>Ford</b><br><span style="color:var(--suave);font-size:13px">Títulos extra: Repuestos Ford · Ford en Uruguay</span></td>
+          <td><code>&quot;repuestos ford&quot;</code><br><code>&quot;repuestos ford uruguay&quot;</code><br><code>[repuestos tractor ford]</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?marca=Ford&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?marca=Ford&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=marcas">Copiar</button></td></tr>
+      </tbody></table></div></div><div class="camp"><h4>Search · Tipo de repuesto</h4><p class="porque">Peças de reposição frequente (filtros, rolamentos, retentores, embreagem).</p>
+      <div class="tabela"><table><thead><tr><th>Grupo</th><th>Palavras-chave</th><th>Página de destino</th></tr></thead><tbody>
+      <tr><td><b>Filtros</b></td>
+          <td><code>&quot;filtros para tractor&quot;</code><br><code>&quot;filtro aceite tractor&quot;</code><br><code>&quot;filtro hidraulico tractor&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?categoria=Filtros&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?categoria=Filtros&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto">Copiar</button></td></tr><tr><td><b>Rodamientos</b></td>
+          <td><code>&quot;rodamientos tractor&quot;</code><br><code>&quot;rulemanes tractor&quot;</code><br><code>&quot;rodamiento conico tractor&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?categoria=Rolamentos%20e%20Mancais&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?categoria=Rolamentos%20e%20Mancais&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto">Copiar</button></td></tr><tr><td><b>Retenes y juntas</b></td>
+          <td><code>&quot;retenes tractor&quot;</code><br><code>&quot;junta tapa de cilindros tractor&quot;</code><br><code>&quot;kit de juntas tractor&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?categoria=Veda%C3%A7%C3%B5es&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?categoria=Veda%C3%A7%C3%B5es&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto">Copiar</button></td></tr><tr><td><b>Embrague y frenos</b></td>
+          <td><code>&quot;kit embrague tractor&quot;</code><br><code>&quot;disco de embrague tractor&quot;</code><br><code>&quot;plato de embrague tractor&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?categoria=Freios%20e%20Embreagens&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?categoria=Freios%20e%20Embreagens&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto">Copiar</button></td></tr><tr><td><b>Hidráulica</b></td>
+          <td><code>&quot;bomba hidraulica tractor&quot;</code><br><code>&quot;cilindro hidraulico tractor&quot;</code><br><code>&quot;repuestos hidraulico tractor&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?categoria=Hidr%C3%A1ulica%20e%20Pneum%C3%A1tica&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?categoria=Hidr%C3%A1ulica%20e%20Pneum%C3%A1tica&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto">Copiar</button></td></tr><tr><td><b>Transmisión</b></td>
+          <td><code>&quot;engranajes tractor&quot;</code><br><code>&quot;repuestos caja de cambios tractor&quot;</code><br><code>&quot;repuestos transmision tractor&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/loja?categoria=Engrenagens%20e%20Transmiss%C3%A3o&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?categoria=Engrenagens%20e%20Transmiss%C3%A3o&amp;utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=tipo_repuesto">Copiar</button></td></tr>
+      </tbody></table></div></div><div class="camp"><h4>Search · Genéricas y por código</h4><p class="porque">Busca ampla e quem pesquisa direto pelo código da peça (talleres).</p>
+      <div class="tabela"><table><thead><tr><th>Grupo</th><th>Palavras-chave</th><th>Página de destino</th></tr></thead><tbody>
+      <tr><td><b>Repuestos agrícolas</b></td>
+          <td><code>&quot;repuestos para tractores&quot;</code><br><code>&quot;repuestos agricolas uruguay&quot;</code><br><code>&quot;repuestos tractores uruguay&quot;</code><br><code>&quot;repuestos cosechadora&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=genericas</span> <button class="copiar" data-copiar="https://agropartsuy.com/?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=genericas">Copiar</button></td></tr><tr><td><b>Por código / talleres</b></td>
+          <td><code>&quot;repuesto por codigo tractor&quot;</code><br><code>&quot;codigo repuesto tractor&quot;</code><br><code>&quot;distribuidor repuestos agricolas&quot;</code></td>
+          <td><span class="url">https://agropartsuy.com/pedido-rapido?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=codigos</span> <button class="copiar" data-copiar="https://agropartsuy.com/pedido-rapido?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=codigos">Copiar</button></td></tr>
+      </tbody></table></div></div>
+  <p style="font-size:15px;color:var(--suave)">Aspas = correspondência de frase; colchetes = correspondência exata.</p>
+
+  <div class="duas">
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Palavras negativas (nível da conta)</h4><button class="copiar" data-copiar="auto
+autos
+moto
+motos
+camion
+camiones
+juguete
+juguetes
+maqueta
+gratis
+pdf
+manual
+empleo
+trabajo
+curso
+alquiler
+tractor nuevo
+venta de tractores
+precio tractor
+cortadora de pasto
+tractor de jardin">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">auto</span></li><li><span class="txt">autos</span></li><li><span class="txt">moto</span></li><li><span class="txt">motos</span></li><li><span class="txt">camion</span></li><li><span class="txt">camiones</span></li><li><span class="txt">juguete</span></li><li><span class="txt">juguetes</span></li><li><span class="txt">maqueta</span></li><li><span class="txt">gratis</span></li><li><span class="txt">pdf</span></li><li><span class="txt">manual</span></li><li><span class="txt">empleo</span></li><li><span class="txt">trabajo</span></li><li><span class="txt">curso</span></li><li><span class="txt">alquiler</span></li><li><span class="txt">tractor nuevo</span></li><li><span class="txt">venta de tractores</span></li><li><span class="txt">precio tractor</span></li><li><span class="txt">cortadora de pasto</span></li><li><span class="txt">tractor de jardin</span></li></ol>
+</div>
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Frases de destaque (até 25)</h4><button class="copiar" data-copiar="Envíos a todo Uruguay
+Cotización sin compromiso
+Atención por WhatsApp
++29.000 repuestos
+Seguimiento por DAC
+Buscá por código">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Envíos a todo Uruguay</span><span class="cont ">21/25</span></li><li><span class="txt">Cotización sin compromiso</span><span class="cont ">25/25</span></li><li><span class="txt">Atención por WhatsApp</span><span class="cont ">21/25</span></li><li><span class="txt">+29.000 repuestos</span><span class="cont ">17/25</span></li><li><span class="txt">Seguimiento por DAC</span><span class="cont ">19/25</span></li><li><span class="txt">Buscá por código</span><span class="cont ">16/25</span></li></ol>
+</div>
+  </div>
+  <div class="bloco"><div class="bloco-topo"><h4>Sitelinks</h4></div>
+    <div class="tabela"><table><thead><tr><th>Texto (25)</th><th>Descrição (35)</th><th>URL</th></tr></thead><tbody>
+    <tr><td>Catálogo con fotos <span class="cont">18</span></td><td>Miles de repuestos con foto <span class="cont">27</span></td><td><span class="url">https://agropartsuy.com/loja?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=sitelink</span></td></tr><tr><td>Pedido rápido <span class="cont">13</span></td><td>Pegá tu lista y cotizá todo junto <span class="cont">33</span></td><td><span class="url">https://agropartsuy.com/pedido-rapido?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=sitelink</span></td></tr><tr><td>Cómo comprar <span class="cont">12</span></td><td>Cotización por WhatsApp en 4 pasos <span class="cont">34</span></td><td><span class="url">https://agropartsuy.com/ayuda#como-comprar?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=sitelink</span></td></tr><tr><td>Envíos a Uruguay <span class="cont">16</span></td><td>Por DAC a los 19 departamentos <span class="cont">30</span></td><td><span class="url">https://agropartsuy.com/ayuda#envios?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=sitelink</span></td></tr>
+    </tbody></table></div></div>
+  
+<div class="bloco">
+  <div class="bloco-topo"><h4>Snippet estruturado · Cabeçalho «Marcas»</h4><button class="copiar" data-copiar="Massey Ferguson
+Valtra
+John Deere
+New Holland
+Case IH
+Ford
+Agrale">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Massey Ferguson</span><span class="cont ">15/25</span></li><li><span class="txt">Valtra</span><span class="cont ">6/25</span></li><li><span class="txt">John Deere</span><span class="cont ">10/25</span></li><li><span class="txt">New Holland</span><span class="cont ">11/25</span></li><li><span class="txt">Case IH</span><span class="cont ">7/25</span></li><li><span class="txt">Ford</span><span class="cont ">4/25</span></li><li><span class="txt">Agrale</span><span class="cont ">6/25</span></li></ol>
+</div>
+
+  <h3>Performance Max (opcional, depois da pesquisa rodar)</h3>
+  <p>Use os criativos <code>google_paisagem_1200x628</code>, <code>google_quadrado_1200x1200</code> e os dois logos. Nome da empresa: <b>AGRO PARTS</b>.</p>
+  <div class="duas">
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Títulos (até 30)</h4><button class="copiar" data-copiar="Repuestos para Tractores
+Cotizá por WhatsApp
+Envíos a Todo Uruguay
+Más de 29.000 Repuestos
+AGRO PARTS Uruguay">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Repuestos para Tractores</span><span class="cont ">24/30</span></li><li><span class="txt">Cotizá por WhatsApp</span><span class="cont ">19/30</span></li><li><span class="txt">Envíos a Todo Uruguay</span><span class="cont ">21/30</span></li><li><span class="txt">Más de 29.000 Repuestos</span><span class="cont ">23/30</span></li><li><span class="txt">AGRO PARTS Uruguay</span><span class="cont ">18/30</span></li></ol>
+</div>
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Descrições (até 90, uma até 60)</h4><button class="copiar" data-copiar="Repuestos agrícolas con envío a todo Uruguay.
+Más de 29.000 repuestos para tractores y cosechadoras. Cotizá por WhatsApp.
+Buscá por código original, armá tu lista y recibí precio y envío a tu localidad.
+Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos por DAC.
+Atención personalizada: confirmamos la compatibilidad antes de enviar.">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Repuestos agrícolas con envío a todo Uruguay.</span><span class="cont ">45/90</span></li><li><span class="txt">Más de 29.000 repuestos para tractores y cosechadoras. Cotizá por WhatsApp.</span><span class="cont ">75/90</span></li><li><span class="txt">Buscá por código original, armá tu lista y recibí precio y envío a tu localidad.</span><span class="cont ">80/90</span></li><li><span class="txt">Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos por DAC.</span><span class="cont ">75/90</span></li><li><span class="txt">Atención personalizada: confirmamos la compatibilidad antes de enviar.</span><span class="cont ">70/90</span></li></ol>
+</div>
+  </div>
+  
+<div class="bloco">
+  <div class="bloco-topo"><h4>Títulos longos (até 90)</h4><button class="copiar" data-copiar="Repuestos para tractores Massey Ferguson, Valtra, John Deere y New Holland
+Más de 29.000 repuestos agrícolas con cotización rápida por WhatsApp
+Buscá por el código original y recibí tu repuesto en cualquier punto de Uruguay
+¿No encontrás la pieza? Mandanos el código o una foto y te la conseguimos
+Talleres y revendedores: pegá tu lista de códigos y cotizá todo junto">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Repuestos para tractores Massey Ferguson, Valtra, John Deere y New Holland</span><span class="cont ">74/90</span></li><li><span class="txt">Más de 29.000 repuestos agrícolas con cotización rápida por WhatsApp</span><span class="cont ">68/90</span></li><li><span class="txt">Buscá por el código original y recibí tu repuesto en cualquier punto de Uruguay</span><span class="cont ">79/90</span></li><li><span class="txt">¿No encontrás la pieza? Mandanos el código o una foto y te la conseguimos</span><span class="cont ">73/90</span></li><li><span class="txt">Talleres y revendedores: pegá tu lista de códigos y cotizá todo junto</span><span class="cont ">69/90</span></li></ol>
+</div>
+
+  <h2 id="meta">Instagram e Facebook (Meta Ads)</h2>
+  <p><b>Público:</b> Uruguay (todo el país) · 25 a 65 años · Advantage+ (automático); revise se Stories e Reels estão incluídos.</p>
+  <p><b>Interesses:</b> <span class="tag">Agricultura</span><span class="tag">Tractores</span><span class="tag">Maquinaria agrícola</span><span class="tag">Ganadería</span><span class="tag">Cosechadora</span><span class="tag">Massey Ferguson</span><span class="tag">John Deere</span><span class="tag">New Holland Agriculture</span><span class="tag">Valtra</span><span class="tag">Agronegocios</span></p>
+  <div class="camp"><h4>1 · Clic a WhatsApp (conversaciones)</h4><p style="margin:4px 0 0"><b>Objetivo:</b> Interacción → Mensajes → WhatsApp</p><p class="porque">O cliente fala direto com vocês, que é como a loja vende. Precisa do WhatsApp Business ligado à página do Facebook.</p>
+      <p style="margin:6px 0 0"><b>Criativos:</b> <code>feed_02_cotizar_whatsapp</code>, <code>story_02_te_lo_conseguimos</code>, <code>carrusel (6 tarjetas)</code></p>
+      </div><div class="camp"><h4>2 · Tráfico al catálogo</h4><p style="margin:4px 0 0"><b>Objetivo:</b> Tráfico → Visitas al sitio web</p><p class="porque">Leva quem ainda está pesquisando para ver as peças com foto. Com o Pixel ligado, alimenta o remarketing.</p>
+      <p style="margin:6px 0 0"><b>Criativos:</b> <code>feed_01_catalogo</code>, <code>feed_03_envios_dac</code>, <code>carrusel (6 tarjetas)</code></p>
+      <p style="margin:6px 0 0"><b>Destino:</b> <span class="url">https://agropartsuy.com/loja?utm_source=meta&amp;utm_medium=paid_social&amp;utm_campaign=trafico_catalogo</span> <button class="copiar" data-copiar="https://agropartsuy.com/loja?utm_source=meta&amp;utm_medium=paid_social&amp;utm_campaign=trafico_catalogo">Copiar</button></p></div><div class="camp"><h4>3 · Remarketing (visitantes 30 días)</h4><p style="margin:4px 0 0"><b>Objetivo:</b> Ventas o Interacción → WhatsApp</p><p class="porque">Quem visitou o site e não chamou no WhatsApp. Público pequeno e barato, costuma converter mais.</p>
+      <p style="margin:6px 0 0"><b>Criativos:</b> <code>story_01_pedido_rapido</code>, <code>feed_02_cotizar_whatsapp</code></p>
+      </div>
+  
+<div class="bloco">
+  <div class="bloco-topo"><h4>Texto principal (variações)</h4><button class="copiar" data-copiar="¿Necesitás un repuesto para tu tractor? Tenemos más de 29.000 para Massey Ferguson, Valtra, John Deere, New Holland y más. Buscá por código y cotizá por WhatsApp. Envíos a todo Uruguay por DAC 🚜
+Encontrá la pieza en agropartsuy.com y tocá «Consultar precio»: se abre WhatsApp con el código listo. Te pasamos precio y envío sin compromiso.
+¿No encontrás el repuesto? Mandanos el código, el modelo del tractor o una foto. Muchas piezas que no están publicadas te las conseguimos igual.
+Talleres y revendedores: pegá tu lista de códigos en Pedido rápido y cotizá todo junto en un solo mensaje.">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">¿Necesitás un repuesto para tu tractor? Tenemos más de 29.000 para Massey Ferguson, Valtra, John Deere, New Holland y más. Buscá por código y cotizá por WhatsApp. Envíos a todo Uruguay por DAC 🚜</span></li><li><span class="txt">Encontrá la pieza en agropartsuy.com y tocá «Consultar precio»: se abre WhatsApp con el código listo. Te pasamos precio y envío sin compromiso.</span></li><li><span class="txt">¿No encontrás el repuesto? Mandanos el código, el modelo del tractor o una foto. Muchas piezas que no están publicadas te las conseguimos igual.</span></li><li><span class="txt">Talleres y revendedores: pegá tu lista de códigos en Pedido rápido y cotizá todo junto en un solo mensaje.</span></li></ol>
+</div>
+  <div class="duas">
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Títulos (até 40)</h4><button class="copiar" data-copiar="Repuestos para tu tractor
+Cotizá por WhatsApp
+Envíos a todo Uruguay
+Te conseguimos la pieza
+Pedido rápido por códigos">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Repuestos para tu tractor</span><span class="cont ">25/40</span></li><li><span class="txt">Cotizá por WhatsApp</span><span class="cont ">19/40</span></li><li><span class="txt">Envíos a todo Uruguay</span><span class="cont ">21/40</span></li><li><span class="txt">Te conseguimos la pieza</span><span class="cont ">23/40</span></li><li><span class="txt">Pedido rápido por códigos</span><span class="cont ">25/40</span></li></ol>
+</div>
+    
+<div class="bloco">
+  <div class="bloco-topo"><h4>Descrição</h4><button class="copiar" data-copiar="Más de 29.000 repuestos agrícolas">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">Más de 29.000 repuestos agrícolas</span></li></ol>
+</div>
+  </div>
+
+  <h3>Roteiros de Reels (15 segundos)</h3>
+  <p>Grave a tela do celular navegando em agropartsuy.com (gravador de tela do próprio celular) e intercale com imagens reais da peça e do depósito. Pessoas reais da equipe passam mais confiança que banco de imagem.</p>
+  <div class="camp"><h4>Reel 1 · «Del código al precio en 15 segundos»</h4><div class="roteiro"><b>0–3 s</b><span>Mão segurando a peça gasta (ou foto do código gravado). Texto: «¿Se rompió?»</span><b>3–7 s</b><span>Gravação da tela do celular: digita o código na busca do site e aparece a peça com foto.</span><b>7–11 s</b><span>Toca «Consultar precio» e abre o WhatsApp com a mensagem pronta. Texto: «Cotizá en segundos»</span><b>11–15 s</b><span>Logo AGRO PARTS + «Envíos a todo Uruguay · agropartsuy.com»</span></div></div><div class="camp"><h4>Reel 2 · «Pedido rápido para talleres»</h4><div class="roteiro"><b>0–3 s</b><span>Bancada da oficina com uma lista de códigos no papel. Texto: «¿Tenés una lista larga?»</span><b>3–9 s</b><span>Tela: cola a lista em /pedido-rapido, toca «Buscar códigos» e aparecem os ✓ verdes.</span><b>9–13 s</b><span>Toca «Pedir precio de toda la lista». Texto: «Todo en un solo mensaje»</span><b>13–15 s</b><span>Logo + agropartsuy.com</span></div></div><div class="camp"><h4>Reel 3 · «Llega a todo Uruguay»</h4><div class="roteiro"><b>0–4 s</b><span>Embalando a peça na caixa (imagens reais do depósito).</span><b>4–9 s</b><span>Caixa com etiqueta da DAC sendo entregue / mapa do Uruguai com os 19 departamentos.</span><b>9–15 s</b><span>Texto: «Recibí tu repuesto con seguimiento DAC» + botão WhatsApp + agropartsuy.com</span></div></div>
+
+  <h2 id="organico">Posts orgânicos · 4 semanas</h2>
+  <p>Três posts por semana mantêm a página ativa, o que ajuda os anúncios a converter: quem clica costuma olhar o perfil antes de chamar.</p>
+  <div class="tabela"><table><thead><tr><th>Quando</th><th>Tema</th><th>Imagem</th><th>Legenda</th></tr></thead><tbody>
+  <tr><td>Semana 1<br><span style="color:var(--suave)">Lunes</span></td><td>Presentación</td><td><code>Carrusel de categorías</code></td><td>Somos AGRO PARTS: más de 29.000 repuestos para tractores y cosechadoras, con envíos a todo Uruguay. ¿Qué repuesto estás buscando? 👇 <button class="copiar" data-copiar="Somos AGRO PARTS: más de 29.000 repuestos para tractores y cosechadoras, con envíos a todo Uruguay. ¿Qué repuesto estás buscando? 👇
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 1<br><span style="color:var(--suave)">Miércoles</span></td><td>Cómo comprar</td><td><code>feed_02_cotizar_whatsapp</code></td><td>Comprar es simple: buscá la pieza, tocá «Consultar precio» y te respondemos por WhatsApp con precio y envío. <button class="copiar" data-copiar="Comprar es simple: buscá la pieza, tocá «Consultar precio» y te respondemos por WhatsApp con precio y envío.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 1<br><span style="color:var(--suave)">Viernes</span></td><td>Envíos</td><td><code>feed_03_envios_dac</code></td><td>Llegamos a los 19 departamentos por DAC, con número de seguimiento. Tu repuesto, donde estés. <button class="copiar" data-copiar="Llegamos a los 19 departamentos por DAC, con número de seguimiento. Tu repuesto, donde estés.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 2<br><span style="color:var(--suave)">Lunes</span></td><td>Producto destacado</td><td><code>Foto de un filtro</code></td><td>Cambiar los filtros a tiempo protege el motor y el hidráulico. Tenemos filtros de aire, aceite, combustible e hidráulico para tu tractor. <button class="copiar" data-copiar="Cambiar los filtros a tiempo protege el motor y el hidráulico. Tenemos filtros de aire, aceite, combustible e hidráulico para tu tractor.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 2<br><span style="color:var(--suave)">Miércoles</span></td><td>Talleres</td><td><code>story_01_pedido_rapido</code></td><td>¿Tenés una lista de códigos? En Pedido rápido la pegás y cotizás todo junto. Ideal para talleres. <button class="copiar" data-copiar="¿Tenés una lista de códigos? En Pedido rápido la pegás y cotizás todo junto. Ideal para talleres.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 2<br><span style="color:var(--suave)">Viernes</span></td><td>Consejo</td><td><code>Foto de rodamiento</code></td><td>Un rodamiento que hace ruido avisa antes de romperse. Revisalo y, si lo necesitás, buscalo por código en agropartsuy.com. <button class="copiar" data-copiar="Un rodamiento que hace ruido avisa antes de romperse. Revisalo y, si lo necesitás, buscalo por código en agropartsuy.com.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 3<br><span style="color:var(--suave)">Lunes</span></td><td>Marcas</td><td><code>Imagen con logos de marcas (texto)</code></td><td>Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford y Agrale. ¿Cuál tenés en el campo? <button class="copiar" data-copiar="Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford y Agrale. ¿Cuál tenés en el campo?
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 3<br><span style="color:var(--suave)">Miércoles</span></td><td>Búsqueda por código</td><td><code>Reel 1</code></td><td>El código original de la pieza es la forma más rápida de encontrarla. Escribilo en el buscador y listo. <button class="copiar" data-copiar="El código original de la pieza es la forma más rápida de encontrarla. Escribilo en el buscador y listo.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 3<br><span style="color:var(--suave)">Viernes</span></td><td>Te lo conseguimos</td><td><code>story_02_te_lo_conseguimos</code></td><td>¿No lo encontrás en el sitio? Mandanos una foto por WhatsApp: muchas piezas que no están publicadas las conseguimos igual. <button class="copiar" data-copiar="¿No lo encontrás en el sitio? Mandanos una foto por WhatsApp: muchas piezas que no están publicadas las conseguimos igual.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 4<br><span style="color:var(--suave)">Lunes</span></td><td>Producto destacado</td><td><code>Foto de kit de embrague</code></td><td>Kits de embrague, discos y platos para tractores. Consultá por el código de tu modelo. <button class="copiar" data-copiar="Kits de embrague, discos y platos para tractores. Consultá por el código de tu modelo.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 4<br><span style="color:var(--suave)">Miércoles</span></td><td>Confianza</td><td><code>Foto del equipo / depósito</code></td><td>Detrás de cada envío hay un equipo que confirma la compatibilidad antes de despachar. Mostrá su cara: genera confianza. <button class="copiar" data-copiar="Detrás de cada envío hay un equipo que confirma la compatibilidad antes de despachar. Mostrá su cara: genera confianza.
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr><tr><td>Semana 4<br><span style="color:var(--suave)">Viernes</span></td><td>Llamado a la acción</td><td><code>carrusel_06_cotiza</code></td><td>Más de 29.000 repuestos. Cotizá en minutos en agropartsuy.com 🚜 <button class="copiar" data-copiar="Más de 29.000 repuestos. Cotizá en minutos en agropartsuy.com 🚜
+
+#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar</button></td></tr>
+  </tbody></table></div>
+  
+<div class="bloco">
+  <div class="bloco-topo"><h4>Hashtags</h4><button class="copiar" data-copiar="#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria">Copiar todos</button></div>
+  <ol class="linhas"><li><span class="txt">#RepuestosAgricolas #Uruguay #Tractores #RepuestosTractor #MasseyFerguson #JohnDeere #NewHolland #Valtra #CaseIH #CampoUruguayo #Agro #Maquinaria</span></li></ol>
+</div>
+
+  <h2 id="medicao">Medição e verba inicial</h2>
+  <h3>Links com UTM</h3>
+  <p>Todos os destinos acima já têm <code>utm_source</code>, <code>utm_medium</code> e <code>utm_campaign</code>, então o Google Analytics separa as visitas por campanha. Testei: o site mantém esses parâmetros.</p>
+  <h3>Conversões</h3>
+  <ul class="check">
+    <li><b>Google Ads:</b> em Metas → Conversões, importe do GA4 o evento <code>generate_lead</code> (clique no WhatsApp).</li>
+    <li><b>Meta:</b> com o Pixel ligado, use o evento <code>Contact</code> como conversão. Na campanha de WhatsApp, a conversão é a conversa iniciada.</li>
+    <li><b>No painel do site:</b> Admin → Interesse dos clientes mostra cliques no WhatsApp por peça e as buscas sem resultado (peças que faltam no catálogo).</li>
+  </ul>
+  <h3>Verba para os primeiros 14 dias (ponto de partida)</h3>
+  <div class="tabela"><table><thead><tr><th>Canal</th><th>Por dia</th><th>O que olhar</th></tr></thead><tbody>
+    <tr><td>Google · Search Marcas</td><td>US$ 6</td><td>Custo por clique no WhatsApp, termos de pesquisa (negative o que não for peça agrícola)</td></tr>
+    <tr><td>Google · Search Tipo + Genéricas</td><td>US$ 4</td><td>Quais categorias geram conversa</td></tr>
+    <tr><td>Meta · Clic a WhatsApp</td><td>US$ 6</td><td>Custo por conversa iniciada</td></tr>
+    <tr><td>Meta · Remarketing</td><td>US$ 2</td><td>Frequência abaixo de 4 por semana</td></tr>
+  </tbody></table></div>
+  <p>Depois de 14 dias, mova verba para o que gerou conversas mais baratas e pause o resto. Valores são sugestão para começar; ajuste ao seu caixa.</p>
+
+  <footer>Gerado a partir do repositório (marketing/kit_dados.cjs e gerar_kit.cjs). Para mudar um texto, edite kit_dados.cjs e rode <code>node marketing/gerar_kit.cjs</code>.</footer>
+</div>
+
+<script>
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button.copiar");
+  if (!b) return;
+  const texto = b.getAttribute("data-copiar");
+  const rotulo = b.textContent;
+  try {
+    await navigator.clipboard.writeText(texto);
+    b.textContent = "Copiado"; b.classList.add("ok");
+  } catch {
+    // Sem permissão de área de transferência: seleciona o texto para copiar à mão
+    const alvo = b.closest(".bloco, td, p");
+    const r = document.createRange(); r.selectNodeContents(alvo);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    b.textContent = "Selecionado";
+  }
+  setTimeout(() => { b.textContent = rotulo; b.classList.remove("ok"); }, 1600);
+});
+</script>
