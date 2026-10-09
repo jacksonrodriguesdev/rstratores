@@ -43,8 +43,10 @@ function Visor() {
     (async () => {
       try {
         const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
-        const worker: any = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url");
-        pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+        // Worker em public/pdfjs com extensão .js: a Hostinger entrega .mjs como text/plain e o
+        // navegador se recusa a rodar. Ao atualizar o pdfjs-dist, copie de novo:
+        // node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs -> public/pdfjs/pdf.worker.min.js
+        pdfjs.GlobalWorkerOptions.workerSrc = `/pdfjs/pdf.worker.min.js?v=${pdfjs.version}`;
         // Busca o arquivo em pedaços (Range), só as partes das páginas que a pessoa abre.
         // Só o primeiro pedaço vem marcado: é o que conta como uma "vista" no servidor.
         const pedaco = async (ini: number, fim: number, primeiro = false) => {
@@ -77,7 +79,7 @@ function Visor() {
         setPdf(doc);
       } catch (e) {
         console.error(e);
-        if (!cancelado) setErro("No pudimos abrir el catálogo. Revisá tu conexión y probá de nuevo.");
+        if (!cancelado) setErro(`No pudimos abrir el catálogo. Revisá tu conexión y probá de nuevo. (${String((e as any)?.message ?? e).slice(0, 80)})`);
       }
     })();
     return () => {
