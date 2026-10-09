@@ -13,6 +13,7 @@ import {
   Calculator,
   Image,
   Flame,
+  Globe2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -29,6 +30,7 @@ const groups: any[] = [
     title: "Visão Geral",
     links: [
       { to: "/admin", search: undefined, label: "Dashboard", icon: LayoutDashboard, exact: true },
+      { to: "/admin/visitantes", search: undefined, label: "Visitantes", icon: Globe2, exact: false },
       { to: "/admin/interesse", search: undefined, label: "Interesse dos clientes", icon: Flame, exact: false },
     ],
   },

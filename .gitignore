@@ -73,3 +73,6 @@ dados/deploy/
 
 # Dados brutos de extração (CSV + fotos originais); as fotos convertidas ficam em public/catalogo
 PRODUCTS/
+
+# Base de localização por IP (baixada pelo servidor)
+geoip-agroparts/

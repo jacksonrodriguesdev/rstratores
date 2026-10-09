@@ -139,6 +139,18 @@ function AyudaPage() {
           </p>
         </Seccion>
 
+        <Seccion id="privacidad" icon={ShieldCheck} titulo="Privacidad">
+          <p>
+            Para mejorar el sitio registramos datos de navegación anónimos: páginas visitadas, ciudad aproximada, de
+            dónde llegaste (Google, Instagram, etc.) y tipo de dispositivo. No guardamos tu dirección IP ni datos
+            personales sin que nos los envíes. La ubicación aproximada se obtiene con IP Geolocation by{" "}
+            <a href="https://db-ip.com" target="_blank" rel="noreferrer noopener" className="font-semibold text-primary underline">
+              DB-IP
+            </a>
+            .
+          </p>
+        </Seccion>
+
         <Seccion id="garantia" icon={ShieldCheck} titulo="Garantía y devoluciones">
           <p>
             Antes de despachar confirmamos con vos el código y la compatibilidad de cada pieza, para que recibas el

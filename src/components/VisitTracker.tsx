@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { eventoDoLinkWhatsapp } from "@/lib/eventos";
+import { dadosVisitante } from "@/lib/visitante";
 
 export function VisitTracker() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -10,18 +11,13 @@ export function VisitTracker() {
     // Skip admin & login pages from analytics
     if (pathname.startsWith("/admin") || pathname.startsWith("/login")) return;
 
-    const controller = new AbortController();
+    const v = dadosVisitante(true);
     fetch("/api/public/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        path: pathname,
-        referrer: document.referrer || "",
-      }),
-      signal: controller.signal,
+      body: JSON.stringify({ path: pathname, ...v }),
       keepalive: true,
     }).catch(() => {});
-    return () => controller.abort();
   }, [pathname]);
 
   // Todo clique em link do WhatsApp vira um evento de interesse (qual peça, de qual página).

@@ -2,6 +2,7 @@
 // visitas (site_visits) com o caminho "/_evento/<tipo>/<dado>", sem precisar mudar o banco.
 // O painel lê em Admin > Interesse dos clientes (src/lib/interesse.server.ts).
 import { conversaoWhatsapp, eventoBusca } from "./marketing";
+import { visitanteAtual } from "./visitante";
 
 export const PREFIXO_EVENTO = "/_evento/";
 
@@ -16,7 +17,10 @@ export function registrarEvento(tipo: "whatsapp" | "busca" | "cotacao", dado: st
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         path: `${PREFIXO_EVENTO}${tipo}/${encodeURIComponent(dado.slice(0, 300))}`,
-        referrer: window.location.pathname,
+        pagina: window.location.pathname,
+        // Mesma sessão e origem da visita: permite ver de onde vêm as conversões
+        ...visitanteAtual(),
+        entrada: false,
       }),
       keepalive: true,
     }).catch(() => {});

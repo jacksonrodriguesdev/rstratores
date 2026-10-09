@@ -124,6 +124,27 @@ model site_visits {
   referrer     String?
   region       String?
   user_agent   String?
+  // Rastreio de visitantes (src/lib/rastreio.server.ts). O IP nunca é gravado: só um hash.
+  visitor_id   String?  @db.VarChar(64)
+  session_id   String?  @db.VarChar(64)
+  ip_hash      String?  @db.VarChar(64)
+  latitude     Float?
+  longitude    Float?
+  fonte        String?  @db.VarChar(40)  // google, instagram, facebook, whatsapp, direto...
+  meio         String?  @db.VarChar(40)  // cpc, organico, social, referencia...
+  utm_source   String?  @db.VarChar(100)
+  utm_medium   String?  @db.VarChar(100)
+  utm_campaign String?  @db.VarChar(150)
+  referrer_host String? @db.VarChar(191)
+  device       String?  @db.VarChar(20)
+  browser      String?  @db.VarChar(40)
+  os           String?  @db.VarChar(40)
+  language     String?  @db.VarChar(20)
+  entrada      Boolean  @default(false) // primeira página da sessão
+
+  @@index([created_at])
+  @@index([visitor_id])
+  @@index([session_id])
 }
 
 model quotes {

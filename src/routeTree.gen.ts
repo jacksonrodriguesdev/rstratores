@@ -27,6 +27,7 @@ import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
+import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as UploadsSplatRouteImport } from './routes/uploads.$'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
@@ -138,6 +139,11 @@ const AdminProdutosRoute = AdminProdutosRouteImport.update({
 const AdminUploadRoute = AdminUploadRouteImport.update({
   id: '/upload',
   path: '/upload',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminVisitantesRoute = AdminVisitantesRouteImport.update({
+  id: '/visitantes',
+  path: '/visitantes',
   getParentRoute: () => AdminRoute,
 } as any)
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
+  '/admin/visitantes': typeof AdminVisitantesRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
@@ -311,6 +318,7 @@ export interface FileRoutesByTo {
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
+  '/admin/visitantes': typeof AdminVisitantesRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
+  '/admin/visitantes': typeof AdminVisitantesRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
@@ -398,6 +407,7 @@ export interface FileRouteTypes {
     | '/admin/pellegrino'
     | '/admin/produtos'
     | '/admin/upload'
+    | '/admin/visitantes'
     | '/produto/$sku'
     | '/uploads/$'
     | '/admin/'
@@ -439,6 +449,7 @@ export interface FileRouteTypes {
     | '/admin/pellegrino'
     | '/admin/produtos'
     | '/admin/upload'
+    | '/admin/visitantes'
     | '/produto/$sku'
     | '/uploads/$'
     | '/admin'
@@ -481,6 +492,7 @@ export interface FileRouteTypes {
     | '/admin/pellegrino'
     | '/admin/produtos'
     | '/admin/upload'
+    | '/admin/visitantes'
     | '/produto/$sku'
     | '/uploads/$'
     | '/admin/'
@@ -659,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUploadRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/visitantes': {
+      id: '/admin/visitantes'
+      path: '/visitantes'
+      fullPath: '/admin/visitantes'
+      preLoaderRoute: typeof AdminVisitantesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/produto/$sku': {
       id: '/produto/$sku'
       path: '/produto/$sku'
@@ -825,6 +844,7 @@ interface AdminRouteChildren {
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
   AdminUploadRoute: typeof AdminUploadRoute
+  AdminVisitantesRoute: typeof AdminVisitantesRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -837,6 +857,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPellegrinoRoute: AdminPellegrinoRoute,
   AdminProdutosRoute: AdminProdutosRoute,
   AdminUploadRoute: AdminUploadRoute,
+  AdminVisitantesRoute: AdminVisitantesRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
