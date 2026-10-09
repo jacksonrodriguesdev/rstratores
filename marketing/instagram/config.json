@@ -1,0 +1,13 @@
+{
+  "site": "agropartsuy.com",
+  "whatsapp": "",
+  "fotos_comentario": "Fotos de tratores (pasta ../tratores, fora do git). Confirme a licença de cada uma antes de impulsionar. Troque o caminho para usar fotos próprias.",
+  "fotos": {
+    "atardecer": "../tratores/caminhao-trabalhando-no-campo-durante-um-dia-ensolarado_23-2151976947.avif",
+    "pulverizacion": "../tratores/images (2).jfif",
+    "johnDeereSiembra": "../tratores/jhonderre-1.webp",
+    "johnDeerePolvo": "../tratores/john-deere-2.webp",
+    "newHolland": "../tratores/trator-new-hplland.jfif",
+    "noche": "../tratores/AGRO-MOB-BANNER.jpg"
+  }
+}

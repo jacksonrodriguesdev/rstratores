@@ -1,0 +1,51 @@
+{
+  "site": "agropartsuy.com",
+  "whatsapp": "",
+  "totais": { "Valtra": 98, "New Holland": 52, "Massey Ferguson": 26, "John Deere": 25, "geral": 206 },
+  "marcas": {
+    "Valtra": {
+      "foto": "valtra.jpg", "pos": "50% 55%", "cor": "#d52b1e",
+      "destaque": [
+        { "sku": "45354900", "codigo": "45354900", "nome": "Sincronizado completo", "fab": "AGCO", "maquina": "Tractor" },
+        { "sku": "34051400DR", "codigo": "34051400", "nome": "Corona anular", "fab": "Della Rosa", "maquina": "Tractor" }
+      ],
+      "lista": [
+        ["45354900", "Sincronizado completo"], ["34051400", "Corona anular"], ["30310210", "Engranaje caja de cambio"],
+        ["70054700", "Juego engranajes satélite"], ["201280", "Eje principal caja de cambio"], ["30184210", "Horquilla selectora"]
+      ]
+    },
+    "New Holland": {
+      "foto": "new-holland.jpg", "pos": "55% 60%", "cor": "#0a5bb5",
+      "destaque": [
+        { "sku": "84995536CNH", "codigo": "84995536", "nome": "Horquilla de transmisión", "fab": "CNH", "maquina": "Cosechadora" },
+        { "sku": "5108747CNH", "codigo": "5108747", "nome": "Engranaje satélite", "fab": "CNH", "maquina": "Tractor" }
+      ],
+      "lista": [
+        ["5108747", "Engranaje satélite"], ["5125013", "Engranaje reductor"], ["5167173", "Manguito de embrague"],
+        ["47617064", "Eje cardán"], ["5189504", "Eje toma de fuerza (TDF)"], ["84995536", "Horquilla de transmisión"]
+      ]
+    },
+    "Massey Ferguson": {
+      "foto": "massey-ferguson.jpg", "pos": "50% 50%", "cor": "#c8102e",
+      "destaque": [
+        { "sku": "187168IMPBJ", "codigo": "187168", "nome": "Árbol principal 6 velocidades", "fab": "Bejol", "maquina": "Tractor" },
+        { "sku": "049169EA", "codigo": "049169", "nome": "Engranaje de transmisión", "fab": "Eaton", "maquina": "Tractor" }
+      ],
+      "lista": [
+        ["183040", "Engranaje caja de cambio"], ["187168", "Árbol principal 6 velocidades"], ["049169", "Engranaje de transmisión"],
+        ["1866538", "Eje engranaje satélite"], ["1677747", "Eje piloto TDF"], ["036908", "Cardán de tracción"]
+      ]
+    },
+    "John Deere": {
+      "foto": "john-deere.jpg", "pos": "40% 55%", "cor": "#367c2b",
+      "destaque": [
+        { "sku": "CQ17741MANN", "codigo": "CQ17741", "nome": "Engranaje de transmisión", "fab": "R Mann", "maquina": "Cosechadora" },
+        { "sku": "AL160114DAN", "codigo": "AL160114", "nome": "Kit suplementos de tracción", "fab": "Dana", "maquina": "Tractor" }
+      ],
+      "lista": [
+        ["CQ17741", "Engranaje de transmisión"], ["AL160114", "Kit suplementos de tracción"], ["RE185504", "Cable palanca de cambio"],
+        ["DQ34226", "Cable palanca de cambio"], ["DQ08538", "Tensor sin fin"], ["CQ47493", "Engranaje tensor Z12"]
+      ]
+    }
+  }
+}
