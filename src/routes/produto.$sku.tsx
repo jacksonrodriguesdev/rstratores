@@ -1,3 +1,4 @@
+import { CatalogosCtaCompacto } from "@/components/home/CatalogosCta";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -449,6 +450,8 @@ function ProductDetail() {
                 tractor por WhatsApp y te lo confirmamos.
               </p>
             </div>
+
+            <CatalogosCtaCompacto marca={marca} />
           </div>
         </div>
 

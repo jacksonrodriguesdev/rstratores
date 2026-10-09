@@ -22,6 +22,7 @@ import {
   EnvioDacBlock,
   VistosRecientesBlock,
 } from "@/components/homepage-blocks";
+import { CatalogosCtaBlock } from "@/components/home/CatalogosCta";
 import type { HomepageBlock } from "@/lib/homepage";
 import { tituloEs } from "@/lib/pecas-es";
 import { SITE_URL } from "@/lib/site";
@@ -116,6 +117,8 @@ function Bloco({ block }: { block: HomepageBlock }) {
       return <NewsletterInstagramBlock config={config} />;
     case "ENVIO_DAC":
       return <EnvioDacBlock config={config} />;
+    case "CATALOGOS_CTA":
+      return <CatalogosCtaBlock />;
     default:
       return null;
   }
@@ -143,6 +146,9 @@ function HomePage() {
   // O banner ocupa a largura toda; os demais blocos ficam no container, sobre fundo cinza.
   const hero = ativos.filter((b) => b.type === "HERO_SLIDER");
   const resto = ativos.filter((b) => b.type !== "HERO_SLIDER");
+  // Chamada dos catálogos: se o admin não colocou o bloco no CMS, entra sozinha depois do 2º bloco
+  const ctaNoCms = blocks.some((b) => b.type === "CATALOGOS_CTA");
+  const posCta = ctaNoCms ? -1 : Math.min(1, resto.length - 1);
 
   return (
     <div className="min-h-screen bg-zinc-100">
@@ -182,6 +188,7 @@ function HomePage() {
               <Bloco block={b} />
               {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
               {i === 0 && <VistosRecientesBlock />}
+              {i === posCta && <CatalogosCtaBlock />}
             </Fragment>
           ))}
         </div>

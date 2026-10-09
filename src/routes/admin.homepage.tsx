@@ -22,6 +22,7 @@ import {
   Send,
   Upload,
   Truck,
+  BookOpen,
 } from "lucide-react";
 import {
   listHomepageBlocks,
@@ -119,6 +120,12 @@ const BLOCK_TYPES = [
     name: "WhatsApp & Instagram",
     icon: Send,
     desc: "Chamada para receber ofertas no WhatsApp e seguir no Instagram.",
+  },
+  {
+    id: "CATALOGOS_CTA",
+    name: "Catálogos para mecânicos (criar conta)",
+    icon: BookOpen,
+    desc: "Chamada em espanhol: crie sua conta e acesse os catálogos em PDF. Sem este bloco, ela aparece sozinha depois do 2º bloco.",
   },
   {
     id: "ENVIO_DAC",
