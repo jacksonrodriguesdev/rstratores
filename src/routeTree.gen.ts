@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as CuentaRouteImport } from './routes/cuenta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as PedidoRapidoRouteImport } from './routes/pedido-rapido'
@@ -20,6 +21,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
+import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
@@ -28,20 +30,25 @@ import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
+import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as UploadsSplatRouteImport } from './routes/uploads.$'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
 import { Route as ApiAdminQuotesRouteImport } from './routes/api/admin/quotes'
+import { Route as ApiAuthGoogleRouteImport } from './routes/api/auth.google'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth.login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth.logout'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
+import { Route as CatalogosArchivoIdRouteImport } from './routes/catalogos.archivo.$id'
+import { Route as CatalogosVerIdRouteImport } from './routes/catalogos.ver.$id'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
 import { Route as ApiAdminBannersUploadRouteImport } from './routes/api/admin/banners.upload'
+import { Route as ApiAdminCatalogosUploadRouteImport } from './routes/api/admin/catalogos.upload'
 import { Route as ApiAdminCategoriesIdRouteImport } from './routes/api/admin/categories.$id'
 import { Route as ApiAdminCategoriesUploadRouteImport } from './routes/api/admin/categories.upload'
 import { Route as ApiAdminImagesImportRouteImport } from './routes/api/admin/images.import'
@@ -50,6 +57,7 @@ import { Route as ApiAdminProductsExportRouteImport } from './routes/api/admin/p
 import { Route as ApiAdminProductsImportRouteImport } from './routes/api/admin/products.import'
 import { Route as ApiAdminProductsUploadRouteImport } from './routes/api/admin/products.upload'
 import { Route as ApiAdminQuotesIdRouteImport } from './routes/api/admin/quotes.$id'
+import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,6 +77,11 @@ const AyudaRoute = AyudaRouteImport.update({
 const CadastroRoute = CadastroRouteImport.update({
   id: '/cadastro',
   path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CuentaRoute = CuentaRouteImport.update({
+  id: '/cuenta',
+  path: '/cuenta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -104,6 +117,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminBannersRoute = AdminBannersRouteImport.update({
   id: '/banners',
   path: '/banners',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCatalogosRoute = AdminCatalogosRouteImport.update({
+  id: '/catalogos',
+  path: '/catalogos',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCategoriasRoute = AdminCategoriasRouteImport.update({
@@ -146,6 +164,11 @@ const AdminVisitantesRoute = AdminVisitantesRouteImport.update({
   path: '/visitantes',
   getParentRoute: () => AdminRoute,
 } as any)
+const CatalogosIndexRoute = CatalogosIndexRouteImport.update({
+  id: '/catalogos/',
+  path: '/catalogos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
   id: '/produto/$sku',
   path: '/produto/$sku',
@@ -174,6 +197,11 @@ const ApiAdminProductsRoute = ApiAdminProductsRouteImport.update({
 const ApiAdminQuotesRoute = ApiAdminQuotesRouteImport.update({
   id: '/api/admin/quotes',
   path: '/api/admin/quotes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthGoogleRoute = ApiAuthGoogleRouteImport.update({
+  id: '/api/auth/google',
+  path: '/api/auth/google',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
@@ -206,6 +234,16 @@ const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CatalogosArchivoIdRoute = CatalogosArchivoIdRouteImport.update({
+  id: '/catalogos/archivo/$id',
+  path: '/catalogos/archivo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogosVerIdRoute = CatalogosVerIdRouteImport.update({
+  id: '/catalogos/ver/$id',
+  path: '/catalogos/ver/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminBannersIdRoute = ApiAdminBannersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -215,6 +253,11 @@ const ApiAdminBannersUploadRoute = ApiAdminBannersUploadRouteImport.update({
   id: '/upload',
   path: '/upload',
   getParentRoute: () => ApiAdminBannersRoute,
+} as any)
+const ApiAdminCatalogosUploadRoute = ApiAdminCatalogosUploadRouteImport.update({
+  id: '/api/admin/catalogos/upload',
+  path: '/api/admin/catalogos/upload',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminCategoriesIdRoute = ApiAdminCategoriesIdRouteImport.update({
   id: '/$id',
@@ -257,18 +300,25 @@ const ApiAdminQuotesIdRoute = ApiAdminQuotesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminQuotesRoute,
 } as any)
+const ApiAuthGoogleCallbackRoute = ApiAuthGoogleCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => ApiAuthGoogleRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/ayuda': typeof AyudaRoute
   '/cadastro': typeof CadastroRoute
+  '/cuenta': typeof CuentaRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
+  '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -280,18 +330,23 @@ export interface FileRoutesByFullPath {
   '/produto/$sku': typeof ProdutoSkuRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
+  '/catalogos/': typeof CatalogosIndexRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/quotes': typeof ApiAdminQuotesRouteWithChildren
+  '/api/auth/google': typeof ApiAuthGoogleRouteWithChildren
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
+  '/catalogos/ver/$id': typeof CatalogosVerIdRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
+  '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
@@ -300,17 +355,20 @@ export interface FileRoutesByFullPath {
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
+  '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ayuda': typeof AyudaRoute
   '/cadastro': typeof CadastroRoute
+  '/cuenta': typeof CuentaRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
+  '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -322,18 +380,23 @@ export interface FileRoutesByTo {
   '/produto/$sku': typeof ProdutoSkuRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
+  '/catalogos': typeof CatalogosIndexRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/quotes': typeof ApiAdminQuotesRouteWithChildren
+  '/api/auth/google': typeof ApiAuthGoogleRouteWithChildren
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
+  '/catalogos/ver/$id': typeof CatalogosVerIdRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
+  '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
@@ -342,6 +405,7 @@ export interface FileRoutesByTo {
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
+  '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -349,12 +413,14 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/ayuda': typeof AyudaRoute
   '/cadastro': typeof CadastroRoute
+  '/cuenta': typeof CuentaRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/banners': typeof AdminBannersRoute
+  '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -366,18 +432,23 @@ export interface FileRoutesById {
   '/produto/$sku': typeof ProdutoSkuRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
+  '/catalogos/': typeof CatalogosIndexRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/quotes': typeof ApiAdminQuotesRouteWithChildren
+  '/api/auth/google': typeof ApiAuthGoogleRouteWithChildren
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/track': typeof ApiPublicTrackRoute
+  '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
+  '/catalogos/ver/$id': typeof CatalogosVerIdRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
+  '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
@@ -386,6 +457,7 @@ export interface FileRoutesById {
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
+  '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -394,12 +466,14 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ayuda'
     | '/cadastro'
+    | '/cuenta'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/banners'
+    | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/cotacoes'
     | '/admin/homepage'
@@ -411,18 +485,23 @@ export interface FileRouteTypes {
     | '/produto/$sku'
     | '/uploads/$'
     | '/admin/'
+    | '/catalogos/'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
     | '/api/admin/quotes'
+    | '/api/auth/google'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/quotes'
     | '/api/public/track'
+    | '/catalogos/archivo/$id'
+    | '/catalogos/ver/$id'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
+    | '/api/admin/catalogos/upload'
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/images/import'
@@ -431,17 +510,20 @@ export interface FileRouteTypes {
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
+    | '/api/auth/google/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ayuda'
     | '/cadastro'
+    | '/cuenta'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/banners'
+    | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/cotacoes'
     | '/admin/homepage'
@@ -453,18 +535,23 @@ export interface FileRouteTypes {
     | '/produto/$sku'
     | '/uploads/$'
     | '/admin'
+    | '/catalogos'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
     | '/api/admin/quotes'
+    | '/api/auth/google'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/quotes'
     | '/api/public/track'
+    | '/catalogos/archivo/$id'
+    | '/catalogos/ver/$id'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
+    | '/api/admin/catalogos/upload'
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/images/import'
@@ -473,18 +560,21 @@ export interface FileRouteTypes {
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
+    | '/api/auth/google/callback'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/ayuda'
     | '/cadastro'
+    | '/cuenta'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/banners'
+    | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/cotacoes'
     | '/admin/homepage'
@@ -496,18 +586,23 @@ export interface FileRouteTypes {
     | '/produto/$sku'
     | '/uploads/$'
     | '/admin/'
+    | '/catalogos/'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
     | '/api/admin/quotes'
+    | '/api/auth/google'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/quotes'
     | '/api/public/track'
+    | '/catalogos/archivo/$id'
+    | '/catalogos/ver/$id'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
+    | '/api/admin/catalogos/upload'
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/images/import'
@@ -516,6 +611,7 @@ export interface FileRouteTypes {
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
+    | '/api/auth/google/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -523,6 +619,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AyudaRoute: typeof AyudaRoute
   CadastroRoute: typeof CadastroRoute
+  CuentaRoute: typeof CuentaRoute
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
   PedidoRapidoRoute: typeof PedidoRapidoRoute
@@ -530,16 +627,21 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
+  CatalogosIndexRoute: typeof CatalogosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
   ApiAdminProductsRoute: typeof ApiAdminProductsRouteWithChildren
   ApiAdminQuotesRoute: typeof ApiAdminQuotesRouteWithChildren
+  ApiAuthGoogleRoute: typeof ApiAuthGoogleRouteWithChildren
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  CatalogosArchivoIdRoute: typeof CatalogosArchivoIdRoute
+  CatalogosVerIdRoute: typeof CatalogosVerIdRoute
+  ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
 }
 
@@ -571,6 +673,13 @@ declare module '@tanstack/react-router' {
       path: '/cadastro'
       fullPath: '/cadastro'
       preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cuenta': {
+      id: '/cuenta'
+      path: '/cuenta'
+      fullPath: '/cuenta'
+      preLoaderRoute: typeof CuentaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -620,6 +729,13 @@ declare module '@tanstack/react-router' {
       path: '/banners'
       fullPath: '/admin/banners'
       preLoaderRoute: typeof AdminBannersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/catalogos': {
+      id: '/admin/catalogos'
+      path: '/catalogos'
+      fullPath: '/admin/catalogos'
+      preLoaderRoute: typeof AdminCatalogosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/categorias': {
@@ -678,6 +794,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVisitantesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/catalogos/': {
+      id: '/catalogos/'
+      path: '/catalogos'
+      fullPath: '/catalogos/'
+      preLoaderRoute: typeof CatalogosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produto/$sku': {
       id: '/produto/$sku'
       path: '/produto/$sku'
@@ -718,6 +841,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/quotes'
       fullPath: '/api/admin/quotes'
       preLoaderRoute: typeof ApiAdminQuotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/google': {
+      id: '/api/auth/google'
+      path: '/api/auth/google'
+      fullPath: '/api/auth/google'
+      preLoaderRoute: typeof ApiAuthGoogleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/login': {
@@ -762,6 +892,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/catalogos/archivo/$id': {
+      id: '/catalogos/archivo/$id'
+      path: '/catalogos/archivo/$id'
+      fullPath: '/catalogos/archivo/$id'
+      preLoaderRoute: typeof CatalogosArchivoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogos/ver/$id': {
+      id: '/catalogos/ver/$id'
+      path: '/catalogos/ver/$id'
+      fullPath: '/catalogos/ver/$id'
+      preLoaderRoute: typeof CatalogosVerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/banners/$id': {
       id: '/api/admin/banners/$id'
       path: '/$id'
@@ -775,6 +919,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/banners/upload'
       preLoaderRoute: typeof ApiAdminBannersUploadRouteImport
       parentRoute: typeof ApiAdminBannersRoute
+    }
+    '/api/admin/catalogos/upload': {
+      id: '/api/admin/catalogos/upload'
+      path: '/api/admin/catalogos/upload'
+      fullPath: '/api/admin/catalogos/upload'
+      preLoaderRoute: typeof ApiAdminCatalogosUploadRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/admin/categories/$id': {
       id: '/api/admin/categories/$id'
@@ -832,11 +983,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminQuotesIdRouteImport
       parentRoute: typeof ApiAdminQuotesRoute
     }
+    '/api/auth/google/callback': {
+      id: '/api/auth/google/callback'
+      path: '/callback'
+      fullPath: '/api/auth/google/callback'
+      preLoaderRoute: typeof ApiAuthGoogleCallbackRouteImport
+      parentRoute: typeof ApiAuthGoogleRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminBannersRoute: typeof AdminBannersRoute
+  AdminCatalogosRoute: typeof AdminCatalogosRoute
   AdminCategoriasRoute: typeof AdminCategoriasRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
@@ -850,6 +1009,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBannersRoute: AdminBannersRoute,
+  AdminCatalogosRoute: AdminCatalogosRoute,
   AdminCategoriasRoute: AdminCategoriasRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
   AdminHomepageRoute: AdminHomepageRoute,
@@ -919,11 +1079,24 @@ const ApiAdminQuotesRouteWithChildren = ApiAdminQuotesRoute._addFileChildren(
   ApiAdminQuotesRouteChildren,
 )
 
+interface ApiAuthGoogleRouteChildren {
+  ApiAuthGoogleCallbackRoute: typeof ApiAuthGoogleCallbackRoute
+}
+
+const ApiAuthGoogleRouteChildren: ApiAuthGoogleRouteChildren = {
+  ApiAuthGoogleCallbackRoute: ApiAuthGoogleCallbackRoute,
+}
+
+const ApiAuthGoogleRouteWithChildren = ApiAuthGoogleRoute._addFileChildren(
+  ApiAuthGoogleRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AyudaRoute: AyudaRoute,
   CadastroRoute: CadastroRoute,
+  CuentaRoute: CuentaRoute,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
   PedidoRapidoRoute: PedidoRapidoRoute,
@@ -931,16 +1104,21 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   UploadsSplatRoute: UploadsSplatRoute,
+  CatalogosIndexRoute: CatalogosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
   ApiAdminProductsRoute: ApiAdminProductsRouteWithChildren,
   ApiAdminQuotesRoute: ApiAdminQuotesRouteWithChildren,
+  ApiAuthGoogleRoute: ApiAuthGoogleRouteWithChildren,
   ApiAuthLoginRoute: ApiAuthLoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  CatalogosArchivoIdRoute: CatalogosArchivoIdRoute,
+  CatalogosVerIdRoute: CatalogosVerIdRoute,
+  ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
 }
 export const routeTree = rootRouteImport

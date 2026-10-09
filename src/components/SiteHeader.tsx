@@ -17,6 +17,7 @@ import {
   PackageSearch,
   ArrowRight,
   ListChecks,
+  BookOpen,
 } from "lucide-react";
 import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
 import {
@@ -281,6 +282,12 @@ export function SiteHeader() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/cuenta">Mi cuenta</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/catalogos">Catálogos (PDF)</Link>
+                  </DropdownMenuItem>
                   {user.role === "ADMIN" && (
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link to="/admin">Panel de administración</Link>
@@ -417,6 +424,12 @@ export function SiteHeader() {
               ))}
 
               <div className="flex-1" />
+              <Link
+                to="/catalogos"
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-emerald-300" /> Catálogos
+              </Link>
               <Link
                 to="/pedido-rapido"
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"

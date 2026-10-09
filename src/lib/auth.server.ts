@@ -121,3 +121,19 @@ export function registrarFalhaLogin(request: Request, email: string) {
 export function limparFalhasLogin(request: Request, email: string) {
   tentativas.delete(chaveTentativa(request, email));
 }
+
+// Abre a sessão de um usuário: grava o último acesso e devolve o cabeçalho Set-Cookie
+export async function abrirSessao(
+  request: Request,
+  user: { id: number; nome_completo: string; email: string; role: string },
+): Promise<string> {
+  const { prisma } = await import("./prisma");
+  await prisma.users.update({ where: { id: user.id }, data: { ultimo_login: new Date() } }).catch(() => {});
+  const token = await createSessionToken({ id: user.id, nome: user.nome_completo, email: user.email, role: user.role });
+  return cookieSessao(request, token);
+}
+
+// Destino depois do login: só caminhos internos do site (evita redirecionar para outro domínio)
+export function destinoSeguro(r: unknown, padrao = "/cuenta"): string {
+  return typeof r === "string" && /^\/(?!\/)[\w\-/?=&.%#]*$/.test(r) && !r.startsWith("/api/") ? r : padrao;
+}

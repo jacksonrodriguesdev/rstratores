@@ -160,7 +160,8 @@ import { CartDrawer } from "@/components/CartDrawer";
 // Rodapé e WhatsApp flutuante só no site público (o admin tem layout próprio).
 function RodapePublico() {
   const pathname = useRouterState({ select: (st) => st.location.pathname });
-  if (pathname.startsWith("/admin")) return null;
+  // Admin tem layout próprio; login, cadastro e o visualizador de catálogos são telas cheias, sem rodapé
+  if (pathname.startsWith("/admin") || pathname === "/login" || pathname === "/cadastro" || pathname.startsWith("/catalogos/ver/")) return null;
   return (
     <>
       <SiteFooter />

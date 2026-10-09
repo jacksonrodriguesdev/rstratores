@@ -267,8 +267,48 @@ model users {
   ponto_referencia String? @db.Text
   numero_casa   String?
   cep           String?
-  pais          String?  @default("Brasil")
+  pais          String?  @default("Uruguai")
   role          String   @default("USER")
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  // Login com Google e perfil do cliente
+  google_id     String?  @unique @db.VarChar(64)
+  avatar_url    String?  @db.Text
+  departamento  String?  @db.VarChar(40)
+  ultimo_login  DateTime?
+
+  downloads     catalogos_downloads[]
+}
+
+// Catálogos e manuais em PDF para mecânicos (página /catalogos). Arquivos em <uploads>/catalogos.
+model catalogos {
+  id          Int      @id @default(autoincrement())
+  titulo      String   @db.VarChar(200)
+  marca       String?  @db.VarChar(60)
+  tipo        String   @default("Catálogo de piezas") @db.VarChar(60)
+  descricao   String?  @db.Text
+  arquivo     String   @db.VarChar(255) // caminho relativo dentro de <uploads>/catalogos
+  tamanho     BigInt   @default(0)
+  idioma      String?  @db.VarChar(20)
+  ativo       Boolean  @default(false) // só aparece no site quando publicado
+  exige_login Boolean  @default(true)
+  downloads   Int      @default(0)
+  ordem       Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  registros   catalogos_downloads[]
+}
+
+model catalogos_downloads {
+  id          Int       @id @default(autoincrement())
+  catalogo_id Int
+  user_id     Int?
+  created_at  DateTime  @default(now())
+
+  catalogo    catalogos @relation(fields: [catalogo_id], references: [id], onDelete: Cascade)
+  user        users?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([catalogo_id])
+  @@index([user_id])
 }

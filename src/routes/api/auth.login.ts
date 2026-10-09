@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/auth/login")({
 
           const { prisma } = await import("@/lib/prisma");
           const bcrypt = (await import("bcryptjs")).default;
-          const { createSessionToken, cookieSessao, loginBloqueado, registrarFalhaLogin, limparFalhasLogin } =
+          const { abrirSessao, destinoSeguro, loginBloqueado, registrarFalhaLogin, limparFalhasLogin } =
             await import("@/lib/auth.server");
 
           if (loginBloqueado(request, email)) {
@@ -27,23 +27,19 @@ export const Route = createFileRoute("/api/auth/login")({
 
           const user = await prisma.users.findUnique({ where: { email } });
           const valid = user ? await bcrypt.compare(senha, user.senha_hash) : false;
+          if (user && user.google_id && !valid && user.senha_hash.startsWith("google:")) {
+            return Response.json({ error: "Esta cuenta se creó con Google. Tocá «Continuar con Google»." }, { status: 401 });
+          }
           if (!user || !valid) {
             registrarFalhaLogin(request, email);
             return Response.json({ error: "E-mail o contraseña incorrectos." }, { status: 401 });
           }
           limparFalhasLogin(request, email);
 
-          const token = await createSessionToken({
-            id: user.id,
-            nome: user.nome_completo,
-            email: user.email,
-            role: user.role,
-          });
-
-          return Response.json(
-            { success: true, role: user.role },
-            { headers: { "Set-Cookie": cookieSessao(request, token) } },
-          );
+          const cookie = await abrirSessao(request, user);
+          // Admin vai para o painel; cliente, para onde estava (ou o perfil)
+          const destino = user.role === "ADMIN" ? "/admin" : destinoSeguro(body.redirect);
+          return Response.json({ success: true, role: user.role, destino }, { headers: { "Set-Cookie": cookie } });
         } catch (err) {
           console.error("Erro no login:", err);
           return Response.json({ error: "No pudimos iniciar sesión. Probá de nuevo." }, { status: 500 });

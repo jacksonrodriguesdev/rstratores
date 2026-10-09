@@ -76,3 +76,6 @@ PRODUCTS/
 
 # Base de localização por IP (baixada pelo servidor)
 geoip-agroparts/
+
+# Originais dos catálogos dos fabricantes (grandes, fora do site e do git)
+dados/catalogos-maquinas-originais/

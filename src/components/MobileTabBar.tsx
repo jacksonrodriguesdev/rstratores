@@ -20,7 +20,7 @@ export function MobileTabBar() {
   const cartItemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const categorias = useCategoriasLoja();
 
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/catalogos/ver/")) return null;
   // Páginas com barra fixa própria logo acima desta (ex.: comprar na página do produto)
   const barraPropria = pathname.startsWith("/produto/");
 
@@ -158,6 +158,12 @@ export function MobileTabBar() {
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </SheetHeader>
           <div className="flex flex-col gap-2 px-4 pb-4">
+            <Link to="/cuenta" onClick={() => setSheet(null)} className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium">
+              Mi perfil y datos
+            </Link>
+            <Link to="/catalogos" onClick={() => setSheet(null)} className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium">
+              Catálogos para mecánicos (PDF)
+            </Link>
             {user?.role === "ADMIN" && (
               <Link
                 to="/admin"

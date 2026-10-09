@@ -75,6 +75,11 @@ export function SiteFooter() {
                 Pedido rápido por códigos
               </Link>
             </li>
+            <li>
+              <Link to="/catalogos" className="font-semibold text-white/90 transition-colors hover:text-white">
+                Catálogos para mecánicos
+              </Link>
+            </li>
             {AYUDA.map((a) => (
               <li key={a.hash}>
                 <Link to="/ayuda" hash={a.hash} className="transition-colors hover:text-white">

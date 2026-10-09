@@ -14,6 +14,7 @@ import {
   Image,
   Flame,
   Globe2,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -31,6 +32,7 @@ const groups: any[] = [
     links: [
       { to: "/admin", search: undefined, label: "Dashboard", icon: LayoutDashboard, exact: true },
       { to: "/admin/visitantes", search: undefined, label: "Visitantes", icon: Globe2, exact: false },
+      { to: "/admin/catalogos", search: undefined, label: "Catálogos (PDF)", icon: BookOpen, exact: false },
       { to: "/admin/interesse", search: undefined, label: "Interesse dos clientes", icon: Flame, exact: false },
     ],
   },
