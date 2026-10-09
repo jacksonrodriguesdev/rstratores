@@ -136,6 +136,7 @@ footer { margin-top: 60px; color: var(--suave); font-size: 14px }
     .join("")}
 
   <h2 id="google">Google Ads</h2>
+  <div class="alerta" style="background:var(--verde-claro);border-left-color:var(--verde)"><b style="color:var(--verde)">Todo o tráfego pago é só para o Uruguai.</b> Google Ads: Configurações → Locais → Uruguai → Opções de local → <b>«Presença: pessoas que estão ou costumam estar nos locais segmentados»</b> (não «interesse»). Meta: Público → Local → Uruguai → <b>«Pessoas que moram ou estiveram recentemente neste local»</b>. Se aparecer anúncio fora do Uruguai, o painel Admin → Visitantes avisa.</div>
   <p><b>Configuração:</b> local <span class="tag">Uruguay</span> idioma <span class="tag">Español</span> rede <span class="tag">Pesquisa</span> (desligue «Rede de Display» nas campanhas de pesquisa). Lances: comece com «Maximizar cliques» com teto de CPC e, quando houver 15–30 conversões, troque para «Maximizar conversões».</p>
 
   <h3>Anúncio responsivo (vale para todos os grupos)</h3>

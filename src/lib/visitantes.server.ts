@@ -34,7 +34,8 @@ function contar<K>(mapa: Map<K, number>, k: K, n = 1) {
 }
 const ordenar = <T extends Record<string, any>>(a: T[], campo: keyof T) => a.sort((x, y) => (y[campo] as number) - (x[campo] as number));
 
-export async function resumoVisitantes(dias: number): Promise<Visitantes> {
+// pais: "UY" = só sessões localizadas no Uruguai (o tráfego pago é segmentado para o Uruguai)
+export async function resumoVisitantes(dias: number, pais: string | null = null): Promise<Visitantes> {
   const desde = new Date(Date.now() - dias * 24 * 3600 * 1000);
   let linhas: Linha[];
   try {
@@ -85,7 +86,13 @@ export async function resumoVisitantes(dias: number): Promise<Visitantes> {
       visitas.push(l);
     }
   }
-  const lista = [...sessoes.values()].filter((s) => s.paginas > 0 || s.whatsapp > 0);
+  const lista = [...sessoes.values()].filter((s) => (s.paginas > 0 || s.whatsapp > 0) && (!pais || s.primeira.country_code === pais));
+  if (pais) {
+    // Páginas vistas só das sessões que ficaram no filtro
+    const manter = new Set(lista.map((s) => s));
+    const chaves = new Set([...sessoes.entries()].filter(([, s]) => manter.has(s)).map(([k]) => k));
+    for (let i = visitas.length - 1; i >= 0; i--) if (!chaves.has(sessaoDe(visitas[i]))) visitas.splice(i, 1);
+  }
 
   // Por dia
   const porDia = new Map<string, { visitas: number; visitantes: Set<string>; sessoes: number; whatsapp: number }>();
@@ -159,6 +166,12 @@ export async function resumoVisitantes(dias: number): Promise<Visitantes> {
     porDia: [...porDia.entries()].map(([dia, d]) => ({ dia, visitas: d.visitas, visitantes: d.visitantes.size, sessoes: d.sessoes, whatsapp: d.whatsapp })),
     paises,
     regioes,
+    // Tráfego pago (anúncios) por departamento: onde o dinheiro dos anúncios está rendendo
+    pagoPorRegiao: ordenar(
+      agrupar((s) => (s.primeira.meio === "pago" ? s.primeira.region ?? "(sem local)" : null)).map((g) => ({ region: g.k, code: g.amostra.primeira.country_code, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })),
+      "sessoes",
+    ),
+    pagoForaDoPais: pais ? 0 : lista.filter((s) => s.primeira.meio === "pago" && s.primeira.country_code && s.primeira.country_code !== "UY").length,
     cidades,
     fontes,
     campanhas,

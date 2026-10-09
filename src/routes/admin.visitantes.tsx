@@ -43,9 +43,11 @@ const tooltipBase = { backgroundColor: "rgba(15,30,20,.92)", borderWidth: 0, tex
 function VisitantesPage() {
   const [dias, setDias] = useState(30);
   const [zoom, setZoom] = useState<"uy" | "sul" | "mundo">("uy");
+  // O tráfego pago é segmentado para o Uruguai: o painel abre filtrado no Uruguai
+  const [soUruguai, setSoUruguai] = useState(true);
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["visitantes", dias],
-    queryFn: () => getVisitantesFn({ data: dias }),
+    queryKey: ["visitantes", dias, soUruguai],
+    queryFn: () => getVisitantesFn({ data: { dias, pais: soUruguai ? "UY" : null } }),
     refetchInterval: 60_000,
   });
 
@@ -69,6 +71,14 @@ function VisitantesPage() {
             sozinho a cada minuto. Suas visitas como admin não entram.
           </p>
         </div>
+        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-1 rounded-lg border bg-card p-1">
+          {([[true, "🇺🇾 Só Uruguai"], [false, "Todos os países"]] as const).map(([v, r]) => (
+            <button key={r} onClick={() => setSoUruguai(v)} className={cn("rounded-md px-3 py-1.5 text-sm font-medium transition", soUruguai === v ? "bg-primary text-primary-foreground" : "hover:bg-muted")}>
+              {r}
+            </button>
+          ))}
+        </div>
         <div className="flex gap-1 rounded-lg border bg-card p-1">
           {PERIODOS.map((d) => (
             <button
@@ -79,6 +89,7 @@ function VisitantesPage() {
               {d === 1 ? "Hoje" : `${d} dias`}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
@@ -99,6 +110,12 @@ function VisitantesPage() {
         ))}
       </div>
 
+      {data && !soUruguai && data.pagoForaDoPais > 0 && (
+        <Card className="border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <b>{fmt(data.pagoForaDoPais)} sessões de anúncio vieram de fora do Uruguai.</b> Confira a segmentação de local das
+          campanhas: no Google, «Presença: pessoas no local»; na Meta, «Pessoas que moram ou estiveram recentemente no local».
+        </Card>
+      )}
       {data && <Paineis data={data} zoom={zoom} setZoom={setZoom} />}
     </div>
   );
@@ -248,6 +265,15 @@ function Paineis({ data, zoom, setZoom }: { data: Visitantes; zoom: "uy" | "sul"
           />
         </Card>
       </div>
+
+      <Card className="p-4">
+        <h2 className="mb-1 flex items-center gap-2 font-semibold"><Megaphone className="h-4 w-4 text-primary" /> Tráfego pago por departamento</h2>
+        <p className="mb-3 text-xs text-muted-foreground">Sessões vindas de anúncios (Google Ads, Meta) e quantas viraram conversa no WhatsApp. Use para ajustar a verba por região.</p>
+        <Tabela
+          cab={["Departamento", "Sessões pagas", "Visitantes", "WhatsApp", "Conv."]}
+          linhas={data.pagoPorRegiao.map((r) => [`${bandeira(r.code)} ${r.region}`, fmt(r.sessoes), fmt(r.visitantes), fmt(r.whatsapp), taxa(r.whatsapp, r.sessoes)])}
+        />
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-4">

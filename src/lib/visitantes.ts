@@ -18,6 +18,8 @@ export type Visitantes = {
   porDia: Array<{ dia: string; visitas: number; visitantes: number; sessoes: number; whatsapp: number }>;
   paises: Array<Grupo & { code: string; nome: string }>;
   regioes: Array<Grupo & { region: string; code: string | null }>;
+  pagoPorRegiao: Array<Grupo & { region: string; code: string | null }>;
+  pagoForaDoPais: number;
   cidades: Array<Grupo & { city: string; region: string | null; code: string | null; lat: number | null; lon: number | null }>;
   fontes: Array<Grupo & { fonte: string; meio: string }>;
   campanhas: Array<Grupo & { campanha: string; fonte: string; meio: string }>;
@@ -32,10 +34,13 @@ export type Visitantes = {
 
 // Painel Visitantes (só admin)
 export const getVisitantesFn = createServerFn({ method: "GET" })
-  .validator((dias: number) => Math.min(Math.max(Number(dias) || 30, 1), 365))
+  .validator((d: { dias: number; pais?: string | null }) => ({
+    dias: Math.min(Math.max(Number(d?.dias) || 30, 1), 365),
+    pais: d?.pais === "UY" ? "UY" : null,
+  }))
   .handler(async ({ data }) => {
     const { assertAdmin } = await import("./auth.server");
     await assertAdmin();
     const { resumoVisitantes } = await import("./visitantes.server");
-    return resumoVisitantes(data);
+    return resumoVisitantes(data.dias, data.pais);
   });

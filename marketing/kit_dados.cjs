@@ -128,7 +128,7 @@ module.exports = {
       },
     ],
     publico: {
-      local: "Uruguay (todo el país)",
+      local: "Uruguay (todo el país) · «Personas que viven o estuvieron recientemente en este lugar» (no «interesadas»)",
       idade: "25 a 65 años",
       interesses: ["Agricultura", "Tractores", "Maquinaria agrícola", "Ganadería", "Cosechadora", "Massey Ferguson", "John Deere", "New Holland Agriculture", "Valtra", "Agronegocios"],
       posicionamentos: "Advantage+ (automático); revise se Stories e Reels estão incluídos",
