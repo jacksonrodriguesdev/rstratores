@@ -1,0 +1,14 @@
+{
+  "site": "agropartsuy.com",
+  "whatsapp": "",
+  "mes": "Octubre",
+  "seed": 11,
+  "ofertaMes": { "prefixo": "HASTA", "percentual": 30, "sufixo": "OFF", "condicoes": "Promoción sujeta a stock. Consultá condiciones por WhatsApp." },
+  "ofertasDoDia": 6,
+  "fechas": [
+    { "dia": "15 de octubre", "titulo": "Día Internacional de las Mujeres Rurales", "texto": "Gracias a todas las mujeres que trabajan la tierra y sostienen el campo uruguayo." },
+    { "dia": "16 de octubre", "titulo": "Día Mundial de la Alimentación", "texto": "Detrás de cada alimento hay una máquina trabajando y alguien que la mantiene en marcha." },
+    { "dia": "", "titulo": "Al productor uruguayo", "texto": "Nos enorgullece acompañar tu trabajo con los repuestos que tu máquina necesita." }
+  ],
+  "marcas": ["John Deere", "Massey Ferguson", "New Holland", "Valtra", "Case IH"]
+}
