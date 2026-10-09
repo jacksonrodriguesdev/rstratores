@@ -116,6 +116,7 @@ function Dados({ perfil, destino }: { perfil: Perfil; destino?: string }) {
     ponto_referencia: perfil.ponto_referencia || "",
     cep: perfil.cep || "",
   });
+  const [recebe, setRecebe] = useState(perfil.recebe_emails);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (v: string) => setF((p) => ({ ...p, [k]: v }));
 
@@ -123,7 +124,7 @@ function Dados({ perfil, destino }: { perfil: Perfil; destino?: string }) {
     e.preventDefault();
     setBusy(true);
     try {
-      await salvarPerfilFn({ data: f });
+      await salvarPerfilFn({ data: { ...f, recebe_emails: recebe } });
       toast.success("Datos guardados");
       if (destino) window.location.href = destino;
     } catch (err: any) {
@@ -167,6 +168,10 @@ function Dados({ perfil, destino }: { perfil: Perfil; destino?: string }) {
         <div className="sm:col-span-2"><Campo id="p-num" label="Número"><input id="p-num" value={f.numero_casa} onChange={(e) => set("numero_casa")(e.target.value)} className={inputCls(false)} /></Campo></div>
         <div className="sm:col-span-6"><Campo id="p-ref" label="Referencia (opcional)"><input id="p-ref" placeholder="Ej.: ruta 5 km 340, portón verde" value={f.ponto_referencia} onChange={(e) => set("ponto_referencia")(e.target.value)} className={inputCls(false)} /></Campo></div>
       </div>
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-zinc-50 p-4 text-sm text-zinc-700">
+        <input type="checkbox" checked={recebe} onChange={(e) => setRecebe(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary)]" />
+        <span><b className="text-zinc-900">Recibir ofertas por e-mail</b><br />Promociones del mes y novedades de repuestos. Podés darte de baja cuando quieras.</span>
+      </label>
       <button type="submit" disabled={busy} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-60 sm:w-auto">
         {busy && <Loader2 className="h-5 w-5 animate-spin" />} Guardar cambios
       </button>

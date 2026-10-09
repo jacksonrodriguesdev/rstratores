@@ -7,7 +7,7 @@ import { nomeEs } from "@/lib/pecas-es";
 import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 
 export function CartDrawer() {
-  const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart } = useCart();
+  const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart, marcarEnviado } = useCart();
 
   if (!isCartOpen) return null;
 
@@ -24,6 +24,7 @@ export function CartDrawer() {
     const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`;
     eventoDoLinkWhatsapp(url);
     window.open(url, "_blank");
+    marcarEnviado();
     clearCart();
     setIsCartOpen(false);
   };

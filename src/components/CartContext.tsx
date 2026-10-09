@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { visitanteAtual } from "@/lib/visitante";
 
 export type CartItem = {
   sku: string;
@@ -15,6 +16,8 @@ type CartContextType = {
   removeItem: (sku: string) => void;
   updateQuantity: (sku: string, quantity: number) => void;
   clearCart: () => void;
+  // Avisa o painel de vendas que esta lista foi enviada pelo WhatsApp (chamar antes de clearCart)
+  marcarEnviado: () => void;
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
 };
@@ -22,6 +25,22 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "rs_cart_items";
+
+// Copia o carrinho para o servidor (Admin → Carrinhos). Nunca atrapalha a navegação.
+function sincronizar(items: CartItem[], enviado = false) {
+  try {
+    const vid = visitanteAtual().visitorId;
+    if (!vid) return;
+    fetch("/api/public/carrinho", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vid, itens: items, enviado }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    /* sem rede ou sem armazenamento: segue só no aparelho */
+  }
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -47,6 +66,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
     }
   }, [items, isInitialized]);
+
+  // Envia ao servidor 1,5 s depois da última mudança (e uma vez ao abrir o site, se a lista tem itens)
+  const primeira = useRef(true);
+  useEffect(() => {
+    if (!isInitialized) return;
+    if (primeira.current) {
+      primeira.current = false;
+      if (!items.length) return;
+    }
+    const t = setTimeout(() => sincronizar(items), 1500);
+    return () => clearTimeout(t);
+  }, [items, isInitialized]);
+
+  const marcarEnviado = () => sincronizar(items, true);
 
   const addItem = (newItem: CartItem) => {
     setItems((currentItems) => {
@@ -87,6 +120,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
+        marcarEnviado,
         isCartOpen,
         setIsCartOpen,
       }}

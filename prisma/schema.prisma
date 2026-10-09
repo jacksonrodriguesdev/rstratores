@@ -276,8 +276,11 @@ model users {
   avatar_url    String?  @db.Text
   departamento  String?  @db.VarChar(40)
   ultimo_login  DateTime?
+  // E-mails de marketing: o cliente pode sair pelo link "darse de baja" de cada e-mail
+  recebe_emails Boolean  @default(true)
 
   downloads     catalogos_downloads[]
+  carrinhos     carrinhos[]
 }
 
 // Catálogos e manuais em PDF para mecânicos (página /catalogos). Arquivos em <uploads>/catalogos.
@@ -311,4 +314,70 @@ model catalogos_downloads {
 
   @@index([catalogo_id])
   @@index([user_id])
+}
+
+// Carrinhos (lista de cotação) salvos no servidor a cada mudança, para o painel de vendas.
+// Um visitante tem no máximo um carrinho ABERTO; ao pedir preço pelo WhatsApp vira ENVIADO.
+model carrinhos {
+  id            Int       @id @default(autoincrement())
+  visitante_id  String    @db.VarChar(64)
+  user_id       Int?
+  itens         String    @db.Text // JSON: [{sku, codigo, name, nameEs, image, quantity}]
+  qtd_itens     Int       @default(0)
+  status        String    @default("ABERTO") @db.VarChar(20) // ABERTO, ENVIADO
+  etapa         String    @default("NOVO") @db.VarChar(20) // NOVO, CONTATADO, NEGOCIANDO, GANHO, PERDIDO
+  nota          String?   @db.Text
+  valor_fechado Float?
+  contatos      Int       @default(0)
+  contatado_em  DateTime?
+  enviado_em    DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  user          users?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([visitante_id])
+  @@index([user_id])
+  @@index([updated_at])
+}
+
+// Campanhas de e-mail (Resend). O conteúdo é o JSON do editor; o HTML é gerado no envio.
+model email_campanhas {
+  id         Int       @id @default(autoincrement())
+  nome       String    @db.VarChar(150)
+  assunto    String    @db.VarChar(200)
+  preheader  String?   @db.VarChar(200)
+  conteudo   String    @db.LongText
+  publico    String    @db.Text
+  status     String    @default("RASCUNHO") @db.VarChar(20) // RASCUNHO, ENVIANDO, ENVIADA, ERRO
+  total      Int       @default(0)
+  enviados   Int       @default(0)
+  falhas     Int       @default(0)
+  erro       String?   @db.Text
+  enviado_em DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  envios     email_envios[]
+}
+
+// Cada e-mail enviado. O status é atualizado pelo webhook do Resend (entregue, aberto, clicado...).
+model email_envios {
+  id          Int       @id @default(autoincrement())
+  campanha_id Int?
+  user_id     Int?
+  email       String    @db.VarChar(191)
+  tipo        String    @default("CAMPANHA") @db.VarChar(20) // CAMPANHA, CARRINHO, TESTE
+  status      String    @default("ENVIADO") @db.VarChar(20) // ENVIADO, ENTREGUE, ABERTO, CLICADO, REBOTADO, QUEIXA, FALHA
+  resend_id   String?   @db.VarChar(64)
+  erro        String?   @db.Text
+  aberto_em   DateTime?
+  clicado_em  DateTime?
+  created_at  DateTime  @default(now())
+
+  campanha    email_campanhas? @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
+
+  @@index([campanha_id])
+  @@index([user_id])
+  @@index([resend_id])
 }

@@ -18,6 +18,7 @@ export type Perfil = {
   ponto_referencia: string | null;
   cep: string | null;
   avatar_url: string | null;
+  recebe_emails: boolean;
   google: boolean;
   temSenha: boolean;
   role: string;
@@ -53,6 +54,7 @@ export const getPerfilFn = createServerFn({ method: "GET" }).handler(async (): P
     ponto_referencia: u.ponto_referencia,
     cep: u.cep,
     avatar_url: u.avatar_url,
+    recebe_emails: u.recebe_emails,
     google: !!u.google_id,
     temSenha: !u.senha_hash.startsWith("google:"),
     role: u.role,
@@ -75,6 +77,7 @@ export type DadosPerfil = {
   numero_casa: string;
   ponto_referencia: string;
   cep: string;
+  recebe_emails?: boolean;
 };
 
 export const salvarPerfilFn = createServerFn({ method: "POST" })
@@ -101,6 +104,7 @@ export const salvarPerfilFn = createServerFn({ method: "POST" })
         numero_casa: t(data.numero_casa, 20) || null,
         ponto_referencia: t(data.ponto_referencia, 300) || null,
         cep: t(data.cep, 20) || null,
+        ...(typeof data.recebe_emails === "boolean" && { recebe_emails: data.recebe_emails }),
       },
     });
     return { ok: true };

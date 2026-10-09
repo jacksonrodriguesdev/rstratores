@@ -15,6 +15,8 @@ import {
   Flame,
   Globe2,
   BookOpen,
+  ShoppingCart,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -34,6 +36,13 @@ const groups: any[] = [
       { to: "/admin/visitantes", search: undefined, label: "Visitantes", icon: Globe2, exact: false },
       { to: "/admin/catalogos", search: undefined, label: "Catálogos (PDF)", icon: BookOpen, exact: false },
       { to: "/admin/interesse", search: undefined, label: "Interesse dos clientes", icon: Flame, exact: false },
+    ],
+  },
+  {
+    title: "Vendas e marketing",
+    links: [
+      { to: "/admin/carrinhos", search: undefined, label: "Carrinhos", icon: ShoppingCart, exact: false },
+      { to: "/admin/emails", search: undefined, label: "E-mail marketing", icon: Mail, exact: false },
     ],
   },
   {
@@ -145,9 +154,9 @@ function AdminLayout() {
             </p>
           </div>
 
-          <nav className="flex lg:flex-col gap-6 overflow-x-auto lg:overflow-visible w-full [scrollbar-width:none]">
+          <nav className="flex lg:flex-col gap-2 lg:gap-6 overflow-x-auto lg:overflow-visible w-full [scrollbar-width:none]">
             {groups.map((group) => (
-              <div key={group.title} className="flex flex-col gap-1 min-w-[120px] lg:min-w-0">
+              <div key={group.title} className="flex shrink-0 flex-col gap-1 lg:shrink">
                 <div className="text-[11px] font-bold uppercase text-muted-foreground/70 mb-2 px-3 hidden lg:block">
                   {group.title}
                 </div>
