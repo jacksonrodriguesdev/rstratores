@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { MessageCircle, Search, ShoppingCart, Truck, CreditCard, ShieldCheck, HelpCircle, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { whatsappContactUrl } from "@/lib/whatsapp";
@@ -35,6 +36,7 @@ const PREGUNTAS = [
 
 export const Route = createFileRoute("/ayuda")({
   head: () => ({
+    links: [{ rel: "canonical", href: `${SITE_URL}/ayuda` }],
     meta: [
       { title: "Ayuda — Cómo comprar, envíos y preguntas frecuentes | AGRO PARTS" },
       {

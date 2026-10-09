@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/catalogos/")({
   validateSearch: z.object({ abrir: z.coerce.number().optional() }),
   loader: () => listarCatalogosFn(),
   head: () => ({
+    links: [{ rel: "canonical", href: `${SITE_URL}/catalogos` }],
     meta: [
       { title: "Catálogos y manuales para mecánicos | AGRO PARTS" },
       { name: "description", content: "Catálogos de piezas y manuales de taller en PDF para tractores y cosechadoras. Gratis para mecánicos de Uruguay." },

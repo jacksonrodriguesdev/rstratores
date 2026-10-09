@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useState } from "react";
 import { ListChecks, Loader2, MessageCircle, ShoppingCart, CheckCircle2, HelpCircle, Trash2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -10,6 +11,7 @@ import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 
 export const Route = createFileRoute("/pedido-rapido")({
   head: () => ({
+    links: [{ rel: "canonical", href: `${SITE_URL}/pedido-rapido` }],
     meta: [
       { title: "Pedido rápido por códigos | AGRO PARTS" },
       {

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/site";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
@@ -35,6 +36,18 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/loja")({
   validateSearch: searchSchema,
+  // Primeira página de produtos já no HTML do servidor: o Google vê as peças da categoria/marca
+  // sem depender do JavaScript. O navegador reaproveita esses dados (initialData).
+  loaderDeps: ({ search }) => ({ categoria: search.categoria, marca: search.marca, q: search.q }),
+  loader: async ({ deps }) => {
+    if (deps.q) return { inicial: null, chave: "" };
+    const params = paramsIniciais(deps.categoria, deps.marca);
+    try {
+      return { inicial: await listProducts({ ...params, contar: true }), chave: JSON.stringify(params) };
+    } catch {
+      return { inicial: null, chave: "" };
+    }
+  },
   head: ({ match }) => {
     const { categoria, marca, q } = (match.search ?? {}) as z.infer<typeof searchSchema>;
     // Título conforme o filtro: "Filtros para Massey Ferguson" rende melhor no Google que "Loja"
@@ -43,8 +56,16 @@ export const Route = createFileRoute("/loja")({
       .join(" ");
     const titulo = q ? `Resultados para "${q}"` : alvo;
     const desc = `${alvo} con envío a todo Uruguay por DAC. Buscá por código original y cotizá por WhatsApp.`;
+    // Canonical só com os filtros que viram página própria (categoria e marca), na mesma ordem
+    const params = new URLSearchParams();
+    if (categoria) params.set("categoria", categoria);
+    if (marca) params.set("marca", marca);
+    const qs = params.toString();
+    const canonical = `${SITE_URL}/loja${qs ? `?${qs}` : ""}`;
     return {
+      links: [{ rel: "canonical", href: canonical }],
       meta: [
+        { property: "og:url", content: canonical },
         { title: `${titulo} | AGRO PARTS` },
         { name: "description", content: desc },
         { property: "og:title", content: `${titulo} | AGRO PARTS` },
@@ -59,8 +80,23 @@ export const Route = createFileRoute("/loja")({
 
 const PAGE_SIZE = 30;
 
+// Mesmos parâmetros (e na mesma ordem) que a loja usa ao abrir sem busca: a chave JSON precisa bater
+function paramsIniciais(categoria?: string, marca?: string): ListParams {
+  return {
+    search: "",
+    linha: "AGRICOLA",
+    categoria: categoria ? [categoria] : undefined,
+    marca: marca ? [marca] : undefined,
+    sort: "nome-asc",
+    pageSize: PAGE_SIZE,
+    vitrine: true,
+    hasImage: true,
+  };
+}
+
 function LojaPage() {
   const { q, categoria, marca, linha } = Route.useSearch();
+  const { inicial, chave } = Route.useLoaderData();
   const [search, setSearch] = useState(q ?? "");
   const busca = useDebounce(search.trim(), 400);
   const [categorias, setCategorias] = useState<string[]>(categoria ? [categoria] : []);
@@ -103,6 +139,9 @@ function LojaPage() {
     queryFn: ({ pageParam }) => listProducts({ ...queryParams, cursor: pageParam, contar: !pageParam }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.nextCursor : undefined),
+    initialData:
+      inicial && JSON.stringify(queryParams) === chave ? { pages: [inicial], pageParams: [undefined] } : undefined,
+    staleTime: 60_000,
   });
 
   const { data: facets } = useQuery({

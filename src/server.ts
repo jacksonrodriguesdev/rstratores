@@ -2,6 +2,19 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { SITE_URL, DOMINIOS_ALIAS } from "./lib/site";
+
+// www e domínios antigos -> domínio principal (301), mantendo o caminho
+function redirecionarAlias(request: Request): Response | null {
+  const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "");
+  if (!DOMINIOS_ALIAS.includes(host)) return null;
+  const u = new URL(request.url);
+  return new Response(null, { status: 301, headers: { Location: `${SITE_URL}${u.pathname}${u.search}` } });
+}
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -46,6 +59,8 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const alias = redirecionarAlias(request);
+    if (alias) return alias;
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

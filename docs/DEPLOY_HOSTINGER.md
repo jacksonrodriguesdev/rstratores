@@ -81,7 +81,7 @@ Se a senha do banco tiver caracteres especiais (`@`, `#`, `/`, `:`), codifique-o
 - Envie um banner de teste no admin: ele deve aparecer na home na hora (e a imagem
   ficar em `UPLOADS_DIR`).
 - `/sitemap.xml` lista as peças. Cadastre o site no Google Search Console
-  (https://search.google.com/search-console) e envie `https://rsautopecas.com/sitemap.xml`.
+  (https://search.google.com/search-console) e envie `https://agropartsuy.com/sitemap.xml`.
 - Admin > Interesse dos clientes mostra cliques no WhatsApp e buscas (inclusive as sem resultado).
 
 ## Atualizações
