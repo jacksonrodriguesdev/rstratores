@@ -1,7 +1,7 @@
 // Google Analytics 4 e Meta Pixel (Facebook/Instagram), ligados só quando os IDs existem.
-// Defina VITE_GA4_ID (ex.: G-XXXXXXX) e/ou VITE_META_PIXEL_ID (só números) nas variáveis
-// de ambiente da Hostinger e faça o deploy de novo: os valores entram no build.
-export const GA4_ID = (import.meta.env.VITE_GA4_ID as string | undefined)?.trim() || "";
+// GA4 da loja: G-M8WS1HTBES (o ID de medição é público). VITE_GA4_ID na Hostinger substitui.
+// VITE_META_PIXEL_ID (só números) liga o Meta Pixel. Os valores entram no build: faça deploy de novo.
+export const GA4_ID = (import.meta.env.VITE_GA4_ID as string | undefined)?.trim() || "G-M8WS1HTBES";
 export const META_PIXEL_ID = (import.meta.env.VITE_META_PIXEL_ID as string | undefined)?.trim() || "";
 
 // Só letras, números e hífen: o valor vai dentro de um <script>
@@ -9,10 +9,11 @@ const seguro = (s: string) => /^[A-Za-z0-9-]+$/.test(s);
 
 export function scriptsMarketing() {
   const scripts: Array<{ src?: string; async?: boolean; children?: string }> = [];
+  // O painel /admin não entra nas estatísticas do Analytics
   if (GA4_ID && seguro(GA4_ID)) {
     scripts.push({ src: `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`, async: true });
     scripts.push({
-      children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${GA4_ID}');`,
+      children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());if(!location.pathname.startsWith('/admin'))gtag('config','${GA4_ID}');`,
     });
   }
   if (META_PIXEL_ID && seguro(META_PIXEL_ID)) {
