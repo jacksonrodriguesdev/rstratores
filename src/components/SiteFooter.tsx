@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin, Instagram, Facebook, Lock, Truck, MessageCircle } from "lucide-react";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
+import { INSTAGRAM_URL, INSTAGRAM_USUARIO, FACEBOOK_URL } from "@/lib/navegacao";
 import { BandeiraUruguay } from "@/components/Bandeiras";
 
 const AYUDA = [
@@ -58,9 +58,9 @@ export function SiteFooter() {
             <li className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <span>
-                Av. Justino Amonte Anacker 812, centro
+                Tienda online · Chuy, Rocha (frontera con Brasil)
                 <br />
-                Santa Vitória do Palmar - RS, Brasil
+                Atendemos por WhatsApp y enviamos por DAC a todo Uruguay.
               </span>
             </li>
           </ul>
@@ -70,6 +70,11 @@ export function SiteFooter() {
         <div>
           <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white">Ayuda</h3>
           <ul className="space-y-2 text-sm">
+            <li>
+              <Link to="/cotizar" className="font-semibold text-amber-300 transition-colors hover:text-amber-200">
+                Cotizá con nosotros
+              </Link>
+            </li>
             <li>
               <Link to="/pedido-rapido" className="font-semibold text-white/90 transition-colors hover:text-white">
                 Pedido rápido por códigos
@@ -114,10 +119,10 @@ export function SiteFooter() {
                   href={INSTAGRAM_URL}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label="Instagram"
-                  className="rounded-full bg-zinc-800 p-2 transition-colors hover:bg-primary hover:text-white"
+                  aria-label={`Instagram ${INSTAGRAM_USUARIO}`}
+                  className="inline-flex items-center gap-2 rounded-full bg-zinc-800 py-2 pl-2 pr-4 text-sm font-semibold text-white/90 transition-colors hover:bg-gradient-to-r hover:from-[#f58529] hover:via-[#dd2a7b] hover:to-[#8134af] hover:text-white"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram className="h-5 w-5" /> {INSTAGRAM_USUARIO}
                 </a>
               )}
               {FACEBOOK_URL && (
@@ -138,8 +143,7 @@ export function SiteFooter() {
 
       <div className="mt-12 border-t border-zinc-800 px-4 pt-6 text-center text-xs text-zinc-500">
         <p>
-          &copy; {new Date().getFullYear()} AGRO PARTS. Todos los derechos reservados. CNPJ:
-          33.443.027/0001-08
+          &copy; {new Date().getFullYear()} AGRO PARTS · Tienda online de repuestos agrícolas · Chuy, Uruguay
         </p>
       </div>
     </footer>

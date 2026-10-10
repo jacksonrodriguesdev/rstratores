@@ -23,6 +23,7 @@ import {
   VistosRecientesBlock,
 } from "@/components/homepage-blocks";
 import { CatalogosCtaBlock } from "@/components/home/CatalogosCta";
+import { CotizacionDistribuidorBlock } from "@/components/CotizacionDistribuidor";
 import type { HomepageBlock } from "@/lib/homepage";
 import { tituloEs } from "@/lib/pecas-es";
 import { SITE_URL } from "@/lib/site";
@@ -31,7 +32,8 @@ import { PHONE } from "@/lib/whatsapp";
 // Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
 const lojaLd = {
   "@context": "https://schema.org",
-  "@type": "Store",
+  // Loja online, sem atendimento ao público em endereço fixo: só a cidade
+  "@type": "OnlineStore",
   name: "AGRO PARTS",
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
@@ -42,10 +44,9 @@ const lojaLd = {
   areaServed: { "@type": "Country", name: "Uruguay" },
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Av. Justino Amonte Anacker 812",
-    addressLocality: "Santa Vitória do Palmar",
-    addressRegion: "RS",
-    addressCountry: "BR",
+    addressLocality: "Chuy",
+    addressRegion: "Rocha",
+    addressCountry: "UY",
   },
 };
 const siteLd = {
@@ -119,6 +120,8 @@ function Bloco({ block }: { block: HomepageBlock }) {
       return <EnvioDacBlock config={config} />;
     case "CATALOGOS_CTA":
       return <CatalogosCtaBlock />;
+    case "COTIZACION":
+      return <CotizacionDistribuidorBlock />;
     default:
       return null;
   }
@@ -149,6 +152,8 @@ function HomePage() {
   // Chamada dos catálogos: se o admin não colocou o bloco no CMS, entra sozinha depois do 2º bloco
   const ctaNoCms = blocks.some((b) => b.type === "CATALOGOS_CTA");
   const posCta = ctaNoCms ? -1 : Math.min(1, resto.length - 1);
+  // "Somos distribuidores… hacé tu cotización": sem bloco no CMS, entra depois do 4º bloco (ou no fim)
+  const posCotizacao = blocks.some((b) => b.type === "COTIZACION") ? -1 : Math.min(3, resto.length - 1);
 
   return (
     <div className="min-h-screen bg-zinc-100">
@@ -189,6 +194,7 @@ function HomePage() {
               {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
               {i === 0 && <VistosRecientesBlock />}
               {i === posCta && <CatalogosCtaBlock />}
+              {i === posCotizacao && <CotizacionDistribuidorBlock />}
             </Fragment>
           ))}
         </div>

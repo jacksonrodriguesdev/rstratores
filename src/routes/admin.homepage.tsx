@@ -122,6 +122,12 @@ const BLOCK_TYPES = [
     desc: "Chamada para receber ofertas no WhatsApp e seguir no Instagram.",
   },
   {
+    id: "COTIZACION",
+    name: "Somos distribuidores (formulário de cotação)",
+    icon: Send,
+    desc: "Seção em espanhol com formulário de cotação; os pedidos caem em Cotações. Sem este bloco, aparece sozinha depois do 4º bloco.",
+  },
+  {
     id: "CATALOGOS_CTA",
     name: "Catálogos para mecânicos (criar conta)",
     icon: BookOpen,

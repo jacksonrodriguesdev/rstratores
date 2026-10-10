@@ -46,6 +46,7 @@ const MAIS_BUSCADOS = ["Retén", "Rodamiento", "Filtro", "Engranaje", "Bomba"];
 
 // Avisos da faixa superior (trocam sozinhos)
 const AVISOS = [
+  { icon: ShieldCheck, texto: "Distribuidores de repuestos agrícolas en Uruguay" },
   { icon: Truck, texto: "Enviamos a todo Uruguay por DAC" },
   { icon: MessageCircle, texto: `Cotización rápida por WhatsApp · ${PHONE_DISPLAY}` },
   { icon: ShieldCheck, texto: "Repuestos para Massey, Valtra, John Deere, New Holland y más" },
@@ -429,6 +430,12 @@ export function SiteHeader() {
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
               >
                 <BookOpen className="h-3.5 w-3.5 text-emerald-300" /> Catálogos
+              </Link>
+              <Link
+                to="/cotizar"
+                className="flex items-center gap-1.5 rounded-lg bg-amber-400 px-3 py-1.5 font-bold text-[#06321b] transition hover:bg-amber-300"
+              >
+                <MessageCircle className="h-3.5 w-3.5" /> Cotizá con nosotros
               </Link>
               <Link
                 to="/pedido-rapido"

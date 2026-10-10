@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as BajaRouteImport } from './routes/baja'
 import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as CotizarRouteImport } from './routes/cotizar'
 import { Route as CuentaRouteImport } from './routes/cuenta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
@@ -90,6 +91,11 @@ const BajaRoute = BajaRouteImport.update({
 const CadastroRoute = CadastroRouteImport.update({
   id: '/cadastro',
   path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CotizarRoute = CotizarRouteImport.update({
+  id: '/cotizar',
+  path: '/cotizar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CuentaRoute = CuentaRouteImport.update({
@@ -360,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
   '/cadastro': typeof CadastroRoute
+  '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
@@ -418,6 +425,7 @@ export interface FileRoutesByTo {
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
   '/cadastro': typeof CadastroRoute
+  '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
@@ -478,6 +486,7 @@ export interface FileRoutesById {
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
   '/cadastro': typeof CadastroRoute
+  '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
@@ -539,6 +548,7 @@ export interface FileRouteTypes {
     | '/ayuda'
     | '/baja'
     | '/cadastro'
+    | '/cotizar'
     | '/cuenta'
     | '/login'
     | '/loja'
@@ -597,6 +607,7 @@ export interface FileRouteTypes {
     | '/ayuda'
     | '/baja'
     | '/cadastro'
+    | '/cotizar'
     | '/cuenta'
     | '/login'
     | '/loja'
@@ -656,6 +667,7 @@ export interface FileRouteTypes {
     | '/ayuda'
     | '/baja'
     | '/cadastro'
+    | '/cotizar'
     | '/cuenta'
     | '/login'
     | '/loja'
@@ -716,6 +728,7 @@ export interface RootRouteChildren {
   AyudaRoute: typeof AyudaRoute
   BajaRoute: typeof BajaRoute
   CadastroRoute: typeof CadastroRoute
+  CotizarRoute: typeof CotizarRoute
   CuentaRoute: typeof CuentaRoute
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
@@ -781,6 +794,13 @@ declare module '@tanstack/react-router' {
       path: '/cadastro'
       fullPath: '/cadastro'
       preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cotizar': {
+      id: '/cotizar'
+      path: '/cotizar'
+      fullPath: '/cotizar'
+      preLoaderRoute: typeof CotizarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cuenta': {
@@ -1260,6 +1280,7 @@ const rootRouteChildren: RootRouteChildren = {
   AyudaRoute: AyudaRoute,
   BajaRoute: BajaRoute,
   CadastroRoute: CadastroRoute,
+  CotizarRoute: CotizarRoute,
   CuentaRoute: CuentaRoute,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
