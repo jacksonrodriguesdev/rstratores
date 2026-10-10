@@ -75,7 +75,7 @@ function FotosLote() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
-        <Link to="/admin/precificacao" className="flex h-10 w-10 items-center justify-center rounded-lg border hover:bg-muted" aria-label="Voltar"><ArrowLeft className="h-5 w-5" /></Link>
+        <Link to="/admin/produtos" className="flex h-10 w-10 items-center justify-center rounded-lg border hover:bg-muted" aria-label="Voltar"><ArrowLeft className="h-5 w-5" /></Link>
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight"><Images className="h-6 w-6 text-primary" /> Fotos em lote</h1>
           <p className="text-sm text-muted-foreground">Nomeie cada foto com o <b>código original</b> ou o <b>SKU</b> da peça. Várias fotos da mesma peça: <code>3136019.jpg</code>, <code>3136019-2.jpg</code>, <code>3136019-3.jpg</code>.</p>

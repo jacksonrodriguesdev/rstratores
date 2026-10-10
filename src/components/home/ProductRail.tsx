@@ -7,19 +7,13 @@ import { useCart } from "@/components/CartContext";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
 import { nomeProduto } from "@/lib/pecas-es";
 import { cn } from "@/lib/utils";
-import { usePreco } from "@/components/PrecoTag";
-import { fmtBRL, fmtUYU } from "@/lib/precos";
+import { usePreco, PrecoVisual, SeloOferta } from "@/components/PrecoTag";
 
 // Preço da peça (quando tem e está liberado no admin); senão, o convite para consultar
 function PrecoComFallback({ p }: { p: Product }) {
   const preco = usePreco(p);
   if (!preco) return <span className="text-sm font-semibold text-primary">Consultá el precio</span>;
-  return (
-    <span className="flex flex-wrap items-baseline gap-x-1.5">
-      <b className="text-base text-zinc-900">{preco.uyu ? fmtUYU(preco.uyu) : fmtBRL(preco.brl!)}</b>
-      {preco.uyu && preco.brl ? <span className="text-[11px] font-semibold text-zinc-500">{fmtBRL(preco.brl)}</span> : null}
-    </span>
-  );
+  return <PrecoVisual preco={preco} />;
 }
 
 // Larguras por tela: no celular aparece um pedaço do próximo cartão, convidando a arrastar.
@@ -103,7 +97,8 @@ export function RailCard({ p }: { p: Product }) {
       params={{ sku: p.sku }}
       className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-zinc-100 bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]"
     >
-      <div className="aspect-square bg-white p-2">
+      <div className="relative aspect-square bg-white p-2">
+        <SeloOferta p={p} className="absolute left-1.5 top-1.5 z-10 px-1.5 py-0.5 text-[10px]" />
         <ProductImage
           src={p.imagem_principal}
           alt={nome}

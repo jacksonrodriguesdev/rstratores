@@ -13,7 +13,8 @@ export type ConfigPrecos = {
   mostrar: boolean; // mostrar preços no site
 };
 
-export type CamposPreco = { preco_brl?: number | null; preco_modo?: string | null; preco_uyu?: number | null };
+// valor_promocional = preço promocional de venda em R$ (vale quando é menor que preco_brl)
+export type CamposPreco = { preco_brl?: number | null; preco_modo?: string | null; preco_uyu?: number | null; valor_promocional?: number | null };
 
 export const arredondar = (v: number, passo: number) => (passo > 0 ? Math.ceil(v / passo - 1e-9) * passo : Math.round(v));
 
@@ -22,13 +23,32 @@ export function uyuDeBrl(brl: number, c: Pick<ConfigPrecos, "cotacao" | "ajuste"
   return arredondar(brl * c.cotacao * (1 + (c.ajuste || 0) / 100), c.arredondar);
 }
 
-export function precoVenda(p: CamposPreco, c: ConfigPrecos | null | undefined): { uyu: number | null; brl: number | null } | null {
+export type PrecoFinal = {
+  uyu: number | null;
+  brl: number | null;
+  // Em promoção: preço "de" (riscado) e o desconto em %
+  deUyu?: number | null;
+  deBrl?: number | null;
+  desconto?: number;
+};
+
+function precoCheio(p: CamposPreco, c: ConfigPrecos | null | undefined) {
   const brl = p.preco_brl && p.preco_brl > 0 ? p.preco_brl : null;
   let uyu: number | null = null;
   if (p.preco_modo === "FIXO" && p.preco_uyu && p.preco_uyu > 0) uyu = p.preco_uyu;
   else if (brl && c) uyu = uyuDeBrl(brl, c);
-  if (!uyu && !brl) return null;
   return { uyu, brl };
+}
+
+export function precoVenda(p: CamposPreco, c: ConfigPrecos | null | undefined): PrecoFinal | null {
+  const cheio = precoCheio(p, c);
+  if (!cheio.uyu && !cheio.brl) return null;
+  const promo = p.valor_promocional && p.valor_promocional > 0 ? p.valor_promocional : null;
+  if (!promo || !cheio.brl || promo >= cheio.brl) return cheio;
+  // Promoção: mesmo desconto em R$ e em $U (no modo fixo, aplica a proporção sobre o $U fixo)
+  const fator = promo / cheio.brl;
+  const uyuPromo = p.preco_modo === "FIXO" && cheio.uyu ? arredondar(cheio.uyu * fator, c?.arredondar ?? 0) : c ? uyuDeBrl(promo, c) : null;
+  return { uyu: uyuPromo, brl: promo, deUyu: cheio.uyu, deBrl: cheio.brl, desconto: Math.round((1 - fator) * 100) };
 }
 
 // Venda em R$ a partir do custo e da margem (%)

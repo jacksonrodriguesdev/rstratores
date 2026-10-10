@@ -1,15 +1,15 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Calculator, ImagePlus, Loader2, Ruler, Save, Star, Tag, Trash2, Type } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calculator, CheckCircle2, EyeOff, ExternalLink, ImagePlus, Loader2, Percent, Ruler, Save, Star, Tag, Trash2, Type, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   obterProdutoAdminFn, salvarProdutoAdminFn, opcoesFiltroFn, getPrecosConfigFn,
-  adicionarFotosFn, removerFotoFn, definirFotoPrincipalFn, ordenarFotosFn, type ProdutoAdmin,
+  adicionarFotosFn, removerFotoFn, definirFotoPrincipalFn, ordenarFotosFn, avisosVisibilidade, type ProdutoAdmin,
 } from "@/lib/produtos-admin";
 import { enviarFotos } from "@/lib/imagem-cliente";
-import { fmtBRL, fmtUYU, margemDe, uyuDeBrl, vendaDeCusto } from "@/lib/precos";
+import { fmtBRL, fmtUYU, margemDe, uyuDeBrl, vendaDeCusto, precoVenda } from "@/lib/precos";
 import { nomeEs } from "@/lib/pecas-es";
 import { MONTADORAS } from "@/lib/navegacao";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ function paraForm(p: ProdutoAdmin): Form {
     nome: p.nome, nome_es: txt(p.nome_es), codigo_fabricante: txt(p.codigo_fabricante), fabricante: txt(p.fabricante),
     marca: txt(p.marca), category_id: txt(p.category_id), estoque: txt(p.estoque), descricao: txt(p.descricao), descricao_es: txt(p.descricao_es),
     veiculos_compativeis: txt(p.veiculos_compativeis), tamanho: txt(p.tamanho), ean: txt(p.ean), ncm: txt(p.ncm),
-    valor_compra: txt(p.valor_compra), margem: txt(p.margem), preco_brl: txt(p.preco_brl), preco_modo: p.preco_modo || "AUTO", preco_uyu: txt(p.preco_uyu),
+    valor_compra: txt(p.valor_compra), margem: txt(p.margem), preco_brl: txt(p.preco_brl), preco_modo: p.preco_modo || "AUTO", preco_uyu: txt(p.preco_uyu), valor_promocional: txt(p.valor_promocional),
     peso: txt(p.peso), altura: txt(p.altura), largura: txt(p.largura), profundidade: txt(p.profundidade),
   };
 }
@@ -68,6 +68,8 @@ export function ProdutoEditor({ sku, aoSalvar, rotuloSalvar = "Salvar", extraAco
     const b = f ? n(f.preco_brl) : null;
     return b && cfg ? uyuDeBrl(b, cfg) : null;
   }, [f?.preco_brl, cfg]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const promo = useMemo(() => (f && cfg ? precoVenda({ preco_brl: n(f.preco_brl), preco_modo: f.preco_modo, preco_uyu: n(f.preco_uyu), valor_promocional: n(f.valor_promocional) }, cfg) : null), [f, cfg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const salvar = async () => {
     if (!f || !p) return;
@@ -168,6 +170,7 @@ export function ProdutoEditor({ sku, aoSalvar, rotuloSalvar = "Salvar", extraAco
 
       {/* Dados */}
       <div className="space-y-4">
+        <Visibilidade p={p} />
         <div className={sec}>
           <h3 className="mb-3 flex items-center gap-2 font-semibold"><Calculator className="h-4 w-4 text-primary" /> Preço</h3>
           <div className="grid grid-cols-3 gap-2">
@@ -188,7 +191,14 @@ export function ProdutoEditor({ sku, aoSalvar, rotuloSalvar = "Salvar", extraAco
             )}
             <span className="ml-auto text-xs text-muted-foreground">{cfg?.cotacao ? `1 R$ = $U ${cfg.cotacao.toFixed(2)}${cfg.ajuste ? ` +${cfg.ajuste}%` : ""}` : "sem cotação"}</span>
           </div>
-          {n(f.preco_brl) ? <p className="mt-2 text-xs text-muted-foreground">No site: {f.preco_modo === "FIXO" && n(f.preco_uyu) ? fmtUYU(n(f.preco_uyu)!) : uyuAuto ? fmtUYU(uyuAuto) : ""} · {fmtBRL(n(f.preco_brl)!)}</p> : null}
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-3">
+            <Percent className="h-4 w-4 text-red-600" />
+            <span className="text-sm font-semibold">Promoção: venda por R$</span>
+            <Input inputMode="decimal" value={f.valor_promocional} onChange={(e) => set("valor_promocional", e.target.value)} placeholder="sem promoção" className="h-9 w-32" />
+            {promo?.desconto ? <span className="text-sm font-semibold text-red-600">-{promo.desconto}% · {promo.uyu ? fmtUYU(promo.uyu) : ""}</span> : n(f.valor_promocional) ? <span className="text-xs text-amber-700">precisa ser menor que a venda</span> : null}
+            {f.valor_promocional && <button type="button" onClick={() => set("valor_promocional", "")} className="ml-auto text-xs font-semibold text-muted-foreground hover:text-foreground">Tirar promoção</button>}
+          </div>
+          {n(f.preco_brl) ? <p className="mt-2 text-xs text-muted-foreground">No site: {promo?.desconto ? <><s>{promo.deUyu ? fmtUYU(promo.deUyu) : ""}</s> <b className="text-red-600">{promo.uyu ? fmtUYU(promo.uyu) : ""}</b> · {fmtBRL(promo.brl!)} (selo OFERTA -{promo.desconto}%)</> : <>{f.preco_modo === "FIXO" && n(f.preco_uyu) ? fmtUYU(n(f.preco_uyu)!) : uyuAuto ? fmtUYU(uyuAuto) : ""} · {fmtBRL(n(f.preco_brl)!)}</>}</p> : null}
         </div>
 
         <div className={sec}>
@@ -236,6 +246,22 @@ export function ProdutoEditor({ sku, aoSalvar, rotuloSalvar = "Salvar", extraAco
           <Button onClick={salvar} disabled={salvando}>{salvando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}{rotuloSalvar}</Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Mostra se a peça aparece na loja e, se não, por quê
+function Visibilidade({ p }: { p: ProdutoAdmin }) {
+  const avisos = avisosVisibilidade(p as any);
+  const oculto = avisos.some((a) => a.tipo === "oculto");
+  return (
+    <div className={cn("rounded-xl border p-3 text-sm", oculto ? "border-red-200 bg-red-50" : avisos.length ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50")}>
+      <div className="flex items-center gap-2">
+        {oculto ? <EyeOff className="h-4 w-4 text-red-600" /> : avisos.length ? <AlertTriangle className="h-4 w-4 text-amber-600" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+        <b className={oculto ? "text-red-700" : avisos.length ? "text-amber-800" : "text-emerald-800"}>{oculto ? "Não aparece na loja" : avisos.length ? "Aparece na loja, com ressalva" : "Visível no site"}</b>
+        <a href={`/produto/${encodeURIComponent(p.sku)}`} target="_blank" rel="noreferrer" className="ml-auto flex items-center gap-1 text-xs font-semibold text-primary hover:underline">Ver no site <ExternalLink className="h-3.5 w-3.5" /></a>
+      </div>
+      {avisos.map((a) => <p key={a.texto} className="mt-1 text-xs text-zinc-700">• {a.texto}</p>)}
     </div>
   );
 }

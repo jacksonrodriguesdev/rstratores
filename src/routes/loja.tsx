@@ -8,7 +8,7 @@ import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
-import { PrecoTag } from "@/components/PrecoTag";
+import { PrecoTag, SeloOferta } from "@/components/PrecoTag";
 import { useCart } from "@/components/CartContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -491,6 +491,7 @@ function CardLoja({ p }: { p: Product }) {
           marca={marca}
           className="object-contain mix-blend-multiply drop-shadow-sm transition-transform duration-700 ease-out group-hover:scale-105"
         />
+        <SeloOferta p={p} className="absolute left-2 top-2" />
       </Link>
       {/* Agregar à cotação sem sair da lista */}
       <button

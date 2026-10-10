@@ -27,7 +27,7 @@ function Fila() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <Link to="/admin/precificacao" className="flex h-10 w-10 items-center justify-center rounded-lg border hover:bg-muted" aria-label="Voltar"><ArrowLeft className="h-5 w-5" /></Link>
+        <Link to="/admin/produtos" className="flex h-10 w-10 items-center justify-center rounded-lg border hover:bg-muted" aria-label="Voltar"><ArrowLeft className="h-5 w-5" /></Link>
         <div className="mr-auto">
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight"><Zap className="h-6 w-6 text-primary" /> Precificar uma a uma</h1>
           <p className="text-sm text-muted-foreground">

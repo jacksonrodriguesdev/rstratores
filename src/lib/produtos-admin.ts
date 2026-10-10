@@ -27,10 +27,20 @@ export const FILTROS = [
   ["sem_foto", "Sem foto"],
   ["sem_preco", "Sem preço"],
   ["precificados", "Precificados"],
+  ["promocao", "Em promoção"],
   ["sem_medidas", "Sem peso/medidas"],
   ["fora", "Fora da vitrine"],
 ] as const;
 export type Filtro = (typeof FILTROS)[number][0];
+
+// Por que uma peça não aparece na loja (vazio = aparece normalmente)
+export function avisosVisibilidade(p: { category_id: number | null; imagem_principal: string | null; duplicado_de: string | null }) {
+  const avisos: Array<{ tipo: "oculto" | "parcial"; texto: string }> = [];
+  if (p.duplicado_de) avisos.push({ tipo: "oculto", texto: `É uma versão da peça ${p.duplicado_de}: aparece dentro da página dela, não sozinha na loja.` });
+  if (p.category_id == null) avisos.push({ tipo: "oculto", texto: "Sem categoria: fica fora da vitrine (não aparece na loja nem nas categorias). Escolha uma categoria." });
+  if (!p.imagem_principal || /redeparts/i.test(p.imagem_principal)) avisos.push({ tipo: "parcial", texto: "Sem foto: a loja abre mostrando só peças com foto; esta aparece na busca e em “Ver todos”." });
+  return avisos;
+}
 
 const FOTO_OK = { AND: [{ imagem_principal: { not: null } }, { imagem_principal: { not: "" } }, { NOT: { imagem_principal: { contains: "redeparts" } } }] };
 const SEM_FOTO = { OR: [{ imagem_principal: null }, { imagem_principal: "" }, { imagem_principal: { contains: "redeparts" } }] };
@@ -52,6 +62,7 @@ function whereFiltro(f: string): any {
     case "sem_foto": return { ...vitrine, ...SEM_FOTO };
     case "sem_preco": return { ...vitrine, ...SEM_PRECO };
     case "precificados": return { ...vitrine, ...COM_PRECO };
+    case "promocao": return { duplicado_de: null, valor_promocional: { gt: 0 } };
     case "sem_medidas": return { ...vitrine, ...SEM_MEDIDAS };
     case "fora": return { duplicado_de: null, category_id: null };
     default: return vitrine;
@@ -69,13 +80,13 @@ export const resumoProdutosFn = createServerFn({ method: "GET" }).handler(async 
 export type LinhaAdmin = {
   sku: string; nome: string; nome_es: string | null; codigo_fabricante: string | null; fabricante: string | null;
   marca: string | null; categoria: string | null; category_id: number | null; imagem_principal: string | null;
-  valor_compra: number | null; margem: number | null; preco_brl: number | null; preco_modo: string; preco_uyu: number | null;
+  valor_compra: number | null; margem: number | null; preco_brl: number | null; valor_promocional: number | null; duplicado_de: string | null; preco_modo: string; preco_uyu: number | null;
   peso: number | null; altura: number | null; largura: number | null; profundidade: number | null; estoque: number;
   precificado_em: string | null; fotos: number;
 };
 const SELECT_LINHA = {
   sku: true, nome: true, nome_es: true, codigo_fabricante: true, fabricante: true, marca: true, categoria: true, category_id: true,
-  imagem_principal: true, valor_compra: true, margem: true, preco_brl: true, preco_modo: true, preco_uyu: true,
+  imagem_principal: true, valor_compra: true, margem: true, preco_brl: true, valor_promocional: true, duplicado_de: true, preco_modo: true, preco_uyu: true,
   peso: true, altura: true, largura: true, profundidade: true, estoque: true, precificado_em: true, _count: { select: { images: true } },
 } as const;
 const linha = (r: any): LinhaAdmin => ({ ...r, precificado_em: r.precificado_em?.toISOString() ?? null, fotos: r._count?.images ?? 0, _count: undefined });
@@ -126,14 +137,14 @@ export const obterProdutoAdminFn = createServerFn({ method: "GET" })
     return {
       ...linha(p),
       descricao: p.descricao, descricao_es: p.descricao_es, tamanho: p.tamanho, veiculos_compativeis: p.veiculos_compativeis,
-      ean: p.ean, ncm: p.ncm, duplicado_de: p.duplicado_de,
+      ean: p.ean, ncm: p.ncm,
       images: p.images.map((i) => ({ id: i.id, path: i.image_path, ordem: i.sort_order })),
     };
   });
 export type ProdutoAdmin = NonNullable<Awaited<ReturnType<typeof obterProdutoAdminFn>>>;
 
 const TEXTO = ["nome", "nome_es", "descricao", "descricao_es", "codigo_fabricante", "fabricante", "marca", "tamanho", "veiculos_compativeis", "ean", "ncm"] as const;
-const NUMERO = ["valor_compra", "margem", "preco_brl", "preco_uyu", "peso", "altura", "largura", "profundidade"] as const;
+const NUMERO = ["valor_compra", "margem", "preco_brl", "preco_uyu", "valor_promocional", "peso", "altura", "largura", "profundidade"] as const;
 
 export const salvarProdutoAdminFn = createServerFn({ method: "POST" })
   .validator((d: Record<string, any> & { sku: string }) => d)
