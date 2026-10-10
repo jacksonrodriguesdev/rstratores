@@ -1,0 +1,37 @@
+{
+  "site": "agropartsuy.com",
+  "comentario": "Frases sobre as linhas: hoje há poucos catálogos publicados. Quando houver de todas as marcas, troque por 'de todas las líneas' / 'de todas as linhas'.",
+  "linhas_es": "de las principales líneas",
+  "linhas_pt": "das principais linhas",
+  "marcas": [
+    [
+      "Massey Ferguson",
+      "#c8102e"
+    ],
+    [
+      "Valtra",
+      "#d52b1e"
+    ],
+    [
+      "John Deere",
+      "#367c2b"
+    ],
+    [
+      "New Holland",
+      "#0a5bb5"
+    ],
+    [
+      "Case IH",
+      "#b5121b"
+    ],
+    [
+      "Ford",
+      "#1a4fa3"
+    ]
+  ],
+  "com_catalogo": [
+    "Case IH",
+    "Massey Ferguson"
+  ],
+  "comentario_com_catalogo": "Marcas que já têm catálogo publicado no site (os posts de marca dizem \"disponível\"; as outras convidam a pedir pelo WhatsApp)."
+}
