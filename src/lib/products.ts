@@ -2,6 +2,8 @@ export type Product = {
   sku: string;
   nome: string;
   preco_brl: number | null;
+  preco_modo?: string | null; // AUTO ($U pela cotação) ou FIXO
+  preco_uyu?: number | null;
   categoria: string | null;
   category_id: number | null;
   linha: string;
@@ -161,7 +163,8 @@ const acharPorCodigosFn = createServerFn({ method: "POST" })
     const { prisma } = await import("./prisma");
     const rows = skus.length ? await prisma.agricolas.findMany({ where: { sku: { in: skus } } }) : [];
     const porSku = new Map(rows.map((r) => [r.sku, r]));
-    return achados.map((a) => ({ codigo: a.codigo, produto: (a.sku ? porSku.get(a.sku) ?? null : null) as Product | null }));
+    const { semCusto } = await import("./precos.server");
+    return achados.map((a) => ({ codigo: a.codigo, produto: (a.sku && porSku.get(a.sku) ? semCusto(porSku.get(a.sku) as any) : null) as Product | null }));
   });
 
 export async function acharPorCodigos(codigos: string[]) {
@@ -176,7 +179,8 @@ const getProductsBySkusFn = createServerFn({ method: "GET" })
     const { prisma } = await import("./prisma");
     const rows = await prisma.agricolas.findMany({ where: { sku: { in: data }, duplicado_de: null } });
     const porSku = new Map(rows.map((r) => [r.sku, r]));
-    return data.map((s) => porSku.get(s)).filter(Boolean) as unknown as Product[];
+    const { semCusto } = await import("./precos.server");
+    return data.map((s) => porSku.get(s)).filter(Boolean).map((r) => semCusto(r as any)) as unknown as Product[];
   });
 
 export async function getProductsBySkus(skus: string[]) {

@@ -27,9 +27,12 @@ import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
 import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
+import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
+import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
+import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
@@ -158,6 +161,11 @@ const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
   path: '/cotacoes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFotosLoteRoute = AdminFotosLoteRouteImport.update({
+  id: '/fotos-lote',
+  path: '/fotos-lote',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminHomepageRoute = AdminHomepageRouteImport.update({
   id: '/homepage',
   path: '/homepage',
@@ -171,6 +179,16 @@ const AdminInteresseRoute = AdminInteresseRouteImport.update({
 const AdminPellegrinoRoute = AdminPellegrinoRouteImport.update({
   id: '/pellegrino',
   path: '/pellegrino',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPrecificacaoRoute = AdminPrecificacaoRouteImport.update({
+  id: '/precificacao',
+  path: '/precificacao',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPrecificarRoute = AdminPrecificarRouteImport.update({
+  id: '/precificar',
+  path: '/precificar',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminProdutosRoute = AdminProdutosRouteImport.update({
@@ -378,9 +396,12 @@ export interface FileRoutesByFullPath {
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/precificacao': typeof AdminPrecificacaoRoute
+  '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
@@ -437,9 +458,12 @@ export interface FileRoutesByTo {
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/precificacao': typeof AdminPrecificacaoRoute
+  '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
@@ -498,9 +522,12 @@ export interface FileRoutesById {
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/precificacao': typeof AdminPrecificacaoRoute
+  '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
@@ -560,9 +587,12 @@ export interface FileRouteTypes {
     | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/cotacoes'
+    | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/pellegrino'
+    | '/admin/precificacao'
+    | '/admin/precificar'
     | '/admin/produtos'
     | '/admin/upload'
     | '/admin/visitantes'
@@ -619,9 +649,12 @@ export interface FileRouteTypes {
     | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/cotacoes'
+    | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/pellegrino'
+    | '/admin/precificacao'
+    | '/admin/precificar'
     | '/admin/produtos'
     | '/admin/upload'
     | '/admin/visitantes'
@@ -679,9 +712,12 @@ export interface FileRouteTypes {
     | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/cotacoes'
+    | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/pellegrino'
+    | '/admin/precificacao'
+    | '/admin/precificar'
     | '/admin/produtos'
     | '/admin/upload'
     | '/admin/visitantes'
@@ -887,6 +923,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCotacoesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/fotos-lote': {
+      id: '/admin/fotos-lote'
+      path: '/fotos-lote'
+      fullPath: '/admin/fotos-lote'
+      preLoaderRoute: typeof AdminFotosLoteRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/homepage': {
       id: '/admin/homepage'
       path: '/homepage'
@@ -906,6 +949,20 @@ declare module '@tanstack/react-router' {
       path: '/pellegrino'
       fullPath: '/admin/pellegrino'
       preLoaderRoute: typeof AdminPellegrinoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/precificacao': {
+      id: '/admin/precificacao'
+      path: '/precificacao'
+      fullPath: '/admin/precificacao'
+      preLoaderRoute: typeof AdminPrecificacaoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/precificar': {
+      id: '/admin/precificar'
+      path: '/precificar'
+      fullPath: '/admin/precificar'
+      preLoaderRoute: typeof AdminPrecificarRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/produtos': {
@@ -1176,9 +1233,12 @@ interface AdminRouteChildren {
   AdminCatalogosRoute: typeof AdminCatalogosRoute
   AdminCategoriasRoute: typeof AdminCategoriasRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
+  AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
+  AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
+  AdminPrecificarRoute: typeof AdminPrecificarRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
   AdminUploadRoute: typeof AdminUploadRoute
   AdminVisitantesRoute: typeof AdminVisitantesRoute
@@ -1193,9 +1253,12 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCatalogosRoute: AdminCatalogosRoute,
   AdminCategoriasRoute: AdminCategoriasRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
+  AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminHomepageRoute: AdminHomepageRoute,
   AdminInteresseRoute: AdminInteresseRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
+  AdminPrecificacaoRoute: AdminPrecificacaoRoute,
+  AdminPrecificarRoute: AdminPrecificarRoute,
   AdminProdutosRoute: AdminProdutosRoute,
   AdminUploadRoute: AdminUploadRoute,
   AdminVisitantesRoute: AdminVisitantesRoute,

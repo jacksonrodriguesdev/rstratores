@@ -17,6 +17,8 @@ import {
   BookOpen,
   ShoppingCart,
   Mail,
+  Zap,
+  Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -48,6 +50,9 @@ const groups: any[] = [
   {
     title: "Catálogo",
     links: [
+      { to: "/admin/precificacao", search: undefined, label: "Produtos e preços", icon: Calculator, exact: false },
+      { to: "/admin/precificar", search: undefined, label: "Precificar uma a uma", icon: Zap, exact: false },
+      { to: "/admin/fotos-lote", search: undefined, label: "Fotos em lote", icon: Images, exact: false },
       {
         label: "Produtos",
         icon: Package,

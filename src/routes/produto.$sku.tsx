@@ -32,6 +32,9 @@ import { whatsappQuoteUrl } from "@/lib/whatsapp";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { registrarVisto } from "@/hooks/use-vistos";
+import { getPrecosConfigFn } from "@/lib/produtos-admin";
+import { PrecoTag, usePreco } from "@/components/PrecoTag";
+import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
 
 const SITE = SITE_URL;
 const urlImagem = (p: string) => (p.startsWith("http") ? p : `${SITE}${p.startsWith("/") ? p : `/uploads/${p}`}`);
@@ -44,7 +47,9 @@ export const Route = createFileRoute("/produto/$sku")({
     if (product.duplicado_de) {
       throw redirect({ to: "/produto/$sku", params: { sku: product.duplicado_de } });
     }
-    return { product };
+    // Configuração de preços junto: o preço já sai no HTML do servidor (e para o Google)
+    const precos = await getPrecosConfigFn().catch(() => undefined);
+    return { product, precos };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -75,6 +80,20 @@ export const Route = createFileRoute("/produto/$sku")({
       category: categoriaEs(p.categoria) || undefined,
       ...(marca && { brand: { "@type": "Brand", name: marca } }),
       url,
+      ...(() => {
+        const pr = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
+        if (!pr) return {};
+        return {
+          offers: {
+            "@type": "Offer",
+            url,
+            priceCurrency: pr.uyu ? "UYU" : "BRL",
+            price: pr.uyu ?? pr.brl,
+            availability: p.estoque > 0 ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+            seller: { "@type": "Organization", name: "AGRO PARTS" },
+          },
+        };
+      })(),
     };
     const trilhaLd = {
       "@context": "https://schema.org",
@@ -142,7 +161,10 @@ export const Route = createFileRoute("/produto/$sku")({
 });
 
 function ProductDetail() {
-  const { product } = Route.useLoaderData();
+  const { product, precos } = Route.useLoaderData();
+  const precoAtual = usePreco(product, precos);
+  const temPreco = !!precoAtual;
+  const precoBarra = precoAtual ? (precoAtual.uyu ? fmtUYU(precoAtual.uyu) : fmtBRL(precoAtual.brl!)) : null;
   const { items, addItem, setIsCartOpen } = useCart();
   const marca = marcaExibicao(product);
   const nome = nomeProduto(product);
@@ -303,16 +325,26 @@ function ProductDetail() {
 
             {/* Caixa de compra */}
             <div className="mt-6 rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/5 to-white p-5 shadow-lg shadow-primary/10">
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Precio por consulta</p>
-              <p className="mt-1 text-sm text-zinc-600">
-                Escribinos y te pasamos el precio, la disponibilidad y el costo de envío a tu localidad.
-              </p>
+              {temPreco ? (
+                <>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">Precio</p>
+                  <PrecoTag p={product} tamanho="lg" inicial={precos} className="mt-1" />
+                  <p className="mt-1 text-sm text-zinc-600">Confirmá la disponibilidad y el costo de envío a tu localidad por WhatsApp.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">Precio por consulta</p>
+                  <p className="mt-1 text-sm text-zinc-600">
+                    Escribinos y te pasamos el precio, la disponibilidad y el costo de envío a tu localidad.
+                  </p>
+                </>
+              )}
               <div className="mt-4 flex flex-col gap-3">
                 <QuoteButton
                   product={product}
                   size="lg"
                   fullWidth
-                  label="Consultar precio por WhatsApp"
+                  label={temPreco ? "Comprar por WhatsApp" : "Consultar precio por WhatsApp"}
                   className="h-14 text-base font-bold shadow-lg shadow-[#25D366]/30 md:text-lg"
                 />
                 <button
@@ -484,7 +516,7 @@ function ProductDetail() {
             rel="noreferrer noopener"
             className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] font-bold text-white shadow-lg shadow-[#25D366]/30 active:scale-[0.98]"
           >
-            <MessageCircle className="h-5 w-5" /> Consultar precio
+            <MessageCircle className="h-5 w-5" /> {precoBarra ? `Comprar · ${precoBarra}` : "Consultar precio"}
           </a>
         </div>
       </div>

@@ -7,6 +7,20 @@ import { useCart } from "@/components/CartContext";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
 import { nomeProduto } from "@/lib/pecas-es";
 import { cn } from "@/lib/utils";
+import { usePreco } from "@/components/PrecoTag";
+import { fmtBRL, fmtUYU } from "@/lib/precos";
+
+// Preço da peça (quando tem e está liberado no admin); senão, o convite para consultar
+function PrecoComFallback({ p }: { p: Product }) {
+  const preco = usePreco(p);
+  if (!preco) return <span className="text-sm font-semibold text-primary">Consultá el precio</span>;
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-1.5">
+      <b className="text-base text-zinc-900">{preco.uyu ? fmtUYU(preco.uyu) : fmtBRL(preco.brl!)}</b>
+      {preco.uyu && preco.brl ? <span className="text-[11px] font-semibold text-zinc-500">{fmtBRL(preco.brl)}</span> : null}
+    </span>
+  );
+}
 
 // Larguras por tela: no celular aparece um pedaço do próximo cartão, convidando a arrastar.
 const LARGURA = "flex-[0_0_44%] sm:flex-[0_0_31%] md:flex-[0_0_24%] lg:flex-[0_0_19.2%] xl:flex-[0_0_16%]";
@@ -100,8 +114,8 @@ export function RailCard({ p }: { p: Product }) {
       <div className="flex flex-1 flex-col gap-1 border-t border-zinc-100 p-3">
         <span className="text-[11px] font-medium text-zinc-400">Cód. {codigoExibicao(p)}</span>
         <span className="line-clamp-2 min-h-[2.75em] text-[13px] leading-snug text-zinc-800">{nome}</span>
-        <span className="mt-auto pt-1 text-sm font-semibold text-primary">
-          Consultá el precio
+        <span className="mt-auto pt-1">
+          <PrecoComFallback p={p} />
         </span>
         {marca && <span className="truncate text-[11px] uppercase tracking-wide text-zinc-400">{marca}</span>}
       </div>

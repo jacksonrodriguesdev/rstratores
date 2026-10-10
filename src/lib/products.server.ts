@@ -3,6 +3,7 @@ import { prisma } from "./prisma";
 import { AUTOMOTIVA_ATIVA } from "./linhas";
 import { buscaParaPortugues } from "./pecas-es";
 import { limparCacheCatalogo } from "./busca-catalogo.server";
+import { semCusto } from "./precos.server";
 
 
 
@@ -51,7 +52,7 @@ export async function listProducts(params: ListParams) {
     const rows = pagina.map((s) => porSku.get(s)).filter(Boolean);
     const hasNextPage = inicio + pageSize < skus.length;
     return {
-      rows: rows as any,
+      rows: rows.map((r: any) => semCusto(r)) as any,
       hasNextPage,
       nextCursor: rows.length ? (rows[rows.length - 1] as any).sku : undefined,
       total: skus.length,
@@ -218,7 +219,7 @@ export async function listProducts(params: ListParams) {
   }
 
   return {
-    rows: data as any,
+    rows: (data as any[]).map((r) => semCusto(r)) as any,
     hasNextPage,
     nextCursor,
     // Só conta quando pedido (admin): na loja o count() em cada rolagem pesaria no banco.
@@ -252,7 +253,8 @@ export async function getProduct(sku: string) {
     })) as any;
   }
 
-  return data as unknown as Product | null;
+  // Custo e margem nunca saem para o site
+  return (data ? semCusto(data as any) : null) as unknown as Product | null;
 }
 
 export async function getProductImages(sku: string) {
@@ -282,7 +284,7 @@ export async function getRelatedProducts(sku: string, category_id: number | null
     },
     take: limit,
   });
-  return data as unknown as Product[];
+  return (data as any[]).map((r) => semCusto(r)) as unknown as Product[];
 }
 
 import fs from "fs";

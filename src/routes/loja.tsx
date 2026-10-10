@@ -8,6 +8,7 @@ import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductImage } from "@/components/ProductImage";
 import { QuoteButton } from "@/components/QuoteButton";
+import { PrecoTag } from "@/components/PrecoTag";
 import { useCart } from "@/components/CartContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -522,7 +523,8 @@ function CardLoja({ p }: { p: Product }) {
         >
           {nome}
         </Link>
-        <div className="mt-auto pt-2">
+        <div className="mt-auto space-y-2 pt-2">
+          <PrecoTag p={p} />
           <QuoteButton product={p} fullWidth />
         </div>
       </div>

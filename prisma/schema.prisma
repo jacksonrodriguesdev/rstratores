@@ -194,6 +194,12 @@ model agricolas {
   ean                  String?      @db.Text
   ncm                  String?      @db.Text
   profundidade         Float?
+  // Precificação (admin → Produtos e preços). valor_compra = custo em R$, preco_brl = venda em R$.
+  // Preço em $U: AUTO = preco_brl × cotação do dia (tabela cotacoes); FIXO = preco_uyu digitado.
+  margem               Float?
+  preco_modo           String       @default("AUTO") @db.VarChar(10)
+  preco_uyu            Float?
+  precificado_em       DateTime?
 
   category             categories?  @relation("AgricolaCategory", fields: [category_id], references: [id], onDelete: SetNull)
   principal            agricolas?   @relation("AgricolaVariantes", fields: [duplicado_de], references: [sku], onDelete: SetNull)
@@ -380,4 +386,22 @@ model email_envios {
   @@index([campanha_id])
   @@index([user_id])
   @@index([resend_id])
+}
+
+// Cotação do dia (ex.: BRL_UYU = quantos pesos uruguaios vale 1 real), buscada automaticamente.
+model cotacoes {
+  id         Int      @id @default(autoincrement())
+  par        String   @db.VarChar(10)
+  valor      Float
+  fonte      String   @db.VarChar(80)
+  created_at DateTime @default(now())
+
+  @@index([par, created_at])
+}
+
+// Configurações da loja editáveis no admin (margem padrão, arredondamento, mostrar preços...)
+model configuracoes {
+  chave      String   @id @db.VarChar(60)
+  valor      String   @db.Text
+  updated_at DateTime @updatedAt
 }

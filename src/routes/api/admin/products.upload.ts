@@ -20,8 +20,15 @@ export const Route = createFileRoute("/api/admin/products/upload")({
           const uploadedPaths: string[] = [];
 
           for (const file of files) {
-            const buffer = Buffer.from(await file.arrayBuffer());
             const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+            // Só imagens, até 15 MB cada (o admin já reduz no navegador antes de enviar)
+            if (!["jpg", "jpeg", "png", "webp", "avif", "gif"].includes(ext)) {
+              return Response.json({ error: `Arquivo não é imagem: ${file.name}` }, { status: 400 });
+            }
+            if (file.size > 15 * 1024 * 1024) {
+              return Response.json({ error: `Imagem maior que 15 MB: ${file.name}` }, { status: 400 });
+            }
+            const buffer = Buffer.from(await file.arrayBuffer());
             const relativePath = `produtos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
             const { caminhoUpload } = await import("@/lib/uploads.server");
