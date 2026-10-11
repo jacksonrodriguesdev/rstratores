@@ -117,7 +117,8 @@ export const excluirCampanhaFn = createServerFn({ method: "POST" })
     const { prisma } = await import("./prisma");
     const { campanhaRodando } = await import("./email.server");
     if (campanhaRodando(data.id)) throw new Error("A campanha está sendo enviada.");
-    await prisma.email_campanhas.delete({ where: { id: data.id } });
+    // deleteMany: se já foi excluída (clique duplo, outra aba), não dá erro
+    await prisma.email_campanhas.deleteMany({ where: { id: data.id } });
     return { ok: true };
   });
 

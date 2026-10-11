@@ -130,7 +130,8 @@ export const excluirAutomacaoFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await admin();
     const { prisma } = await import("./prisma");
-    await prisma.email_automacoes.delete({ where: { id: data.id } });
+    // deleteMany: se já foi excluída (clique duplo, outra aba), não dá erro
+    await prisma.email_automacoes.deleteMany({ where: { id: data.id } });
     return { ok: true };
   });
 
