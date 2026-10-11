@@ -88,22 +88,29 @@ export async function criarCodigo(email: string, ip: string | null): Promise<{ c
   const recentes = await prisma.login_codigos.count({ where: { email, created_at: { gte: new Date(Date.now() - 15 * MINUTO) } } });
   if (recentes >= 3 || !ipLiberado(ip)) return { erro: "Pediste varios códigos. Esperá unos minutos y probá de nuevo." };
   const codigo = String(randomInt(0, 1_000_000)).padStart(6, "0");
-  // Só o último código vale
-  await prisma.login_codigos.updateMany({ where: { email, usado: false }, data: { usado: true } });
+  // Pedir de novo não invalida o anterior: se o primeiro e-mail chegar depois, ele ainda vale
   await prisma.login_codigos.create({ data: { email, codigo_hash: hashCodigo(email, codigo), expira_em: new Date(Date.now() + 10 * MINUTO) } });
   return { codigo };
 }
 
 export async function conferirCodigo(email: string, codigo: string): Promise<{ ok: true } | { erro: string }> {
   const { prisma } = await import("./prisma");
-  const c = await prisma.login_codigos.findFirst({ where: { email, usado: false }, orderBy: { id: "desc" } });
-  if (!c || c.expira_em < new Date()) return { erro: "El código venció. Pedí uno nuevo." };
-  if (c.tentativas >= 5) return { erro: "Demasiados intentos. Pedí un código nuevo." };
-  if (hashCodigo(email, codigo.replace(/\D/g, "")) !== c.codigo_hash) {
-    await prisma.login_codigos.update({ where: { id: c.id }, data: { tentativas: { increment: 1 } } });
+  // Vale qualquer um dos códigos ainda válidos deste e-mail (no máximo os 3 últimos)
+  const validos = await prisma.login_codigos.findMany({
+    where: { email, usado: false, expira_em: { gt: new Date() } },
+    orderBy: { id: "desc" },
+    take: 3,
+  });
+  if (!validos.length) return { erro: "El código venció. Pedí uno nuevo." };
+  if (validos[0].tentativas >= 5) return { erro: "Demasiados intentos. Pedí un código nuevo." };
+  const hash = hashCodigo(email, codigo.replace(/\D/g, ""));
+  const ids = validos.map((c) => c.id);
+  if (!validos.some((c) => c.codigo_hash === hash)) {
+    // Erro conta para todos (evita tentar de novo em outro código)
+    await prisma.login_codigos.updateMany({ where: { id: { in: ids } }, data: { tentativas: { increment: 1 } } });
     return { erro: "Código incorrecto. Revisalo y probá de nuevo." };
   }
-  await prisma.login_codigos.update({ where: { id: c.id }, data: { usado: true } });
+  await prisma.login_codigos.updateMany({ where: { id: { in: ids } }, data: { usado: true } });
   return { ok: true };
 }
 

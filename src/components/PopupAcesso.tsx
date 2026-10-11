@@ -158,7 +158,7 @@ export function PopupAcesso() {
     await post("/api/auth/codigo", { email });
     registrarEvento("popup", "codigo");
     setCodigo("");
-    setReenviar(30);
+    setReenviar(240); // 4 minutos até liberar outro código
     setEtapa("codigo");
   });
 
@@ -246,7 +246,7 @@ export function PopupAcesso() {
                 {etapa === "codigo" ? "Revisá tu e-mail" : etapa === "cadastro" ? "Último paso" : etapa === "senha" ? "Entrá con tu contraseña" : titulo}
               </h2>
               <p className="mt-2 text-[15px] text-zinc-600">
-                {etapa === "codigo" ? <>Te enviamos un código de 6 dígitos a <b className="text-zinc-900">{email}</b>.</> : etapa === "cadastro" ? "Contanos quién sos para crear tu cuenta y generar tu cupón." : etapa === "senha" ? "Si ya tenés cuenta con contraseña." : cfg.subtitulo}
+                {etapa === "codigo" ? <>Te enviamos un código de 6 dígitos a <b className="text-zinc-900">{email}</b>. Vale por 10 minutos; puede tardar un minuto en llegar.</> : etapa === "cadastro" ? "Contanos quién sos para crear tu cuenta y generar tu cupón." : etapa === "senha" ? "Si ya tenés cuenta con contraseña." : cfg.subtitulo}
               </p>
 
               {etapa === "inicio" && (
@@ -285,7 +285,7 @@ export function PopupAcesso() {
                   </button>
                   <p className="text-center text-sm text-zinc-500">
                     ¿No llegó? Revisá spam o{" "}
-                    {reenviar > 0 ? <span>reenviá en {reenviar}s</span> : <button type="button" onClick={() => pedirCodigo()} className="font-semibold text-primary hover:underline">reenviar código</button>}
+                    {reenviar > 0 ? <span>podés pedir otro en {Math.floor(reenviar / 60)}:{String(reenviar % 60).padStart(2, "0")}</span> : <button type="button" onClick={() => pedirCodigo()} className="font-semibold text-primary hover:underline">reenviar código</button>}
                   </p>
                 </form>
               )}
