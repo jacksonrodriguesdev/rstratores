@@ -13,7 +13,7 @@ import {
   obterAutomacaoFn, salvarAutomacaoFn, ativarAutomacaoFn, testarAutomacaoFn, enviarAutomacaoAgoraFn, contarEnvioAgoraFn, enviosAutomacaoFn,
   type Automacao,
 } from "@/lib/automacoes";
-import { defTipo, PRODUTOS_EXEMPLO, type ConfigAutomacao } from "@/lib/automacoes-tipos";
+import { defTipo, blackFriday, PRODUTOS_EXEMPLO, type ConfigAutomacao } from "@/lib/automacoes-tipos";
 import { renderEmail, aplicarVariaveis, trocarVariaveis, type ConteudoEmail, type Publico } from "@/lib/email-template";
 import { statusEmailFn } from "@/lib/emails";
 import { getSessionFn } from "@/lib/user-auth";
@@ -24,6 +24,9 @@ export const Route = createFileRoute("/admin/automacoes/$id")({
   component: Editor,
 });
 
+const ROTULO_VAR: Record<string, string> = {
+  marca: "marca do catálogo", busqueda: "o que o cliente buscou", catalogo: "título do catálogo", anos: "número de anos", tiempo: "“1 año” / “2 años”",
+};
 const ROTULO_ENVIO: Record<string, string> = {
   ENVIADO: "Enviado", ENTREGUE: "Entregue", ABERTO: "Abriu", CLICADO: "Clicou", REBOTADO: "Rebote", QUEIXA: "Marcou spam", FALHA: "Falhou",
 };
@@ -78,7 +81,7 @@ function Formulario({ inicial, atualizar }: { inicial: Automacao; atualizar: () 
     return () => clearTimeout(t);
   }, [nome, assunto, preheader, c, publico, cfg]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const vars = { cupon: c.cupom?.codigo ?? "", validez: c.cupom?.validade ?? "" };
+  const vars = { ...def.variaveis, cupon: c.cupom?.codigo ?? "", validez: c.cupom?.validade ?? "" };
   const html = useMemo(
     () =>
       renderEmail(aplicarVariaveis({ ...c, produtos: def.produtos ? PRODUTOS_EXEMPLO : [] }, vars), {
@@ -119,7 +122,7 @@ function Formulario({ inicial, atualizar }: { inicial: Automacao; atualizar: () 
             <Gatilho tipo={inicial.tipo} cfg={cfg} setConf={setConf} />
           </Secao>
 
-          <Secao icone={Type} titulo="Assunto" dica="Variáveis: {{nombre}} = primeiro nome · {{cupon}} = código do cupom · {{validez}} = validade.">
+          <Secao icone={Type} titulo="Assunto" dica={`Variáveis: {{nombre}} = primeiro nome · {{cupon}} = código do cupom · {{validez}} = validade${Object.keys(def.variaveis ?? {}).map((k) => ` · {{${k}}} = ${ROTULO_VAR[k] ?? k}`).join("")}.`}>
             <div>
               <Rotulo extra={<span className={assunto.length > 60 ? "text-amber-600" : ""}>{assunto.length}/60</span>}>Assunto</Rotulo>
               <Input value={assunto} onChange={(e) => setAssunto(e.target.value)} />
@@ -140,7 +143,9 @@ function Formulario({ inicial, atualizar }: { inicial: Automacao; atualizar: () 
             )}
           </Secao>
 
-          <Secao icone={Ticket} titulo="Cupom" dica="Caixa em destaque com o código. O cliente menciona o código no WhatsApp ao pedir.">
+          <Secao icone={Ticket} titulo="Cupom" dica={inicial.tipo === "boas_vindas"
+            ? "Nas boas-vindas, o código é trocado pelo cupom único de cada cliente (AGRO-XXXX), o mesmo do pop-up. Você confere em Site → Pop-up de cadastro."
+            : "Caixa em destaque com o código. O cliente menciona o código no WhatsApp ao pedir."}>
             <label className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 p-3 text-sm">
               <span>Incluir cupom neste e-mail</span>
               <Switch checked={!!c.cupom} onCheckedChange={(v) => set("cupom", v ? { codigo: "AGRO10", texto: "10% de descuento en tu próxima compra", validade: "hasta fin de mes" } : null)} />
@@ -274,6 +279,58 @@ function Gatilho({ tipo, cfg, setConf }: { tipo: string; cfg: ConfigAutomacao; s
     );
   if (tipo === "carrinho_abandonado")
     return linha("Lista parada sem pedido há", <Numero valor={cfg.horas} min={1} aoMudar={(n) => setConf("horas", n)} sufixo="horas" />);
+  if (tipo === "catalogo_aberto")
+    return (
+      <>
+        {linha("Enviar depois de abrir o catálogo", <Numero valor={cfg.horas} min={1} aoMudar={(n) => setConf("horas", n)} sufixo="horas" />)}
+        {linha("Peças da marca no e-mail", <Numero valor={cfg.maxProdutos} min={1} aoMudar={(n) => setConf("maxProdutos", Math.min(12, n))} sufixo="peças" />)}
+        {linha("No máximo 1 e-mail por cliente a cada", <Numero valor={cfg.intervaloDias} aoMudar={(n) => setConf("intervaloDias", n)} sufixo="dias" />)}
+        <p className="text-xs text-muted-foreground">Entram primeiro as peças da marca em promoção; depois, as com preço e foto. Só funciona para catálogos com a marca preenchida.</p>
+      </>
+    );
+  if (tipo === "busca_sem_resultado")
+    return (
+      <>
+        {linha("Considerar buscas dos últimos", <Numero valor={cfg.dias} min={1} aoMudar={(n) => setConf("dias", n)} sufixo="dias" />)}
+        {linha("Peças encontradas no e-mail", <Numero valor={cfg.maxProdutos} min={1} aoMudar={(n) => setConf("maxProdutos", Math.min(12, n))} sufixo="peças" />)}
+        <p className="text-xs text-muted-foreground">Vale para buscas de clientes com conta. Cada busca é avisada uma vez só.</p>
+      </>
+    );
+  if (tipo === "catalogo_novo")
+    return (
+      <div className="grid gap-2 sm:grid-cols-2">
+        {([["marca", "Só quem já abriu catálogos da mesma marca"], ["todos", "Todo o público escolhido abaixo"]] as const).map(([k, r]) => (
+          <button key={k} type="button" onClick={() => setConf("alvo", k)}
+            className={cn("rounded-lg border p-3 text-left text-sm", (cfg.alvo ?? "marca") === k ? "border-primary bg-primary/5 font-semibold text-primary" : "hover:bg-muted")}>{r}</button>
+        ))}
+      </div>
+    );
+  if (tipo === "data_especial") {
+    const ano = new Date().getFullYear();
+    const proximo = (d: string) => (d < new Date().toISOString().slice(0, 10) ? d.replace(String(ano), String(ano + 1)) : d);
+    const presets = [
+      ["Black Friday", proximo(blackFriday(ano)) === blackFriday(ano) ? blackFriday(ano) : blackFriday(ano + 1)],
+      ["Navidad", proximo(`${ano}-12-20`)],
+      ["Fin de año", proximo(`${ano}-12-28`)],
+      ["Reyes", proximo(`${ano}-01-06`)],
+    ] as const;
+    return (
+      <>
+        <div className="flex flex-wrap gap-1.5">
+          {presets.map(([r, d]) => (
+            <button key={r} type="button" onClick={() => setConf("data", d)} className={cn("rounded-full border px-3 py-1 text-xs", cfg.data === d && "border-primary bg-primary/10 text-primary")}>
+              {r} · {d.split("-").reverse().join("/")}
+            </button>
+          ))}
+        </div>
+        {linha("Data do envio", <Input type="date" value={cfg.data ?? ""} onChange={(e) => setConf("data", e.target.value)} className="h-9 w-44" />)}
+        {linha("A partir das", <Numero valor={cfg.hora} aoMudar={(n) => setConf("hora", Math.min(23, n))} sufixo="h (Montevidéu)" />)}
+        <p className="text-xs text-muted-foreground">CyberLunes: escolha a data anunciada no ano. Para várias datas, duplique esta automação (uma por data).</p>
+      </>
+    );
+  }
+  if (tipo === "aniversario")
+    return <p className="rounded-lg bg-muted/40 px-3 py-2 text-sm">Sai sozinho no dia em que a conta do cliente completa 1, 2, 3… anos. Use {"{{tiempo}}"} (“1 año”, “2 años”) no texto.</p>;
   if (tipo === "reengajamento")
     return (
       <>

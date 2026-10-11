@@ -81,6 +81,7 @@ export const salvarCatalogoFn = createServerFn({ method: "POST" })
     const { prisma } = await import("./prisma");
     const t = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(0, n) : "");
     if (!t(data.titulo, 200)) throw new Error("O título é obrigatório.");
+    const antes = await prisma.catalogos.findUnique({ where: { id: Number(data.id) }, select: { ativo: true } });
     await prisma.catalogos.update({
       where: { id: Number(data.id) },
       data: {
@@ -92,6 +93,8 @@ export const salvarCatalogoFn = createServerFn({ method: "POST" })
         ativo: !!data.ativo,
         exige_login: !!data.exige_login,
         ordem: Number(data.ordem) || 0,
+        // Publicado agora: a automação "Catálogo novo" avisa os clientes
+        ...(data.ativo && !antes?.ativo && { publicado_em: new Date() }),
       },
     });
     return { ok: true };

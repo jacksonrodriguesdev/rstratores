@@ -3,7 +3,7 @@ import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, Users, ShoppingCart, Mail,
-  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, type LucideIcon,
+  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -77,6 +77,7 @@ const GRUPOS: Grupo[] = [
     itens: [
       { to: "/admin/homepage", label: "Página inicial", icon: Home },
       { to: "/admin/banners", label: "Banners", icon: Image },
+      { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
     ],
   },
 ];

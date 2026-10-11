@@ -171,7 +171,8 @@ export const contarEnvioAgoraFn = createServerFn({ method: "POST" })
     const publico: Publico = data.ids.length ? { tipo: "ids", departamentos: [], dias: 30, ids: data.ids } : JSON.parse(a.publico);
     const lista = await destinatarios(publico);
     const c = JSON.parse(a.conteudo) as ConteudoEmail;
-    const chave = a.tipo === "boas_vindas" ? "boas_vindas" : a.tipo === "cupom" ? `cupom:${c.cupom?.codigo ?? ""}` : null;
+    const { chaveEnvioAgora } = await import("./automacoes.server");
+    const chave = a.tipo === "reengajamento" ? null : chaveEnvioAgora(a.tipo, c, JSON.parse(a.config || "{}"));
     const ja = chave
       ? await prisma.email_envios.count({ where: { automacao_id: a.id, chave, status: { not: "FALHA" }, user_id: { in: lista.map((u) => u.id) } } })
       : 0;

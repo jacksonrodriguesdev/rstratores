@@ -15,6 +15,7 @@ import { type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { FloatingContact } from "@/components/FloatingContact";
 import { VisitTracker } from "@/components/VisitTracker";
+import { PopupAcesso } from "@/components/PopupAcesso";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { Toaster } from "@/components/ui/sonner";
@@ -183,6 +184,7 @@ function RootComponent() {
             <RodapePublico />
             <MobileTabBar />
             <VisitTracker />
+            <PopupAcesso />
             <CartDrawer />
             {/* Notificações (toast) usadas no admin e no site */}
             <Toaster richColors position="top-center" />

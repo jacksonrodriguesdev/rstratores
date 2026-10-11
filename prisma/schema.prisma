@@ -141,9 +141,12 @@ model site_visits {
   os           String?  @db.VarChar(40)
   language     String?  @db.VarChar(20)
   entrada      Boolean  @default(false) // primeira página da sessão
+  // Cliente logado (buscas e visitas de quem tem conta: automações de e-mail)
+  user_id      Int?
 
   @@index([created_at])
   @@index([visitor_id])
+  @@index([user_id])
   @@index([session_id])
 }
 
@@ -284,6 +287,9 @@ model users {
   ultimo_login  DateTime?
   // E-mails de marketing: o cliente pode sair pelo link "darse de baja" de cada e-mail
   recebe_emails Boolean  @default(true)
+  // Cupom único de boas-vindas (pop-up "Entrá y ganá"): o cliente cita no WhatsApp; o admin marca como usado
+  cupom          String?   @unique @db.VarChar(20)
+  cupom_usado_em DateTime?
 
   downloads     catalogos_downloads[]
   carrinhos     carrinhos[]
@@ -300,6 +306,7 @@ model catalogos {
   tamanho     BigInt   @default(0)
   idioma      String?  @db.VarChar(20)
   ativo       Boolean  @default(false) // só aparece no site quando publicado
+  publicado_em DateTime? // quando foi publicado (automação "Catálogo novo")
   exige_login Boolean  @default(true)
   downloads   Int      @default(0)
   ordem       Int      @default(0)
@@ -452,4 +459,18 @@ model produto_eventos {
   created_at DateTime @default(now())
 
   @@index([created_at])
+}
+
+// Login rápido por código de 6 dígitos enviado por e-mail (pop-up "Entrá y ganá").
+// Guarda só o hash do código; vale 10 minutos e aceita até 5 tentativas.
+model login_codigos {
+  id          Int      @id @default(autoincrement())
+  email       String   @db.VarChar(191)
+  codigo_hash String   @db.VarChar(64)
+  tentativas  Int      @default(0)
+  usado       Boolean  @default(false)
+  expira_em   DateTime
+  created_at  DateTime @default(now())
+
+  @@index([email])
 }

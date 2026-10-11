@@ -36,6 +36,23 @@ export function conversaoWhatsapp(detalhe: string) {
   }
 }
 
+// Pop-up "Entrá y ganá": visto, fechado, código pedido, cadastro, login
+export function eventoPopup(acao: string) {
+  if (typeof window === "undefined") return;
+  const w = window as any;
+  const ga: Record<string, [string, Record<string, string>]> = {
+    visto: ["view_promotion", { promotion_name: "popup_acceso" }],
+    cadastro: ["sign_up", { method: "popup" }],
+    login: ["login", { method: "popup" }],
+  };
+  try {
+    if (ga[acao]) w.gtag?.("event", ga[acao][0], ga[acao][1]);
+    if (acao === "cadastro") w.fbq?.("track", "CompleteRegistration");
+  } catch {
+    /* ignora */
+  }
+}
+
 // Busca no site
 export function eventoBusca(termo: string) {
   if (typeof window === "undefined") return;

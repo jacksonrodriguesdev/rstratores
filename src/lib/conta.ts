@@ -21,6 +21,8 @@ export type Perfil = {
   recebe_emails: boolean;
   google: boolean;
   temSenha: boolean;
+  cupom: string | null; // cupom único de boas-vindas
+  cupomUsado: boolean;
   role: string;
   criado: string;
   downloads: Array<{ id: number; titulo: string; marca: string | null; quando: string }>;
@@ -56,7 +58,9 @@ export const getPerfilFn = createServerFn({ method: "GET" }).handler(async (): P
     avatar_url: u.avatar_url,
     recebe_emails: u.recebe_emails,
     google: !!u.google_id,
-    temSenha: !u.senha_hash.startsWith("google:"),
+    temSenha: !u.senha_hash.startsWith("google:") && !u.senha_hash.startsWith("codigo:"),
+    cupom: u.cupom,
+    cupomUsado: !!u.cupom_usado_em,
     role: u.role,
     criado: u.created_at.toISOString(),
     downloads: u.downloads.map((d) => ({
@@ -126,7 +130,7 @@ export const trocarSenhaFn = createServerFn({ method: "POST" })
     const u = await prisma.users.findUnique({ where: { id: s.id } });
     if (!u) throw new Error("Cuenta no encontrada.");
     // Conta criada pelo Google ainda sem senha: pode definir sem informar a atual
-    if (!u.senha_hash.startsWith("google:") && !(await bcrypt.compare(data.atual || "", u.senha_hash))) {
+    if (!u.senha_hash.startsWith("google:") && !u.senha_hash.startsWith("codigo:") && !(await bcrypt.compare(data.atual || "", u.senha_hash))) {
       throw new Error("La contraseña actual no es correcta.");
     }
     await prisma.users.update({ where: { id: s.id }, data: { senha_hash: await bcrypt.hash(data.nova, 10) } });

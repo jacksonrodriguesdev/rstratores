@@ -27,6 +27,9 @@ export const Route = createFileRoute("/api/auth/login")({
 
           const user = await prisma.users.findUnique({ where: { email } });
           const valid = user ? await bcrypt.compare(senha, user.senha_hash) : false;
+          if (user && !valid && user.senha_hash.startsWith("codigo:")) {
+            return Response.json({ error: "Esta cuenta entra con un código por e-mail. Tocá «Recibir código»." }, { status: 401 });
+          }
           if (user && user.google_id && !valid && user.senha_hash.startsWith("google:")) {
             return Response.json({ error: "Esta cuenta se creó con Google. Tocá «Continuar con Google»." }, { status: 401 });
           }

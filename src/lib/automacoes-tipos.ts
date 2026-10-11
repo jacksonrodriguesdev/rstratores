@@ -9,7 +9,12 @@ export type TipoAutomacao =
   | "preco_baixou"
   | "carrinho_baixou"
   | "carrinho_abandonado"
-  | "reengajamento";
+  | "reengajamento"
+  | "catalogo_aberto"
+  | "busca_sem_resultado"
+  | "catalogo_novo"
+  | "data_especial"
+  | "aniversario";
 
 export type ConfigAutomacao = {
   atrasoHoras?: number; // boas-vindas: espera depois do cadastro
@@ -18,7 +23,10 @@ export type ConfigAutomacao = {
   intervaloDias?: number; // promoção/preço baixou/reengajamento: no máximo 1 e-mail por cliente a cada N dias
   maxProdutos?: number;
   minimo?: number; // % mínimo de desconto/queda para avisar
-  horas?: number; // carrinho abandonado: parado há N horas
+  horas?: number; // carrinho abandonado: parado há N horas · catálogo aberto: espera N horas
+  alvo?: "marca" | "todos"; // catálogo novo: só quem abriu catálogos da marca, ou todo o público
+  data?: string; // data especial: AAAA-MM-DD (horário de Montevidéu)
+  hora?: number; // data especial: a partir desta hora
 };
 
 export type DefTipo = {
@@ -30,6 +38,7 @@ export type DefTipo = {
   emoji: string;
   produtos: boolean; // o e-mail recebe os produtos do evento
   enviarAgora: boolean; // tem o botão "Enviar agora para o público"
+  variaveis?: Record<string, string>; // variáveis próprias do tipo, com o valor de exemplo da prévia
   config: ConfigAutomacao;
   assunto: string;
   preheader: string;
@@ -56,6 +65,8 @@ export const TIPOS: DefTipo[] = [
       titulo: "¡Hola {{nombre}}, qué bueno tenerte en AGRO PARTS!",
       texto:
         "Ya tenés acceso a **todos nuestros catálogos de tractores** y a miles de repuestos agrícolas.\n\nBuscá por código o por modelo y pedí tu cotización por WhatsApp. Enviamos por DAC a todo Uruguay.",
+      // O código é trocado pelo cupom único de cada cliente (AGRO-XXXX) na hora do envio
+      cupom: { codigo: "AGRO-XXXX", texto: "15% de descuento en tu primera compra", validade: "para tu primera compra" },
       botaoTexto: "Ver catálogos",
       botaoUrl: "/catalogos",
     }),
@@ -188,6 +199,116 @@ export const TIPOS: DefTipo[] = [
       botaoUrl: "/loja",
     }),
   },
+  {
+    tipo: "catalogo_aberto",
+    nome: "Catálogo aberto",
+    descricao: "Quem abriu o catálogo de uma marca recebe peças em oferta dessa marca.",
+    gatilho: "N horas depois de o cliente abrir um catálogo (ex.: John Deere → peças John Deere).",
+    cor: "#0b7a3b",
+    emoji: "📖",
+    produtos: true,
+    enviarAgora: false,
+    variaveis: { marca: "John Deere" },
+    config: { horas: 20, intervaloDias: 30, maxProdutos: 6 },
+    assunto: "{{nombre}}, repuestos {{marca}} para tu tractor",
+    preheader: "Seleccionamos ofertas de la marca que estuviste mirando.",
+    conteudo: base({
+      destaque: "{{marca}}",
+      titulo: "{{nombre}}, repuestos {{marca}} con precio especial",
+      texto: "Vimos que consultaste el catálogo de **{{marca}}**. Te dejamos repuestos de esa marca listos para enviar a todo Uruguay.",
+      produtosTitulo: "Repuestos {{marca}}",
+      botaoTexto: "Ver más de {{marca}}",
+      botaoUrl: "/loja",
+    }),
+  },
+  {
+    tipo: "busca_sem_resultado",
+    nome: "Busca sem resultado",
+    descricao: "Avisa quando a peça que o cliente procurou passa a existir na loja.",
+    gatilho: "Quando uma busca que não deu resultado (de cliente logado) passa a encontrar peças.",
+    cor: "#1f6fb5",
+    emoji: "🔎",
+    produtos: true,
+    enviarAgora: false,
+    variaveis: { busqueda: "filtro 3136019" },
+    config: { dias: 60, maxProdutos: 4 },
+    assunto: "{{nombre}}, ya tenemos lo que buscabas 🔎",
+    preheader: "La pieza que no encontraste ahora está en AGRO PARTS.",
+    conteudo: base({
+      destaque: "YA LO TENEMOS",
+      titulo: "{{nombre}}, encontramos “{{busqueda}}”",
+      texto: "Hace unos días buscaste **{{busqueda}}** y no lo teníamos. ¡Ahora sí! Pedilo por WhatsApp y te lo enviamos.",
+      produtosTitulo: "Lo que buscabas",
+      botaoTexto: "Ver resultados",
+      botaoUrl: "/loja",
+    }),
+  },
+  {
+    tipo: "catalogo_novo",
+    nome: "Catálogo novo publicado",
+    descricao: "Avisa quando você publica um catálogo PDF novo.",
+    gatilho: "Quando um catálogo é publicado em Catálogos (PDF).",
+    cor: "#0b7a3b",
+    emoji: "📚",
+    produtos: false,
+    enviarAgora: false,
+    variaveis: { catalogo: "Manual de servicio Maxxum 135", marca: "Case IH" },
+    config: { alvo: "marca" },
+    assunto: "📚 Nuevo catálogo {{marca}}: {{catalogo}}",
+    preheader: "Ya está disponible en tu cuenta de AGRO PARTS.",
+    conteudo: base({
+      destaque: "NUEVO CATÁLOGO",
+      titulo: "{{nombre}}, sumamos el catálogo “{{catalogo}}”",
+      texto: "Ya podés consultarlo gratis con tu cuenta. Buscá el código de la pieza y pedila por WhatsApp.",
+      botaoTexto: "Ver catálogo",
+      botaoUrl: "/catalogos",
+    }),
+  },
+  {
+    tipo: "data_especial",
+    nome: "Data comercial",
+    descricao: "Black Friday, CyberLunes, Navidad, fin de año… com cupom.",
+    gatilho: "Na data e hora escolhidas (horário de Montevidéu), uma vez para o público.",
+    cor: "#18181b",
+    emoji: "🗓️",
+    produtos: false,
+    enviarAgora: true,
+    config: { data: "", hora: 9 },
+    assunto: "🖤 Black Friday en AGRO PARTS: {{cupon}}",
+    preheader: "Solo por hoy: descuento en repuestos agrícolas.",
+    conteudo: base({
+      destaque: "BLACK FRIDAY",
+      titulo: "{{nombre}}, llegó el Black Friday del campo",
+      texto: "**Solo por tiempo limitado**: usá tu cupón en repuestos para tu tractor. Pedí por WhatsApp y mencioná el código.",
+      cupom: { codigo: "BLACK15", texto: "15% de descuento en repuestos", validade: "solo hasta el domingo" },
+      botaoTexto: "Ver repuestos",
+      botaoUrl: "/loja",
+      cor: "#18181b",
+    }),
+  },
+  {
+    tipo: "aniversario",
+    nome: "Aniversário de cadastro",
+    descricao: "Um presente quando a conta do cliente completa mais um ano.",
+    gatilho: "No dia em que a conta completa 1, 2, 3… anos.",
+    cor: "#c8102e",
+    emoji: "🎂",
+    produtos: false,
+    enviarAgora: false,
+    variaveis: { anos: "1", tiempo: "1 año" },
+    config: {},
+    assunto: "🎂 {{nombre}}, ¡cumplimos {{tiempo}} juntos!",
+    preheader: "Tenemos un regalo para vos.",
+    conteudo: base({
+      destaque: "¡FELIZ ANIVERSARIO!",
+      titulo: "{{nombre}}, hace {{tiempo}} que sos parte de AGRO PARTS",
+      texto: "Gracias por confiar en nosotros. Para festejar, te regalamos un descuento en tu próxima compra.",
+      cupom: { codigo: "GRACIAS10", texto: "10% de descuento de regalo", validade: "por 30 días" },
+      botaoTexto: "Ver repuestos",
+      botaoUrl: "/loja",
+      cor: "#c8102e",
+    }),
+  },
 ];
 
 export const defTipo = (t: string) => TIPOS.find((x) => x.tipo === t) ?? TIPOS[0];
@@ -196,6 +317,13 @@ export function conteudoPadrao(t: TipoAutomacao): ConteudoEmail {
   return { ...CONTEUDO_PADRAO, ...defTipo(t).conteudo } as ConteudoEmail;
 }
 export const publicoPadrao = (): Publico => ({ ...PUBLICO_PADRAO });
+
+// Black Friday: a sexta-feira depois do quarta quinta-feira de novembro
+export function blackFriday(ano: number) {
+  const d = new Date(Date.UTC(ano, 10, 1));
+  const primeiraQuinta = ((4 - d.getUTCDay() + 7) % 7) + 1;
+  return `${ano}-11-${String(primeiraQuinta + 21 + 1).padStart(2, "0")}`;
+}
 
 // Produtos de exemplo para a prévia dos tipos que mostram peças
 export const PRODUTOS_EXEMPLO = [

@@ -137,7 +137,7 @@ export async function destinatarios(p: Publico) {
   if (p.tipo === "recentes") where.created_at = { gte: desde };
   if (p.tipo === "inativos") where.OR = [{ ultimo_login: null }, { ultimo_login: { lt: desde } }];
   if (p.tipo === "ids") where.id = { in: (p.ids ?? []).map(Number).filter(Boolean).slice(0, 20000) };
-  const rows = await prisma.users.findMany({ where, select: { id: true, email: true, nome_completo: true }, orderBy: { id: "asc" } });
+  const rows = await prisma.users.findMany({ where, select: { id: true, email: true, nome_completo: true, cupom: true }, orderBy: { id: "asc" } });
   // Só e-mails com formato válido
   return rows.filter((r) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email));
 }

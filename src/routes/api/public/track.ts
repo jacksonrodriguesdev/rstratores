@@ -68,6 +68,7 @@ export const Route = createFileRoute("/api/public/track")({
                 os: aparelho.os,
                 language: texto(body.language, 20),
                 entrada: !!body.entrada,
+                user_id: sessao?.id ? Number(sessao.id) || null : null,
               },
             });
           } catch (e: any) {

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { EChart } from "@/components/admin/EChart";
 import { listarClientesFn, COORD_DEPTO, type Cliente } from "@/lib/clientes";
 import { downloadFile } from "@/lib/upload";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { OfertaClientes, numeroWhatsapp } from "@/components/admin/OfertaClientes";
 import { EmailClientes } from "@/components/admin/EmailClientes";
@@ -143,6 +144,30 @@ function ClientesPage() {
     downloadFile([cab.map(esc).join(";"), ...linhas].join("\n"), `clientes-${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
+  // Públicos de remarketing (Meta e Google Ads): só quem aceita receber ofertas.
+  // Os arquivos vão sem BOM e com vírgula, no formato que as plataformas pedem.
+  const exportarPublico = (plataforma: "meta" | "google") => {
+    const lista = destino.filter((c) => c.recebeEmails);
+    if (!lista.length) return;
+    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const linhas = lista.map((c) => {
+      const [fn, ...resto] = c.nome.trim().split(/\s+/);
+      const tel = numeroWhatsapp(c.telefone);
+      const pais = c.pais && c.pais.length === 2 ? c.pais : "UY";
+      return plataforma === "meta"
+        ? [c.email, tel ? `+${tel}` : "", fn, resto.join(" "), c.cidade ?? "", pais]
+        : [c.email, tel ? `+${tel}` : "", fn, resto.join(" "), pais, ""];
+    });
+    const cab = plataforma === "meta" ? ["email", "phone", "fn", "ln", "ct", "country"] : ["Email", "Phone", "First Name", "Last Name", "Country", "Zip"];
+    const csv = [cab.join(","), ...linhas.map((l) => l.map(esc).join(","))].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `publico-${plataforma}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const cards = [
     { label: "Clientes cadastrados", valor: resumo.total, icon: Users, cor: "text-emerald-700 bg-emerald-50" },
     { label: "Novos (30 dias)", valor: resumo.novos, icon: UserPlus, cor: "text-sky-700 bg-sky-50" },
@@ -237,9 +262,27 @@ function ClientesPage() {
             <Mail className="h-4 w-4" /> Enviar e-mail
           </button>
           {selecionados.size > 0 && <button onClick={() => setSelecionados(new Set())} className="text-xs text-muted-foreground hover:underline">desmarcar</button>}
-          <button onClick={exportar} disabled={!filtrados.length} className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm hover:bg-muted disabled:opacity-50">
-            <Download className="h-4 w-4" /> Exportar CSV
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button disabled={!destino.length} className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm hover:bg-muted disabled:opacity-50">
+                <Download className="h-4 w-4" /> Exportar
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuItem onClick={exportar}>
+                <span><b>Planilha completa (CSV)</b><br /><span className="text-xs text-muted-foreground">Todos os dados, para Excel</span></span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportarPublico("meta")}>
+                <span><b>Público para Meta Ads</b><br /><span className="text-xs text-muted-foreground">Instagram/Facebook: público personalizado e semelhante</span></span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportarPublico("google")}>
+                <span><b>Público para Google Ads</b><br /><span className="text-xs text-muted-foreground">Customer Match (YouTube, Gmail, Pesquisa)</span></span>
+              </DropdownMenuItem>
+              <p className="px-2 py-1.5 text-[11px] text-muted-foreground">
+                Exporta {selecionados.size ? "os marcados" : "a lista filtrada"}. Nos públicos, só entra quem aceita receber ofertas.
+              </p>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

@@ -32,6 +32,7 @@ import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
+import { Route as AdminPopupRouteImport } from './routes/admin.popup'
 import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
 import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
@@ -48,9 +49,11 @@ import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
 import { Route as ApiAdminQuotesRouteImport } from './routes/api/admin/quotes'
+import { Route as ApiAuthCodigoRouteImport } from './routes/api/auth.codigo'
 import { Route as ApiAuthGoogleRouteImport } from './routes/api/auth.google'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth.login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth.logout'
+import { Route as ApiAuthRapidoRouteImport } from './routes/api/auth.rapido'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carrinho'
@@ -72,6 +75,7 @@ import { Route as ApiAdminProductsExportRouteImport } from './routes/api/admin/p
 import { Route as ApiAdminProductsImportRouteImport } from './routes/api/admin/products.import'
 import { Route as ApiAdminProductsUploadRouteImport } from './routes/api/admin/products.upload'
 import { Route as ApiAdminQuotesIdRouteImport } from './routes/api/admin/quotes.$id'
+import { Route as ApiAuthCodigoVerificarRouteImport } from './routes/api/auth.codigo.verificar'
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
 
 const IndexRoute = IndexRouteImport.update({
@@ -189,6 +193,11 @@ const AdminPellegrinoRoute = AdminPellegrinoRouteImport.update({
   path: '/pellegrino',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPopupRoute = AdminPopupRouteImport.update({
+  id: '/popup',
+  path: '/popup',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPrecificacaoRoute = AdminPrecificacaoRouteImport.update({
   id: '/precificacao',
   path: '/precificacao',
@@ -269,6 +278,11 @@ const ApiAdminQuotesRoute = ApiAdminQuotesRouteImport.update({
   path: '/api/admin/quotes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthCodigoRoute = ApiAuthCodigoRouteImport.update({
+  id: '/api/auth/codigo',
+  path: '/api/auth/codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthGoogleRoute = ApiAuthGoogleRouteImport.update({
   id: '/api/auth/google',
   path: '/api/auth/google',
@@ -282,6 +296,11 @@ const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   id: '/api/auth/logout',
   path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthRapidoRoute = ApiAuthRapidoRouteImport.update({
+  id: '/api/auth/rapido',
+  path: '/api/auth/rapido',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
@@ -390,6 +409,11 @@ const ApiAdminQuotesIdRoute = ApiAdminQuotesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminQuotesRoute,
 } as any)
+const ApiAuthCodigoVerificarRoute = ApiAuthCodigoVerificarRouteImport.update({
+  id: '/verificar',
+  path: '/verificar',
+  getParentRoute: () => ApiAuthCodigoRoute,
+} as any)
 const ApiAuthGoogleCallbackRoute = ApiAuthGoogleCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
@@ -419,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -434,9 +459,11 @@ export interface FileRoutesByFullPath {
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/quotes': typeof ApiAdminQuotesRouteWithChildren
+  '/api/auth/codigo': typeof ApiAuthCodigoRouteWithChildren
   '/api/auth/google': typeof ApiAuthGoogleRouteWithChildren
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
@@ -460,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
+  '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRoutesByTo {
@@ -484,6 +512,7 @@ export interface FileRoutesByTo {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -499,9 +528,11 @@ export interface FileRoutesByTo {
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/quotes': typeof ApiAdminQuotesRouteWithChildren
+  '/api/auth/codigo': typeof ApiAuthCodigoRouteWithChildren
   '/api/auth/google': typeof ApiAuthGoogleRouteWithChildren
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
@@ -525,6 +556,7 @@ export interface FileRoutesByTo {
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
+  '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRoutesById {
@@ -551,6 +583,7 @@ export interface FileRoutesById {
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -566,9 +599,11 @@ export interface FileRoutesById {
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/quotes': typeof ApiAdminQuotesRouteWithChildren
+  '/api/auth/codigo': typeof ApiAuthCodigoRouteWithChildren
   '/api/auth/google': typeof ApiAuthGoogleRouteWithChildren
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
@@ -592,6 +627,7 @@ export interface FileRoutesById {
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
   '/api/admin/products/upload': typeof ApiAdminProductsUploadRoute
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
+  '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
 }
 export interface FileRouteTypes {
@@ -619,6 +655,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/pellegrino'
+    | '/admin/popup'
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
@@ -634,9 +671,11 @@ export interface FileRouteTypes {
     | '/api/admin/categories'
     | '/api/admin/products'
     | '/api/admin/quotes'
+    | '/api/auth/codigo'
     | '/api/auth/google'
     | '/api/auth/login'
     | '/api/auth/logout'
+    | '/api/auth/rapido'
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/carrinho'
@@ -660,6 +699,7 @@ export interface FileRouteTypes {
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
+    | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -684,6 +724,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/pellegrino'
+    | '/admin/popup'
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
@@ -699,9 +740,11 @@ export interface FileRouteTypes {
     | '/api/admin/categories'
     | '/api/admin/products'
     | '/api/admin/quotes'
+    | '/api/auth/codigo'
     | '/api/auth/google'
     | '/api/auth/login'
     | '/api/auth/logout'
+    | '/api/auth/rapido'
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/carrinho'
@@ -725,6 +768,7 @@ export interface FileRouteTypes {
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
+    | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
   id:
     | '__root__'
@@ -750,6 +794,7 @@ export interface FileRouteTypes {
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/pellegrino'
+    | '/admin/popup'
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
@@ -765,9 +810,11 @@ export interface FileRouteTypes {
     | '/api/admin/categories'
     | '/api/admin/products'
     | '/api/admin/quotes'
+    | '/api/auth/codigo'
     | '/api/auth/google'
     | '/api/auth/login'
     | '/api/auth/logout'
+    | '/api/auth/rapido'
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/carrinho'
@@ -791,6 +838,7 @@ export interface FileRouteTypes {
     | '/api/admin/products/import'
     | '/api/admin/products/upload'
     | '/api/admin/quotes/$id'
+    | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
   fileRoutesById: FileRoutesById
 }
@@ -814,9 +862,11 @@ export interface RootRouteChildren {
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
   ApiAdminProductsRoute: typeof ApiAdminProductsRouteWithChildren
   ApiAdminQuotesRoute: typeof ApiAdminQuotesRouteWithChildren
+  ApiAuthCodigoRoute: typeof ApiAuthCodigoRouteWithChildren
   ApiAuthGoogleRoute: typeof ApiAuthGoogleRouteWithChildren
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthRapidoRoute: typeof ApiAuthRapidoRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicCarrinhoRoute: typeof ApiPublicCarrinhoRoute
@@ -994,6 +1044,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPellegrinoRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/popup': {
+      id: '/admin/popup'
+      path: '/popup'
+      fullPath: '/admin/popup'
+      preLoaderRoute: typeof AdminPopupRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/precificacao': {
       id: '/admin/precificacao'
       path: '/precificacao'
@@ -1106,6 +1163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminQuotesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/codigo': {
+      id: '/api/auth/codigo'
+      path: '/api/auth/codigo'
+      fullPath: '/api/auth/codigo'
+      preLoaderRoute: typeof ApiAuthCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/google': {
       id: '/api/auth/google'
       path: '/api/auth/google'
@@ -1125,6 +1189,13 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/logout'
       fullPath: '/api/auth/logout'
       preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/rapido': {
+      id: '/api/auth/rapido'
+      path: '/api/auth/rapido'
+      fullPath: '/api/auth/rapido'
+      preLoaderRoute: typeof ApiAuthRapidoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/register': {
@@ -1274,6 +1345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminQuotesIdRouteImport
       parentRoute: typeof ApiAdminQuotesRoute
     }
+    '/api/auth/codigo/verificar': {
+      id: '/api/auth/codigo/verificar'
+      path: '/verificar'
+      fullPath: '/api/auth/codigo/verificar'
+      preLoaderRoute: typeof ApiAuthCodigoVerificarRouteImport
+      parentRoute: typeof ApiAuthCodigoRoute
+    }
     '/api/auth/google/callback': {
       id: '/api/auth/google/callback'
       path: '/callback'
@@ -1295,6 +1373,7 @@ interface AdminRouteChildren {
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
+  AdminPopupRoute: typeof AdminPopupRoute
   AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
   AdminPrecificarRoute: typeof AdminPrecificarRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
@@ -1318,6 +1397,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminHomepageRoute: AdminHomepageRoute,
   AdminInteresseRoute: AdminInteresseRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
+  AdminPopupRoute: AdminPopupRoute,
   AdminPrecificacaoRoute: AdminPrecificacaoRoute,
   AdminPrecificarRoute: AdminPrecificarRoute,
   AdminProdutosRoute: AdminProdutosRoute,
@@ -1388,6 +1468,18 @@ const ApiAdminQuotesRouteWithChildren = ApiAdminQuotesRoute._addFileChildren(
   ApiAdminQuotesRouteChildren,
 )
 
+interface ApiAuthCodigoRouteChildren {
+  ApiAuthCodigoVerificarRoute: typeof ApiAuthCodigoVerificarRoute
+}
+
+const ApiAuthCodigoRouteChildren: ApiAuthCodigoRouteChildren = {
+  ApiAuthCodigoVerificarRoute: ApiAuthCodigoVerificarRoute,
+}
+
+const ApiAuthCodigoRouteWithChildren = ApiAuthCodigoRoute._addFileChildren(
+  ApiAuthCodigoRouteChildren,
+)
+
 interface ApiAuthGoogleRouteChildren {
   ApiAuthGoogleCallbackRoute: typeof ApiAuthGoogleCallbackRoute
 }
@@ -1420,9 +1512,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
   ApiAdminProductsRoute: ApiAdminProductsRouteWithChildren,
   ApiAdminQuotesRoute: ApiAdminQuotesRouteWithChildren,
+  ApiAuthCodigoRoute: ApiAuthCodigoRouteWithChildren,
   ApiAuthGoogleRoute: ApiAuthGoogleRouteWithChildren,
   ApiAuthLoginRoute: ApiAuthLoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthRapidoRoute: ApiAuthRapidoRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicCarrinhoRoute: ApiPublicCarrinhoRoute,

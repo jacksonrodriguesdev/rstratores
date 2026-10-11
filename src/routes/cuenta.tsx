@@ -75,6 +75,22 @@ function CuentaPage() {
           </div>
         </section>
 
+        {perfil.cupom && !perfil.cupomUsado && (
+          <a
+            href={whatsappContactUrl(`¡Hola! Soy ${perfil.nome_completo.split(" ")[0]} y quiero usar mi cupón ${perfil.cupom} en mi primera compra.`)}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="mt-4 flex items-center gap-4 rounded-2xl border-2 border-dashed border-[#e0a800] bg-[#fffbeb] p-4 transition hover:bg-[#fff6d6]"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f2c94c] text-lg font-black text-[#06321b]">%</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-zinc-700">Tu cupón de descuento en la primera compra</span>
+              <span className="block font-mono text-2xl font-black tracking-[0.15em] text-primary">{perfil.cupom}</span>
+            </span>
+            <span className="hidden text-sm font-bold text-[#128C4B] sm:block">Usarlo por WhatsApp →</span>
+          </a>
+        )}
+
         {(completar || !perfil.telefone) && (
           <div className="mt-4 flex items-start gap-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
             <Sparkles className="mt-0.5 h-5 w-5 shrink-0" />
