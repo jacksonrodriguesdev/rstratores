@@ -371,9 +371,12 @@ model email_campanhas {
 model email_envios {
   id          Int       @id @default(autoincrement())
   campanha_id Int?
+  automacao_id Int?
+  // Automações: evita mandar o mesmo e-mail duas vezes (ex.: "carrinho_baixou:SKU:850")
+  chave       String?   @db.VarChar(150)
   user_id     Int?
   email       String    @db.VarChar(191)
-  tipo        String    @default("CAMPANHA") @db.VarChar(20) // CAMPANHA, CARRINHO, TESTE
+  tipo        String    @default("CAMPANHA") @db.VarChar(20) // CAMPANHA, CARRINHO, AUTOMACAO, TESTE
   status      String    @default("ENVIADO") @db.VarChar(20) // ENVIADO, ENTREGUE, ABERTO, CLICADO, REBOTADO, QUEIXA, FALHA
   resend_id   String?   @db.VarChar(64)
   erro        String?   @db.Text
@@ -382,8 +385,10 @@ model email_envios {
   created_at  DateTime  @default(now())
 
   campanha    email_campanhas? @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
+  automacao   email_automacoes? @relation(fields: [automacao_id], references: [id], onDelete: Cascade)
 
   @@index([campanha_id])
+  @@index([automacao_id, user_id])
   @@index([user_id])
   @@index([resend_id])
 }
@@ -404,4 +409,47 @@ model configuracoes {
   chave      String   @id @db.VarChar(60)
   valor      String   @db.Text
   updated_at DateTime @updatedAt
+}
+
+// Automações de e-mail (Admin → E-mail marketing → Automações): boas-vindas, cupom, promoção,
+// preço baixou, carrinho baixou, carrinho abandonado, cliente inativo. Rodam sozinhas a cada 10 min.
+model email_automacoes {
+  id          Int       @id @default(autoincrement())
+  tipo        String    @db.VarChar(30)
+  nome        String    @db.VarChar(150)
+  ativo       Boolean   @default(false)
+  ativado_em  DateTime? // boas-vindas: só para quem se cadastrou depois de ativar
+  assunto     String    @db.VarChar(200)
+  preheader   String?   @db.VarChar(200)
+  conteudo    String    @db.LongText // JSON do editor (ConteudoEmail)
+  publico     String    @db.Text // JSON (Publico): limita quem pode receber
+  config      String    @db.Text // JSON com as opções do gatilho (dias, horas, cupom...)
+  cursor      Int       @default(0) // último produto_eventos.id já processado
+  enviados    Int       @default(0)
+  ultimo_erro String?   @db.Text
+  rodou_em    DateTime?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  envios      email_envios[]
+}
+
+// Último preço visto de cada peça precificada: comparando com o atual, o sistema descobre
+// quando uma peça entrou em promoção ou baixou de preço (seja qual for a tela que mudou o preço).
+model produto_preco_snapshot {
+  sku        String   @id @db.VarChar(191)
+  preco_brl  Float // preço efetivo de venda em R$ (promoção, quando houver)
+  promocao   Boolean  @default(false)
+  updated_at DateTime @updatedAt
+}
+
+model produto_eventos {
+  id         Int      @id @default(autoincrement())
+  sku        String   @db.VarChar(191)
+  tipo       String   @db.VarChar(20) // PROMOCAO, BAIXOU
+  de_brl     Float
+  para_brl   Float
+  created_at DateTime @default(now())
+
+  @@index([created_at])
 }

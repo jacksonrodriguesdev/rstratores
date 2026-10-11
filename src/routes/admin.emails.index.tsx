@@ -8,6 +8,7 @@ import { listarCampanhasFn, criarCampanhaFn, excluirCampanhaFn, statusEmailFn } 
 import { urlAbsoluta } from "@/lib/email-template";
 import { cn } from "@/lib/utils";
 import { COR_STATUS, ROTULO_STATUS } from "@/components/admin/email-status";
+import { EmailAbas } from "@/components/admin/EmailAbas";
 
 export const Route = createFileRoute("/admin/emails/")({
   component: EmailsPage,
@@ -47,7 +48,10 @@ function EmailsPage() {
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight"><Mail className="h-6 w-6 text-primary" /> E-mail marketing</h1>
           <p className="mt-1 text-sm text-muted-foreground">Crie campanhas com imagem, texto e produtos do site e envie para os clientes cadastrados.</p>
         </div>
-        <Button onClick={() => nova()} size="lg"><Plus className="mr-2 h-5 w-5" /> Nova campanha</Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <EmailAbas atual="campanhas" />
+          <Button onClick={() => nova()} size="lg"><Plus className="mr-2 h-5 w-5" /> Nova campanha</Button>
+        </div>
       </div>
 
       {st && !st.configurado && (

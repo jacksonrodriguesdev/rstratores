@@ -176,17 +176,17 @@ export const buscarProdutosEmailFn = createServerFn({ method: "GET" })
     await admin();
     const { prisma } = await import("./prisma");
     const q = data.q;
-    const rows = await prisma.products.findMany({
+    const rows = await prisma.agricolas.findMany({
       where: q
-        ? { OR: [{ sku: { contains: q } }, { nome: { contains: q } }, { nome_es: { contains: q } }, { codigo_fabricante: { contains: q } }] }
-        : { imagem_principal: { not: null } },
+        ? { duplicado_de: null, OR: [{ sku: { contains: q } }, { nome: { contains: q } }, { nome_es: { contains: q } }, { codigo_fabricante: { contains: q } }] }
+        : { duplicado_de: null, imagem_principal: { not: null } },
       select: { sku: true, nome: true, nome_es: true, imagem_principal: true, codigo_fabricante: true, marca: true },
       orderBy: { updated_at: "desc" },
       take: 16,
     });
     const { nomeProduto } = await import("./pecas-es");
     return rows.map((r) => ({
-      sku: r.sku,
+      sku: r.sku.trim(),
       nome: nomeProduto(r as any),
       codigo: r.codigo_fabricante || r.sku,
       imagem: r.imagem_principal && !r.imagem_principal.includes("redeparts") ? r.imagem_principal : null,

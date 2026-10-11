@@ -35,7 +35,14 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
       { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
-      { to: "/admin/emails", label: "E-mail marketing", icon: Mail },
+      {
+        label: "E-mail marketing",
+        icon: Mail,
+        sub: [
+          { to: "/admin/emails", label: "Campanhas" },
+          { to: "/admin/automacoes", label: "Automações" },
+        ],
+      },
     ],
   },
   {

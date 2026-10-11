@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Users, UserPlus, MapPin, Mail, Download, Search, MessageCircle, ShoppingCart, BookOpen } from "lucide-react";
+import { Users, UserPlus, MapPin, Mail, Download, Search, MessageCircle, ShoppingCart, BookOpen, Tag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { EChart } from "@/components/admin/EChart";
 import { listarClientesFn, COORD_DEPTO, type Cliente } from "@/lib/clientes";
 import { downloadFile } from "@/lib/upload";
 import { cn } from "@/lib/utils";
+import { OfertaClientes, numeroWhatsapp } from "@/components/admin/OfertaClientes";
+import { EmailClientes } from "@/components/admin/EmailClientes";
 
 export const Route = createFileRoute("/admin/clientes")({
   component: ClientesPage,
@@ -16,7 +18,6 @@ const fmt = (n: number) => n.toLocaleString("pt-BR");
 const data = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("pt-BR") : "—");
 const tooltipBase = { backgroundColor: "rgba(15,30,20,.92)", borderWidth: 0, textStyle: { color: "#fff" } };
 const SEM_LOCAL = "Sem localização";
-const whats = (tel: string) => `https://wa.me/${tel.replace(/\D/g, "")}`;
 
 // Admin → Clientes: todos os cadastros, mapa por departamento/cidade e lista com filtros.
 function ClientesPage() {
@@ -24,6 +25,9 @@ function ClientesPage() {
   const [busca, setBusca] = useState("");
   const [depto, setDepto] = useState<string | null>(null);
   const [zoom, setZoom] = useState<"uy" | "sul">("uy");
+  const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
+  const [oferta, setOferta] = useState(false);
+  const [email, setEmail] = useState(false);
 
   const lista = clientes ?? [];
   const resumo = useMemo(() => {
@@ -48,6 +52,18 @@ function ClientesPage() {
         (!q || [c.nome, c.email, c.telefone, c.cidade, c.departamento].some((v) => v?.toLowerCase().includes(q))),
     );
   }, [lista, busca, depto]);
+
+  // Destinatários da oferta: os marcados, ou a lista filtrada quando nada está marcado
+  const destino = selecionados.size ? lista.filter((c) => selecionados.has(c.id)) : filtrados;
+  const todosMarcados = filtrados.length > 0 && filtrados.every((c) => selecionados.has(c.id));
+  const marcar = (id: number) =>
+    setSelecionados((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  const marcarTodos = () => setSelecionados(todosMarcados ? new Set() : new Set(filtrados.map((c) => c.id)));
 
   const mapa = useMemo(() => {
     // Pontos por local exato (cidade do IP ou capital do departamento)
@@ -212,6 +228,15 @@ function ClientesPage() {
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Nome, e-mail, telefone, cidade…"
               className="h-9 w-64 rounded-lg border bg-background pl-8 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
           </label>
+          <button onClick={() => setOferta(true)} disabled={!destino.length}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50">
+            <Tag className="h-4 w-4" /> Enviar oferta {selecionados.size ? `(${selecionados.size} marcados)` : `(${filtrados.length})`}
+          </button>
+          <button onClick={() => setEmail(true)} disabled={!destino.length}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-semibold hover:bg-muted disabled:opacity-50">
+            <Mail className="h-4 w-4" /> Enviar e-mail
+          </button>
+          {selecionados.size > 0 && <button onClick={() => setSelecionados(new Set())} className="text-xs text-muted-foreground hover:underline">desmarcar</button>}
           <button onClick={exportar} disabled={!filtrados.length} className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm hover:bg-muted disabled:opacity-50">
             <Download className="h-4 w-4" /> Exportar CSV
           </button>
@@ -220,6 +245,7 @@ function ClientesPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
+                <th className="w-10 pl-4"><input type="checkbox" aria-label="Marcar todos" checked={todosMarcados} onChange={marcarTodos} /></th>
                 <th className="px-4 py-2.5">Cliente</th>
                 <th className="px-4 py-2.5">Contato</th>
                 <th className="px-4 py-2.5">Local</th>
@@ -229,20 +255,24 @@ function ClientesPage() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {isLoading && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Carregando…</td></tr>}
-              {!isLoading && filtrados.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Nenhum cliente encontrado.</td></tr>}
-              {filtrados.map((c) => <Linha key={c.id} c={c} />)}
+              {isLoading && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Carregando…</td></tr>}
+              {!isLoading && filtrados.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Nenhum cliente encontrado.</td></tr>}
+              {filtrados.map((c) => <Linha key={c.id} c={c} marcado={selecionados.has(c.id)} aoMarcar={() => marcar(c.id)} />)}
             </tbody>
           </table>
         </div>
       </Card>
+      <OfertaClientes aberto={oferta} aoFechar={() => setOferta(false)} clientes={destino} />
+      <EmailClientes aberto={email} aoFechar={() => setEmail(false)} clientes={destino} />
     </div>
   );
 }
 
-function Linha({ c }: { c: Cliente }) {
+function Linha({ c, marcado, aoMarcar }: { c: Cliente; marcado: boolean; aoMarcar: () => void }) {
+  const numero = numeroWhatsapp(c.telefone);
   return (
-    <tr className="hover:bg-muted/30">
+    <tr className={cn("hover:bg-muted/30", marcado && "bg-primary/5")}>
+      <td className="pl-4"><input type="checkbox" aria-label={`Marcar ${c.nome}`} checked={marcado} onChange={aoMarcar} /></td>
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-2.5">
           {c.avatar ? (
@@ -260,8 +290,9 @@ function Linha({ c }: { c: Cliente }) {
       </td>
       <td className="px-4 py-2.5">
         <a href={`mailto:${c.email}`} className="block text-xs hover:underline">{c.email}</a>
-        {c.telefone && (
-          <a href={whats(c.telefone)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-[#128C4B] hover:underline">
+        {c.telefone && !numero && <p className="text-xs text-muted-foreground" title="Número sem código do país reconhecível">{c.telefone}</p>}
+        {numero && (
+          <a href={`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(`¡Hola ${c.nome.trim().split(" ")[0]}! Te escribimos de AGRO PARTS.`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-[#128C4B] hover:underline">
             <MessageCircle className="h-3 w-3" /> {c.telefone}
           </a>
         )}

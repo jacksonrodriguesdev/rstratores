@@ -57,8 +57,17 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+// Automações de e-mail: o agendador começa junto com o primeiro acesso ao servidor
+let agendadorIniciado = false;
+function iniciarAutomacoes() {
+  if (agendadorIniciado) return;
+  agendadorIniciado = true;
+  import("./lib/automacoes.server").then((m) => m.iniciarAgendador()).catch((e) => console.error("automações", e));
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    iniciarAutomacoes();
     const alias = redirecionarAlias(request);
     if (alias) return alias;
     try {

@@ -40,6 +40,8 @@ import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as UploadsSplatRouteImport } from './routes/uploads.$'
+import { Route as AdminAutomacoesIndexRouteImport } from './routes/admin.automacoes.index'
+import { Route as AdminAutomacoesIdRouteImport } from './routes/admin.automacoes.$id'
 import { Route as AdminEmailsIndexRouteImport } from './routes/admin.emails.index'
 import { Route as AdminEmailsIdRouteImport } from './routes/admin.emails.$id'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
@@ -226,6 +228,16 @@ const UploadsSplatRoute = UploadsSplatRouteImport.update({
   id: '/uploads/$',
   path: '/uploads/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAutomacoesIndexRoute = AdminAutomacoesIndexRouteImport.update({
+  id: '/automacoes/',
+  path: '/automacoes/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAutomacoesIdRoute = AdminAutomacoesIdRouteImport.update({
+  id: '/automacoes/$id',
+  path: '/automacoes/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminEmailsIndexRoute = AdminEmailsIndexRouteImport.update({
   id: '/emails/',
@@ -416,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
@@ -433,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
@@ -479,6 +493,7 @@ export interface FileRoutesByTo {
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
   '/catalogos': typeof CatalogosIndexRoute
+  '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
@@ -496,6 +511,7 @@ export interface FileRoutesByTo {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
@@ -544,6 +560,7 @@ export interface FileRoutesById {
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
@@ -561,6 +578,7 @@ export interface FileRoutesById {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
@@ -610,6 +628,7 @@ export interface FileRouteTypes {
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/admin/automacoes/$id'
     | '/admin/emails/$id'
     | '/api/admin/banners'
     | '/api/admin/categories'
@@ -627,6 +646,7 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/admin/automacoes/'
     | '/admin/emails/'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
@@ -673,6 +693,7 @@ export interface FileRouteTypes {
     | '/uploads/$'
     | '/admin'
     | '/catalogos'
+    | '/admin/automacoes/$id'
     | '/admin/emails/$id'
     | '/api/admin/banners'
     | '/api/admin/categories'
@@ -690,6 +711,7 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/admin/automacoes'
     | '/admin/emails'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
@@ -737,6 +759,7 @@ export interface FileRouteTypes {
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/admin/automacoes/$id'
     | '/admin/emails/$id'
     | '/api/admin/banners'
     | '/api/admin/categories'
@@ -754,6 +777,7 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/admin/automacoes/'
     | '/admin/emails/'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
@@ -1026,6 +1050,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UploadsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/automacoes/': {
+      id: '/admin/automacoes/'
+      path: '/automacoes'
+      fullPath: '/admin/automacoes/'
+      preLoaderRoute: typeof AdminAutomacoesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/automacoes/$id': {
+      id: '/admin/automacoes/$id'
+      path: '/automacoes/$id'
+      fullPath: '/admin/automacoes/$id'
+      preLoaderRoute: typeof AdminAutomacoesIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/emails/': {
       id: '/admin/emails/'
       path: '/emails'
@@ -1263,7 +1301,9 @@ interface AdminRouteChildren {
   AdminUploadRoute: typeof AdminUploadRoute
   AdminVisitantesRoute: typeof AdminVisitantesRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminAutomacoesIdRoute: typeof AdminAutomacoesIdRoute
   AdminEmailsIdRoute: typeof AdminEmailsIdRoute
+  AdminAutomacoesIndexRoute: typeof AdminAutomacoesIndexRoute
   AdminEmailsIndexRoute: typeof AdminEmailsIndexRoute
 }
 
@@ -1284,7 +1324,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminUploadRoute: AdminUploadRoute,
   AdminVisitantesRoute: AdminVisitantesRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminAutomacoesIdRoute: AdminAutomacoesIdRoute,
   AdminEmailsIdRoute: AdminEmailsIdRoute,
+  AdminAutomacoesIndexRoute: AdminAutomacoesIndexRoute,
   AdminEmailsIndexRoute: AdminEmailsIndexRoute,
 }
 
