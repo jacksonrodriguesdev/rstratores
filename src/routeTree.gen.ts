@@ -26,6 +26,7 @@ import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
 import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
+import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
@@ -154,6 +155,11 @@ const AdminCatalogosRoute = AdminCatalogosRouteImport.update({
 const AdminCategoriasRoute = AdminCategoriasRouteImport.update({
   id: '/categorias',
   path: '/categorias',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClientesRoute = AdminClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
@@ -395,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
+  '/admin/clientes': typeof AdminClientesRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -457,6 +464,7 @@ export interface FileRoutesByTo {
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
+  '/admin/clientes': typeof AdminClientesRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -521,6 +529,7 @@ export interface FileRoutesById {
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
+  '/admin/clientes': typeof AdminClientesRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -586,6 +595,7 @@ export interface FileRouteTypes {
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
+    | '/admin/clientes'
     | '/admin/cotacoes'
     | '/admin/fotos-lote'
     | '/admin/homepage'
@@ -648,6 +658,7 @@ export interface FileRouteTypes {
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
+    | '/admin/clientes'
     | '/admin/cotacoes'
     | '/admin/fotos-lote'
     | '/admin/homepage'
@@ -711,6 +722,7 @@ export interface FileRouteTypes {
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
+    | '/admin/clientes'
     | '/admin/cotacoes'
     | '/admin/fotos-lote'
     | '/admin/homepage'
@@ -914,6 +926,13 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/admin/categorias'
       preLoaderRoute: typeof AdminCategoriasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/clientes': {
+      id: '/admin/clientes'
+      path: '/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AdminClientesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/cotacoes': {
@@ -1232,6 +1251,7 @@ interface AdminRouteChildren {
   AdminCarrinhosRoute: typeof AdminCarrinhosRoute
   AdminCatalogosRoute: typeof AdminCatalogosRoute
   AdminCategoriasRoute: typeof AdminCategoriasRoute
+  AdminClientesRoute: typeof AdminClientesRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
@@ -1252,6 +1272,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCarrinhosRoute: AdminCarrinhosRoute,
   AdminCatalogosRoute: AdminCatalogosRoute,
   AdminCategoriasRoute: AdminCategoriasRoute,
+  AdminClientesRoute: AdminClientesRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminHomepageRoute: AdminHomepageRoute,

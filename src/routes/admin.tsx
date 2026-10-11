@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import {
-  LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, ShoppingCart, Mail,
+  LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, Users, ShoppingCart, Mail,
   Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,7 @@ const GRUPOS: Grupo[] = [
     titulo: "Vendas",
     itens: [
       { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
+      { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
       { to: "/admin/emails", label: "E-mail marketing", icon: Mail },
     ],
