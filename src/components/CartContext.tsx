@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { visitanteAtual } from "@/lib/visitante";
+import { eventoCarrinho } from "@/lib/marketing";
 
 export type CartItem = {
   sku: string;
@@ -82,6 +83,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const marcarEnviado = () => sincronizar(items, true);
 
   const addItem = (newItem: CartItem) => {
+    // AddToCart (Meta) / add_to_cart (GA4)
+    eventoCarrinho({ sku: newItem.sku, nome: newItem.nameEs || newItem.name, quantidade: newItem.quantity });
     setItems((currentItems) => {
       const existing = currentItems.find((item) => item.sku === newItem.sku);
       if (existing) {

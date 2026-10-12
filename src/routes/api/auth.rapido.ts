@@ -26,14 +26,19 @@ export const Route = createFileRoute("/api/auth/rapido")({
           const { prisma } = await import("@/lib/prisma");
           const { abrirSessao } = await import("@/lib/auth.server");
           // Se a conta já existir (ex.: criada em outra aba), só entra
+          const existente = await prisma.users.findUnique({ where: { email } });
           const user =
-            (await prisma.users.findUnique({ where: { email } })) ??
+            existente ??
             (await prisma.users.create({
               data: { nome_completo, email, senha_hash: senhaAleatoria("codigo"), telefone, departamento, pais: "Uruguai" },
             }));
+          if (!existente) {
+            const { registrarCadastro } = await import("@/lib/conversoes.server");
+            void registrarCadastro(request, user);
+          }
           const cupom = await garantirCupom(user.id);
           const cookie = await abrirSessao(request, user);
-          return Response.json({ ok: true, nome: user.nome_completo, cupom }, { headers: { "Set-Cookie": cookie } });
+          return Response.json({ ok: true, id: user.id, nome: user.nome_completo, cupom }, { headers: { "Set-Cookie": cookie } });
         } catch (err) {
           console.error("Erro no cadastro rápido:", err);
           return Response.json({ error: "No pudimos crear la cuenta. Probá de nuevo." }, { status: 500 });

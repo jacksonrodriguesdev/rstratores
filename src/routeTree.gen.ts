@@ -31,6 +31,7 @@ import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
+import { Route as AdminMarketingRouteImport } from './routes/admin.marketing'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminPopupRouteImport } from './routes/admin.popup'
 import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
@@ -186,6 +187,11 @@ const AdminHomepageRoute = AdminHomepageRouteImport.update({
 const AdminInteresseRoute = AdminInteresseRouteImport.update({
   id: '/interesse',
   path: '/interesse',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMarketingRoute = AdminMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPellegrinoRoute = AdminPellegrinoRouteImport.update({
@@ -442,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
@@ -511,6 +518,7 @@ export interface FileRoutesByTo {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
@@ -582,6 +590,7 @@ export interface FileRoutesById {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
@@ -654,6 +663,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
+    | '/admin/marketing'
     | '/admin/pellegrino'
     | '/admin/popup'
     | '/admin/precificacao'
@@ -723,6 +733,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
+    | '/admin/marketing'
     | '/admin/pellegrino'
     | '/admin/popup'
     | '/admin/precificacao'
@@ -793,6 +804,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
+    | '/admin/marketing'
     | '/admin/pellegrino'
     | '/admin/popup'
     | '/admin/precificacao'
@@ -1035,6 +1047,13 @@ declare module '@tanstack/react-router' {
       path: '/interesse'
       fullPath: '/admin/interesse'
       preLoaderRoute: typeof AdminInteresseRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/marketing': {
+      id: '/admin/marketing'
+      path: '/marketing'
+      fullPath: '/admin/marketing'
+      preLoaderRoute: typeof AdminMarketingRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/pellegrino': {
@@ -1372,6 +1391,7 @@ interface AdminRouteChildren {
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
+  AdminMarketingRoute: typeof AdminMarketingRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
   AdminPopupRoute: typeof AdminPopupRoute
   AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
@@ -1396,6 +1416,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminHomepageRoute: AdminHomepageRoute,
   AdminInteresseRoute: AdminInteresseRoute,
+  AdminMarketingRoute: AdminMarketingRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
   AdminPopupRoute: AdminPopupRoute,
   AdminPrecificacaoRoute: AdminPrecificacaoRoute,

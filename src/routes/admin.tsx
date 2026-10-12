@@ -3,7 +3,7 @@ import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, Users, ShoppingCart, Mail,
-  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, type LucideIcon,
+  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, Plug, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -35,6 +35,11 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
       { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
+    ],
+  },
+  {
+    titulo: "Marketing",
+    itens: [
       {
         label: "E-mail marketing",
         icon: Mail,
@@ -43,6 +48,8 @@ const GRUPOS: Grupo[] = [
           { to: "/admin/automacoes", label: "Automações" },
         ],
       },
+      { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
+      { to: "/admin/marketing", label: "Integrações (Meta e Google)", icon: Plug },
     ],
   },
   {
@@ -77,7 +84,6 @@ const GRUPOS: Grupo[] = [
     itens: [
       { to: "/admin/homepage", label: "Página inicial", icon: Home },
       { to: "/admin/banners", label: "Banners", icon: Image },
-      { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
     ],
   },
 ];

@@ -47,7 +47,12 @@ export const Route = createFileRoute("/api/public/carrinho")({
             return ok();
           }
 
+          // Cookies do Meta (clique no anúncio): ligam a venda fechada à campanha
+          const { cookiesMeta } = await import("@/lib/conversoes.server");
+          const meta = cookiesMeta(request);
           const dados = {
+            ...(meta.fbp && { fbp: meta.fbp }),
+            ...(meta.fbc && { fbc: meta.fbc }),
             itens: JSON.stringify(itens),
             qtd_itens: itens.reduce((s, i) => s + i.quantity, 0),
             ...(sessao && { user_id: sessao.id }),

@@ -125,9 +125,9 @@ export function PopupAcesso() {
     setAberto(false);
   }
 
-  const terminar = async (r: { nome: string; cupom: string | null; usado?: boolean }, acao: "cadastro" | "login") => {
+  const terminar = async (r: { nome: string; cupom: string | null; usado?: boolean }, acao: "cadastro" | "login", eventId?: string) => {
     gravar(FEITO, "1");
-    registrarEvento("popup", acao);
+    registrarEvento("popup", acao, eventId);
     setResultado(r);
     setEtapa("ok");
     await qc.invalidateQueries({ queryKey: ["auth_session"] });
@@ -172,7 +172,8 @@ export function PopupAcesso() {
 
   const cadastrar = acao(async () => {
     const j = await post("/api/auth/rapido", { token, ...dados });
-    await terminar({ nome: j.nome, cupom: j.cupom }, "cadastro");
+    // Mesmo event_id do servidor (cadastro_<id>): o Meta conta o cadastro uma vez
+    await terminar({ nome: j.nome, cupom: j.cupom }, "cadastro", j.id ? `cadastro_${j.id}` : undefined);
   });
 
   const entrarComSenha = acao(async () => {

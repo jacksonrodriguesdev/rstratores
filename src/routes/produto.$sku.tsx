@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { registrarVisto } from "@/hooks/use-vistos";
 import { getPrecosConfigFn } from "@/lib/produtos-admin";
 import { PrecoTag, usePreco } from "@/components/PrecoTag";
+import { eventoVerProduto } from "@/lib/marketing";
 import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
 
 const SITE = SITE_URL;
@@ -176,7 +177,9 @@ function ProductDetail() {
   useEffect(() => {
     registrarVisto(product.sku);
     setMainImage(product.imagem_principal);
-  }, [product.sku]);
+    // ViewContent (Meta) / view_item (GA4): base do remarketing e dos anúncios de catálogo
+    eventoVerProduto({ sku: product.sku.trim(), nome, valor: precoAtual?.uyu ?? null });
+  }, [product.sku]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const imagesQuery = useQuery({
     queryKey: ["product-images", product.sku],

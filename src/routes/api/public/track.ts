@@ -77,6 +77,19 @@ export const Route = createFileRoute("/api/public/track")({
             if (!/column|does not exist|Unknown/i.test(String(e?.message))) throw e;
             await prisma.site_visits.create({ data: basico });
           }
+          // Pedido pelo WhatsApp = Lead também pela API de Conversões do Meta (mesmo event_id do Pixel)
+          const tipoEvento = path.startsWith("/_evento/") ? path.split("/")[2] : null;
+          if (tipoEvento === "whatsapp" || tipoEvento === "cotacao") {
+            const { enviarEventoMeta, cookiesMeta } = await import("@/lib/conversoes.server");
+            const u = sessao?.id ? await prisma.users.findUnique({ where: { id: Number(sessao.id) } }).catch(() => null) : null;
+            void enviarEventoMeta({
+              evento: "Lead",
+              eventId: texto(body.eventId, 100),
+              pessoa: u ? { email: u.email, telefone: u.telefone, nome: u.nome_completo, userId: u.id, cidade: u.cidade } : {},
+              navegador: { ip, ua, ...cookiesMeta(request), url: `${SITE_URL}${texto(body.pagina, 512) ?? "/"}` },
+              dados: { content_name: tipoEvento === "cotacao" ? "carrito" : "whatsapp" },
+            }).catch(() => {});
+          }
           return ok();
         } catch (err) {
           console.error("track error", err);

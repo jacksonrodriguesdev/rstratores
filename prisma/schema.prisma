@@ -344,6 +344,11 @@ model carrinhos {
   contatos      Int       @default(0)
   contatado_em  DateTime?
   enviado_em    DateTime?
+  // Cookies do Meta (_fbp/_fbc) do navegador que montou o carrinho: a venda fechada vai
+  // para a API de Conversões ligada ao clique no anúncio. capi_compra_em evita mandar duas vezes.
+  fbp           String?   @db.VarChar(255)
+  fbc           String?   @db.VarChar(255)
+  capi_compra_em DateTime?
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 
@@ -473,4 +478,19 @@ model login_codigos {
   created_at  DateTime @default(now())
 
   @@index([email])
+}
+
+// Eventos enviados às plataformas de anúncios pelo servidor (Meta Conversions API, GA4).
+// Serve para conferir em Marketing → Integrações se está chegando e por que falhou.
+model marketing_eventos {
+  id         Int      @id @default(autoincrement())
+  plataforma String   @db.VarChar(20) // META, GA4
+  evento     String   @db.VarChar(40) // Lead, CompleteRegistration, Purchase...
+  event_id   String?  @db.VarChar(100)
+  ok         Boolean  @default(false)
+  teste      Boolean  @default(false)
+  detalhe    String?  @db.Text
+  created_at DateTime @default(now())
+
+  @@index([created_at])
 }

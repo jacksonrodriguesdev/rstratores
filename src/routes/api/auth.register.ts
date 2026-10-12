@@ -48,6 +48,8 @@ export const Route = createFileRoute("/api/auth/register")({
           // Conta nova: cupom único de boas-vindas
           const { garantirCupom } = await import("@/lib/acesso.server");
           await garantirCupom(user.id);
+          const { registrarCadastro } = await import("@/lib/conversoes.server");
+          void registrarCadastro(request, user);
           const cookie = await abrirSessao(request, user);
           return Response.json({ success: true, destino: destinoSeguro(body.redirect) }, { headers: { "Set-Cookie": cookie } });
         } catch (err) {

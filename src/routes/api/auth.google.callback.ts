@@ -40,6 +40,8 @@ export const Route = createFileRoute("/api/auth/google/callback")({
             // Conta nova: cupom único de boas-vindas
             const { garantirCupom } = await import("@/lib/acesso.server");
             await garantirCupom(user.id);
+            const { registrarCadastro } = await import("@/lib/conversoes.server");
+            void registrarCadastro(request, user);
           }
           const sessao = await abrirSessao(request, user);
           // Sem celular: completa o cadastro antes (é como a loja fala com o cliente)

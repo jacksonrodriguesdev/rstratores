@@ -1,15 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 import { dadosVisitante } from "@/lib/visitante";
+import { paginaVista } from "@/lib/marketing";
 
 export function VisitTracker() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const primeira = useRef(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     // Skip admin & login pages from analytics
     if (pathname.startsWith("/admin") || pathname.startsWith("/login")) return;
+
+    // A primeira página já conta no próprio Pixel; as seguintes (sem recarregar), aqui
+    if (primeira.current) primeira.current = false;
+    else paginaVista();
 
     const v = dadosVisitante(true);
     fetch("/api/public/track", {

@@ -279,7 +279,7 @@ function Linha({ c, aoMudar, aoWhats, aoEmail }: { c: Carrinho; aoMudar: () => v
             </div>
             <div className="flex items-end gap-2">
               <div className="flex-1">
-                <label className="text-xs font-semibold text-muted-foreground">Valor fechado</label>
+                <label className="text-xs font-semibold text-muted-foreground">Valor fechado ($U)</label>
                 <Input type="number" min={0} step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
               </div>
               <Button onClick={() => salvar({ nota, valor_fechado: valor === "" ? null : Number(valor) })}>Salvar</Button>

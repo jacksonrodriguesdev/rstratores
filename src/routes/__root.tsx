@@ -1,5 +1,6 @@
 import { SITE_URL } from "@/lib/site";
-import { scriptsMarketing } from "@/lib/marketing";
+import { scriptsMarketing, metasVerificacao } from "@/lib/marketing";
+import { getMarketingPublicoFn } from "@/lib/marketing-admin";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -78,9 +79,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  // IDs das tags de marketing (Marketing → Integrações): lidos uma vez e guardados por 5 min
+  loader: async () => ({ mkt: await getMarketingPublicoFn().catch(() => null) }),
+  staleTime: 5 * 60_000,
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
+      ...metasVerificacao(loaderData?.mkt),
       // viewport-fit=cover: usa a tela inteira no iPhone (com pb-safe/pt-safe nas barras)
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       // Aparência de aplicativo: cor da barra do navegador e instalação na tela inicial
@@ -115,7 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: `${SITE_URL}/icon-512.png` },
       { name: "twitter:image", content: `${SITE_URL}/icon-512.png` },
     ],
-    scripts: scriptsMarketing(),
+    scripts: scriptsMarketing(loaderData?.mkt),
     links: [
       {
         rel: "stylesheet",

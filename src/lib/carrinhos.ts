@@ -132,7 +132,12 @@ export const atualizarCarrinhoFn = createServerFn({ method: "POST" })
     }
     if (data.nota !== undefined) upd.nota = data.nota ? String(data.nota).slice(0, 5000) : null;
     if (data.valor_fechado !== undefined) upd.valor_fechado = data.valor_fechado === null || Number.isNaN(Number(data.valor_fechado)) ? null : Number(data.valor_fechado);
-    await prisma.carrinhos.update({ where: { id: Number(data.id) }, data: upd });
+    const final = await prisma.carrinhos.update({ where: { id: Number(data.id) }, data: upd });
+    // Venda fechada com valor: conversão "Purchase" no Meta e no GA4 (uma vez só)
+    if (final.etapa === "GANHO" && final.valor_fechado && !final.capi_compra_em) {
+      const { registrarVendaFechada } = await import("./conversoes.server");
+      await registrarVendaFechada(final.id).catch((e) => console.error("conversão da venda:", e));
+    }
     return { ok: true };
   });
 
