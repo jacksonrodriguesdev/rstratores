@@ -3,13 +3,9 @@ import { SITE_URL } from "@/lib/site";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
-import { Search, Package, X, SlidersHorizontal, Loader2, Filter, Plus, Check, MessageCircle, Camera } from "lucide-react";
+import { Search, Package, X, SlidersHorizontal, Loader2, Filter, MessageCircle, Camera } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
-import { ProductImage } from "@/components/ProductImage";
-import { QuoteButton } from "@/components/QuoteButton";
-import { PrecoTag, SeloOferta } from "@/components/PrecoTag";
-import { useCart } from "@/components/CartContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,10 +15,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useDebounce } from "@/hooks/use-debounce";
-import { listProducts, getFacets, codigoExibicao, marcaExibicao, type ListParams, type Product } from "@/lib/products";
-import { categoriaEs, categoriaFraseEs, nomeProduto } from "@/lib/pecas-es";
+import { listProducts, getFacets, type ListParams, type Product } from "@/lib/products";
+import { categoriaEs, categoriaFraseEs } from "@/lib/pecas-es";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { urlRepuestos } from "@/lib/seo-paginas";
+import { CardLoja } from "@/components/CardPeca";
 import { registrarEvento } from "@/lib/eventos";
 
 // O roteador lê "?q=6205" como número; aceita os dois e converte para texto (código só com
@@ -62,7 +60,9 @@ export const Route = createFileRoute("/loja")({
     if (categoria) params.set("categoria", categoria);
     if (marca) params.set("marca", marca);
     const qs = params.toString();
-    const canonical = `${SITE_URL}/loja${qs ? `?${qs}` : ""}`;
+    // Marca/categoria com página própria (/repuestos/...): ela é a versão principal para o Google
+    const propria = !q && (categoria || marca) ? urlRepuestos({ categoria, marca }) : null;
+    const canonical = propria ? `${SITE_URL}${propria}` : `${SITE_URL}/loja${qs ? `?${qs}` : ""}`;
     return {
       links: [{ rel: "canonical", href: canonical }],
       meta: [
@@ -473,63 +473,6 @@ function LojaPage() {
         </div>
       )}
     </div>
-  );
-}
-
-function CardLoja({ p }: { p: Product }) {
-  const { items, addItem } = useCart();
-  const naCotacao = items.some((i) => i.sku === p.sku);
-  const nome = nomeProduto(p);
-  const marca = marcaExibicao(p);
-
-  return (
-    <Card className="group relative flex h-full flex-col overflow-hidden border-zinc-200/70 bg-white p-0 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.12)]">
-      <Link to="/produto/$sku" params={{ sku: p.sku }} className="relative block aspect-square overflow-hidden bg-white p-3 md:p-4">
-        <ProductImage
-          src={p.imagem_principal}
-          alt={nome}
-          marca={marca}
-          className="object-contain mix-blend-multiply drop-shadow-sm transition-transform duration-700 ease-out group-hover:scale-105"
-        />
-        <SeloOferta p={p} className="absolute left-2 top-2" />
-      </Link>
-      {/* Agregar à cotação sem sair da lista */}
-      <button
-        onClick={() => {
-          if (!naCotacao)
-            addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, nameEs: nomeProduto(p), image: p.imagem_principal || undefined, quantity: 1 });
-        }}
-        aria-label={naCotacao ? "Ya está en tu cotización" : "Agregar a la cotización"}
-        title={naCotacao ? "Ya está en tu cotización" : "Agregar a la cotización"}
-        className={cn(
-          "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 transition active:scale-90",
-          naCotacao ? "bg-primary text-white ring-primary" : "bg-white text-primary ring-zinc-200 hover:bg-primary hover:text-white",
-        )}
-      >
-        {naCotacao ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-      </button>
-      <div className="flex flex-1 flex-col gap-2 border-t border-zinc-100 p-3 md:p-4">
-        <div className="flex flex-wrap items-center justify-between gap-1.5">
-          <div className="rounded-full border border-zinc-200/80 bg-zinc-100 px-2 py-0.5 text-[11px] font-bold tracking-wide text-zinc-500">
-            Cód. {codigoExibicao(p)}
-          </div>
-          {marca && (
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">{marca}</span>
-          )}
-        </div>
-        <Link
-          to="/produto/$sku"
-          params={{ sku: p.sku }}
-          className="mt-0.5 line-clamp-2 h-10 text-[14px] font-bold leading-5 text-zinc-800 transition-colors group-hover:text-primary md:text-[15px]"
-        >
-          {nome}
-        </Link>
-        <div className="mt-auto space-y-2 pt-2">
-          <PrecoTag p={p} />
-          <QuoteButton product={p} fullWidth />
-        </div>
-      </div>
-    </Card>
   );
 }
 

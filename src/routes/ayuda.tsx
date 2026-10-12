@@ -158,6 +158,10 @@ function AyudaPage() {
             Antes de despachar confirmamos con vos el código y la compatibilidad de cada pieza, para que recibas el
             repuesto correcto.
           </p>
+          <p>
+            <strong>Cambios y devoluciones:</strong> tenés 7 días desde que recibís el pedido para cambiar o devolver un
+            repuesto sin uso, en su embalaje original. El envío de la devolución corre por cuenta del cliente.
+          </p>
           <p>Si tenés algún problema con tu pedido, escribinos por WhatsApp y lo resolvemos juntos.</p>
         </Seccion>
 

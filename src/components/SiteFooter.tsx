@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Instagram, Facebook, Lock, Truck, MessageCircle } 
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { INSTAGRAM_URL, INSTAGRAM_USUARIO, FACEBOOK_URL } from "@/lib/navegacao";
 import { BandeiraUruguay } from "@/components/Bandeiras";
+import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
 
 const AYUDA = [
   { label: "Cómo comprar", hash: "como-comprar" },
@@ -141,7 +142,23 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="mt-12 border-t border-zinc-800 px-4 pt-6 text-center text-xs text-zinc-500">
+      {/* Links para as páginas por marca e categoria (ajudam o Google a encontrá-las) */}
+      <div className="mx-auto mt-10 max-w-7xl space-y-3 border-t border-zinc-800 px-4 pt-6 text-sm">
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <a href="/repuestos" className="font-bold uppercase tracking-wider text-white hover:text-primary">Repuestos por marca:</a>
+          {MARCAS_SEO.map((m) => (
+            <a key={m.slug} href={`/repuestos/${m.slug}`} className="hover:text-white">Repuestos {m.marca}</a>
+          ))}
+        </p>
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="font-bold uppercase tracking-wider text-white">Por categoría:</span>
+          {CATEGORIAS_SEO.map((c) => (
+            <a key={c.slug} href={`/repuestos/${c.slug}`} className="hover:text-white">{c.nome}</a>
+          ))}
+        </p>
+      </div>
+
+      <div className="mt-8 border-t border-zinc-800 px-4 pt-6 text-center text-xs text-zinc-500">
         <p>
           &copy; {new Date().getFullYear()} AGRO PARTS · Tienda online de repuestos agrícolas · Chuy, Uruguay
         </p>

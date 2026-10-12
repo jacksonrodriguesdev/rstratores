@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getProduct, getProductImages, getRelatedProducts, codigoExibicao, marcaExibicao } from "@/lib/products";
 import { categoriaEs, descricaoEs, nomeEs, nomeProduto } from "@/lib/pecas-es";
+import { urlRepuestos } from "@/lib/seo-paginas";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -92,6 +93,16 @@ export const Route = createFileRoute("/produto/$sku")({
             price: pr.uyu ?? pr.brl,
             availability: p.estoque > 0 ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
             seller: { "@type": "Organization", name: "AGRO PARTS" },
+            // Política de troca (a mesma de /ayuda#garantia): 7 dias, peça sem uso, envio por conta do cliente
+            hasMerchantReturnPolicy: {
+              "@type": "MerchantReturnPolicy",
+              applicableCountry: "UY",
+              returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+              merchantReturnDays: 7,
+              returnMethod: "https://schema.org/ReturnByMail",
+              // O cliente paga o envio da devolução direto na DAC (valor variável)
+              returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+            },
           },
         };
       })(),
@@ -107,7 +118,7 @@ export const Route = createFileRoute("/produto/$sku")({
                 "@type": "ListItem",
                 position: 2,
                 name: categoriaEs(p.categoria),
-                item: `${SITE}/loja?categoria=${encodeURIComponent(p.categoria)}`,
+                item: `${SITE}${urlRepuestos({ categoria: p.categoria }) ?? `/loja?categoria=${encodeURIComponent(p.categoria)}`}`,
               },
             ]
           : []),
@@ -247,13 +258,12 @@ function ProductDetail() {
             Inicio
           </Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link
-            to="/loja"
-            search={(product.categoria ? { categoria: product.categoria } : {}) as never}
+          <a
+            href={(product.categoria && urlRepuestos({ categoria: product.categoria })) || "/loja"}
             className="shrink-0 hover:text-primary"
           >
             {product.categoria ? categoriaEs(product.categoria) : "Catálogo"}
-          </Link>
+          </a>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate text-zinc-700">{nome}</span>
         </nav>

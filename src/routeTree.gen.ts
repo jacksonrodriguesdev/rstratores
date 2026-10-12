@@ -41,6 +41,9 @@ import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
+import { Route as RepuestosIndexRouteImport } from './routes/repuestos.index'
+import { Route as RepuestosSlugRouteImport } from './routes/repuestos.$slug'
+import { Route as SitemapsArquivoRouteImport } from './routes/sitemaps.$arquivo'
 import { Route as UploadsSplatRouteImport } from './routes/uploads.$'
 import { Route as AdminAutomacoesIndexRouteImport } from './routes/admin.automacoes.index'
 import { Route as AdminAutomacoesIdRouteImport } from './routes/admin.automacoes.$id'
@@ -64,6 +67,7 @@ import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as CatalogosArchivoIdRouteImport } from './routes/catalogos.archivo.$id'
 import { Route as CatalogosVerIdRouteImport } from './routes/catalogos.ver.$id'
+import { Route as RepuestosSlugSubRouteImport } from './routes/repuestos.$slug_.$sub'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
 import { Route as ApiAdminBannersUploadRouteImport } from './routes/api/admin/banners.upload'
 import { Route as ApiAdminCatalogosUploadRouteImport } from './routes/api/admin/catalogos.upload'
@@ -239,6 +243,21 @@ const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
   path: '/produto/$sku',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepuestosIndexRoute = RepuestosIndexRouteImport.update({
+  id: '/repuestos/',
+  path: '/repuestos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepuestosSlugRoute = RepuestosSlugRouteImport.update({
+  id: '/repuestos/$slug',
+  path: '/repuestos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapsArquivoRoute = SitemapsArquivoRouteImport.update({
+  id: '/sitemaps/$arquivo',
+  path: '/sitemaps/$arquivo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UploadsSplatRoute = UploadsSplatRouteImport.update({
   id: '/uploads/$',
   path: '/uploads/$',
@@ -354,6 +373,11 @@ const CatalogosVerIdRoute = CatalogosVerIdRouteImport.update({
   path: '/catalogos/ver/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepuestosSlugSubRoute = RepuestosSlugSubRouteImport.update({
+  id: '/repuestos/$slug_/$sub',
+  path: '/repuestos/$slug/$sub',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminBannersIdRoute = ApiAdminBannersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -457,9 +481,12 @@ export interface FileRoutesByFullPath {
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/repuestos/$slug': typeof RepuestosSlugRoute
+  '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
@@ -480,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
@@ -527,9 +555,12 @@ export interface FileRoutesByTo {
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/repuestos/$slug': typeof RepuestosSlugRoute
+  '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
   '/catalogos': typeof CatalogosIndexRoute
+  '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
@@ -550,6 +581,7 @@ export interface FileRoutesByTo {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
@@ -599,9 +631,12 @@ export interface FileRoutesById {
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/repuestos/$slug': typeof RepuestosSlugRoute
+  '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
@@ -622,6 +657,7 @@ export interface FileRoutesById {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
@@ -672,9 +708,12 @@ export interface FileRouteTypes {
     | '/admin/upload'
     | '/admin/visitantes'
     | '/produto/$sku'
+    | '/repuestos/$slug'
+    | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
     | '/api/admin/banners'
@@ -695,6 +734,7 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
     | '/api/admin/banners/$id'
@@ -742,9 +782,12 @@ export interface FileRouteTypes {
     | '/admin/upload'
     | '/admin/visitantes'
     | '/produto/$sku'
+    | '/repuestos/$slug'
+    | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin'
     | '/catalogos'
+    | '/repuestos'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
     | '/api/admin/banners'
@@ -765,6 +808,7 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
     | '/api/admin/banners/$id'
@@ -813,9 +857,12 @@ export interface FileRouteTypes {
     | '/admin/upload'
     | '/admin/visitantes'
     | '/produto/$sku'
+    | '/repuestos/$slug'
+    | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
     | '/api/admin/banners'
@@ -836,6 +883,7 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
     | '/api/admin/banners/$id'
@@ -868,8 +916,11 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
+  RepuestosSlugRoute: typeof RepuestosSlugRoute
+  SitemapsArquivoRoute: typeof SitemapsArquivoRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
   CatalogosIndexRoute: typeof CatalogosIndexRoute
+  RepuestosIndexRoute: typeof RepuestosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
   ApiAdminProductsRoute: typeof ApiAdminProductsRouteWithChildren
@@ -888,6 +939,7 @@ export interface RootRouteChildren {
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   CatalogosArchivoIdRoute: typeof CatalogosArchivoIdRoute
   CatalogosVerIdRoute: typeof CatalogosVerIdRoute
+  RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
@@ -1119,6 +1171,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutoSkuRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repuestos/': {
+      id: '/repuestos/'
+      path: '/repuestos'
+      fullPath: '/repuestos/'
+      preLoaderRoute: typeof RepuestosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos/$slug': {
+      id: '/repuestos/$slug'
+      path: '/repuestos/$slug'
+      fullPath: '/repuestos/$slug'
+      preLoaderRoute: typeof RepuestosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemaps/$arquivo': {
+      id: '/sitemaps/$arquivo'
+      path: '/sitemaps/$arquivo'
+      fullPath: '/sitemaps/$arquivo'
+      preLoaderRoute: typeof SitemapsArquivoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/uploads/$': {
       id: '/uploads/$'
       path: '/uploads/$'
@@ -1278,6 +1351,13 @@ declare module '@tanstack/react-router' {
       path: '/catalogos/ver/$id'
       fullPath: '/catalogos/ver/$id'
       preLoaderRoute: typeof CatalogosVerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos/$slug_/$sub': {
+      id: '/repuestos/$slug_/$sub'
+      path: '/repuestos/$slug/$sub'
+      fullPath: '/repuestos/$slug/$sub'
+      preLoaderRoute: typeof RepuestosSlugSubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/banners/$id': {
@@ -1527,8 +1607,11 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
+  RepuestosSlugRoute: RepuestosSlugRoute,
+  SitemapsArquivoRoute: SitemapsArquivoRoute,
   UploadsSplatRoute: UploadsSplatRoute,
   CatalogosIndexRoute: CatalogosIndexRoute,
+  RepuestosIndexRoute: RepuestosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
   ApiAdminProductsRoute: ApiAdminProductsRouteWithChildren,
@@ -1547,6 +1630,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   CatalogosArchivoIdRoute: CatalogosArchivoIdRoute,
   CatalogosVerIdRoute: CatalogosVerIdRoute,
+  RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
