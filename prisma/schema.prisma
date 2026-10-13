@@ -494,3 +494,34 @@ model marketing_eventos {
 
   @@index([created_at])
 }
+
+// Pesquisa de preços na web pelo código da peça (Admin → Produtos → Pesquisa de preços).
+// Cada oferta encontrada (loja, preço, link) fica aqui; o resumo por peça em precos_resumo.
+model precos_ofertas {
+  id         Int      @id @default(autoincrement())
+  sku        String   @db.VarChar(191)
+  fonte      String   @db.VarChar(20) // SERPAPI, MERCADOLIVRE
+  pais       String   @db.VarChar(5) // BR, UY
+  loja       String?  @db.VarChar(150)
+  titulo     String   @db.VarChar(400)
+  preco      Float
+  moeda      String   @db.VarChar(5) // BRL, UYU, USD
+  preco_brl  Float? // convertido para R$ (base dos preços da loja)
+  relevante  Boolean  @default(true) // o título tem o código da peça
+  ignorar    Boolean  @default(false) // o admin tirou da conta
+  link       String?  @db.Text
+  created_at DateTime @default(now())
+
+  @@index([sku])
+}
+
+model precos_resumo {
+  sku           String   @id @db.VarChar(191)
+  achados       Int      @default(0)
+  menor_brl     Float?
+  mediana_brl   Float?
+  maior_brl     Float?
+  erro          String?  @db.Text
+  pesquisado_em DateTime @default(now())
+  aplicado_em   DateTime?
+}

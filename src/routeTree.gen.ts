@@ -31,8 +31,10 @@ import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
+import { Route as AdminJornadasRouteImport } from './routes/admin.jornadas'
 import { Route as AdminMarketingRouteImport } from './routes/admin.marketing'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
+import { Route as AdminPesquisaPrecosRouteImport } from './routes/admin.pesquisa-precos'
 import { Route as AdminPopupRouteImport } from './routes/admin.popup'
 import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
 import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
@@ -75,6 +77,7 @@ import { Route as ApiAdminCategoriesIdRouteImport } from './routes/api/admin/cat
 import { Route as ApiAdminCategoriesUploadRouteImport } from './routes/api/admin/categories.upload'
 import { Route as ApiAdminEmailsUploadRouteImport } from './routes/api/admin/emails.upload'
 import { Route as ApiAdminImagesImportRouteImport } from './routes/api/admin/images.import'
+import { Route as ApiAdminMercadolivreCallbackRouteImport } from './routes/api/admin/mercadolivre.callback'
 import { Route as ApiAdminProductsSkuRouteImport } from './routes/api/admin/products.$sku'
 import { Route as ApiAdminProductsExportRouteImport } from './routes/api/admin/products.export'
 import { Route as ApiAdminProductsImportRouteImport } from './routes/api/admin/products.import'
@@ -193,6 +196,11 @@ const AdminInteresseRoute = AdminInteresseRouteImport.update({
   path: '/interesse',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminJornadasRoute = AdminJornadasRouteImport.update({
+  id: '/jornadas',
+  path: '/jornadas',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMarketingRoute = AdminMarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
@@ -201,6 +209,11 @@ const AdminMarketingRoute = AdminMarketingRouteImport.update({
 const AdminPellegrinoRoute = AdminPellegrinoRouteImport.update({
   id: '/pellegrino',
   path: '/pellegrino',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPesquisaPrecosRoute = AdminPesquisaPrecosRouteImport.update({
+  id: '/pesquisa-precos',
+  path: '/pesquisa-precos',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPopupRoute = AdminPopupRouteImport.update({
@@ -414,6 +427,12 @@ const ApiAdminImagesImportRoute = ApiAdminImagesImportRouteImport.update({
   path: '/api/admin/images/import',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminMercadolivreCallbackRoute =
+  ApiAdminMercadolivreCallbackRouteImport.update({
+    id: '/api/admin/mercadolivre/callback',
+    path: '/api/admin/mercadolivre/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminProductsSkuRoute = ApiAdminProductsSkuRouteImport.update({
   id: '/$sku',
   path: '/$sku',
@@ -472,8 +491,10 @@ export interface FileRoutesByFullPath {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
+  '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
@@ -517,6 +538,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
+  '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
   '/api/admin/products/export': typeof ApiAdminProductsExportRoute
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
@@ -546,8 +568,10 @@ export interface FileRoutesByTo {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
+  '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
@@ -591,6 +615,7 @@ export interface FileRoutesByTo {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
+  '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
   '/api/admin/products/export': typeof ApiAdminProductsExportRoute
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
@@ -622,8 +647,10 @@ export interface FileRoutesById {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
+  '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
+  '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
@@ -667,6 +694,7 @@ export interface FileRoutesById {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
+  '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
   '/api/admin/products/export': typeof ApiAdminProductsExportRoute
   '/api/admin/products/import': typeof ApiAdminProductsImportRoute
@@ -699,8 +727,10 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
+    | '/admin/jornadas'
     | '/admin/marketing'
     | '/admin/pellegrino'
+    | '/admin/pesquisa-precos'
     | '/admin/popup'
     | '/admin/precificacao'
     | '/admin/precificar'
@@ -744,6 +774,7 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
     | '/api/admin/images/import'
+    | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
     | '/api/admin/products/export'
     | '/api/admin/products/import'
@@ -773,8 +804,10 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
+    | '/admin/jornadas'
     | '/admin/marketing'
     | '/admin/pellegrino'
+    | '/admin/pesquisa-precos'
     | '/admin/popup'
     | '/admin/precificacao'
     | '/admin/precificar'
@@ -818,6 +851,7 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
     | '/api/admin/images/import'
+    | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
     | '/api/admin/products/export'
     | '/api/admin/products/import'
@@ -848,8 +882,10 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/homepage'
     | '/admin/interesse'
+    | '/admin/jornadas'
     | '/admin/marketing'
     | '/admin/pellegrino'
+    | '/admin/pesquisa-precos'
     | '/admin/popup'
     | '/admin/precificacao'
     | '/admin/precificar'
@@ -893,6 +929,7 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
     | '/api/admin/images/import'
+    | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
     | '/api/admin/products/export'
     | '/api/admin/products/import'
@@ -943,6 +980,7 @@ export interface RootRouteChildren {
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
+  ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1101,6 +1139,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInteresseRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/jornadas': {
+      id: '/admin/jornadas'
+      path: '/jornadas'
+      fullPath: '/admin/jornadas'
+      preLoaderRoute: typeof AdminJornadasRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/marketing': {
       id: '/admin/marketing'
       path: '/marketing'
@@ -1113,6 +1158,13 @@ declare module '@tanstack/react-router' {
       path: '/pellegrino'
       fullPath: '/admin/pellegrino'
       preLoaderRoute: typeof AdminPellegrinoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/pesquisa-precos': {
+      id: '/admin/pesquisa-precos'
+      path: '/pesquisa-precos'
+      fullPath: '/admin/pesquisa-precos'
+      preLoaderRoute: typeof AdminPesquisaPrecosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/popup': {
@@ -1409,6 +1461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminImagesImportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/mercadolivre/callback': {
+      id: '/api/admin/mercadolivre/callback'
+      path: '/api/admin/mercadolivre/callback'
+      fullPath: '/api/admin/mercadolivre/callback'
+      preLoaderRoute: typeof ApiAdminMercadolivreCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/products/$sku': {
       id: '/api/admin/products/$sku'
       path: '/$sku'
@@ -1471,8 +1530,10 @@ interface AdminRouteChildren {
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
+  AdminJornadasRoute: typeof AdminJornadasRoute
   AdminMarketingRoute: typeof AdminMarketingRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
+  AdminPesquisaPrecosRoute: typeof AdminPesquisaPrecosRoute
   AdminPopupRoute: typeof AdminPopupRoute
   AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
   AdminPrecificarRoute: typeof AdminPrecificarRoute
@@ -1496,8 +1557,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminHomepageRoute: AdminHomepageRoute,
   AdminInteresseRoute: AdminInteresseRoute,
+  AdminJornadasRoute: AdminJornadasRoute,
   AdminMarketingRoute: AdminMarketingRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
+  AdminPesquisaPrecosRoute: AdminPesquisaPrecosRoute,
   AdminPopupRoute: AdminPopupRoute,
   AdminPrecificacaoRoute: AdminPrecificacaoRoute,
   AdminPrecificarRoute: AdminPrecificarRoute,
@@ -1634,6 +1697,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
+  ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

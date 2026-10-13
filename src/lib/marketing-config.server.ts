@@ -22,6 +22,7 @@ export const CAMPOS = {
   mkt_gads_label_compra: { segredo: false },
   mkt_google_verificacao: { segredo: false }, // google-site-verification (Search Console/Merchant)
   mkt_merchant_id: { segredo: false },
+  mkt_clarity_id: { segredo: false }, // Microsoft Clarity: gravações de sessão e mapas de calor
 } as const;
 export type ChaveMkt = keyof typeof CAMPOS;
 export type ConfigMkt = Record<ChaveMkt, string>;
@@ -76,6 +77,7 @@ export type MarketingPublico = {
   gadsCadastro: string;
   metaDominio: string;
   googleVerificacao: string;
+  clarity: string;
 };
 const id = (s: string, re: RegExp) => (re.test(s) ? s : "");
 export async function marketingPublico(): Promise<MarketingPublico> {
@@ -89,5 +91,6 @@ export async function marketingPublico(): Promise<MarketingPublico> {
     gadsCadastro: id(c.mkt_gads_label_cadastro, /^[A-Za-z0-9_-]{4,40}$/),
     metaDominio: id(c.mkt_meta_dominio, /^[a-z0-9]{10,60}$/),
     googleVerificacao: id(c.mkt_google_verificacao, /^[A-Za-z0-9_-]{20,80}$/),
+    clarity: id(c.mkt_clarity_id, /^[a-z0-9]{6,20}$/),
   };
 }

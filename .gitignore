@@ -79,3 +79,8 @@ geoip-agroparts/
 
 # Originais dos catálogos dos fabricantes (grandes, fora do site e do git)
 dados/catalogos-maquinas-originais/
+
+# Saídas pesadas dos geradores de vídeo/posts (gerar de novo com o script)
+marketing/videos/saida/*.webm
+marketing/posts_pecas/saida/*.webm
+marketing/posts_pecas/saida/*.png

@@ -6,14 +6,16 @@ import { visitanteAtual } from "./visitante";
 
 export const PREFIXO_EVENTO = "/_evento/";
 
-export function registrarEvento(tipo: "whatsapp" | "busca" | "cotacao" | "popup", dado: string, eventIdDado?: string) {
+export function registrarEvento(tipo: "whatsapp" | "busca" | "cotacao" | "popup" | "carrinho", dado: string, eventIdDado?: string) {
   if (typeof window === "undefined") return;
   // O mesmo event_id vai para o Pixel e para o servidor (API de Conversões): o Meta conta uma vez
   const eventId = eventIdDado ?? (tipo === "whatsapp" || tipo === "cotacao" ? novoEventId("lead") : undefined);
   // Também avisa o Google Analytics / Meta Pixel / Google Ads, quando configurados
   if (tipo === "busca") eventoBusca(dado.slice(dado.indexOf("|") + 1));
   else if (tipo === "popup") eventoPopup(dado, eventId);
-  else conversaoWhatsapp(dado, eventId!);
+  else if (tipo === "carrinho") {
+    /* GA4/Pixel do carrinho já saem em CartContext (eventoCarrinho) */
+  } else conversaoWhatsapp(dado, eventId!);
   try {
     fetch("/api/public/track", {
       method: "POST",

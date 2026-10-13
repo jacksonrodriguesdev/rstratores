@@ -31,6 +31,7 @@ const GOOGLE: Campo[] = [
   { k: "mkt_gads_label_cadastro", rotulo: "Google Ads: rótulo da conversão “Cadastro”", placeholder: "KlMnOpQrSt" },
   { k: "mkt_google_verificacao", rotulo: "Search Console / Merchant: verificação (opcional)", dica: "Só o código do content=\"…\" da meta tag google-site-verification." },
   { k: "mkt_merchant_id", rotulo: "Merchant Center: ID da conta (Fase 2)", placeholder: "123456789" },
+  { k: "mkt_clarity_id", rotulo: "Microsoft Clarity: ID do projeto", placeholder: "abc123xyz9", dica: "Grava cada visita (mouse, cliques, rolagem) e mostra mapas de calor. Grátis em clarity.microsoft.com → Novo projeto → Configurações → ID do projeto." },
 ];
 
 const PASSOS_META = [
@@ -90,6 +91,7 @@ function IntegracoesPage() {
     { ok: st?.ga4Servidor, rotulo: "GA4 pelo servidor", sub: "vendas do WhatsApp" },
     { ok: st?.gads, rotulo: "Google Ads", sub: "conversões" },
     { ok: st?.gtm, rotulo: "Tag Manager", sub: "opcional" },
+    { ok: st?.clarity, rotulo: "Clarity", sub: "gravações de tela" },
   ];
 
   const campos = (lista: Campo[]) =>
@@ -124,7 +126,7 @@ function IntegracoesPage() {
         <Button size="lg" onClick={salvar} disabled={salvando || !data}>{salvando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />} Salvar</Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
         {statusLista.map((s) => (
           <Card key={s.rotulo} className={cn("flex items-center gap-3 p-3", s.ok ? "border-emerald-200 bg-emerald-50/50" : "")}>
             {s.ok ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /> : <Circle className="h-5 w-5 shrink-0 text-zinc-300" />}

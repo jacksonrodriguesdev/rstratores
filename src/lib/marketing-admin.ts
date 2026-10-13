@@ -55,6 +55,7 @@ export const obterIntegracoesFn = createServerFn({ method: "GET" }).handler(asyn
       ga4Servidor: !!(c.mkt_ga4_id && c.mkt_ga4_api_secret),
       gtm: !!c.mkt_gtm_id,
       gads: !!c.mkt_gads_id,
+      clarity: !!c.mkt_clarity_id,
     },
     eventos,
     resumo,

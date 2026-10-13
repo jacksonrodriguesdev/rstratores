@@ -3,7 +3,7 @@ import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, Users, ShoppingCart, Mail,
-  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, Plug, type LucideIcon,
+  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, Plug, Route as RouteIcon, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -26,6 +26,7 @@ const GRUPOS: Grupo[] = [
     itens: [
       { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
       { to: "/admin/visitantes", label: "Visitantes", icon: Globe2 },
+      { to: "/admin/jornadas", label: "Jornada dos visitantes", icon: RouteIcon },
       { to: "/admin/interesse", label: "Interesse dos clientes", icon: Flame },
     ],
   },
@@ -61,6 +62,7 @@ const GRUPOS: Grupo[] = [
         sub: [
           { to: "/admin/produtos", label: "Todos os produtos" },
           { to: "/admin/precificar", label: "Precificar uma a uma" },
+          { to: "/admin/pesquisa-precos", label: "Pesquisa de preços" },
           { to: "/admin/fotos-lote", label: "Fotos em lote" },
           { to: "/admin/upload", label: "Importar planilha" },
           ...(AUTOMOTIVA_ATIVA ? [{ to: "/admin/pellegrino", label: "Extração Pellegrino" }] : []),
