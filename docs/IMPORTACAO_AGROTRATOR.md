@@ -10,7 +10,9 @@ Peças, preços (+50%) e fotos vindos do agrotrator.com.br (loja VTEX).
 | 2. Achar fotos que são só a logo do agrotrator | `node scripts/extratores/agrotrator_fotos_logo.cjs` | `dados/precos_agrotrator/fotos_logo.json` |
 | 3. Importar no banco local (simulação sem `--aplicar`) | `node scripts/catalogo/importar_agrotrator_completo.cjs --aplicar` | banco local + backup em `dados/` + SQL |
 | 3b. Só gerar o SQL de novo (banco local já importado) | `node scripts/catalogo/importar_agrotrator_completo.cjs --so-sql` | `scripts/importacao/agrotrator_completo_producao_N.sql` |
-| 4. Tirar as logos do banco local | `node scripts/catalogo/remover_logos_agrotrator.cjs --aplicar` | banco local |
+| 4. Tirar as logos do banco local (pelo tamanho do arquivo) | `node scripts/catalogo/remover_logos_agrotrator.cjs --aplicar` | banco local |
+| 5. Achar as logos que sobraram pelo CONTEÚDO da imagem | `node scripts/extratores/achar_logos_hash.cjs --logo=<url>...` | `dados/precos_agrotrator/logos_hash.json` |
+| 6. Tirar essas logos (local + SQL de produção) | `node scripts/catalogo/limpar_logos_hash.cjs --aplicar` | banco local + `scripts/importacao/remover_logos_producao.sql` |
 
 Regras:
 - Peça que já temos com o **mesmo SKU**: ganha preço e, se não tem foto visível, as fotos de lá.
@@ -28,12 +30,18 @@ Regras:
    Cada um tem até ~8 MB. Pode rodar de novo sem duplicar.
    (O `precos_agrotrator_producao.sql` das 962 peças já está incluído nestes; não precisa rodar.)
 4. Fazer o deploy do código (GitHub).
-5. Admin → Produtos → **Fotos do agrotrator** → "Copiar fotos para o servidor".
+5. Rodar `remover_logos_producao.sql` (tira as fotos que são a logo do AGROTRATOR; pode rodar de novo).
+6. Admin → Produtos → **Fotos do agrotrator** → "Copiar fotos para o servidor".
    Roda em segundo plano no servidor (pode fechar a página). São ~40 mil fotos (~1,2 GB): precisa desse espaço livre na pasta de uploads.
    Se parar no meio (reinício do servidor), é só clicar de novo: continua de onde parou.
-6. Os preços aparecem sozinhos (o padrão do site é mostrar preço). Para esconder: Produtos e preços → Mostrar preços.
+7. Os preços aparecem sozinhos (o padrão do site é mostrar preço). Para esconder: Produtos e preços → Mostrar preços.
 
 ## Desfazer no banco local
 
 O backup da importação fica em `dados/backup_agrotrator_completo_<data>.json`
 (peças que existiam, como estavam antes, e a lista das peças novas).
+
+## Peça sem foto
+
+O site mostra `public/img/sem-foto.jpg` (logo da AGRO PARTS, 500×500, fundo branco; gerada por `marketing/sem-foto/gerar.cjs`).
+Ela não é gravada no banco: o Google Shopping recusa logo como foto de produto.
