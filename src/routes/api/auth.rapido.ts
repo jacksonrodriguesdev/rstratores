@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Cadastro rápido do pop-up: e-mail já confirmado pelo código (token), nome e departamento.
-// Celular é opcional. A conta nasce sem senha (dá para criar uma depois em Mi cuenta).
+// Cadastro rápido do pop-up: e-mail já confirmado pelo código (token). Nome, departamento e
+// celular são opcionais. A conta nasce sem senha (dá para criar uma depois em Mi cuenta).
 const texto = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 export const Route = createFileRoute("/api/auth/rapido")({
@@ -19,8 +19,7 @@ export const Route = createFileRoute("/api/auth/rapido")({
           const departamento = DEPARTAMENTOS_UY.includes(body.departamento) ? body.departamento : null;
           const telBruto = texto(body.telefone, 30);
           const telefone = telBruto ? normalizarCelularUY(telBruto) : null;
-          if (nome_completo.length < 3) return Response.json({ error: "Escribí tu nombre completo." }, { status: 400 });
-          if (!departamento) return Response.json({ error: "Elegí tu departamento." }, { status: 400 });
+          // Só o e-mail é obrigatório: nome e departamento podem vir depois (pop-up ou Mi cuenta)
           if (telBruto && !telefone) return Response.json({ error: "El celular debe ser uruguayo: 09X XXX XXX." }, { status: 400 });
 
           const { prisma } = await import("@/lib/prisma");

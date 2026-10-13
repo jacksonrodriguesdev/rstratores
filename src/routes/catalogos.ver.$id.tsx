@@ -12,7 +12,7 @@ export const Route = createFileRoute("/catalogos/ver/$id")({
     const r = await verCatalogoFn({ data: { id: Number(params.id) } });
     if (!r.catalogo) throw redirect({ to: "/catalogos" });
     if (r.catalogo.exige_login && !r.sessao) {
-      throw redirect({ href: `/cadastro?redirect=${encodeURIComponent(`/catalogos/ver/${params.id}`)}` });
+      throw redirect({ href: `/catalogos?abrir=${params.id}` });
     }
     return r;
   },
@@ -27,7 +27,7 @@ type Pdf = { numPages: number; getPage: (n: number) => Promise<any>; destroy: ()
 function Visor() {
   const { catalogo, sessao } = Route.useLoaderData();
   const c = catalogo!;
-  const marca = sessao ? `${sessao.nome} · ${sessao.email}` : "AGRO PARTS";
+  const marca = sessao ? [sessao.nome, sessao.email].filter(Boolean).join(" · ") : "AGRO PARTS";
   const [pdf, setPdf] = useState<Pdf | null>(null);
   const [proporcao, setProporcao] = useState(1.414);
   const [erro, setErro] = useState<string | null>(null);

@@ -1,36 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useRouter } from "@tanstack/react-router";
-import { X, Loader2, Mail, KeyRound, ArrowLeft, BookOpen, Check, Copy, BadgePercent } from "lucide-react";
+import { X, Loader2, Mail, KeyRound, ArrowLeft, BookOpen, Check, Copy, BadgePercent, Bell, ShoppingCart, Ticket } from "lucide-react";
 import { getSessionFn } from "@/lib/user-auth";
-import { getPopupFn, meuCupomFn } from "@/lib/acesso";
+import { getPopupFn, meuCupomFn, completarPerfilFn } from "@/lib/acesso";
 import { DEPARTAMENTOS_UY, mascararCelularUY } from "@/lib/validacao-conta";
 import { registrarEvento } from "@/lib/eventos";
+import { EVENTO_PEDIR_CADASTRO, type PedidoCadastro } from "@/lib/pedir-cadastro";
 import { cn } from "@/lib/utils";
 
-// Pop-up "Entrá y ganá": aparece N segundos depois de abrir o site para quem não está logado.
-// Login rápido com Google, código por e-mail ou senha; cadastro rápido; cupom único de 15%.
-const FECHADO = "popup_acceso_fechado"; // quando fechou (não volta por 7 dias)
+// Pop-up "Entrá y ganá": aparece N segundos depois de abrir o site para quem não está logado,
+// e também num momento de interesse (carrinho, busca sem resultado, catálogo: pedirCadastro()).
+// Pede só o e-mail: código de 6 dígitos → conta criada na hora com o cupom único de 15%.
+// Nome, departamento e celular ficam opcionais na tela final.
+const FECHADO = "popup_acceso_fechado"; // quando fechou (não volta pelo tempo por 7 dias)
 const FEITO = "popup_acceso_ok"; // já entrou/cadastrou por aqui
+const CARRINHO_SESSAO = "popup_acceso_carrinho"; // já abriu pelo carrinho nesta sessão
 const SETE_DIAS = 7 * 86400_000;
 const OCULTAR = [/^\/admin/, /^\/login/, /^\/cadastro/, /^\/cuenta/, /^\/baja/, /^\/catalogos\/ver/];
 
-const ler = (k: string) => {
+const ler = (k: string, store: "local" | "sessao" = "local") => {
   try {
-    return localStorage.getItem(k);
+    return (store === "local" ? localStorage : sessionStorage).getItem(k);
   } catch {
     return null;
   }
 };
-const gravar = (k: string, v: string) => {
+const gravar = (k: string, v: string, store: "local" | "sessao" = "local") => {
   try {
-    localStorage.setItem(k, v);
+    (store === "local" ? localStorage : sessionStorage).setItem(k, v);
   } catch {
     /* modo privado */
   }
 };
 
-type Etapa = "inicio" | "codigo" | "cadastro" | "senha" | "ok";
+type Etapa = "inicio" | "codigo" | "senha" | "ok";
+type Resultado = { nome: string; cupom: string | null; usado?: boolean; novo?: boolean };
 const inputCls = "h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-900 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15";
 
 export function PopupAcesso() {
@@ -40,20 +45,48 @@ export function PopupAcesso() {
   const { data: sessao, isFetched } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const { data: cfg } = useQuery({ queryKey: ["popup_acesso"], queryFn: () => getPopupFn(), staleTime: 10 * 60_000 });
   const [aberto, setAberto] = useState(false);
+  const [pedido, setPedido] = useState<PedidoCadastro | null>(null);
   const [etapa, setEtapa] = useState<Etapa>("inicio");
   const [email, setEmail] = useState("");
   const [codigo, setCodigo] = useState("");
   const [senha, setSenha] = useState("");
-  const [token, setToken] = useState("");
   const [dados, setDados] = useState({ nome: "", departamento: "", telefone: "" });
+  const [perfilSalvo, setPerfilSalvo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [reenviar, setReenviar] = useState(0);
-  const [resultado, setResultado] = useState<{ nome: string; cupom: string | null; usado?: boolean } | null>(null);
+  const [resultado, setResultado] = useState<Resultado | null>(null);
   const [copiado, setCopiado] = useState(false);
   const primeiroCampo = useRef<HTMLInputElement>(null);
   const caminho = useRef(location.pathname);
   caminho.current = location.pathname;
+  // Leitura atual dentro do ouvinte do evento (registrado uma vez)
+  const estado = useRef({ sessao, cfg, aberto });
+  estado.current = { sessao, cfg, aberto };
+
+  // Ficam antes do "return null": o ouvinte do pedirCadastro usa os da primeira renderização
+  const post = async (url: string, body: unknown) => {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "Algo salió mal. Probá de nuevo.");
+    return j;
+  };
+
+  async function enviarCodigo(para: string) {
+    setErro(null);
+    setOcupado(true);
+    try {
+      await post("/api/auth/codigo", { email: para });
+      registrarEvento("popup", "codigo");
+      setCodigo("");
+      setReenviar(240); // 4 minutos até liberar outro código
+      setEtapa("codigo");
+    } catch (err: any) {
+      setErro(err?.message ?? "Algo salió mal.");
+    } finally {
+      setOcupado(false);
+    }
+  }
 
   const permitido = (p: string) => !OCULTAR.some((r) => r.test(p));
 
@@ -91,12 +124,47 @@ export function PopupAcesso() {
     // Conta desde a chegada na página (as consultas acima levam um tempo para responder)
     const falta = Math.max(500, cfg.segundos * 1000 - performance.now());
     const t = setTimeout(() => {
-      if (!permitido(caminho.current)) return;
+      if (!permitido(caminho.current) || estado.current.aberto) return;
       setAberto(true);
       registrarEvento("popup", "visto");
     }, falta);
     return () => clearTimeout(t);
   }, [cfg, isFetched, sessao]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Momento de interesse: carrinho, busca sem resultado, catálogo
+  useEffect(() => {
+    const ouvir = (ev: Event) => {
+      const p = (ev as CustomEvent<PedidoCadastro>).detail;
+      if (!p) return;
+      const { sessao: s, cfg: c, aberto: jaAberto } = estado.current;
+      if (s) {
+        // Já tem conta: vai direto para onde queria
+        if (p.destino) window.location.href = p.destino;
+        return;
+      }
+      if (!c?.ativo) {
+        // Pop-up desligado no admin: o catálogo continua pedindo conta pela página de cadastro
+        if (p.motivo === "catalogo") window.location.href = `/cadastro?redirect=${encodeURIComponent(p.destino ?? "/catalogos")}`;
+        return;
+      }
+      if (jaAberto) return;
+      if (p.motivo === "carrinho") {
+        // Só uma vez por sessão e nunca para quem já se cadastrou por aqui
+        if (ler(FEITO) || ler(CARRINHO_SESSAO, "sessao")) return;
+        gravar(CARRINHO_SESSAO, "1", "sessao");
+      }
+      setPedido(p);
+      setErro(null);
+      setEtapa("inicio");
+      if (p.email) setEmail(p.email);
+      setAberto(true);
+      registrarEvento("popup", `visto:${p.motivo}`);
+      // E-mail já digitado na página: pede o código na hora
+      if (p.email) void enviarCodigo(p.email);
+    };
+    window.addEventListener(EVENTO_PEDIR_CADASTRO, ouvir);
+    return () => window.removeEventListener(EVENTO_PEDIR_CADASTRO, ouvir);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!aberto) return;
@@ -115,30 +183,36 @@ export function PopupAcesso() {
   if (!aberto || !cfg) return null;
 
   const desconto = cfg.desconto;
-  const titulo = cfg.titulo.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
+  const motivo = pedido?.motivo;
+  const termo = pedido?.termo?.trim().slice(0, 60);
+  const titulo =
+    motivo === "carrinho" ? `Guardá tu pedido y llevate ${desconto}% OFF`
+    : motivo === "busca" ? (termo ? `¿No encontraste "${termo}"?` : "¿No encontraste la pieza?")
+    : motivo === "catalogo" ? "Abrí el catálogo gratis"
+    : cfg.titulo.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
+  const subtitulo =
+    motivo === "carrinho" ? `Dejá tu e-mail y te damos un cupón de ${desconto}% para esta primera compra.`
+    : motivo === "busca" ? `Dejá tu e-mail y te avisamos apenas llegue. Además, ${desconto}% OFF en tu primera compra.`
+    : motivo === "catalogo" ? `Solo tu e-mail: accedés a todos los catálogos y te llevás ${desconto}% OFF en tu primera compra.`
+    : cfg.subtitulo;
 
   function fechar() {
     if (etapa !== "ok") {
-      gravar(FECHADO, String(Date.now()));
-      registrarEvento("popup", "fechado");
+      // Fechar um pedido feito pela pessoa (busca, catálogo) não bloqueia o pop-up do tempo
+      if (!pedido) gravar(FECHADO, String(Date.now()));
+      registrarEvento("popup", pedido ? `fechado:${pedido.motivo}` : "fechado");
     }
     setAberto(false);
+    setPedido(null);
   }
 
-  const terminar = async (r: { nome: string; cupom: string | null; usado?: boolean }, acao: "cadastro" | "login", eventId?: string) => {
+  const terminar = async (r: Resultado, acao: "cadastro" | "login", eventId?: string) => {
     gravar(FEITO, "1");
     registrarEvento("popup", acao, eventId);
     setResultado(r);
     setEtapa("ok");
     await qc.invalidateQueries({ queryKey: ["auth_session"] });
     router.invalidate();
-  };
-
-  const post = async (url: string, body: unknown) => {
-    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || "Algo salió mal. Probá de nuevo.");
-    return j;
   };
 
   const acao = (fn: () => Promise<void>) => async (e?: React.FormEvent) => {
@@ -154,26 +228,25 @@ export function PopupAcesso() {
     }
   };
 
-  const pedirCodigo = acao(async () => {
-    await post("/api/auth/codigo", { email });
-    registrarEvento("popup", "codigo");
-    setCodigo("");
-    setReenviar(240); // 4 minutos até liberar outro código
-    setEtapa("codigo");
-  });
+  const pedirCodigo = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    void enviarCodigo(email);
+  };
 
   const verificar = acao(async () => {
     const j = await post("/api/auth/codigo/verificar", { email, codigo });
     if (j.novo) {
-      setToken(j.token);
-      setEtapa("cadastro");
+      // Conta nova: cria na hora, só com o e-mail confirmado
+      const c = await post("/api/auth/rapido", { token: j.token });
+      // Mesmo event_id do servidor (cadastro_<id>): o Meta conta o cadastro uma vez
+      await terminar({ nome: c.nome ?? "", cupom: c.cupom, novo: true }, "cadastro", c.id ? `cadastro_${c.id}` : undefined);
     } else await terminar({ nome: j.nome, cupom: j.cupom, usado: j.cupomUsado }, "login");
   });
 
-  const cadastrar = acao(async () => {
-    const j = await post("/api/auth/rapido", { token, ...dados });
-    // Mesmo event_id do servidor (cadastro_<id>): o Meta conta o cadastro uma vez
-    await terminar({ nome: j.nome, cupom: j.cupom }, "cadastro", j.id ? `cadastro_${j.id}` : undefined);
+  const salvarPerfil = acao(async () => {
+    const r = await completarPerfilFn({ data: dados });
+    setPerfilSalvo(true);
+    if (r.nome) setResultado((x) => (x ? { ...x, nome: r.nome! } : x));
   });
 
   const entrarComSenha = acao(async () => {
@@ -183,7 +256,7 @@ export function PopupAcesso() {
   });
 
   const googleUrl = () => {
-    const u = new URL(window.location.href);
+    const u = new URL(pedido?.destino ?? window.location.href, window.location.origin);
     u.searchParams.set("bienvenida", "1");
     return `/api/auth/google?redirect=${encodeURIComponent(u.pathname + u.search)}`;
   };
@@ -196,10 +269,17 @@ export function PopupAcesso() {
     });
   };
 
+  const continuar = () => {
+    setAberto(false);
+    if (pedido?.destino) window.location.href = pedido.destino;
+    setPedido(null);
+  };
+
   const primeiroNome = (resultado?.nome ?? "").trim().split(/\s+/)[0] ?? "";
+  const IconeMotivo = motivo === "carrinho" ? ShoppingCart : motivo === "busca" ? Bell : motivo === "catalogo" ? BookOpen : null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="popup-acesso-titulo">
+    <div className="fixed inset-0 z-[120] flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="popup-acesso-titulo">
       <div className="absolute inset-0 animate-in fade-in bg-black/60 backdrop-blur-[2px]" onClick={fechar} />
       <div className="relative flex max-h-[94vh] w-full animate-in slide-in-from-bottom-8 flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl duration-300 sm:max-w-[860px] sm:flex-row sm:rounded-3xl sm:zoom-in-95">
         <button onClick={fechar} aria-label="Cerrar" className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur hover:bg-black/60 sm:bg-zinc-100 sm:text-zinc-600 sm:hover:bg-zinc-200">
@@ -221,7 +301,11 @@ export function PopupAcesso() {
             <div className="flex h-full flex-col justify-center text-center">
               <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"><Check className="h-8 w-8" /></span>
               <h2 id="popup-acesso-titulo" className="mt-4 text-2xl font-black text-zinc-900">¡Listo{primeiroNome ? `, ${primeiroNome}` : ""}!</h2>
-              <p className="mt-1 text-zinc-600">Ya tenés acceso a todos los catálogos.</p>
+              <p className="mt-1 text-zinc-600">
+                {motivo === "busca" ? <>Te avisamos por e-mail apenas llegue{termo ? <> <b className="text-zinc-900">"{termo}"</b></> : " la pieza"}.</>
+                  : motivo === "carrinho" ? "Tu pedido queda guardado en tu cuenta."
+                  : "Ya tenés acceso a todos los catálogos."}
+              </p>
               {resultado.cupom && !resultado.usado && (
                 <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e0a800] bg-[#fffbeb] p-5">
                   <p className="flex items-center justify-center gap-1.5 text-sm font-bold text-zinc-700"><BadgePercent className="h-4 w-4 text-[#b8860b]" /> Tu cupón de {desconto}% en la primera compra</p>
@@ -231,47 +315,85 @@ export function PopupAcesso() {
                   <p className="mt-2 text-xs text-zinc-500">Mencioná el código al pedir por WhatsApp. También lo encontrás en Mi cuenta.</p>
                 </div>
               )}
-              <div className="mt-6 grid gap-2 sm:grid-cols-2">
-                <a href="/catalogos" className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-white hover:bg-primary/90"><BookOpen className="h-5 w-5" /> Ver catálogos</a>
-                <button onClick={() => setAberto(false)} className="h-12 rounded-xl border font-semibold text-zinc-700 hover:bg-zinc-50">Seguir navegando</button>
+
+              {/* Conta nova criada só com o e-mail: o resto é opcional */}
+              {resultado.novo && !perfilSalvo && (
+                <form onSubmit={salvarPerfil} className="mt-5 space-y-2 rounded-2xl bg-zinc-50 p-4 text-left">
+                  <p className="text-sm font-bold text-zinc-800">Completá tus datos <span className="font-normal text-zinc-500">(opcional)</span></p>
+                  <input autoComplete="name" placeholder="Nombre" value={dados.nome} onChange={(e) => setDados({ ...dados, nome: e.target.value })} className={cn(inputCls, "h-11")} />
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <select value={dados.departamento} onChange={(e) => setDados({ ...dados, departamento: e.target.value })} className={cn(inputCls, "h-11 appearance-none", !dados.departamento && "text-zinc-400")}>
+                      <option value="">Departamento</option>
+                      {DEPARTAMENTOS_UY.map((d) => <option key={d} value={d} className="text-zinc-900">{d}</option>)}
+                    </select>
+                    <input autoComplete="tel" inputMode="tel" placeholder="Celular (ofertas por WhatsApp)" value={dados.telefone} onChange={(e) => setDados({ ...dados, telefone: mascararCelularUY(e.target.value) })} className={cn(inputCls, "h-11")} />
+                  </div>
+                  <button disabled={ocupado || (!dados.nome.trim() && !dados.departamento && !dados.telefone)} className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-primary/30 text-sm font-bold text-primary hover:bg-primary/5 disabled:opacity-50">
+                    {ocupado && <Loader2 className="h-4 w-4 animate-spin" />} Guardar
+                  </button>
+                </form>
+              )}
+              {perfilSalvo && <p className="mt-3 text-sm font-semibold text-emerald-700">Datos guardados. ¡Gracias!</p>}
+              {erro && <p role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{erro}</p>}
+
+              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                {motivo === "catalogo" ? (
+                  <button onClick={continuar} className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-white hover:bg-primary/90 sm:col-span-2"><BookOpen className="h-5 w-5" /> Abrir el catálogo</button>
+                ) : (
+                  <>
+                    <a href="/catalogos" className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-white hover:bg-primary/90"><BookOpen className="h-5 w-5" /> Ver catálogos</a>
+                    <button onClick={continuar} className="h-12 rounded-xl border font-semibold text-zinc-700 hover:bg-zinc-50">Seguir navegando</button>
+                  </>
+                )}
               </div>
             </div>
           ) : (
             <>
               {etapa !== "inicio" && (
-                <button onClick={() => { setErro(null); setEtapa(etapa === "cadastro" ? "codigo" : "inicio"); }} className="mb-3 flex items-center gap-1 text-sm font-semibold text-zinc-500 hover:text-zinc-800">
+                <button onClick={() => { setErro(null); setEtapa("inicio"); }} className="mb-3 flex items-center gap-1 text-sm font-semibold text-zinc-500 hover:text-zinc-800">
                   <ArrowLeft className="h-4 w-4" /> Volver
                 </button>
               )}
+              {etapa === "inicio" && IconeMotivo && (
+                <span className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary"><IconeMotivo className="h-5 w-5" /></span>
+              )}
               <h2 id="popup-acesso-titulo" className="pr-8 text-2xl font-black leading-tight text-zinc-900 sm:text-[28px]">
-                {etapa === "codigo" ? "Revisá tu e-mail" : etapa === "cadastro" ? "Último paso" : etapa === "senha" ? "Entrá con tu contraseña" : titulo}
+                {etapa === "codigo" ? "Revisá tu e-mail" : etapa === "senha" ? "Entrá con tu contraseña" : titulo}
               </h2>
               <p className="mt-2 text-[15px] text-zinc-600">
-                {etapa === "codigo" ? <>Te enviamos un código de 6 dígitos a <b className="text-zinc-900">{email}</b>. Vale por 10 minutos; puede tardar un minuto en llegar.</> : etapa === "cadastro" ? "Contanos quién sos para crear tu cuenta y generar tu cupón." : etapa === "senha" ? "Si ya tenés cuenta con contraseña." : cfg.subtitulo}
+                {etapa === "codigo" ? <>Te enviamos un código de 6 dígitos a <b className="text-zinc-900">{email}</b>. Vale por 10 minutos; puede tardar un minuto en llegar.</> : etapa === "senha" ? "Si ya tenés cuenta con contraseña." : subtitulo}
               </p>
 
               {etapa === "inicio" && (
                 <>
-                  <ul className="mt-4 space-y-2 text-sm font-semibold text-zinc-800">
-                    <li className="flex items-center gap-2"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"><BookOpen className="h-3.5 w-3.5" /></span> Todos los catálogos de tractores, gratis</li>
-                    <li className="flex items-center gap-2"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700"><BadgePercent className="h-3.5 w-3.5" /></span> {desconto}% de descuento en tu primera compra</li>
-                  </ul>
-                  {cfg.google && (
-                    <a href={googleUrl()} className="mt-5 flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 font-semibold text-zinc-800 transition hover:bg-zinc-50">
-                      <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
-                      Continuar con Google
-                    </a>
-                  )}
-                  {cfg.google && <div className="my-4 flex items-center gap-3 text-xs font-semibold uppercase text-zinc-400"><span className="h-px flex-1 bg-zinc-200" /> o con tu e-mail <span className="h-px flex-1 bg-zinc-200" /></div>}
-                  <form onSubmit={cfg.codigo ? pedirCodigo : (e) => { e.preventDefault(); setEtapa("senha"); }} className={cn("space-y-3", !cfg.google && "mt-5")}>
+                  {/* O cupom aparece logo de cara: falta só o e-mail para liberar */}
+                  <div className="mt-4 flex items-center gap-3 rounded-2xl border-2 border-dashed border-[#e0a800] bg-[#fffbeb] px-4 py-3">
+                    <Ticket className="h-8 w-8 shrink-0 text-[#b8860b]" />
+                    <div className="min-w-0">
+                      <p className="font-black leading-tight text-zinc-900">Cupón de {desconto}% OFF</p>
+                      <p className="text-xs text-zinc-600">Se activa al confirmar tu e-mail · Catálogos gratis incluidos</p>
+                    </div>
+                    <span className="ml-auto hidden shrink-0 font-mono text-sm font-black tracking-widest text-[#b8860b] sm:inline">AGRO-····</span>
+                  </div>
+                  <form onSubmit={cfg.codigo ? pedirCodigo : (e) => { e.preventDefault(); setEtapa("senha"); }} className="mt-4 space-y-3">
                     <input ref={primeiroCampo} type="email" required autoComplete="email" inputMode="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
                     <button disabled={ocupado} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-60">
-                      {ocupado ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mail className="h-5 w-5" />} {cfg.codigo ? "Recibir código" : "Continuar"}
+                      {ocupado ? <Loader2 className="h-5 w-5 animate-spin" /> : <Mail className="h-5 w-5" />} {cfg.codigo ? "Quiero mi cupón" : "Continuar"}
                     </button>
                   </form>
+                  <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-400">Al continuar aceptás la <a href="/ayuda#privacidad" target="_blank" className="underline">política de privacidad</a> y recibir ofertas por e-mail. Te das de baja cuando quieras.</p>
+                  {cfg.google && (
+                    <>
+                      <div className="my-3 flex items-center gap-3 text-xs font-semibold uppercase text-zinc-400"><span className="h-px flex-1 bg-zinc-200" /> o <span className="h-px flex-1 bg-zinc-200" /></div>
+                      <a href={googleUrl()} className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50">
+                        <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+                        Continuar con Google
+                      </a>
+                    </>
+                  )}
                   {cfg.codigo && (
                     <button onClick={() => { setErro(null); setEtapa("senha"); }} className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-                      <KeyRound className="h-4 w-4" /> Entrar con contraseña
+                      <KeyRound className="h-4 w-4" /> Ya tengo cuenta con contraseña
                     </button>
                   )}
                 </>
@@ -282,27 +404,12 @@ export function PopupAcesso() {
                   <input ref={primeiroCampo} required inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="000000" value={codigo}
                     onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))} className={cn(inputCls, "text-center font-mono text-2xl font-bold tracking-[0.5em]")} />
                   <button disabled={ocupado || codigo.length !== 6} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white hover:bg-primary/90 disabled:opacity-60">
-                    {ocupado && <Loader2 className="h-5 w-5 animate-spin" />} Entrar
+                    {ocupado && <Loader2 className="h-5 w-5 animate-spin" />} Ver mi cupón
                   </button>
                   <p className="text-center text-sm text-zinc-500">
                     ¿No llegó? Revisá spam o{" "}
                     {reenviar > 0 ? <span>podés pedir otro en {Math.floor(reenviar / 60)}:{String(reenviar % 60).padStart(2, "0")}</span> : <button type="button" onClick={() => pedirCodigo()} className="font-semibold text-primary hover:underline">reenviar código</button>}
                   </p>
-                </form>
-              )}
-
-              {etapa === "cadastro" && (
-                <form onSubmit={cadastrar} className="mt-5 space-y-3">
-                  <input ref={primeiroCampo} required autoComplete="name" placeholder="Nombre y apellido" value={dados.nome} onChange={(e) => setDados({ ...dados, nome: e.target.value })} className={inputCls} />
-                  <select required value={dados.departamento} onChange={(e) => setDados({ ...dados, departamento: e.target.value })} className={cn(inputCls, "appearance-none", !dados.departamento && "text-zinc-400")}>
-                    <option value="">Departamento</option>
-                    {DEPARTAMENTOS_UY.map((d) => <option key={d} value={d} className="text-zinc-900">{d}</option>)}
-                  </select>
-                  <input autoComplete="tel" inputMode="tel" placeholder="Celular para ofertas por WhatsApp (opcional)" value={dados.telefone} onChange={(e) => setDados({ ...dados, telefone: mascararCelularUY(e.target.value) })} className={inputCls} />
-                  <button disabled={ocupado} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white hover:bg-primary/90 disabled:opacity-60">
-                    {ocupado && <Loader2 className="h-5 w-5 animate-spin" />} Crear cuenta y ver mi cupón
-                  </button>
-                  <p className="text-center text-xs leading-relaxed text-zinc-500">Al crear tu cuenta aceptás los términos y la <a href="/ayuda#privacidad" target="_blank" className="underline">política de privacidad</a>, y recibir ofertas por e-mail y WhatsApp. Podés darte de baja cuando quieras.</p>
                 </form>
               )}
 
@@ -313,7 +420,7 @@ export function PopupAcesso() {
                   <button disabled={ocupado} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white hover:bg-primary/90 disabled:opacity-60">
                     {ocupado && <Loader2 className="h-5 w-5 animate-spin" />} Entrar
                   </button>
-                  <p className="text-center text-sm text-zinc-500">¿No tenés cuenta? <a href="/cadastro" className="font-semibold text-primary hover:underline">Creala acá</a></p>
+                  <p className="text-center text-sm text-zinc-500">¿No tenés cuenta? <button type="button" onClick={() => { setErro(null); setEtapa("inicio"); }} className="font-semibold text-primary hover:underline">Creala con tu e-mail</button></p>
                 </form>
               )}
 

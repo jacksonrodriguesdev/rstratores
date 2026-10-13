@@ -274,7 +274,7 @@ export function SiteHeader() {
                     <span className="text-sm font-bold">{user.nome.charAt(0).toUpperCase()}</span>
                   </span>
                   <span className="hidden leading-tight lg:block">
-                    <span className="block text-[11px] text-white/65">Hola, {user.nome.split(" ")[0]}</span>
+                    <span className="block text-[11px] text-white/65">Hola{user.nome.trim() ? `, ${user.nome.trim().split(" ")[0]}` : ""}</span>
                     <span className="flex items-center gap-1 text-sm font-semibold">
                       Mi cuenta <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                     </span>

@@ -154,7 +154,7 @@ export function MobileTabBar() {
         <SheetContent side="bottom" className="rounded-t-3xl pb-safe">
           <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-zinc-200" />
           <SheetHeader>
-            <SheetTitle>Hola, {user?.nome.split(" ")[0]}</SheetTitle>
+            <SheetTitle>Hola{user?.nome.trim() ? `, ${user.nome.trim().split(" ")[0]}` : ""}</SheetTitle>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </SheetHeader>
           <div className="flex flex-col gap-2 px-4 pb-4">

@@ -77,6 +77,14 @@ export const Route = createFileRoute("/api/public/track")({
             if (!/column|does not exist|Unknown/i.test(String(e?.message))) throw e;
             await prisma.site_visits.create({ data: basico });
           }
+          // Entrou/cadastrou pelo pop-up: as buscas e visitas anteriores deste aparelho passam a ser dele
+          // (a automação "Busca sem resultado" avisa quando a peça chegar)
+          const vid = texto(body.visitorId, 64);
+          if (sessao?.id && vid && /^\/_evento\/popup\/(cadastro|login)/.test(path)) {
+            await prisma.site_visits
+              .updateMany({ where: { visitor_id: vid, user_id: null }, data: { user_id: Number(sessao.id) } })
+              .catch(() => {});
+          }
           // Pedido pelo WhatsApp = Lead também pela API de Conversões do Meta (mesmo event_id do Pixel)
           const tipoEvento = path.startsWith("/_evento/") ? path.split("/")[2] : null;
           if (tipoEvento === "whatsapp" || tipoEvento === "cotacao") {

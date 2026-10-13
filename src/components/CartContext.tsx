@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState, ReactNod
 import { visitanteAtual } from "@/lib/visitante";
 import { eventoCarrinho } from "@/lib/marketing";
 import { registrarEvento } from "@/lib/eventos";
+import { pedirCadastro } from "@/lib/pedir-cadastro";
 
 export type CartItem = {
   sku: string;
@@ -98,6 +99,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...currentItems, newItem];
     });
     setIsCartOpen(true); // Auto-open cart when adding item
+    // Momento de interesse: oferece o cadastro com o cupom (o pop-up ignora quem já tem conta)
+    setTimeout(() => pedirCadastro({ motivo: "carrinho" }), 1200);
   };
 
   const removeItem = (sku: string) => {

@@ -34,7 +34,7 @@ function CuentaPage() {
   const perfil = Route.useLoaderData();
   const { completar, redirect: destino } = Route.useSearch();
   const [aba, setAba] = useState<Aba>("datos");
-  const iniciais = perfil.nome_completo.split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+  const iniciais = (perfil.nome_completo.trim() || perfil.email).split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
   const sair = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/";
@@ -55,7 +55,7 @@ function CuentaPage() {
             )}
             <div className="min-w-0 flex-1">
               <p className="text-sm text-white/70">Hola,</p>
-              <h1 className="truncate text-2xl font-extrabold md:text-3xl">{perfil.nome_completo.split(" ")[0]}</h1>
+              <h1 className="truncate text-2xl font-extrabold md:text-3xl">{perfil.nome_completo.trim().split(" ")[0] || "Mi cuenta"}</h1>
               <p className="truncate text-sm text-white/70">{perfil.email}</p>
             </div>
             <button onClick={sair} className="hidden items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold ring-1 ring-white/15 hover:bg-white/20 md:flex">
@@ -77,7 +77,7 @@ function CuentaPage() {
 
         {perfil.cupom && !perfil.cupomUsado && (
           <a
-            href={whatsappContactUrl(`¡Hola! Soy ${perfil.nome_completo.split(" ")[0]} y quiero usar mi cupón ${perfil.cupom} en mi primera compra.`)}
+            href={whatsappContactUrl(`¡Hola! Soy ${perfil.nome_completo.trim().split(" ")[0] || "cliente"} y quiero usar mi cupón ${perfil.cupom} en mi primera compra.`)}
             target="_blank"
             rel="noreferrer noopener"
             className="mt-4 flex items-center gap-4 rounded-2xl border-2 border-dashed border-[#e0a800] bg-[#fffbeb] p-4 transition hover:bg-[#fff6d6]"

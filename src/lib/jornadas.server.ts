@@ -73,7 +73,7 @@ function resumir(id: string, ls: Linha[]): Omit<Sessao, "visitaN" | "usuario"> &
       } else if (e.tipo === "whatsapp" || e.tipo === "cotacao") a.whatsapp++;
       else if (e.tipo === "carrinho") a.carrinho++;
       else if (e.tipo === "popup") {
-        if (e.dado === "visto") a.popupVisto = true;
+        if (e.dado.startsWith("visto")) a.popupVisto = true;
         if (e.dado === "fechado") a.popupFechou = true;
         if (e.dado === "codigo") a.popupCodigo = true;
         if (e.dado === "cadastro") a.cadastro = true;
@@ -239,7 +239,11 @@ export async function detalheJornada(sessionId: string) {
         cadastro: ["🎉", "CRIOU A CONTA", "bom"],
         login: ["🔑", "Entrou na conta", "bom"],
       };
-      const [icone, texto, destaque] = P[e.dado] ?? ["•", `Pop-up: ${e.dado}`];
+      // "visto:carrinho" etc.: o pop-up abriu por uma ação da pessoa, não pelo tempo
+      const MOTIVO: Record<string, string> = { carrinho: "ao adicionar ao carrinho", busca: "ao buscar uma peça que não temos", catalogo: "ao abrir um catálogo" };
+      const [acao, motivo] = e.dado.split(":");
+      const [icone, texto, destaque] = P[acao] ?? ["•", `Pop-up: ${e.dado}`];
+      if (motivo && MOTIVO[motivo]) return { ...base, tipo: "evento", icone, texto: `${texto} (${MOTIVO[motivo]})`, destaque };
       return { ...base, tipo: "evento", icone, texto, destaque };
     }
     return { ...base, tipo: "evento", icone: "•", texto: `${e.tipo}: ${e.dado}` };

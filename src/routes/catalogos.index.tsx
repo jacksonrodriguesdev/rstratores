@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { listarCatalogosFn, type Catalogo } from "@/lib/catalogos";
 import { getSessionFn } from "@/lib/user-auth";
 import { whatsappContactUrl } from "@/lib/whatsapp";
+import { pedirCadastro } from "@/lib/pedir-cadastro";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/catalogos/")({
@@ -31,15 +32,22 @@ const tamanhoMB = (b: number) => (b >= 1048576 ? `${(b / 1048576).toFixed(b > 10
 function CatalogosPage() {
   const catalogos = Route.useLoaderData() as Catalogo[];
   const { abrir } = Route.useSearch();
-  const { data: sessao } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
+  const { data: sessao, isFetched } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const [busca, setBusca] = useState("");
   const [marca, setMarca] = useState<string | null>(null);
   const [tipo, setTipo] = useState<string | null>(null);
 
-  // Voltou do cadastro/login para abrir um catálogo: abre na hora
+  // ?abrir=ID: com conta abre o catálogo na hora; sem conta, o pop-up pede só o e-mail
   useEffect(() => {
-    if (abrir && sessao) window.location.href = `/catalogos/ver/${abrir}`;
-  }, [abrir, sessao]);
+    if (!abrir || !isFetched) return;
+    if (sessao) window.location.href = `/catalogos/ver/${abrir}`;
+    else setTimeout(() => pedirCadastro({ motivo: "catalogo", destino: `/catalogos/ver/${abrir}` }), 600);
+  }, [abrir, sessao, isFetched]);
+
+  const abrirBloqueado = (destino: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    pedirCadastro({ motivo: "catalogo", destino });
+  };
 
   const marcas = useMemo(() => [...new Set(catalogos.map((c) => c.marca).filter(Boolean))] as string[], [catalogos]);
   const tipos = useMemo(() => [...new Set(catalogos.map((c) => c.tipo))], [catalogos]);
@@ -74,7 +82,7 @@ function CatalogosPage() {
           <div className="mb-5 flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 sm:flex-row sm:items-center sm:justify-between">
             <p className="flex items-center gap-3 text-sm text-zinc-700"><Users className="h-5 w-5 shrink-0 text-primary" /> Creá tu cuenta gratis para ver los catálogos.</p>
             <div className="flex gap-2">
-              <Link to="/cadastro" search={{ redirect: "/catalogos" } as never} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">Crear cuenta</Link>
+              <Link to="/cadastro" search={{ redirect: "/catalogos" } as never} onClick={abrirBloqueado("/catalogos")} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">Crear cuenta</Link>
               <Link to="/login" search={{ redirect: "/catalogos" } as never} className="rounded-xl px-4 py-2.5 text-sm font-bold text-primary ring-1 ring-primary/30 hover:bg-primary/5">Ingresar</Link>
             </div>
           </div>
@@ -125,7 +133,7 @@ function CatalogosPage() {
                   </div>
                   <div className="flex items-center justify-between gap-2 border-t border-zinc-100 px-4 py-3">
                     <span className="text-xs text-zinc-400">{c.downloads > 0 ? `${c.downloads} vistas` : "Nuevo"}</span>
-                    <a href={href} className={cn("inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition active:scale-95", bloqueado ? "bg-zinc-100 text-zinc-700 hover:bg-zinc-200" : "bg-primary text-white hover:bg-primary/90")}>
+                    <a href={href} onClick={bloqueado ? abrirBloqueado(href) : undefined} className={cn("inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition active:scale-95", bloqueado ? "bg-zinc-100 text-zinc-700 hover:bg-zinc-200" : "bg-primary text-white hover:bg-primary/90")}>
                       {bloqueado ? <><Lock className="h-4 w-4" /> Ver gratis</> : <><Eye className="h-4 w-4" /> Ver catálogo</>}
                     </a>
                   </div>

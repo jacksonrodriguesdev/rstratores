@@ -24,6 +24,29 @@ export const meuCupomFn = createServerFn({ method: "POST" }).handler(async () =>
   return { cupom, usado: !!u?.cupom_usado_em, nome: u?.nome_completo ?? s.nome };
 });
 
+// Depois do cadastro só com e-mail: nome, departamento e celular são opcionais (pop-up ou Mi cuenta)
+export const completarPerfilFn = createServerFn({ method: "POST" })
+  .validator((d: { nome?: string; departamento?: string; telefone?: string }) => ({
+    nome: String(d?.nome ?? "").trim().slice(0, 120),
+    departamento: String(d?.departamento ?? "").trim(),
+    telefone: String(d?.telefone ?? "").trim().slice(0, 30),
+  }))
+  .handler(async ({ data }) => {
+    const { getSession } = await import("./auth.server");
+    const s = await getSession();
+    if (!s || s.role === "ADMIN") throw new Error("Iniciá sesión de nuevo.");
+    const { normalizarCelularUY, DEPARTAMENTOS_UY } = await import("./validacao-conta");
+    const telefone = data.telefone ? normalizarCelularUY(data.telefone) : null;
+    if (data.telefone && !telefone) throw new Error("El celular debe ser uruguayo: 09X XXX XXX.");
+    const campos: { nome_completo?: string; departamento?: string; telefone?: string } = {};
+    if (data.nome.length >= 2) campos.nome_completo = data.nome;
+    if ((DEPARTAMENTOS_UY as readonly string[]).includes(data.departamento)) campos.departamento = data.departamento;
+    if (telefone) campos.telefone = telefone;
+    const { prisma } = await import("./prisma");
+    if (Object.keys(campos).length) await prisma.users.update({ where: { id: s.id }, data: campos });
+    return { ok: true, nome: campos.nome_completo ?? null };
+  });
+
 // ---------- Admin ----------
 const admin = async () => {
   const { assertAdmin } = await import("./auth.server");

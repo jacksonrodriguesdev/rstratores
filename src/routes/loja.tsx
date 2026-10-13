@@ -3,7 +3,7 @@ import { SITE_URL } from "@/lib/site";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
-import { Search, Package, X, SlidersHorizontal, Loader2, Filter, MessageCircle, Camera } from "lucide-react";
+import { Search, Package, X, SlidersHorizontal, Loader2, Filter, MessageCircle, Camera, Bell } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 import { urlRepuestos } from "@/lib/seo-paginas";
 import { CardLoja } from "@/components/CardPeca";
 import { registrarEvento } from "@/lib/eventos";
+import { pedirCadastro } from "@/lib/pedir-cadastro";
+import { getSessionFn } from "@/lib/user-auth";
 
 // O roteador lê "?q=6205" como número; aceita os dois e converte para texto (código só com
 // dígitos derrubava a página)
@@ -496,12 +498,13 @@ function ProductGridSkeleton() {
 
 function EmptyState({ busca }: { busca: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-white/50 px-4 py-16 text-center md:py-24">
-      <Package className="mb-4 h-16 w-16 text-zinc-300" />
+    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-white/50 px-4 py-8 text-center md:py-24">
+      <Package className="mb-3 h-12 w-12 text-zinc-300 md:mb-4 md:h-16 md:w-16" />
       <h3 className="text-xl font-bold text-zinc-900">No encontramos repuestos{busca ? ` para "${busca}"` : ""}</h3>
       <p className="mt-2 max-w-sm text-sm font-medium text-zinc-500">
         Probá con el código original, otra palabra o quitá algún filtro. Si no aparece, te lo conseguimos.
       </p>
+      {busca.trim().length >= 3 && <AvisoChegada busca={busca.trim()} />}
       <a
         href={whatsappContactUrl(`¡Hola! Busco un repuesto${busca ? `: ${busca}` : ""}.`)}
         target="_blank"
@@ -511,5 +514,35 @@ function EmptyState({ busca }: { busca: string }) {
         <MessageCircle className="h-4 w-4" /> Pedir por WhatsApp
       </a>
     </div>
+  );
+}
+
+// "Te avisamos cuando llegue": sem conta, o e-mail abre o pop-up já pedindo o código.
+// A busca sem resultado fica ligada ao cliente e a automação "Busca sem resultado" avisa.
+function AvisoChegada({ busca }: { busca: string }) {
+  const { data: sessao } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
+  const [email, setEmail] = useState("");
+  if (sessao) {
+    return (
+      <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+        <Bell className="h-4 w-4" /> Te avisamos por e-mail{sessao?.email ? ` (${sessao.email})` : ""} apenas llegue.
+      </p>
+    );
+  }
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        pedirCadastro({ motivo: "busca", termo: busca, email: email.trim() });
+      }}
+      className="mt-5 w-full max-w-md rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5"
+    >
+      <p className="flex items-center gap-2 text-sm font-bold text-zinc-900"><Bell className="h-4 w-4 text-primary" /> Avisame cuando llegue</p>
+      <div className="mt-2 flex gap-2">
+        <Input type="email" required autoComplete="email" inputMode="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11" />
+        <Button type="submit" className="h-11 shrink-0 font-bold">Avisarme</Button>
+      </div>
+      <p className="mt-1.5 text-xs text-zinc-500">Y te llevás un cupón de descuento para tu primera compra.</p>
+    </form>
   );
 }
