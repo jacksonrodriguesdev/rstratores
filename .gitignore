@@ -84,3 +84,6 @@ dados/catalogos-maquinas-originais/
 marketing/videos/saida/*.webm
 marketing/posts_pecas/saida/*.webm
 marketing/posts_pecas/saida/*.png
+
+# Catálogo baixado do agrotrator.com.br (preços de referência)
+dados/precos_agrotrator/
