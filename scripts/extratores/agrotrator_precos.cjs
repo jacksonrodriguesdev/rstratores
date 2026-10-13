@@ -68,9 +68,14 @@ function guardar(lista) {
         disponivel: Number(oferta.AvailableQuantity) || 0,
         link: `${BASE}/${p.linkText}/p`,
         categoria: (p.categories || [])[0] || "",
-        // Fotos (URL da VTEX) para importar as peças novas e completar as que não têm foto
-        fotos: (it.images || []).map((im) => im.imageUrl).filter(Boolean).slice(0, 6),
+        categorias: p.categories || [],
+        // Todas as fotos (URL da VTEX) para importar as peças novas e completar as que não têm foto
+        fotos: (it.images || []).map((im) => im.imageUrl).filter(Boolean),
         ean: it.ean || "",
+        idProduto: p.productId,
+        descricao: p.description || p.metaTagDescription || "",
+        // Especificações cadastradas na VTEX (ex.: código original, aplicação)
+        specs: Object.fromEntries((p.allSpecifications || []).map((k) => [k, (p[k] || []).join(", ")])),
       });
     }
   }

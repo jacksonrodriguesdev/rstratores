@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ProdutoEditor } from "@/components/admin/ProdutoEditor";
 import { PainelCotacao } from "@/components/admin/PainelCotacao";
+import { FotosAgrotrator } from "@/components/admin/FotosAgrotrator";
 import {
   FILTROS, listarProdutosAdminFn, resumoProdutosFn, opcoesFiltroFn, salvarProdutoAdminFn, precosAdminFn, avisosVisibilidade,
   type LinhaAdmin, type ParamsLista,
@@ -98,6 +99,8 @@ function Produtos() {
       </div>
 
       <PainelCotacao dados={precos} aoMudar={() => { qc.invalidateQueries({ queryKey: ["precos-admin"] }); qc.invalidateQueries({ queryKey: ["precos-config"] }); }} />
+
+      <FotosAgrotrator />
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
         {FILTROS.map(([k, rot]) => (
