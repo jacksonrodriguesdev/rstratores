@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { BookOpen, Search, Lock, FileText, Eye, MessageCircle, Wrench, Users, X } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { listarCatalogosFn, type Catalogo } from "@/lib/catalogos";
+import { listarCatalogosFn, urlCatalogo, type Catalogo } from "@/lib/catalogos";
 import { getSessionFn } from "@/lib/user-auth";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { pedirCadastro } from "@/lib/pedir-cadastro";
@@ -126,7 +126,7 @@ function CatalogosPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       {c.marca && <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: cor }}>{c.marca}</p>}
-                      <h2 className="mt-0.5 line-clamp-2 font-bold leading-snug text-zinc-900">{c.titulo}</h2>
+                      <h2 className="mt-0.5 line-clamp-2 font-bold leading-snug text-zinc-900"><a href={urlCatalogo(c)} className="hover:text-primary hover:underline">{c.titulo}</a></h2>
                       <p className="mt-1 text-xs text-zinc-500">{[c.tipo, c.idioma, tamanhoMB(c.tamanho)].filter(Boolean).join(" · ")}</p>
                       {c.descricao && <p className="mt-2 line-clamp-2 text-sm text-zinc-600">{c.descricao}</p>}
                     </div>

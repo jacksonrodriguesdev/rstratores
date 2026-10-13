@@ -103,3 +103,26 @@ export const testarGA4Fn = createServerFn({ method: "POST" }).handler(async () =
   const { enviarEventoGA4 } = await import("./conversoes.server");
   return enviarEventoGA4({ evento: "teste_painel", clientId: `teste.${Date.now()}`, params: { debug_mode: 1 } });
 });
+
+// ---------- Buscadores: Bing (IndexNow) e Google Shopping (feed do Merchant Center) ----------
+export const buscadoresFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const { ultimoIndexNow } = await import("./indexnow.server");
+  const { feedGoogle } = await import("./feed-google.server");
+  const { configPrecos } = await import("./precos.server");
+  const { SITE_URL } = await import("./site");
+  const [indexnow, feed, precos] = await Promise.all([ultimoIndexNow(), feedGoogle().catch(() => ({ itens: 0 })), configPrecos()]);
+  return {
+    indexnow,
+    feedUrl: `${SITE_URL}/feeds/google-merchant.xml`,
+    feedItens: feed.itens,
+    mostrarPrecos: precos.mostrar,
+    producao: process.env.NODE_ENV === "production" || !!process.env.INDEXNOW_URL,
+  };
+});
+
+export const indexNowAgoraFn = createServerFn({ method: "POST" }).handler(async () => {
+  await admin();
+  const { indexNowTudo } = await import("./indexnow.server");
+  return indexNowTudo();
+});

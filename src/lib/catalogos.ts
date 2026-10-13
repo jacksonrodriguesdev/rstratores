@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { slugify } from "./seo-paginas";
 
 export type Catalogo = {
   id: number;
@@ -24,6 +25,24 @@ export const listarCatalogosFn = createServerFn({ method: "GET" }).handler(async
   const rows = await prisma.catalogos.findMany({ where: { ativo: true }, orderBy: [{ ordem: "asc" }, { titulo: "asc" }] });
   return rows.map((r) => ({ ...serializar(r), arquivo: "" }));
 });
+
+// Página pública de cada catálogo (indexável no Google): /catalogos/<titulo>-<id>
+export const urlCatalogo = (c: { id: number; titulo: string }) => `/catalogos/${slugify(c.titulo) || "catalogo"}-${c.id}`;
+export const idDoSlugCatalogo = (slug: string) => Number(slug.match(/-(\d+)$/)?.[1] ?? (/^\d+$/.test(slug) ? slug : 0)) || 0;
+
+export const catalogoPublicoFn = createServerFn({ method: "GET" })
+  .validator((d: { id: number }) => ({ id: Number(d.id) || 0 }))
+  .handler(async ({ data }) => {
+    const { prisma } = await import("./prisma");
+    const { serializar } = await import("./catalogos.server");
+    const r = await prisma.catalogos.findUnique({ where: { id: data.id } });
+    if (!r || !r.ativo) return null;
+    // Outros catálogos da mesma marca primeiro, depois os demais
+    const outros = await prisma.catalogos.findMany({ where: { ativo: true, id: { not: r.id } }, orderBy: [{ ordem: "asc" }, { titulo: "asc" }], take: 40 });
+    const relacionados = [...outros.filter((o) => o.marca && o.marca === r.marca), ...outros.filter((o) => !o.marca || o.marca !== r.marca)].slice(0, 6);
+    const limpar = (x: typeof r) => ({ ...serializar(x), arquivo: "" }) as Catalogo;
+    return { catalogo: limpar(r), relacionados: relacionados.map(limpar) };
+  });
 
 // Dados do visualizador: o catálogo publicado e quem está vendo (para a marca d'água)
 export const verCatalogoFn = createServerFn({ method: "GET" })

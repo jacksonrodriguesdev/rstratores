@@ -2,11 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plug, CheckCircle2, Circle, Loader2, FlaskConical, ChevronDown, ExternalLink, AlertTriangle, Activity } from "lucide-react";
+import { Plug, CheckCircle2, Circle, Loader2, FlaskConical, ChevronDown, ExternalLink, AlertTriangle, Activity, Search, Copy } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { obterIntegracoesFn, salvarIntegracoesFn, testarMetaFn, testarGA4Fn } from "@/lib/marketing-admin";
+import { obterIntegracoesFn, salvarIntegracoesFn, testarMetaFn, testarGA4Fn, buscadoresFn, indexNowAgoraFn } from "@/lib/marketing-admin";
 import type { ChaveMkt } from "@/lib/marketing-config.server";
 import { cn } from "@/lib/utils";
 
@@ -167,6 +167,8 @@ function IntegracoesPage() {
         </Card>
       </div>
 
+      <Buscadores />
+
       <Card className="overflow-hidden p-0">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b p-4">
           <h2 className="flex items-center gap-2 font-semibold"><Activity className="h-4 w-4 text-primary" /> Eventos enviados pelo servidor</h2>
@@ -197,6 +199,69 @@ function IntegracoesPage() {
             </tbody>
           </table>
         </div>
+      </Card>
+    </div>
+  );
+}
+
+// Bing (IndexNow) e Google Shopping (feed do Merchant Center)
+function Buscadores() {
+  const { data, refetch } = useQuery({ queryKey: ["buscadores"], queryFn: () => buscadoresFn() });
+  const [enviando, setEnviando] = useState(false);
+  const enviar = async () => {
+    setEnviando(true);
+    try {
+      const r = await indexNowAgoraFn();
+      if (r.ok) toast.success(`${r.urls.toLocaleString("pt-BR")} páginas enviadas ao Bing.`);
+      else toast.error(`Não foi: ${r.detalhe}`);
+      refetch();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao enviar");
+    } finally {
+      setEnviando(false);
+    }
+  };
+  const ix = data?.indexnow;
+  return (
+    <div className="grid gap-6 xl:grid-cols-2">
+      <Card className="space-y-3 p-5">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 font-semibold"><Search className="h-4 w-4 text-[#008373]" /> Bing, DuckDuckGo e Yahoo (IndexNow)</h2>
+          <Button size="sm" variant="outline" onClick={enviar} disabled={enviando || !data?.producao}>
+            {enviando && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />} Enviar todas as páginas
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          O site avisa o Bing sozinho (a cada 10 minutos) quando uma peça ou catálogo é criado ou alterado. O Bing também alimenta o DuckDuckGo, o Yahoo e a busca do ChatGPT.
+        </p>
+        <p className={cn("rounded-lg p-3 text-sm", !ix ? "bg-muted/50" : ix.ok ? "bg-emerald-50 text-emerald-900" : "bg-red-50 text-red-800")}>
+          {!data?.producao ? "Funciona só no site publicado." : !ix ? "Ainda não enviou nada (o primeiro envio manda o site inteiro)." : <>Último envio: {new Date(ix.quando).toLocaleString("pt-BR")} · {ix.urls.toLocaleString("pt-BR")} páginas · {ix.ok ? "recebido" : "falhou"} ({ix.detalhe})</>}
+        </p>
+        <Passos titulo="Passo a passo: Bing Webmaster Tools" passos={[
+          "Entre em bing.com/webmasters com a mesma conta Google do Search Console.",
+          "Clique em “Importar” (Import from Google Search Console): o site e o sitemap vêm prontos, sem verificar de novo.",
+          "Em Sitemaps, confira se aparece https://agropartsuy.com/sitemap.xml.",
+          "Em alguns dias, veja Desempenho de pesquisa e Páginas indexadas.",
+        ]} link="https://www.bing.com/webmasters" />
+      </Card>
+
+      <Card className="space-y-3 p-5">
+        <h2 className="flex items-center gap-2 font-semibold"><span className="flex h-6 w-6 items-center justify-center rounded bg-white text-xs font-black ring-1 ring-black/10"><span className="text-[#4285F4]">G</span></span> Google Shopping grátis (Merchant Center)</h2>
+        <p className="text-sm text-muted-foreground">Lista de peças para o Google mostrar na aba Shopping sem pagar. Só entram peças <b>com preço e foto</b>, e só com “Mostrar preços no site” ligado.</p>
+        <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-2 text-sm">
+          <code className="min-w-0 flex-1 truncate">{data?.feedUrl ?? "…"}</code>
+          <Button size="sm" variant="ghost" onClick={() => data && navigator.clipboard.writeText(data.feedUrl).then(() => toast.success("Link copiado"))}><Copy className="h-4 w-4" /></Button>
+        </div>
+        <p className={cn("rounded-lg p-3 text-sm", data?.feedItens ? "bg-emerald-50 text-emerald-900" : "bg-amber-50 text-amber-900")}>
+          {!data ? "…" : !data.mostrarPrecos ? "Os preços estão escondidos no site: o feed fica vazio. Ligue “Mostrar preços” em Produtos e preços." : `${data.feedItens.toLocaleString("pt-BR")} peças no feed.`}
+        </p>
+        <Passos titulo="Passo a passo: Merchant Center" passos={[
+          "Entre em merchants.google.com com a conta do Search Console e crie a conta da loja (país: Uruguai, moeda UYU).",
+          "Confirme o site agropartsuy.com (ele já está verificado no Search Console).",
+          "Em Produtos → Adicionar produtos → Arquivo de URL (feed programado), cole o link acima e escolha atualização diária.",
+          "Configure frete (DAC, por conta do cliente) e devolução (7 dias).",
+          "Ative “Listagens gratuitas”. Cole o ID do Merchant no campo do Google acima.",
+        ]} link="https://merchants.google.com" />
       </Card>
     </div>
   );

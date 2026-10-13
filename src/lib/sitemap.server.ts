@@ -48,6 +48,7 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
       ...CATEGORIAS_SEO.map((c) => url(`${SITE_URL}/repuestos/${c.slug}`, "<changefreq>weekly</changefreq><priority>0.8</priority>")),
       ...combos.map((u) => url(`${SITE_URL}${u}`, "<priority>0.7</priority>")),
       url(`${SITE_URL}/catalogos`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
+      ...(await catalogosPublicos()).map((c) => url(`${SITE_URL}${c.caminho}`, `<lastmod>${c.data}</lastmod><priority>0.7</priority>`)),
       url(`${SITE_URL}/cotizar`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
       url(`${SITE_URL}/pedido-rapido`, "<priority>0.6</priority>"),
       url(`${SITE_URL}/ayuda`, "<priority>0.5</priority>"),
@@ -59,4 +60,34 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
   const lista = (await pecas()).slice(i * POR_ARQUIVO, (i + 1) * POR_ARQUIVO);
   if (!lista.length) return null;
   return urlset(lista.map((p) => url(`${SITE_URL}/produto/${encodeURIComponent(p.sku)}`, `<lastmod>${p.data}</lastmod>`)));
+}
+
+// Página pública de cada catálogo publicado (/catalogos/<titulo>-<id>)
+async function catalogosPublicos() {
+  const { prisma } = await import("./prisma");
+  const { urlCatalogo } = await import("./catalogos");
+  const rows = await prisma.catalogos.findMany({ where: { ativo: true }, select: { id: true, titulo: true, updated_at: true } }).catch(() => []);
+  return rows.map((c) => ({ caminho: urlCatalogo(c), data: c.updated_at.toISOString().slice(0, 10) }));
+}
+
+// Todas as URLs do mapa (para avisar o Bing pela IndexNow). desde: só peças/catálogos alterados depois
+export async function urlsDoSite(desde?: Date): Promise<string[]> {
+  if (desde) {
+    const { prisma } = await import("./prisma");
+    const pecasNovas = await prisma.agricolas.findMany({
+      where: { duplicado_de: null, category_id: { not: null }, updated_at: { gt: desde } },
+      select: { sku: true },
+      take: 10_000,
+    });
+    const cats = await prisma.catalogos.findMany({ where: { ativo: true, updated_at: { gt: desde } }, select: { id: true, titulo: true } }).catch(() => []);
+    const { urlCatalogo } = await import("./catalogos");
+    return [
+      ...pecasNovas.map((p) => `${SITE_URL}/produto/${encodeURIComponent(p.sku.trim())}`),
+      ...cats.map((c) => `${SITE_URL}${urlCatalogo(c)}`),
+      ...(cats.length ? [`${SITE_URL}/catalogos`] : []),
+    ];
+  }
+  const paginas = await sitemapParte("paginas.xml");
+  const locs = [...(paginas ?? "").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  return [...locs, ...(await pecas()).map((p) => `${SITE_URL}/produto/${encodeURIComponent(p.sku)}`)];
 }

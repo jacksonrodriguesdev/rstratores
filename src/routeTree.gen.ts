@@ -42,6 +42,8 @@ import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
+import { Route as CatalogosSlugRouteImport } from './routes/catalogos.$slug'
+import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosIndexRouteImport } from './routes/repuestos.index'
 import { Route as RepuestosSlugRouteImport } from './routes/repuestos.$slug'
@@ -249,6 +251,16 @@ const AdminVisitantesRoute = AdminVisitantesRouteImport.update({
 const CatalogosIndexRoute = CatalogosIndexRouteImport.update({
   id: '/catalogos/',
   path: '/catalogos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogosSlugRoute = CatalogosSlugRouteImport.update({
+  id: '/catalogos/$slug',
+  path: '/catalogos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedsArquivoRoute = FeedsArquivoRouteImport.update({
+  id: '/feeds/$arquivo',
+  path: '/feeds/$arquivo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
@@ -501,6 +513,8 @@ export interface FileRoutesByFullPath {
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
+  '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
@@ -578,6 +592,8 @@ export interface FileRoutesByTo {
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
+  '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
@@ -657,6 +673,8 @@ export interface FileRoutesById {
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
+  '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
@@ -737,6 +755,8 @@ export interface FileRouteTypes {
     | '/admin/produtos'
     | '/admin/upload'
     | '/admin/visitantes'
+    | '/catalogos/$slug'
+    | '/feeds/$arquivo'
     | '/produto/$sku'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
@@ -814,6 +834,8 @@ export interface FileRouteTypes {
     | '/admin/produtos'
     | '/admin/upload'
     | '/admin/visitantes'
+    | '/catalogos/$slug'
+    | '/feeds/$arquivo'
     | '/produto/$sku'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
@@ -892,6 +914,8 @@ export interface FileRouteTypes {
     | '/admin/produtos'
     | '/admin/upload'
     | '/admin/visitantes'
+    | '/catalogos/$slug'
+    | '/feeds/$arquivo'
     | '/produto/$sku'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
@@ -952,6 +976,8 @@ export interface RootRouteChildren {
   PedidoRapidoRoute: typeof PedidoRapidoRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  CatalogosSlugRoute: typeof CatalogosSlugRoute
+  FeedsArquivoRoute: typeof FeedsArquivoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
   SitemapsArquivoRoute: typeof SitemapsArquivoRoute
@@ -1214,6 +1240,20 @@ declare module '@tanstack/react-router' {
       path: '/catalogos'
       fullPath: '/catalogos/'
       preLoaderRoute: typeof CatalogosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogos/$slug': {
+      id: '/catalogos/$slug'
+      path: '/catalogos/$slug'
+      fullPath: '/catalogos/$slug'
+      preLoaderRoute: typeof CatalogosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feeds/$arquivo': {
+      id: '/feeds/$arquivo'
+      path: '/feeds/$arquivo'
+      fullPath: '/feeds/$arquivo'
+      preLoaderRoute: typeof FeedsArquivoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produto/$sku': {
@@ -1669,6 +1709,8 @@ const rootRouteChildren: RootRouteChildren = {
   PedidoRapidoRoute: PedidoRapidoRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  CatalogosSlugRoute: CatalogosSlugRoute,
+  FeedsArquivoRoute: FeedsArquivoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,
   SitemapsArquivoRoute: SitemapsArquivoRoute,

@@ -537,7 +537,11 @@ export function iniciarAgendador() {
   if (g.__agendadorAutomacoes) return;
   if (process.env.NODE_ENV !== "production" && process.env.AUTOMACOES_LOCAL !== "1") return;
   g.__agendadorAutomacoes = true;
-  const rodar = () => rodarAutomacoes().catch((e) => console.error("automações", e));
+  const rodar = () => {
+    rodarAutomacoes().catch((e) => console.error("automações", e));
+    // Peças e catálogos novos/alterados → Bing pela IndexNow
+    import("./indexnow.server").then((m) => m.indexNowPendentes()).catch((e) => console.error("indexnow", e));
+  };
   setTimeout(rodar, 60_000);
   setInterval(rodar, 10 * 60_000);
 }
