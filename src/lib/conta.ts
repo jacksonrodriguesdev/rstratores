@@ -90,12 +90,13 @@ export const salvarPerfilFn = createServerFn({ method: "POST" })
     const { getSession } = await import("./auth.server");
     const s = await getSession();
     if (!s) throw new Error("Iniciá sesión de nuevo.");
-    const { normalizarCelularUY, DEPARTAMENTOS_UY } = await import("./validacao-conta");
+    const { normalizarCelularUY, normalizarCelularBR, DEPARTAMENTOS_UY } = await import("./validacao-conta");
     const t = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
     const nome = t(data.nome_completo, 120);
     if (nome.length < 3) throw new Error("Escribí tu nombre completo.");
-    const tel = normalizarCelularUY(t(data.telefone, 30));
-    if (!tel) throw new Error("El celular debe ser uruguayo: 09X XXX XXX.");
+    // Uruguaio (9 dígitos) ou brasileiro com DDD (10/11 dígitos, clientes da versão em português)
+    const tel = normalizarCelularUY(t(data.telefone, 30)) ?? normalizarCelularBR(t(data.telefone, 30));
+    if (!tel) throw new Error("El celular debe ser uruguayo (09X XXX XXX) o brasileño con DDD.");
     const { prisma } = await import("./prisma");
     await prisma.users.update({
       where: { id: s.id },

@@ -6,14 +6,16 @@ import { PrecoTag, SeloOferta } from "@/components/PrecoTag";
 import { useCart } from "@/components/CartContext";
 import { Card } from "@/components/ui/card";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
-import { nomeProduto } from "@/lib/pecas-es";
+import { nomeProduto, nomePeca } from "@/lib/pecas-es";
+import { useT } from "@/lib/idioma";
 import { cn } from "@/lib/utils";
 
 // Cartão de peça da loja e das páginas /repuestos: foto, código, marca, preço e botão de cotação.
 export function CardLoja({ p }: { p: Product }) {
   const { items, addItem } = useCart();
   const naCotacao = items.some((i) => i.sku === p.sku);
-  const nome = nomeProduto(p);
+  const { t, idioma } = useT();
+  const nome = nomePeca(p, idioma);
   const marca = marcaExibicao(p);
 
   return (
@@ -33,8 +35,8 @@ export function CardLoja({ p }: { p: Product }) {
           if (!naCotacao)
             addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, nameEs: nomeProduto(p), image: p.imagem_principal || undefined, quantity: 1 });
         }}
-        aria-label={naCotacao ? "Ya está en tu cotización" : "Agregar a la cotización"}
-        title={naCotacao ? "Ya está en tu cotización" : "Agregar a la cotización"}
+        aria-label={naCotacao ? t("Ya está en tu cotización", "Já está no seu orçamento") : t("Agregar a la cotización", "Adicionar ao orçamento")}
+        title={naCotacao ? t("Ya está en tu cotización", "Já está no seu orçamento") : t("Agregar a la cotización", "Adicionar ao orçamento")}
         className={cn(
           "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 transition active:scale-90",
           naCotacao ? "bg-primary text-white ring-primary" : "bg-white text-primary ring-zinc-200 hover:bg-primary hover:text-white",

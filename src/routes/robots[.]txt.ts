@@ -20,6 +20,13 @@ export const Route = createFileRoute("/robots.txt")({
             "Disallow: /catalogos/ver/",
             "Disallow: /catalogos/archivo/",
             "Disallow: /loja?q=",
+            // Mesmas páginas na versão em português
+            "Disallow: /pt/login",
+            "Disallow: /pt/cadastro",
+            "Disallow: /pt/cuenta",
+            "Disallow: /pt/baja",
+            "Disallow: /pt/catalogos/ver/",
+            "Disallow: /pt/loja?q=",
             "",
             `Sitemap: ${SITE_URL}/sitemap.xml`,
             "",

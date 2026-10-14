@@ -115,19 +115,22 @@ export async function conferirCodigo(email: string, codigo: string): Promise<{ o
 }
 
 // E-mail com o código (transacional: sem link de descadastro)
-export async function enviarEmailCodigo(email: string, codigo: string, origem: string) {
+export async function enviarEmailCodigo(email: string, codigo: string, origem: string, idioma: "es" | "pt" = "es") {
   const { enviarUm, montarMensagem } = await import("./email.server");
+  const pt = idioma === "pt";
   const m = montarMensagem(
     {
-      destaque: "TU CÓDIGO",
-      titulo: "Entrá a AGRO PARTS con este código",
-      texto: "Escribí el código en la ventana del sitio. Si no lo pediste vos, ignorá este e-mail.",
-      cupom: { codigo: `${codigo.slice(0, 3)} ${codigo.slice(3)}`, texto: "Código de acceso", validade: "por 10 minutos" },
+      destaque: pt ? "SEU CÓDIGO" : "TU CÓDIGO",
+      titulo: pt ? "Entre na AGRO PARTS com este código" : "Entrá a AGRO PARTS con este código",
+      texto: pt
+        ? "Digite o código na janela do site. Se não foi você que pediu, ignore este e-mail."
+        : "Escribí el código en la ventana del sitio. Si no lo pediste vos, ignorá este e-mail.",
+      cupom: { codigo: `${codigo.slice(0, 3)} ${codigo.slice(3)}`, texto: pt ? "Código de acesso" : "Código de acceso", validade: "por 10 minutos" },
       produtos: [],
       whatsapp: false,
       cor: "#0b7a3b",
     },
-    `${codigo} es tu código de AGRO PARTS`,
+    pt ? `${codigo} é seu código da AGRO PARTS` : `${codigo} es tu código de AGRO PARTS`,
     "Válido por 10 minutos.",
     origem,
     { email },

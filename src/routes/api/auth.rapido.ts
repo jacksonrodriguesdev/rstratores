@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { comIdioma, idiomaDaRequisicao } from "@/lib/idioma-servidor";
 
 // Cadastro rápido do pop-up: e-mail já confirmado pelo código (token). Nome, departamento e
 // celular são opcionais. A conta nasce sem senha (dá para criar uma depois em Mi cuenta).
@@ -7,7 +8,8 @@ const texto = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice
 export const Route = createFileRoute("/api/auth/rapido")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      // comIdioma: mensagens de erro em português nas páginas /pt
+      POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json().catch(() => ({}));
           const { lerTokenEmail, garantirCupom, senhaAleatoria } = await import("@/lib/acesso.server");
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/api/auth/rapido")({
           const user =
             existente ??
             (await prisma.users.create({
-              data: { nome_completo, email, senha_hash: senhaAleatoria("codigo"), telefone, departamento, pais: "Uruguai" },
+              data: { nome_completo, email, senha_hash: senhaAleatoria("codigo"), telefone, departamento, pais: idiomaDaRequisicao(request) === "pt" ? "Brasil" : "Uruguai" },
             }));
           if (!existente) {
             const { registrarCadastro } = await import("@/lib/conversoes.server");
@@ -42,7 +44,7 @@ export const Route = createFileRoute("/api/auth/rapido")({
           console.error("Erro no cadastro rápido:", err);
           return Response.json({ error: "No pudimos crear la cuenta. Probá de nuevo." }, { status: 500 });
         }
-      },
+      }),
     },
   },
 });

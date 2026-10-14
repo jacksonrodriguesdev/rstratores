@@ -2,6 +2,7 @@ import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/idioma";
 
 type Props = {
   product: { sku: string; nome: string };
@@ -16,8 +17,9 @@ export function QuoteButton({
   size = "sm",
   className,
   fullWidth,
-  label = "Consultar precio",
+  label,
 }: Props) {
+  const { t, idioma } = useT();
   return (
     <Button
       asChild
@@ -25,13 +27,13 @@ export function QuoteButton({
       className={cn("bg-[#25D366] text-white hover:bg-[#1EBE57]", fullWidth && "w-full", className)}
     >
       <a
-        href={whatsappQuoteUrl(product)}
+        href={whatsappQuoteUrl(product, idioma)}
         target="_blank"
         rel="noreferrer noopener"
         onClick={(e) => e.stopPropagation()}
       >
         <MessageCircle className="mr-2 h-4 w-4" />
-        {label}
+        {label ?? t("Consultar precio", "Consultar preço")}
       </a>
     </Button>
   );

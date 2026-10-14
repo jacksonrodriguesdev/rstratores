@@ -18,6 +18,16 @@ export type Catalogo = {
 
 export const TIPOS_CATALOGO = ["Catálogo de piezas", "Manual de taller", "Manual del operador", "Ficha técnica", "Otro"];
 
+// Tipo do catálogo no idioma da página (o cadastro guarda em espanhol)
+const TIPOS_PT: Record<string, string> = {
+  "Catálogo de piezas": "Catálogo de peças",
+  "Manual de taller": "Manual de oficina",
+  "Manual del operador": "Manual do operador",
+  "Ficha técnica": "Ficha técnica",
+  Otro: "Outro",
+};
+export const tipoCatalogo = (tipo: string, idioma: "es" | "pt") => (idioma === "pt" ? TIPOS_PT[tipo] ?? tipo : tipo);
+
 // Página pública: só os publicados (sem o caminho do arquivo)
 export const listarCatalogosFn = createServerFn({ method: "GET" }).handler(async () => {
   const { prisma } = await import("./prisma");

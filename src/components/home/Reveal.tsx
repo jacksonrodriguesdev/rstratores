@@ -1,3 +1,4 @@
+import { useT } from "@/lib/idioma";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
@@ -50,6 +51,7 @@ export function Section({
   className?: string;
   id?: string;
 }) {
+  const { t } = useT();
   return (
     <Reveal>
       <section
@@ -70,7 +72,7 @@ export function Section({
                 search={(verTodos.search ?? {}) as never}
                 className="flex shrink-0 items-center text-sm font-semibold text-primary hover:underline"
               >
-                {verTodos.label ?? "Ver todos"} <ChevronRight className="h-4 w-4" />
+                {verTodos.label ?? t("Ver todos", "Ver todos")} <ChevronRight className="h-4 w-4" />
               </Link>
             )}
           </div>

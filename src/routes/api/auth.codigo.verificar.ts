@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { comIdioma } from "@/lib/idioma-servidor";
 
 // Confere o código. Quem já tem conta entra na hora; e-mail novo recebe um token para
 // terminar o cadastro rápido em /api/auth/rapido (nome e departamento).
 export const Route = createFileRoute("/api/auth/codigo/verificar")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      // comIdioma: mensagens de erro em português nas páginas /pt
+      POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json().catch(() => ({}));
           const email = String(body.email ?? "").trim().toLowerCase().slice(0, 191);
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/api/auth/codigo/verificar")({
           console.error("Erro ao conferir código:", err);
           return Response.json({ error: "No pudimos verificar el código. Probá de nuevo." }, { status: 500 });
         }
-      },
+      }),
     },
   },
 });

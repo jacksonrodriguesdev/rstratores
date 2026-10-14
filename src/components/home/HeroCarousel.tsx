@@ -1,3 +1,4 @@
+import { useT } from "@/lib/idioma";
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -40,6 +41,7 @@ export function HeroCarousel({
   variante?: keyof typeof ESTILOS;
 }) {
   const estilo = ESTILOS[variante];
+  const { t } = useT();
   const [emblaRef, api] = useEmblaCarousel({ loop: banners.length > 1 });
   const [atual, setAtual] = useState(0);
   const [pausado, setPausado] = useState(false);
@@ -128,14 +130,14 @@ export function HeroCarousel({
         <>
           <button
             onClick={() => api?.scrollPrev()}
-            aria-label="Banner anterior"
+            aria-label={t("Banner anterior", "Banner anterior")}
             className="absolute left-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-zinc-800 shadow-lg transition hover:bg-white md:flex"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             onClick={() => api?.scrollNext()}
-            aria-label="Banner siguiente"
+            aria-label={t("Banner siguiente", "Próximo banner")}
             className="absolute right-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-zinc-800 shadow-lg transition hover:bg-white md:flex"
           >
             <ChevronRight className="h-6 w-6" />

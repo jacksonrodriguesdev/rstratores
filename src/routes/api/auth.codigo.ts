@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { comIdioma, idiomaDaRequisicao } from "@/lib/idioma-servidor";
 
 // Login rápido (pop-up "Entrá y ganá"): manda um código de 6 dígitos para o e-mail.
 // Responde também se o e-mail já tem conta (para o pop-up saber se vai pedir o nome depois).
 export const Route = createFileRoute("/api/auth/codigo")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      // comIdioma: mensagens de erro em português nas páginas /pt
+      POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json().catch(() => ({}));
           const email = String(body.email ?? "").trim().toLowerCase().slice(0, 191);
@@ -21,7 +23,7 @@ export const Route = createFileRoute("/api/auth/codigo")({
           if ("erro" in r) return Response.json({ error: r.erro }, { status: 429 });
 
           const { origemPublica } = await import("@/lib/google-oauth.server");
-          await enviarEmailCodigo(email, r.codigo, origemPublica(request));
+          await enviarEmailCodigo(email, r.codigo, origemPublica(request), idiomaDaRequisicao(request));
 
           const { prisma } = await import("@/lib/prisma");
           const existe = !!(await prisma.users.findUnique({ where: { email }, select: { id: true } }));
@@ -30,7 +32,7 @@ export const Route = createFileRoute("/api/auth/codigo")({
           console.error("Erro ao enviar código:", err);
           return Response.json({ error: "No pudimos enviar el código. Probá de nuevo." }, { status: 500 });
         }
-      },
+      }),
     },
   },
 });

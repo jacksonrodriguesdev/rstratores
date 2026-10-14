@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ZoomIn, ZoomOut, Loader2, ChevronUp, ChevronDown, ShieldCheck, MessageCircle } from "lucide-react";
 import { verCatalogoFn } from "@/lib/catalogos";
 import { whatsappContactUrl } from "@/lib/whatsapp";
+import { useT } from "@/lib/idioma";
 
 // Visualizador de catálogos: desenha as páginas do PDF em <canvas> (pdf.js), sem botão de
 // baixar ou imprimir, com marca d'água de quem está vendo. O arquivo só é entregue para
@@ -12,7 +13,8 @@ export const Route = createFileRoute("/catalogos/ver/$id")({
     const r = await verCatalogoFn({ data: { id: Number(params.id) } });
     if (!r.catalogo) throw redirect({ to: "/catalogos" });
     if (r.catalogo.exige_login && !r.sessao) {
-      throw redirect({ href: `/catalogos?abrir=${params.id}` });
+      // "to" (e não href): na versão /pt o roteador acrescenta o prefixo
+      throw redirect({ to: "/catalogos", search: { abrir: Number(params.id) } as never });
     }
     return r;
   },
@@ -31,6 +33,7 @@ function Visor() {
   const [pdf, setPdf] = useState<Pdf | null>(null);
   const [proporcao, setProporcao] = useState(1.414);
   const [erro, setErro] = useState<string | null>(null);
+  const { t } = useT();
   const [zoom, setZoom] = useState(1);
   const [atual, setAtual] = useState(1);
   const [largura, setLargura] = useState(800);
@@ -62,7 +65,7 @@ function Visor() {
         const inicio = await pedaco(0, Math.min(total, 1 << 16), true);
         const transporte = new pdfjs.PDFDataRangeTransport(total, inicio);
         transporte.requestDataRange = (ini: number, fim: number) => {
-          pedaco(ini, fim).then((d) => transporte.onDataRange(ini, d)).catch(() => setErro("Se cortó la conexión. Recargá la página."));
+          pedaco(ini, fim).then((d) => transporte.onDataRange(ini, d)).catch(() => setErro(t("Se cortó la conexión. Recargá la página.", "A conexão caiu. Recarregue a página.")));
         };
         doc = await pdfjs.getDocument({
           range: transporte,
@@ -79,7 +82,7 @@ function Visor() {
         setPdf(doc);
       } catch (e) {
         console.error(e);
-        if (!cancelado) setErro(`No pudimos abrir el catálogo. Revisá tu conexión y probá de nuevo. (${String((e as any)?.message ?? e).slice(0, 80)})`);
+        if (!cancelado) setErro(`${t("No pudimos abrir el catálogo. Revisá tu conexión y probá de nuevo.", "Não conseguimos abrir o catálogo. Confira sua conexão e tente de novo.")} (${String((e as any)?.message ?? e).slice(0, 80)})`);
       }
     })();
     return () => {
@@ -118,7 +121,7 @@ function Visor() {
     <div className="visor-catalogo flex h-[100dvh] flex-col bg-zinc-800 select-none" onContextMenu={(e) => e.preventDefault()}>
       <style>{`@media print { .visor-catalogo { display: none !important } body::after { content: "Impresión no disponible"; } }`}</style>
       <header className="flex items-center gap-2 bg-[#06321b] px-3 py-2 text-white pt-safe">
-        <Link to="/catalogos" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hover:bg-white/10" aria-label="Volver a catálogos">
+        <Link to="/catalogos" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hover:bg-white/10" aria-label={t("Volver a catálogos", "Voltar aos catálogos")}>
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="min-w-0 flex-1">
@@ -127,7 +130,7 @@ function Visor() {
         </div>
         {pdf && (
           <div className="flex items-center gap-1">
-            <button onClick={() => irPara(atual - 1)} className="hidden h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 sm:flex" aria-label="Página anterior"><ChevronUp className="h-5 w-5" /></button>
+            <button onClick={() => irPara(atual - 1)} className="hidden h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 sm:flex" aria-label={t("Página anterior", "Página anterior")}><ChevronUp className="h-5 w-5" /></button>
             <label className="flex items-center gap-1 text-xs text-white/80">
               <input
                 key={atual}
@@ -136,13 +139,13 @@ function Visor() {
                 onKeyDown={(e) => e.key === "Enter" && irPara(Number((e.target as HTMLInputElement).value))}
                 onBlur={(e) => irPara(Number(e.target.value))}
                 className="h-8 w-12 rounded-md bg-white/10 text-center text-sm font-bold text-white outline-none focus:bg-white/20"
-                aria-label="Ir a la página"
+                aria-label={t("Ir a la página", "Ir para a página")}
               />
               <span>/ {pdf.numPages}</span>
             </label>
-            <button onClick={() => irPara(atual + 1)} className="hidden h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 sm:flex" aria-label="Página siguiente"><ChevronDown className="h-5 w-5" /></button>
-            <button onClick={() => setZoom((z) => Math.max(1, z - 0.5))} disabled={zoom <= 1} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30" aria-label="Alejar"><ZoomOut className="h-5 w-5" /></button>
-            <button onClick={() => setZoom((z) => Math.min(3, z + 0.5))} disabled={zoom >= 3} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30" aria-label="Acercar"><ZoomIn className="h-5 w-5" /></button>
+            <button onClick={() => irPara(atual + 1)} className="hidden h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 sm:flex" aria-label={t("Página siguiente", "Próxima página")}><ChevronDown className="h-5 w-5" /></button>
+            <button onClick={() => setZoom((z) => Math.max(1, z - 0.5))} disabled={zoom <= 1} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30" aria-label={t("Alejar", "Diminuir zoom")}><ZoomOut className="h-5 w-5" /></button>
+            <button onClick={() => setZoom((z) => Math.min(3, z + 0.5))} disabled={zoom >= 3} className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30" aria-label={t("Acercar", "Aumentar zoom")}><ZoomIn className="h-5 w-5" /></button>
           </div>
         )}
       </header>
@@ -164,9 +167,9 @@ function Visor() {
       </div>
 
       <footer className="hidden items-center justify-between gap-3 bg-zinc-900 px-4 py-2 text-xs text-white/60 md:flex">
-        <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4" /> Solo lectura. Uso exclusivo de clientes de AGRO PARTS.</span>
-        <a href={whatsappContactUrl(`Hola, estoy viendo el catálogo "${c.titulo}" y necesito un repuesto.`)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:underline">
-          <MessageCircle className="h-4 w-4" /> Cotizar una pieza de este catálogo
+        <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4" /> {t("Solo lectura. Uso exclusivo de clientes de AGRO PARTS.", "Somente leitura. Uso exclusivo de clientes da AGRO PARTS.")}</span>
+        <a href={whatsappContactUrl(t(`Hola, estoy viendo el catálogo "${c.titulo}" y necesito un repuesto.`, `Olá, estou vendo o catálogo "${c.titulo}" e preciso de uma peça.`))} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:underline">
+          <MessageCircle className="h-4 w-4" /> {t("Cotizar una pieza de este catálogo", "Orçamento de uma peça deste catálogo")}
         </a>
       </footer>
     </div>

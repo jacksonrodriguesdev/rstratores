@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { normalizarCelularUY, emailValido, avaliarSenha, DEPARTAMENTOS_UY } from "@/lib/validacao-conta";
+import { normalizarCelularUY, normalizarCelularBR, emailValido, avaliarSenha, DEPARTAMENTOS_UY } from "@/lib/validacao-conta";
+import { comIdioma, idiomaDaRequisicao } from "@/lib/idioma-servidor";
 
 // Texto curto e sem espaços nas pontas; corta campos gigantes enviados de propósito.
 const texto = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -7,19 +8,23 @@ const texto = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice
 export const Route = createFileRoute("/api/auth/register")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      // comIdioma: mensagens de erro em português nas páginas /pt
+      POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json();
+          // Cadastro pela versão em português (/pt): cliente do Brasil, celular brasileiro
+          const brasil = idiomaDaRequisicao(request) === "pt";
           const nome_completo = texto(body.nome_completo, 120);
           const email = texto(body.email, 191).toLowerCase();
           const senha = typeof body.senha === "string" ? body.senha : "";
           const confirmar = typeof body.confirmar === "string" ? body.confirmar : "";
-          const telefone = normalizarCelularUY(texto(body.telefone, 30));
-          const departamento = DEPARTAMENTOS_UY.includes(body.departamento) ? body.departamento : null;
+          const telefone = brasil ? normalizarCelularBR(texto(body.telefone, 30)) : normalizarCelularUY(texto(body.telefone, 30));
+          const departamento = !brasil && DEPARTAMENTOS_UY.includes(body.departamento) ? body.departamento : null;
 
           if (!nome_completo || nome_completo.length < 3) return Response.json({ error: "Escribí tu nombre completo." }, { status: 400 });
           if (!emailValido(email)) return Response.json({ error: "El e-mail no es válido." }, { status: 400 });
-          if (!telefone) return Response.json({ error: "El celular debe ser uruguayo: 09X XXX XXX." }, { status: 400 });
+          if (!telefone)
+            return Response.json({ error: brasil ? "Celular com DDD: ex. (53) 99999-9999." : "El celular debe ser uruguayo: 09X XXX XXX." }, { status: 400 });
           if (!avaliarSenha(senha).valida || senha.length > 200)
             return Response.json({ error: "La contraseña debe tener al menos 8 caracteres, con letras y números." }, { status: 400 });
           if (senha !== confirmar) return Response.json({ error: "Las contraseñas no coinciden." }, { status: 400 });
@@ -42,7 +47,7 @@ export const Route = createFileRoute("/api/auth/register")({
               telefone,
               departamento,
               cidade: texto(body.cidade, 100) || null,
-              pais: "Uruguai",
+              pais: brasil ? "Brasil" : "Uruguai",
             },
           });
           // Conta nova: cupom único de boas-vindas
@@ -56,7 +61,7 @@ export const Route = createFileRoute("/api/auth/register")({
           console.error("Erro no cadastro:", err);
           return Response.json({ error: "No pudimos crear la cuenta. Probá de nuevo." }, { status: 500 });
         }
-      },
+      }),
     },
   },
 });

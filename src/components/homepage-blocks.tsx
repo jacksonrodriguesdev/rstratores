@@ -33,7 +33,8 @@ import { Reveal, Section } from "@/components/home/Reveal";
 import { GoogleReviews } from "@/components/home/GoogleReviews";
 import { QuoteModal } from "@/components/QuoteModal";
 import { BannerImage } from "@/components/BannerImage";
-import { BandeiraUruguay } from "@/components/Bandeiras";
+import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { useT } from "@/lib/idioma";
 
 // Produtos dos blocos da home. Se o bloco pede "só com imagem" e não há nenhum
 // (o catálogo agrícola ainda não tem fotos), mostra os produtos apresentáveis.
@@ -84,6 +85,7 @@ function useProdutosDoBloco(config: string | null, limitePadrao: number) {
 // BANNER PRINCIPAL + ATALHOS (os cartões se sobrepõem ao banner no desktop, como no Mercado Livre)
 export function HeroSliderBlock({ config, title }: { config: string | null; title: string | null }) {
   const { segment } = useSegment();
+  const { t, idioma } = useT();
   const c = lerConfig(config);
   const { data: banners = [], isLoading } = useQuery({
     queryKey: ["hero_banners", segment],
@@ -98,15 +100,15 @@ export function HeroSliderBlock({ config, title }: { config: string | null; titl
           <div className="h-[170px] animate-pulse rounded-2xl bg-zinc-200 sm:h-[240px] md:h-[400px] md:rounded-none" />
         </div>
       ) : banners.length > 0 ? (
-        <HeroCarousel banners={banners} titulo={title} subtitulo={c.subtitle} tag={c.tag} />
+        <HeroCarousel banners={banners} titulo={title} subtitulo={idioma === "pt" ? null : c.subtitle} tag={idioma === "pt" ? null : c.tag} />
       ) : (
         <div className="mx-3 mt-3 rounded-2xl bg-gradient-to-br from-primary to-emerald-900 px-6 py-10 text-white md:mx-0 md:mt-0 md:rounded-none md:px-0 md:pb-36 md:pt-16">
           <div className="mx-auto max-w-7xl md:px-8">
             <h2 className="max-w-xl text-2xl font-extrabold leading-tight md:text-5xl">
-              {title || "Repuestos para tractores con cotización rápida"}
+              {title || t("Repuestos para tractores con cotización rápida", "Peças para tratores com orçamento rápido")}
             </h2>
             <p className="mt-2 max-w-lg text-white/85 md:text-lg">
-              {c.subtitle || "Buscá por el código original y recibí tu cotización por WhatsApp."}
+              {(idioma === "es" && c.subtitle) || t("Buscá por el código original y recibí tu cotización por WhatsApp.", "Busque pelo código original e receba seu orçamento pelo WhatsApp.")}
             </p>
           </div>
         </div>
@@ -118,21 +120,22 @@ export function HeroSliderBlock({ config, title }: { config: string | null; titl
 
 function Atalhos() {
   const [cotarAberto, setCotarAberto] = useState(false);
+  const { t } = useT();
   const card =
     "flex min-w-0 flex-col justify-between gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.97]";
   const icone = "flex h-11 w-11 items-center justify-center rounded-full";
 
   const itens = [
     {
-      titulo: "Buscar por código",
-      texto: "Encontrá la pieza exacta por el código original",
+      titulo: t("Buscar por código", "Buscar por código"),
+      texto: t("Encontrá la pieza exacta por el código original", "Encontre a peça exata pelo código original"),
       icon: Search,
       cor: "bg-primary/10 text-primary",
       to: "/loja",
     },
     {
-      titulo: "Categorías",
-      texto: "Transmisión, hidráulica, filtros y más",
+      titulo: t("Categorías", "Categorias"),
+      texto: t("Transmisión, hidráulica, filtros y más", "Transmissão, hidráulica, filtros e mais"),
       icon: LayoutGrid,
       cor: "bg-amber-100 text-amber-700",
       href: "#categorias",
@@ -145,22 +148,22 @@ function Atalhos() {
       href: "#montadoras",
     },
     {
-      titulo: "Cotizá por WhatsApp",
-      texto: "Hablá directo con nuestro equipo",
+      titulo: t("Cotizá por WhatsApp", "Orçamento pelo WhatsApp"),
+      texto: t("Hablá directo con nuestro equipo", "Fale direto com a nossa equipe"),
       icon: MessageCircle,
       cor: "bg-[#25D366]/15 text-[#128C4B]",
-      externo: whatsappContactUrl("¡Hola! Quiero cotizar repuestos."),
+      externo: whatsappContactUrl(t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças.")),
     },
     {
-      titulo: "Mejoramos tu precio",
-      texto: "Mandanos el presupuesto de otro proveedor",
+      titulo: t("Mejoramos tu precio", "Cobrimos seu orçamento"),
+      texto: t("Mandanos el presupuesto de otro proveedor", "Mande o orçamento de outro fornecedor"),
       icon: Calculator,
       cor: "bg-violet-100 text-violet-700",
       acao: () => setCotarAberto(true),
     },
     {
-      titulo: "Pedido rápido",
-      texto: "Pegá tu lista de códigos y cotizá todo junto",
+      titulo: t("Pedido rápido", "Pedido rápido"),
+      texto: t("Pegá tu lista de códigos y cotizá todo junto", "Cole sua lista de códigos e peça orçamento de tudo junto"),
       icon: ListChecks,
       cor: "bg-zinc-100 text-zinc-700",
       to: "/pedido-rapido",
@@ -221,9 +224,10 @@ function Atalhos() {
 export function CategoryGridBlock({ config, title }: { config: string | null; title?: string | null }) {
   // Categorias do banco: o que for criado/renomeado/excluído no admin aparece aqui
   const categorias = useCategoriasLoja();
+  const { t, idioma } = useT();
 
   return (
-    <Section id="categorias" title={title || "Categorías"} verTodos={{ label: "Ver catálogo" }}>
+    <Section id="categorias" title={title || t("Categorías", "Categorias")} verTodos={{ label: t("Ver catálogo", "Ver catálogo") }}>
       <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:px-0">
         {categorias.map((c) => (
           <Link
@@ -247,7 +251,7 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
               </span>
               {c.total ? (
                 <span className="hidden text-xs text-zinc-500 md:block">
-                  {c.total.toLocaleString("es-UY")} repuestos
+                  {c.total.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")} {t("repuestos", "peças")}
                 </span>
               ) : null}
             </span>
@@ -261,9 +265,10 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
 // CARROSSEL DE PRODUTOS
 export function ProductsCarouselBlock({ title, config }: { title: string | null; config: string | null }) {
   const { produtos, carregando, busca } = useProdutosDoBloco(config, 12);
+  const { t } = useT();
   if (!carregando && produtos.length === 0) return null;
   return (
-    <Section title={title || "Destacados"} verTodos={{ search: busca }}>
+    <Section title={title || t("Destacados", "Destaques")} verTodos={{ search: busca }}>
       <ProductRail products={produtos} loading={carregando} />
     </Section>
   );
@@ -272,9 +277,10 @@ export function ProductsCarouselBlock({ title, config }: { title: string | null;
 // GRADE DE PRODUTOS
 export function ProductsGridBlock({ title, config }: { title: string | null; config: string | null }) {
   const { produtos, carregando, busca } = useProdutosDoBloco(config, 10);
+  const { t } = useT();
   if (!carregando && produtos.length === 0) return null;
   return (
-    <Section title={title || "Productos"} verTodos={{ search: busca }}>
+    <Section title={title || t("Productos", "Produtos")} verTodos={{ search: busca }}>
       {carregando ? (
         <ProductRail products={[]} loading />
       ) : (
@@ -326,10 +332,11 @@ export function PromoStripBlock({ title, config }: { title: string | null; confi
 
 // BENEFÍCIOS
 export function FeaturesStripBlock({ config }: { config: string | null }) {
+  const { t } = useT();
   const itens = [
-    { icon: Truck, titulo: "Envíos a todo Uruguay", texto: "Por DAC, con número de rastreo" },
-    { icon: ShieldCheck, titulo: "Cotización sin compromiso", texto: "Rápida y segura por WhatsApp" },
-    { icon: Headset, titulo: "Atención especializada", texto: "Te ayudamos a encontrar la pieza exacta" },
+    { icon: Truck, titulo: t("Envíos a todo Uruguay", "Envio para todo o Brasil"), texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio") },
+    { icon: ShieldCheck, titulo: t("Cotización sin compromiso", "Orçamento sem compromisso"), texto: t("Rápida y segura por WhatsApp", "Rápido e seguro pelo WhatsApp") },
+    { icon: Headset, titulo: t("Atención especializada", "Atendimento especializado"), texto: t("Te ayudamos a encontrar la pieza exacta", "Ajudamos a encontrar a peça exata") },
   ];
   return (
     <Reveal>
@@ -356,11 +363,12 @@ export function FeaturesStripBlock({ config }: { config: string | null }) {
 // MARCAS (faixa com rolagem contínua)
 export function BrandsCarouselBlock({ config }: { config: string | null }) {
   const marcas = ["Massey Ferguson", "Valtra", "Valmet", "John Deere", "New Holland", "Case IH", "Ford", "Agrale", "MWM", "Perkins"];
+  const { t } = useT();
   return (
     <Reveal>
       <div className="overflow-hidden rounded-2xl bg-white py-5 shadow-sm">
         <p className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-400">
-          Repuestos para las principales marcas
+          {t("Repuestos para las principales marcas", "Peças para as principais marcas")}
         </p>
         <div className="relative [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
           <div className="animate-marquee flex w-max gap-10">
@@ -380,15 +388,16 @@ export function BrandsCarouselBlock({ config }: { config: string | null }) {
 export function BuscaCodigoBlock({ config }: { config: string | null }) {
   const [codigo, setCodigo] = useState("");
   const navigate = useNavigate();
+  const { t } = useT();
   return (
     <Reveal>
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-emerald-900 p-5 text-white shadow-sm md:p-10">
         <Search className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 text-white/5" />
         <div className="relative mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center md:gap-10">
           <div className="md:flex-1">
-            <h2 className="text-xl font-extrabold md:text-3xl">¿Sabés el código de la pieza?</h2>
+            <h2 className="text-xl font-extrabold md:text-3xl">{t("¿Sabés el código de la pieza?", "Sabe o código da peça?")}</h2>
             <p className="mt-1 text-sm text-white/80 md:text-base">
-              Escribí el código original o del fabricante y encontrá la pieza exacta.
+              {t("Escribí el código original o del fabricante y encontrá la pieza exacta.", "Digite o código original ou do fabricante e encontre a peça exata.")}
             </p>
           </div>
           <form
@@ -401,11 +410,11 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
             <input
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
-              placeholder="Ej.: AL81843, 807045…"
+              placeholder={t("Ej.: AL81843, 807045…", "Ex.: AL81843, 807045…")}
               className="h-12 min-w-0 flex-1 rounded-full bg-white px-5 text-base text-zinc-900 outline-none ring-accent placeholder:text-zinc-400 focus:ring-2"
             />
             <button className="h-12 rounded-full bg-accent px-6 font-bold text-zinc-900 transition hover:brightness-95 active:scale-95">
-              Buscar
+              {t("Buscar", "Buscar")}
             </button>
           </form>
         </div>
@@ -417,24 +426,25 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
 // BANNERS DUPLOS (levam às categorias)
 const PROMO_BANNERS = [
   {
-    titulo: "Engranajes y Transmisión",
-    texto: "Repuestos para caja, diferencial y tracción de tu tractor.",
+    titulo: ["Engranajes y Transmisión", "Engrenagens e Transmissão"],
+    texto: ["Repuestos para caja, diferencial y tracción de tu tractor.", "Peças para câmbio, diferencial e tração do seu trator."],
     categoria: "Engrenagens e Transmissão",
-    cta: "Ver repuestos",
+    cta: ["Ver repuestos", "Ver peças"],
     icon: Settings,
     fundo: "from-primary to-emerald-800",
   },
   {
-    titulo: "Filtros",
-    texto: "Filtros de aceite, combustible y aire para el service de tu tractor.",
+    titulo: ["Filtros", "Filtros"],
+    texto: ["Filtros de aceite, combustible y aire para el service de tu tractor.", "Filtros de óleo, combustível e ar para a revisão do seu trator."],
     categoria: "Filtros",
-    cta: "Comprar ahora",
+    cta: ["Comprar ahora", "Comprar agora"],
     icon: Droplet,
     fundo: "from-amber-500 to-orange-600",
   },
 ];
 
 export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
+  const { t } = useT();
   const { data: duplos = [] } = useQuery({
     queryKey: ["home_banners", "duplo"],
     queryFn: () => listActiveBanners("duplo", "AGRICOLA"),
@@ -486,10 +496,10 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
           >
             <b.icon className="absolute -bottom-8 -right-8 h-44 w-44 text-white/10 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 md:h-56 md:w-56" />
             <div className="relative flex flex-col justify-center p-5 md:p-8">
-              <h3 className="text-xl font-extrabold text-white md:text-3xl">{b.titulo}</h3>
-              <p className="mt-1 max-w-xs text-sm text-white/85">{b.texto}</p>
+              <h3 className="text-xl font-extrabold text-white md:text-3xl">{t(b.titulo[0], b.titulo[1])}</h3>
+              <p className="mt-1 max-w-xs text-sm text-white/85">{t(b.texto[0], b.texto[1])}</p>
               <span className="mt-3 inline-flex w-max items-center gap-1 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-zinc-900 shadow">
-                {b.cta} <ChevronRight className="h-4 w-4" />
+                {t(b.cta[0], b.cta[1])} <ChevronRight className="h-4 w-4" />
               </span>
             </div>
           </Link>
@@ -501,8 +511,9 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
 
 // COMPRE POR MONTADORA
 export function CarouselMontadorasBlock({ config }: { config: string | null }) {
+  const { t } = useT();
   return (
-    <Section id="montadoras" title="Comprá por marca de tractor">
+    <Section id="montadoras" title={t("Comprá por marca de tractor", "Compre por marca de trator")}>
       <div className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-7 md:px-0">
         {MONTADORAS.map((m) => (
           <Link
@@ -533,19 +544,20 @@ export function DepoimentosBlock({ config, title }: { config: string | null; tit
 
 // CONTATO: ofertas pelo WhatsApp e Instagram (o cadastro de e-mail antigo não enviava nada)
 export function NewsletterInstagramBlock({ config }: { config: string | null }) {
+  const { t } = useT();
   return (
     <Reveal>
       <div className={`grid gap-3 md:gap-4 ${INSTAGRAM_URL ? "md:grid-cols-2" : ""}`}>
         <a
-          href={whatsappContactUrl("¡Hola! Quiero recibir ofertas de repuestos por WhatsApp.")}
+          href={whatsappContactUrl(t("¡Hola! Quiero recibir ofertas de repuestos por WhatsApp.", "Olá! Quero receber ofertas de peças pelo WhatsApp."))}
           target="_blank"
           rel="noreferrer noopener"
           className="flex items-center gap-4 rounded-2xl bg-[#25D366] p-5 text-white shadow-sm transition active:scale-[0.98] md:p-8"
         >
           <MessageCircle className="h-12 w-12 shrink-0" />
           <div>
-            <h3 className="text-lg font-extrabold md:text-2xl">Ofertas por WhatsApp</h3>
-            <p className="text-sm text-white/90">Recibí novedades y promociones directo en tu celular.</p>
+            <h3 className="text-lg font-extrabold md:text-2xl">{t("Ofertas por WhatsApp", "Ofertas pelo WhatsApp")}</h3>
+            <p className="text-sm text-white/90">{t("Recibí novedades y promociones directo en tu celular.", "Receba novidades e promoções direto no seu celular.")}</p>
           </div>
         </a>
         {INSTAGRAM_URL && (
@@ -557,8 +569,8 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
           >
             <Instagram className="h-12 w-12 shrink-0" />
             <div>
-              <h3 className="text-lg font-extrabold md:text-2xl">Seguinos en Instagram</h3>
-              <p className="text-sm text-white/90">Consejos, novedades y el día a día del taller.</p>
+              <h3 className="text-lg font-extrabold md:text-2xl">{t("Seguinos en Instagram", "Siga no Instagram")}</h3>
+              <p className="text-sm text-white/90">{t("Consejos, novedades y el día a día del taller.", "Dicas, novidades e o dia a dia da oficina.")}</p>
             </div>
           </a>
         )}
@@ -573,6 +585,60 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
 const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
 
 export function EnvioDacBlock({ config }: { config: string | null }) {
+  const { idioma } = useT();
+  // Versão em português: o cliente do Brasil recebe por Correios ou transportadora (não por DAC)
+  if (idioma === "pt") return <EnvioBrasilBlock />;
+  return <EnvioDacUruguai config={config} />;
+}
+
+function EnvioBrasilBlock() {
+  const vantagens = [
+    { icon: MapPin, titulo: "Todo o Brasil", texto: "Enviamos para qualquer cidade do país." },
+    { icon: Search, titulo: "Código de rastreio", texto: "Você acompanha o pacote do envio até a entrega." },
+    { icon: PackageCheck, titulo: "Embalagem cuidadosa", texto: "Cada peça é embalada para viajar protegida." },
+    { icon: MessageCircle, titulo: "Frete combinado", texto: "Cotamos Correios ou transportadora e você escolhe." },
+  ];
+  return (
+    <Reveal>
+      <section
+        id="envios-uruguay"
+        className="relative scroll-mt-[calc(var(--altura-header,112px)+12px)] overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-950 p-5 text-white shadow-sm md:p-10"
+      >
+        <Truck className="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 text-white/5" />
+        <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+              <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> Envio para todo o Brasil
+            </span>
+            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">Receba suas peças em qualquer cidade do Brasil</h2>
+            <p className="mt-2 text-sm text-white/85 md:text-base">
+              Estamos na fronteira Chuí / Chuy e enviamos por Correios ou transportadora, com código de rastreio.
+            </p>
+            <a
+              href={whatsappContactUrl("Olá! Quero consultar o frete de peças para o Brasil.")}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"
+            >
+              <MessageCircle className="h-4 w-4" /> Consultar frete pelo WhatsApp
+            </a>
+          </div>
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
+            {vantagens.map((v) => (
+              <div key={v.titulo} className="rounded-xl bg-white/10 p-3 backdrop-blur-sm md:p-4">
+                <v.icon className="h-6 w-6 text-emerald-200" />
+                <h3 className="mt-2 text-sm font-bold">{v.titulo}</h3>
+                <p className="mt-0.5 text-xs leading-snug text-white/80">{v.texto}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </Reveal>
+  );
+}
+
+function EnvioDacUruguai({ config }: { config: string | null }) {
   const c = lerConfig(config);
   // Imagem de fundo enviada em Admin > Banners > "Seção DAC (Uruguai)" (a primeira ativa)
   const { data: fundos = [] } = useQuery({
@@ -686,9 +752,10 @@ export function VistosRecientesBlock() {
     queryFn: () => getProductsBySkus(vistos),
     enabled: vistos.length > 0,
   });
+  const { t } = useT();
   if (produtos.length === 0) return null;
   return (
-    <Section title="Vistos recientemente">
+    <Section title={t("Vistos recientemente", "Vistos recentemente")}>
       <ProductRail products={produtos} />
     </Section>
   );

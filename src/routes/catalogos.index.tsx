@@ -10,17 +10,23 @@ import { getSessionFn } from "@/lib/user-auth";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { pedirCadastro } from "@/lib/pedir-cadastro";
 import { cn } from "@/lib/utils";
+import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
+import { tipoCatalogo } from "@/lib/catalogos";
 
 export const Route = createFileRoute("/catalogos/")({
   validateSearch: z.object({ abrir: z.coerce.number().optional() }),
   loader: () => listarCatalogosFn(),
-  head: () => ({
-    links: [{ rel: "canonical", href: `${SITE_URL}/catalogos` }],
-    meta: [
-      { title: "Catálogos y manuales para mecánicos | AGRO PARTS" },
-      { name: "description", content: "Catálogos de piezas y manuales de taller en PDF para tractores y cosechadoras. Gratis para mecánicos de Uruguay." },
-    ],
-  }),
+  head: ({ match }) => {
+    const idioma: Idioma = match.context?.idioma ?? "es";
+    const t = (es: string, pt: string) => tr(idioma, es, pt);
+    return {
+      links: linksIdioma("/catalogos", idioma),
+      meta: [
+        { title: t("Catálogos y manuales para mecánicos | AGRO PARTS", "Catálogos e manuais para mecânicos | AGRO PARTS") },
+        { name: "description", content: t("Catálogos de piezas y manuales de taller en PDF para tractores y cosechadoras. Gratis para mecánicos de Uruguay.", "Catálogos de peças e manuais de oficina em PDF para tratores e colheitadeiras. Grátis para mecânicos.") },
+      ],
+    };
+  },
   component: CatalogosPage,
 });
 
@@ -31,6 +37,7 @@ const tamanhoMB = (b: number) => (b >= 1048576 ? `${(b / 1048576).toFixed(b > 10
 
 function CatalogosPage() {
   const catalogos = Route.useLoaderData() as Catalogo[];
+  const { t, idioma } = useT();
   const { abrir } = Route.useSearch();
   const { data: sessao, isFetched } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const [busca, setBusca] = useState("");
@@ -66,13 +73,13 @@ function CatalogosPage() {
         <div aria-hidden className="absolute inset-0 opacity-[0.08] [background-image:repeating-linear-gradient(-28deg,#fff_0_2px,transparent_2px_42px)]" />
         <div aria-hidden className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-emerald-500/25 blur-3xl" />
         <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-8 md:pb-20 md:pt-14">
-          <span className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-[#06321b]"><Wrench className="h-3.5 w-3.5" /> Para mecánicos y talleres</span>
-          <h1 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight md:text-5xl">Catálogos y manuales en PDF</h1>
-          <p className="mt-3 max-w-xl text-white/80 md:text-lg">Catálogos de piezas y manuales de taller de tractores y cosechadoras. Gratis con tu cuenta de AGRO PARTS.</p>
+          <span className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-[#06321b]"><Wrench className="h-3.5 w-3.5" /> {t("Para mecánicos y talleres", "Para mecânicos e oficinas")}</span>
+          <h1 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight md:text-5xl">{t("Catálogos y manuales en PDF", "Catálogos e manuais em PDF")}</h1>
+          <p className="mt-3 max-w-xl text-white/80 md:text-lg">{t("Catálogos de piezas y manuales de taller de tractores y cosechadoras. Gratis con tu cuenta de AGRO PARTS.", "Catálogos de peças e manuais de oficina de tratores e colheitadeiras. Grátis com sua conta AGRO PARTS.")}</p>
           <div className="relative mt-6 max-w-xl">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" />
-            <input id="busca-catalogos" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscá por modelo, marca o tipo de manual…" className="h-14 w-full rounded-2xl border-0 bg-white pl-12 pr-12 text-base text-zinc-900 shadow-xl outline-none ring-amber-400 placeholder:text-zinc-400 focus:ring-4" />
-            {busca && <button onClick={() => setBusca("")} aria-label="Limpiar búsqueda" className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100"><X className="h-4 w-4" /></button>}
+            <input id="busca-catalogos" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder={t("Buscá por modelo, marca o tipo de manual…", "Busque por modelo, marca ou tipo de manual…")} className="h-14 w-full rounded-2xl border-0 bg-white pl-12 pr-12 text-base text-zinc-900 shadow-xl outline-none ring-amber-400 placeholder:text-zinc-400 focus:ring-4" />
+            {busca && <button onClick={() => setBusca("")} aria-label={t("Limpiar búsqueda", "Limpar busca")} className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100"><X className="h-4 w-4" /></button>}
           </div>
         </div>
       </section>
@@ -80,10 +87,10 @@ function CatalogosPage() {
       <main className="relative mx-auto -mt-8 max-w-6xl px-3 pb-12 md:px-4">
         {!sessao && catalogos.some((c) => c.exige_login) && (
           <div className="mb-5 flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="flex items-center gap-3 text-sm text-zinc-700"><Users className="h-5 w-5 shrink-0 text-primary" /> Creá tu cuenta gratis para ver los catálogos.</p>
+            <p className="flex items-center gap-3 text-sm text-zinc-700"><Users className="h-5 w-5 shrink-0 text-primary" /> {t("Creá tu cuenta gratis para ver los catálogos.", "Crie sua conta grátis para ver os catálogos.")}</p>
             <div className="flex gap-2">
-              <Link to="/cadastro" search={{ redirect: "/catalogos" } as never} onClick={abrirBloqueado("/catalogos")} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">Crear cuenta</Link>
-              <Link to="/login" search={{ redirect: "/catalogos" } as never} className="rounded-xl px-4 py-2.5 text-sm font-bold text-primary ring-1 ring-primary/30 hover:bg-primary/5">Ingresar</Link>
+              <Link to="/cadastro" search={{ redirect: "/catalogos" } as never} onClick={abrirBloqueado("/catalogos")} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">{t("Crear cuenta", "Criar conta")}</Link>
+              <Link to="/login" search={{ redirect: "/catalogos" } as never} className="rounded-xl px-4 py-2.5 text-sm font-bold text-primary ring-1 ring-primary/30 hover:bg-primary/5">{t("Ingresar", "Entrar")}</Link>
             </div>
           </div>
         )}
@@ -93,15 +100,15 @@ function CatalogosPage() {
             <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1">
               {[null, ...marcas].map((m) => (
                 <button key={m ?? "todas"} onClick={() => setMarca(m)} className={cn("shrink-0 rounded-full px-4 py-2 text-sm font-semibold ring-1 transition", marca === m ? "bg-[#06321b] text-white ring-[#06321b]" : "bg-white text-zinc-700 ring-zinc-200 hover:ring-primary")}>
-                  {m ?? "Todas las marcas"}
+                  {m ?? t("Todas las marcas", "Todas as marcas")}
                 </button>
               ))}
             </div>
             {tipos.length > 1 && (
               <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1">
-                {[null, ...tipos].map((t) => (
-                  <button key={t ?? "todos"} onClick={() => setTipo(t)} className={cn("shrink-0 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition", tipo === t ? "bg-primary/10 text-primary" : "text-zinc-500 hover:bg-zinc-100")}>
-                    {t ?? "Todos los tipos"}
+                {[null, ...tipos].map((tp) => (
+                  <button key={tp ?? "todos"} onClick={() => setTipo(tp)} className={cn("shrink-0 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition", tipo === tp ? "bg-primary/10 text-primary" : "text-zinc-500 hover:bg-zinc-100")}>
+                    {tp ? tipoCatalogo(tp, idioma) : t("Todos los tipos", "Todos os tipos")}
                   </button>
                 ))}
               </div>
@@ -127,14 +134,14 @@ function CatalogosPage() {
                     <div className="min-w-0 flex-1">
                       {c.marca && <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: cor }}>{c.marca}</p>}
                       <h2 className="mt-0.5 line-clamp-2 font-bold leading-snug text-zinc-900"><a href={urlCatalogo(c)} className="hover:text-primary hover:underline">{c.titulo}</a></h2>
-                      <p className="mt-1 text-xs text-zinc-500">{[c.tipo, c.idioma, tamanhoMB(c.tamanho)].filter(Boolean).join(" · ")}</p>
+                      <p className="mt-1 text-xs text-zinc-500">{[tipoCatalogo(c.tipo, idioma), c.idioma, tamanhoMB(c.tamanho)].filter(Boolean).join(" · ")}</p>
                       {c.descricao && <p className="mt-2 line-clamp-2 text-sm text-zinc-600">{c.descricao}</p>}
                     </div>
                   </div>
                   <div className="flex items-center justify-between gap-2 border-t border-zinc-100 px-4 py-3">
-                    <span className="text-xs text-zinc-400">{c.downloads > 0 ? `${c.downloads} vistas` : "Nuevo"}</span>
+                    <span className="text-xs text-zinc-400">{c.downloads > 0 ? `${c.downloads} ${t("vistas", "visualizações")}` : t("Nuevo", "Novo")}</span>
                     <a href={href} onClick={bloqueado ? abrirBloqueado(href) : undefined} className={cn("inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition active:scale-95", bloqueado ? "bg-zinc-100 text-zinc-700 hover:bg-zinc-200" : "bg-primary text-white hover:bg-primary/90")}>
-                      {bloqueado ? <><Lock className="h-4 w-4" /> Ver gratis</> : <><Eye className="h-4 w-4" /> Ver catálogo</>}
+                      {bloqueado ? <><Lock className="h-4 w-4" /> {t("Ver gratis", "Ver grátis")}</> : <><Eye className="h-4 w-4" /> {t("Ver catálogo", "Ver catálogo")}</>}
                     </a>
                   </div>
                 </article>
@@ -144,16 +151,16 @@ function CatalogosPage() {
         ) : (
           <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-14 text-center shadow-sm ring-1 ring-black/5">
             <BookOpen className="h-12 w-12 text-zinc-300" />
-            <h2 className="mt-4 text-lg font-bold text-zinc-900">{catalogos.length ? "No encontramos catálogos con ese filtro" : "Estamos sumando catálogos"}</h2>
-            <p className="mt-1 max-w-md text-sm text-zinc-500">¿Buscás un catálogo o manual en particular? Pedilo por WhatsApp y te ayudamos.</p>
+            <h2 className="mt-4 text-lg font-bold text-zinc-900">{catalogos.length ? t("No encontramos catálogos con ese filtro", "Não encontramos catálogos com esse filtro") : t("Estamos sumando catálogos", "Estamos adicionando catálogos")}</h2>
+            <p className="mt-1 max-w-md text-sm text-zinc-500">{t("¿Buscás un catálogo o manual en particular? Pedilo por WhatsApp y te ayudamos.", "Procura um catálogo ou manual específico? Peça pelo WhatsApp e ajudamos.")}</p>
           </div>
         )}
 
         <div className="mt-8 flex flex-col items-center gap-3 rounded-3xl bg-[#06321b] p-6 text-center text-white md:p-10">
-          <h2 className="text-xl font-extrabold md:text-2xl">¿Necesitás otro catálogo o manual?</h2>
-          <p className="max-w-lg text-white/75">Decinos la marca y el modelo del tractor y te ayudamos a encontrar la pieza por código.</p>
-          <a href={whatsappContactUrl("¡Hola! Soy mecánico y busco un catálogo o manual de: ")} target="_blank" rel="noreferrer noopener" className="mt-1 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 font-bold text-[#06381b] hover:brightness-95">
-            <MessageCircle className="h-5 w-5" /> Pedir por WhatsApp
+          <h2 className="text-xl font-extrabold md:text-2xl">{t("¿Necesitás otro catálogo o manual?", "Precisa de outro catálogo ou manual?")}</h2>
+          <p className="max-w-lg text-white/75">{t("Decinos la marca y el modelo del tractor y te ayudamos a encontrar la pieza por código.", "Diga a marca e o modelo do trator e ajudamos a encontrar a peça pelo código.")}</p>
+          <a href={whatsappContactUrl(t("¡Hola! Soy mecánico y busco un catálogo o manual de: ", "Olá! Sou mecânico e procuro um catálogo ou manual de: "))} target="_blank" rel="noreferrer noopener" className="mt-1 inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 font-bold text-[#06381b] hover:brightness-95">
+            <MessageCircle className="h-5 w-5" /> {t("Pedir por WhatsApp", "Pedir pelo WhatsApp")}
           </a>
         </div>
       </main>

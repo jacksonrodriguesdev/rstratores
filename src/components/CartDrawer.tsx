@@ -5,11 +5,14 @@ import { ProductImage } from "@/components/ProductImage";
 import { PHONE } from "@/lib/whatsapp";
 import { nomeEs } from "@/lib/pecas-es";
 import { eventoDoLinkWhatsapp } from "@/lib/eventos";
+import { useT } from "@/lib/idioma";
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart, marcarEnviado } = useCart();
+  const { t, idioma } = useT();
 
   if (!isCartOpen) return null;
+  const nome = (i: { name: string; nameEs?: string | null }) => (idioma === "pt" ? i.name : i.nameEs || nomeEs(i.name));
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -17,10 +20,10 @@ export function CartDrawer() {
   // O nome em português vai entre parênteses para a equipe identificar a peça.
   const handleSendQuote = () => {
     const lines = items.map((i) => {
-      const es = i.nameEs || nomeEs(i.name);
-      return `• ${i.quantity}x ${es}${es !== i.name ? ` (${i.name})` : ""} — Cód: ${i.codigo || i.sku}`;
+      const exibido = nome(i);
+      return `• ${i.quantity}x ${exibido}${exibido !== i.name ? ` (${i.name})` : ""} — Cód: ${i.codigo || i.sku}`;
     });
-    const message = `¡Hola! Quiero cotizar estos repuestos:\n\n${lines.join("\n")}`;
+    const message = `${t("¡Hola! Quiero cotizar estos repuestos:", "Olá! Quero orçamento destas peças (cliente do Brasil):")}\n\n${lines.join("\n")}`;
     const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`;
     eventoDoLinkWhatsapp(url);
     window.open(url, "_blank");
@@ -40,7 +43,7 @@ export function CartDrawer() {
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <ShoppingCart className="h-6 w-6 text-primary" />
-            Mi cotización
+            {t("Mi cotización", "Meu orçamento")}
           </h2>
           <button
             onClick={() => setIsCartOpen(false)}
@@ -55,12 +58,12 @@ export function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
               <ShoppingCart className="h-16 w-16 opacity-20" />
-              <p className="text-lg font-medium">Todavía no agregaste repuestos</p>
+              <p className="text-lg font-medium">{t("Todavía no agregaste repuestos", "Você ainda não adicionou peças")}</p>
               <p className="max-w-xs text-center text-sm">
-                Sumá las piezas que necesitás y mandanos todo junto por WhatsApp para recibir el precio.
+                {t("Sumá las piezas que necesitás y mandanos todo junto por WhatsApp para recibir el precio.", "Adicione as peças que você precisa e mande tudo junto pelo WhatsApp para receber o preço.")}
               </p>
               <Button onClick={() => setIsCartOpen(false)} variant="outline" className="mt-4">
-                Seguir buscando
+                {t("Seguir buscando", "Continuar buscando")}
               </Button>
             </div>
           ) : (
@@ -71,7 +74,7 @@ export function CartDrawer() {
                     {item.image ? (
                       <ProductImage
                         src={item.image}
-                        alt={item.nameEs || nomeEs(item.name)}
+                        alt={nome(item)}
                         className="object-contain h-full w-full"
                       />
                     ) : (
@@ -81,7 +84,7 @@ export function CartDrawer() {
 
                   <div className="flex flex-1 flex-col">
                     <h3 className="text-sm font-semibold text-zinc-800 line-clamp-2 leading-tight">
-                      {item.nameEs || nomeEs(item.name)}
+                      {nome(item)}
                     </h3>
                     <p className="text-xs text-zinc-500 mt-1">Cód: {item.codigo || item.sku}</p>
 
@@ -122,9 +125,9 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t p-6 bg-zinc-50 space-y-4">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-zinc-600 font-medium">Total de repuestos</span>
+              <span className="text-zinc-600 font-medium">{t("Total de repuestos", "Total de peças")}</span>
               <span className="font-bold text-zinc-900">
-                {totalItems} {totalItems === 1 ? "unidad" : "unidades"}
+                {totalItems} {totalItems === 1 ? t("unidad", "unidade") : t("unidades", "unidades")}
               </span>
             </div>
 
@@ -134,16 +137,16 @@ export function CartDrawer() {
                 className="w-full h-14 text-lg font-bold flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE57] text-white"
               >
                 <Send className="h-5 w-5" />
-                Pedir precio por WhatsApp
+                {t("Pedir precio por WhatsApp", "Pedir preço pelo WhatsApp")}
               </Button>
             </div>
-            <p className="text-center text-xs text-zinc-500">Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.</p>
+            <p className="text-center text-xs text-zinc-500">{t("Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.", "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Brasil.")}</p>
 
             <button
               onClick={clearCart}
               className="w-full text-sm font-semibold text-zinc-500 hover:text-zinc-800 transition-colors py-2"
             >
-              Vaciar lista
+              {t("Vaciar lista", "Esvaziar lista")}
             </button>
           </div>
         )}

@@ -12,6 +12,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { type ReactNode } from "react";
+import { idiomaDoCaminho, useT, useIdioma, HREFLANG, OG_LOCALE, tr, type Idioma } from "@/lib/idioma";
 
 import appCss from "../styles.css?url";
 import { FloatingContact } from "@/components/FloatingContact";
@@ -19,23 +20,25 @@ import { VisitTracker } from "@/components/VisitTracker";
 import { PopupAcesso } from "@/components/PopupAcesso";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { SugestaoIdioma } from "@/components/SugestaoIdioma";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
+  const { t } = useT();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Página no encontrada</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t("Página no encontrada", "Página não encontrada")}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          La página que buscás no existe o cambió de lugar. Probá buscar el repuesto en el catálogo.
+          {t("La página que buscás no existe o cambió de lugar. Probá buscar el repuesto en el catálogo.", "A página que você procura não existe ou mudou de lugar. Tente buscar a peça no catálogo.")}
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Volver al inicio
+            {t("Volver al inicio", "Voltar ao início")}
           </Link>
         </div>
       </div>
@@ -46,15 +49,16 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { t, href } = useT();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          La página no cargó
+          {t("La página no cargó", "A página não carregou")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Tuvimos un problema. Probá recargar o volver al inicio.
+          {t("Tuvimos un problema. Probá recargar o volver al inicio.", "Tivemos um problema. Tente recarregar ou voltar ao início.")}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -64,13 +68,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Reintentar
+            {t("Reintentar", "Tentar de novo")}
           </button>
           <a
-            href="/"
+            href={href("/")}
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Volver al inicio
+            {t("Volver al inicio", "Voltar ao início")}
           </a>
         </div>
       </div>
@@ -78,11 +82,29 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+const caminhoDe = (href: string) => {
+  try {
+    return new URL(href, "http://x").pathname;
+  } catch {
+    return "/";
+  }
+};
+
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idioma?: Idioma }>()({
+  // Idioma da página ("/pt/..." = português), disponível para o head() de todas as rotas
+  beforeLoad: ({ location }) => ({ idioma: idiomaDoCaminho(caminhoDe(location.publicHref)) as Idioma }),
   // IDs das tags de marketing (Marketing → Integrações): lidos uma vez e guardados por 5 min
   loader: async () => ({ mkt: await getMarketingPublicoFn().catch(() => null) }),
   staleTime: 5 * 60_000,
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, match }) => {
+    const idioma: Idioma = match.context?.idioma ?? "es";
+    const t = (es: string, pt: string) => tr(idioma, es, pt);
+    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Brasil");
+    const resumo = t(
+      "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+      "Peças para tratores e colheitadeiras. Envio para todo o Brasil por Correios ou transportadora. Orçamento pelo WhatsApp.",
+    );
+    return {
     meta: [
       { charSet: "utf-8" },
       ...metasVerificacao(loaderData?.mkt),
@@ -94,29 +116,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "AGRO PARTS" },
-      { title: "AGRO PARTS — Repuestos para tractores en Uruguay" },
+      { title: titulo },
       {
         name: "description",
-        content:
+        content: t(
           "Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+          "Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Envio para todo o Brasil. Orçamento pelo WhatsApp.",
+        ),
       },
-      { property: "og:locale", content: "es_UY" },
+      { property: "og:locale", content: OG_LOCALE[idioma] },
+      { property: "og:locale:alternate", content: OG_LOCALE[idioma === "pt" ? "es" : "pt"] },
       { property: "og:site_name", content: "AGRO PARTS" },
       { name: "author", content: "AGRO PARTS" },
-      { property: "og:title", content: "AGRO PARTS — Repuestos para tractores en Uruguay" },
-      {
-        property: "og:description",
-        content:
-          "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      },
+      { property: "og:title", content: titulo },
+      { property: "og:description", content: resumo },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "AGRO PARTS — Repuestos para tractores en Uruguay" },
-      {
-        name: "twitter:description",
-        content:
-          "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      },
+      { name: "twitter:title", content: titulo },
+      { name: "twitter:description", content: resumo },
       { property: "og:image", content: `${SITE_URL}/icon-512.png` },
       { name: "twitter:image", content: `${SITE_URL}/icon-512.png` },
     ],
@@ -139,7 +156,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
       },
     ],
-  }),
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -147,8 +165,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const idioma = useIdioma();
   return (
-    <html lang="es-UY" translate="no">
+    <html lang={HREFLANG[idioma]} translate="no">
       <head>
         <HeadContent />
       </head>
@@ -161,7 +180,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 import { SegmentProvider } from "@/components/SegmentContext";
-import { LanguageProvider } from "@/components/LanguageContext";
 import { CartProvider } from "@/components/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 
@@ -183,8 +201,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <SegmentProvider>
+      <SegmentProvider>
           <CartProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
@@ -192,12 +209,12 @@ function RootComponent() {
             <MobileTabBar />
             <VisitTracker />
             <PopupAcesso />
+            <SugestaoIdioma />
             <CartDrawer />
             {/* Notificações (toast) usadas no admin e no site */}
             <Toaster richColors position="top-center" />
           </CartProvider>
-        </SegmentProvider>
-      </LanguageProvider>
+      </SegmentProvider>
     </QueryClientProvider>
   );
 }

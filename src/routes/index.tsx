@@ -26,6 +26,7 @@ import { CatalogosCtaBlock } from "@/components/home/CatalogosCta";
 import { CotizacionDistribuidorBlock } from "@/components/CotizacionDistribuidor";
 import type { HomepageBlock } from "@/lib/homepage";
 import { tituloEs } from "@/lib/pecas-es";
+import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 import { SITE_URL } from "@/lib/site";
 import { PHONE } from "@/lib/whatsapp";
 
@@ -38,10 +39,13 @@ const lojaLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/icon-512.png`,
-  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC.",
+  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC y a todo Brasil.",
   telephone: `+${PHONE}`,
   email: "comercialrsautoparts@gmail.com",
-  areaServed: { "@type": "Country", name: "Uruguay" },
+  areaServed: [
+    { "@type": "Country", name: "Uruguay" },
+    { "@type": "Country", name: "Brasil" },
+  ],
   address: {
     "@type": "PostalAddress",
     addressLocality: "Chuy",
@@ -63,34 +67,45 @@ const siteLd = {
 };
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "AGRO PARTS — Repuestos para tractores en Uruguay" },
-      {
-        name: "description",
-        content:
-          "Más de 29.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      },
-      { property: "og:title", content: "AGRO PARTS — Repuestos para tractores en Uruguay" },
-      {
-        property: "og:description",
-        content:
-          "Más de 29.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
-    scripts: [
-      { type: "application/ld+json", children: JSON.stringify(lojaLd) },
-      { type: "application/ld+json", children: JSON.stringify(siteLd) },
-    ],
-  }),
+  head: ({ match }) => {
+    const idioma: Idioma = match.context?.idioma ?? "es";
+    const t = (es: string, pt: string) => tr(idioma, es, pt);
+    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Brasil");
+    return {
+      meta: [
+        { title: titulo },
+        {
+          name: "description",
+          content: t(
+            "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+            "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Brasil. Orçamento pelo WhatsApp.",
+          ),
+        },
+        { property: "og:title", content: titulo },
+        {
+          property: "og:description",
+          content: t(
+            "Más de 49.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+            "Mais de 49.000 peças para tratores e colheitadeiras. Envio para todo o Brasil. Orçamento pelo WhatsApp.",
+          ),
+        },
+      ],
+      links: linksIdioma("/", idioma),
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(lojaLd) },
+        { type: "application/ld+json", children: JSON.stringify({ ...siteLd, inLanguage: idioma === "pt" ? "pt-BR" : "es-UY" }) },
+      ],
+    };
+  },
   loader: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
   component: HomePage,
 });
 
 function Bloco({ block }: { block: HomepageBlock }) {
   const { config } = block;
-  const title = tituloEs(block.title);
+  const { idioma } = useT();
+  // Título do bloco: cadastrado em português no admin; em espanhol é traduzido pelo glossário
+  const title = idioma === "pt" ? block.title : tituloEs(block.title);
   switch (block.type) {
     case "HERO_SLIDER":
       return <HeroSliderBlock config={config} title={title} />;
@@ -139,6 +154,7 @@ function HomePage() {
   // Os blocos vêm prontos do servidor (loader): a página já nasce com a estrutura certa,
   // sem os retângulos provisórios que depois "pulavam" ao trocar pelo conteúdo.
   const iniciais = Route.useLoaderData();
+  const { t } = useT();
   const { data: blocks = [], isLoading } = useQuery({
     queryKey: ["homepage_blocks"],
     queryFn: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
@@ -168,7 +184,7 @@ function HomePage() {
       <SiteHeader />
 
       <main>
-        <h1 className="sr-only">Repuestos para tractores y maquinaria agrícola en Uruguay</h1>
+        <h1 className="sr-only">{t("Repuestos para tractores y maquinaria agrícola en Uruguay", "Peças para tratores e máquinas agrícolas com envio para todo o Brasil")}</h1>
         {hero.map((b) => (
           <Bloco key={b.id} block={b} />
         ))}
@@ -181,9 +197,9 @@ function HomePage() {
 
           {!isLoading && ativos.length === 0 && (
             <div className="rounded-2xl bg-white py-16 text-center">
-              <p className="mb-4 text-muted-foreground">Estamos preparando la página de inicio.</p>
+              <p className="mb-4 text-muted-foreground">{t("Estamos preparando la página de inicio.", "Estamos preparando a página inicial.")}</p>
               <Button asChild>
-                <Link to="/loja">Ver catálogo</Link>
+                <Link to="/loja">{t("Ver catálogo", "Ver catálogo")}</Link>
               </Button>
             </div>
           )}

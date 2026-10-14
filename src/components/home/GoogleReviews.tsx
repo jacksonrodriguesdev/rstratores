@@ -1,3 +1,4 @@
+import { useT } from "@/lib/idioma";
 import { useQuery } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
 import { Star } from "lucide-react";
@@ -48,6 +49,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
     staleTime: 60 * 60 * 1000,
   });
   const [emblaRef] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" });
+  const { t } = useT();
 
   const dados: AvaliacoesGoogle =
     api && api.avaliacoes.length > 0
@@ -71,7 +73,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
         <div className="flex shrink-0 flex-col justify-center gap-3 md:w-64">
           <div className="flex items-center gap-2">
             <GoogleLogo className="h-7 w-7" />
-            <h2 className="text-lg font-bold text-zinc-900">{titulo || "Opiniones en Google"}</h2>
+            <h2 className="text-lg font-bold text-zinc-900">{titulo || t("Opiniones en Google", "Avaliações no Google")}</h2>
           </div>
           {dados.nota != null && (
             <div className="flex items-end gap-3">
@@ -81,7 +83,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
               <div className="pb-1">
                 <Estrelas nota={dados.nota} />
                 {dados.total != null && (
-                  <span className="text-xs text-zinc-500">{dados.total} opiniones</span>
+                  <span className="text-xs text-zinc-500">{dados.total} {t("opiniones", "avaliações")}</span>
                 )}
               </div>
             </div>
@@ -99,7 +101,7 @@ export function GoogleReviews({ config, titulo }: { config: ConfigManual; titulo
                 rel="noreferrer noopener"
                 className="flex-1 rounded-full bg-[#1a73e8] px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-[#1765cc] active:scale-95"
               >
-                {dados.avaliacoes.length ? "Opinar en Google" : "Dejar mi opinión"}
+                {dados.avaliacoes.length ? t("Opinar en Google", "Avaliar no Google") : t("Dejar mi opinión", "Deixar minha avaliação")}
               </a>
             </div>
           )}

@@ -5,14 +5,16 @@ import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
 import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/components/CartContext";
 import { codigoExibicao, marcaExibicao, type Product } from "@/lib/products";
-import { nomeProduto } from "@/lib/pecas-es";
+import { nomeProduto, nomePeca } from "@/lib/pecas-es";
+import { useT } from "@/lib/idioma";
 import { cn } from "@/lib/utils";
 import { usePreco, PrecoVisual, SeloOferta } from "@/components/PrecoTag";
 
 // Preço da peça (quando tem e está liberado no admin); senão, o convite para consultar
 function PrecoComFallback({ p }: { p: Product }) {
+  const { t } = useT();
   const preco = usePreco(p);
-  if (!preco) return <span className="text-sm font-semibold text-primary">Consultá el precio</span>;
+  if (!preco) return <span className="text-sm font-semibold text-primary">{t("Consultá el precio", "Consulte o preço")}</span>;
   return <PrecoVisual preco={preco} />;
 }
 
@@ -20,6 +22,7 @@ function PrecoComFallback({ p }: { p: Product }) {
 const LARGURA = "flex-[0_0_44%] sm:flex-[0_0_31%] md:flex-[0_0_24%] lg:flex-[0_0_19.2%] xl:flex-[0_0_16%]";
 
 export function ProductRail({ products, loading }: { products: Product[]; loading?: boolean }) {
+  const { t } = useT();
   const [emblaRef, api] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" });
   const [pode, setPode] = useState({ prev: false, next: false });
 
@@ -66,7 +69,7 @@ export function ProductRail({ products, loading }: { products: Product[]; loadin
       {pode.prev && (
         <button
           onClick={() => api?.scrollPrev()}
-          aria-label="Anteriores"
+          aria-label={t("Anteriores", "Anteriores")}
           className="absolute -left-4 top-1/3 hidden h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-700 opacity-0 shadow-lg ring-1 ring-zinc-200 transition group-hover/rail:opacity-100 md:flex"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -75,7 +78,7 @@ export function ProductRail({ products, loading }: { products: Product[]; loadin
       {pode.next && (
         <button
           onClick={() => api?.scrollNext()}
-          aria-label="Siguientes"
+          aria-label={t("Siguientes", "Próximos")}
           className="absolute -right-4 top-1/3 hidden h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-700 opacity-0 shadow-lg ring-1 ring-zinc-200 transition group-hover/rail:opacity-100 md:flex"
         >
           <ChevronRight className="h-5 w-5" />
@@ -88,7 +91,8 @@ export function ProductRail({ products, loading }: { products: Product[]; loadin
 export function RailCard({ p }: { p: Product }) {
   const { items, addItem } = useCart();
   const noCarrinho = items.some((i) => i.sku === p.sku);
-  const nome = nomeProduto(p);
+  const { t, idioma } = useT();
+  const nome = nomePeca(p, idioma);
   const marca = marcaExibicao(p);
 
   return (
@@ -130,7 +134,7 @@ export function RailCard({ p }: { p: Product }) {
             });
           }
         }}
-        aria-label={noCarrinho ? "Ya está en tu cotización" : "Agregar a la cotización"}
+        aria-label={noCarrinho ? t("Ya está en tu cotización", "Já está no seu orçamento") : t("Agregar a la cotización", "Adicionar ao orçamento")}
         className={cn(
           "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 transition active:scale-90",
           noCarrinho

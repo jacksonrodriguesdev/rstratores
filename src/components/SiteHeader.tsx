@@ -29,7 +29,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
-import { BandeiraUruguay } from "@/components/Bandeiras";
+import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { SeletorIdioma } from "@/components/SeletorIdioma";
+import { useT } from "@/lib/idioma";
 import { useSegment } from "@/components/SegmentContext";
 import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useQuery } from "@tanstack/react-query";
@@ -42,16 +44,25 @@ import { cn } from "@/lib/utils";
 
 const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
 // Buscas rápidas: o termo em espanhol vira o termo em português na busca (src/lib/pecas-es.ts)
-const MAIS_BUSCADOS = ["Retén", "Rodamiento", "Filtro", "Engranaje", "Bomba"];
+const MAIS_BUSCADOS = { es: ["Retén", "Rodamiento", "Filtro", "Engranaje", "Bomba"], pt: ["Retentor", "Rolamento", "Filtro", "Engrenagem", "Bomba"] };
 
 // Avisos da faixa superior (trocam sozinhos)
-const AVISOS = [
-  { icon: ShieldCheck, texto: "Distribuidores de repuestos agrícolas en Uruguay" },
-  { icon: Truck, texto: "Enviamos a todo Uruguay por DAC" },
-  { icon: MessageCircle, texto: `Cotización rápida por WhatsApp · ${PHONE_DISPLAY}` },
-  { icon: ShieldCheck, texto: "Repuestos para Massey, Valtra, John Deere, New Holland y más" },
-  { icon: PackageSearch, texto: "Buscá por el código original de la pieza" },
-];
+const AVISOS = {
+  es: [
+    { icon: ShieldCheck, texto: "Distribuidores de repuestos agrícolas en Uruguay" },
+    { icon: Truck, texto: "Enviamos a todo Uruguay por DAC" },
+    { icon: MessageCircle, texto: `Cotización rápida por WhatsApp · ${PHONE_DISPLAY}` },
+    { icon: ShieldCheck, texto: "Repuestos para Massey, Valtra, John Deere, New Holland y más" },
+    { icon: PackageSearch, texto: "Buscá por el código original de la pieza" },
+  ],
+  pt: [
+    { icon: ShieldCheck, texto: "Peças agrícolas na fronteira Chuí / Chuy" },
+    { icon: Truck, texto: "Enviamos para todo o Brasil por Correios ou transportadora" },
+    { icon: MessageCircle, texto: `Orçamento rápido pelo WhatsApp · ${PHONE_DISPLAY}` },
+    { icon: ShieldCheck, texto: "Peças para Massey, Valtra, John Deere, New Holland e mais" },
+    { icon: PackageSearch, texto: "Busque pelo código original da peça" },
+  ],
+};
 
 // Header fixo e dinâmico. É `fixed` (não `sticky`) com um espaçador de altura constante:
 // assim recolher partes do header não empurra a página. Com `sticky`, o encolhimento
@@ -65,6 +76,7 @@ export function SiteHeader() {
   const { segment, setSegment } = useSegment();
   const { scrolled, hidden } = useScrollDirection();
   const categorias = useCategoriasLoja();
+  const { t, idioma, href } = useT();
 
   const headerRef = useRef<HTMLElement>(null);
   const [alturaTopo, setAlturaTopo] = useState<number | null>(null);
@@ -98,7 +110,7 @@ export function SiteHeader() {
   }, []);
 
   // Faixa de avisos rotativa
-  const lista = AVISOS;
+  const lista = AVISOS[idioma];
   const [aviso, setAviso] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setAviso((i) => (i + 1) % lista.length), 4500);
@@ -173,8 +185,9 @@ export function SiteHeader() {
                 className="flex items-center gap-1.5 hover:text-white"
               >
                 <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
-                Rastrear envío
+                {t("Rastrear envío", "Rastrear envio (Uruguai)")}
               </a>
+              <SeletorIdioma />
               {INSTAGRAM_URL && (
                 <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer noopener" aria-label="Instagram">
                   <Instagram className="h-4 w-4 hover:text-white" />
@@ -196,14 +209,14 @@ export function SiteHeader() {
             scrolled ? "py-2" : "py-2.5 md:py-4",
           )}
         >
-          <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="AGRO PARTS — inicio">
+          <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label={t("AGRO PARTS — inicio", "AGRO PARTS — início")}>
             <div className="rounded-2xl bg-white p-1 shadow-lg shadow-emerald-950/40 ring-1 ring-white/40 transition group-hover:scale-105">
               <img src="/logo.png" alt="" width={48} height={48} className="h-9 w-9 md:h-12 md:w-12" />
             </div>
             <div className="hidden flex-col leading-none md:flex">
               <span className="text-lg font-extrabold tracking-tight lg:text-xl">AGRO PARTS</span>
               <span className="mt-0.5 bg-gradient-to-r from-accent to-amber-200 bg-clip-text text-[11px] font-bold tracking-[0.18em] text-transparent lg:text-xs">
-                REPUESTOS AGRÍCOLAS
+                {t("REPUESTOS AGRÍCOLAS", "PEÇAS AGRÍCOLAS")}
               </span>
             </div>
           </Link>
@@ -212,7 +225,7 @@ export function SiteHeader() {
             <div id="busca-header" className="relative mx-auto md:max-w-2xl">
               <SearchAutocomplete
                 segment={segment}
-                placeholder="Buscá por código o nombre de la pieza…"
+                placeholder={t("Buscá por código o nombre de la pieza…", "Busque por código ou nome da peça…")}
                 inputClassName="h-10 md:h-12 rounded-full border-0 bg-white text-zinc-900 text-base pl-11 md:pr-14 shadow-lg shadow-emerald-950/30 ring-1 ring-white/30 placeholder:text-zinc-400 focus-visible:ring-2 focus-visible:ring-accent"
               />
               <kbd className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 font-mono text-[11px] text-zinc-400 md:block">
@@ -226,15 +239,15 @@ export function SiteHeader() {
                 scrolled ? "mt-0 max-h-0 opacity-0" : "mt-2 max-h-6 opacity-100",
               )}
             >
-              <span className="shrink-0">Más buscados:</span>
-              {MAIS_BUSCADOS.map((t) => (
+              <span className="shrink-0">{t("Más buscados:", "Mais buscados:")}</span>
+              {MAIS_BUSCADOS[idioma].map((termo) => (
                 <Link
-                  key={t}
+                  key={termo}
                   to="/loja"
-                  search={{ q: t } as never}
+                  search={{ q: termo } as never}
                   className="rounded-full bg-white/10 px-2.5 py-0.5 text-white/85 ring-1 ring-white/10 transition hover:bg-white/20 hover:text-white"
                 >
-                  {t}
+                  {termo}
                 </Link>
               ))}
             </div>
@@ -253,7 +266,7 @@ export function SiteHeader() {
 
             {/* Cotação pelo WhatsApp (desktop) */}
             <a
-              href={whatsappContactUrl("¡Hola! Quiero cotizar repuestos.")}
+              href={whatsappContactUrl(t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."))}
               target="_blank"
               rel="noreferrer noopener"
               className={cn(acao, "hidden xl:flex")}
@@ -262,7 +275,7 @@ export function SiteHeader() {
                 <MessageCircle className="h-5 w-5" />
               </span>
               <span className="leading-tight">
-                <span className="block text-[11px] text-white/65">Cotización</span>
+                <span className="block text-[11px] text-white/65">{t("Cotización", "Orçamento")}</span>
                 <span className="block text-sm font-semibold">WhatsApp</span>
               </span>
             </a>
@@ -274,9 +287,9 @@ export function SiteHeader() {
                     <span className="text-sm font-bold">{user.nome.charAt(0).toUpperCase()}</span>
                   </span>
                   <span className="hidden leading-tight lg:block">
-                    <span className="block text-[11px] text-white/65">Hola{user.nome.trim() ? `, ${user.nome.trim().split(" ")[0]}` : ""}</span>
+                    <span className="block text-[11px] text-white/65">{t("Hola", "Olá")}{user.nome.trim() ? `, ${user.nome.trim().split(" ")[0]}` : ""}</span>
                     <span className="flex items-center gap-1 text-sm font-semibold">
-                      Mi cuenta <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                      {t("Mi cuenta", "Minha conta")} <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                     </span>
                   </span>
                 </DropdownMenuTrigger>
@@ -284,24 +297,24 @@ export function SiteHeader() {
                   <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to="/cuenta">Mi cuenta</Link>
+                    <Link to="/cuenta">{t("Mi cuenta", "Minha conta")}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link to="/catalogos">Catálogos (PDF)</Link>
                   </DropdownMenuItem>
                   {user.role === "ADMIN" && (
                     <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/admin">Panel de administración</Link>
+                      <Link to="/admin">{t("Panel de administración", "Painel de administração")}</Link>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem
                     onClick={async () => {
                       await fetch("/api/auth/logout", { method: "POST" });
-                      window.location.href = "/";
+                      window.location.href = href("/");
                     }}
                     className="cursor-pointer text-red-600 focus:text-red-700"
                   >
-                    <LogOut className="mr-2 h-4 w-4" /> Salir
+                    <LogOut className="mr-2 h-4 w-4" /> {t("Salir", "Sair")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -311,15 +324,15 @@ export function SiteHeader() {
                   <User className="h-5 w-5" />
                 </span>
                 <span className="hidden leading-tight lg:block">
-                  <span className="block text-[11px] text-white/65">Bienvenido</span>
-                  <span className="block text-sm font-semibold">Ingresar</span>
+                  <span className="block text-[11px] text-white/65">{t("Bienvenido", "Bem-vindo")}</span>
+                  <span className="block text-sm font-semibold">{t("Ingresar", "Entrar")}</span>
                 </span>
               </Link>
             )}
 
             <button
               onClick={() => setIsCartOpen(true)}
-              aria-label={`Carrito con ${cartItemCount} ítems`}
+              aria-label={t(`Carrito con ${cartItemCount} ítems`, `Carrinho com ${cartItemCount} itens`)}
               className={cn(acao, "px-1 active:scale-95 md:px-2")}
             >
               <span className={cn(icone, "bg-transparent ring-0 md:bg-white/10 md:ring-1")}>
@@ -331,9 +344,9 @@ export function SiteHeader() {
                 )}
               </span>
               <span className="hidden leading-tight lg:block">
-                <span className="block text-[11px] text-white/65">Carrito</span>
+                <span className="block text-[11px] text-white/65">{t("Carrito", "Carrinho")}</span>
                 <span className="block text-sm font-semibold">
-                  {cartItemCount} {cartItemCount === 1 ? "ítem" : "ítems"}
+                  {cartItemCount} {cartItemCount === 1 ? t("ítem", "item") : t("ítems", "itens")}
                 </span>
               </span>
             </button>
@@ -342,7 +355,7 @@ export function SiteHeader() {
 
         {/* Categorias: chips no celular, menu no desktop. Recolhe ao rolar para baixo. */}
         <nav
-          aria-label="Categorías"
+          aria-label={t("Categorías", "Categorias")}
           className={cn(
             "relative overflow-hidden transition-[max-height,opacity] duration-300",
             hidden ? "max-h-0 opacity-0" : "max-h-14 opacity-100",
@@ -368,13 +381,13 @@ export function SiteHeader() {
             <div className="mx-auto hidden h-11 max-w-7xl items-center gap-1 whitespace-nowrap px-4 text-sm font-medium md:flex">
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex h-8 cursor-pointer items-center gap-2 rounded-lg bg-accent px-3 font-semibold text-zinc-900 shadow outline-none transition hover:brightness-95">
-                  <LayoutGrid className="h-4 w-4" /> Categorías
+                  <LayoutGrid className="h-4 w-4" /> {t("Categorías", "Categorias")}
                   <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-[640px] p-0">
                   <div className="grid grid-cols-[1.6fr_1fr]">
                     <div className="p-3">
-                      <DropdownMenuLabel>Categorías</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t("Categorías", "Categorias")}</DropdownMenuLabel>
                       <div className="grid grid-cols-2 gap-1">
                         {categorias.map((c) => (
                           <DropdownMenuItem key={c.nome} asChild className="cursor-pointer gap-3 py-2">
@@ -389,7 +402,7 @@ export function SiteHeader() {
                       </div>
                     </div>
                     <div className="border-l bg-muted/40 p-3">
-                      <DropdownMenuLabel>Marcas de tractor</DropdownMenuLabel>
+                      <DropdownMenuLabel>{t("Marcas de tractor", "Marcas de trator")}</DropdownMenuLabel>
                       {MONTADORAS.map((m) => (
                         <DropdownMenuItem key={m} asChild className="cursor-pointer gap-2 py-1.5">
                           <Link to="/loja" search={{ linha: "AGRICOLA", marca: m } as never}>
@@ -400,7 +413,7 @@ export function SiteHeader() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild className="cursor-pointer font-semibold text-primary">
                         <Link to="/loja">
-                          Ver todo el catálogo <ArrowRight className="ml-1 h-4 w-4" />
+                          {t("Ver todo el catálogo", "Ver todo o catálogo")} <ArrowRight className="ml-1 h-4 w-4" />
                         </Link>
                       </DropdownMenuItem>
                     </div>
@@ -435,7 +448,7 @@ export function SiteHeader() {
                 to="/cotizar"
                 className="flex items-center gap-1.5 rounded-lg bg-amber-400 px-3 py-1.5 font-bold text-[#06321b] transition hover:bg-amber-300"
               >
-                <MessageCircle className="h-3.5 w-3.5" /> Cotizá con nosotros
+                <MessageCircle className="h-3.5 w-3.5" /> {t("Cotizá con nosotros", "Peça seu orçamento")}
               </Link>
               <Link
                 to="/pedido-rapido"
@@ -444,11 +457,11 @@ export function SiteHeader() {
                 <ListChecks className="h-3.5 w-3.5 text-emerald-300" /> Pedido rápido
               </Link>
               <a
-                href="/#envios-uruguay"
+                href={href("/") + "#envios-uruguay"}
                 className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white xl:flex"
               >
-                <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
-                Envíos a todo Uruguay
+                {idioma === "pt" ? <BandeiraBrasil className="h-3 w-[18px] rounded-[2px]" /> : <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />}
+                {t("Envíos a todo Uruguay", "Envio para todo o Brasil")}
               </a>
               <Link
                 to="/loja"

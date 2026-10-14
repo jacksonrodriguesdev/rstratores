@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { comIdioma } from "@/lib/idioma-servidor";
 
 export const Route = createFileRoute("/api/auth/login")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      // comIdioma: mensagens de erro em português nas páginas /pt
+      POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json();
           const email = String(body.email ?? "").trim().toLowerCase();
@@ -47,7 +49,7 @@ export const Route = createFileRoute("/api/auth/login")({
           console.error("Erro no login:", err);
           return Response.json({ error: "No pudimos iniciar sesión. Probá de nuevo." }, { status: 500 });
         }
-      },
+      }),
     },
   },
 });

@@ -27,7 +27,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getProduct, getProductImages, getRelatedProducts, codigoExibicao, marcaExibicao } from "@/lib/products";
-import { categoriaEs, descricaoEs, nomeEs, nomeProduto } from "@/lib/pecas-es";
+import { categoriaEs, descricaoEs, nomeEs, nomeProduto, nomePeca } from "@/lib/pecas-es";
+import { linksIdioma, comPrefixo, tr, useT, type Idioma } from "@/lib/idioma";
+import { principalDe } from "@/components/PrecoTag";
 import { urlRepuestos } from "@/lib/seo-paginas";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
 import { SITE_URL } from "@/lib/site";
@@ -41,6 +43,11 @@ import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
 const SITE = SITE_URL;
 const urlImagem = (p: string) => (p.startsWith("http") ? p : `${SITE}${p.startsWith("/") ? p : `/uploads/${p}`}`);
 
+// Versão em português (/pt): categoria e descrição como estão no cadastro (em português)
+const categoriaNo = (c: string | null | undefined, idioma: Idioma) => (idioma === "pt" ? c ?? "" : categoriaEs(c));
+const descricaoNo = (p: Parameters<typeof descricaoEs>[0] & { descricao?: string | null }, idioma: Idioma) =>
+  idioma === "pt" ? p.descricao?.trim() || p.nome : descricaoEs(p);
+
 export const Route = createFileRoute("/produto/$sku")({
   loader: async ({ params }) => {
     const product = await getProduct(params.sku);
@@ -53,20 +60,23 @@ export const Route = createFileRoute("/produto/$sku")({
     const precos = await getPrecosConfigFn().catch(() => undefined);
     return { product, precos };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, match }) => {
+    const idioma: Idioma = match.context?.idioma ?? "es";
+    const t = (es: string, pt: string) => tr(idioma, es, pt);
     if (!loaderData) {
-      return { meta: [{ title: "Repuesto no encontrado" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: t("Repuesto no encontrado", "Peça não encontrada") }, { name: "robots", content: "noindex" }] };
     }
     const p = loaderData.product;
-    const nome = nomeProduto(p);
+    const nome = nomePeca(p, idioma);
     const marca = marcaExibicao(p);
     const codigo = codigoExibicao(p);
     // "RODAMIENTO 6205 Massey Ferguson — Cód. 6205 | AGRO PARTS": nome, marca e código são o que se busca
     const title = `${nome}${marca ? ` ${marca}` : ""} — Cód. ${codigo} | AGRO PARTS`;
     const desc = `${nome.charAt(0)}${nome.slice(1).toLowerCase()}, código ${codigo}${
       marca ? `, para ${marca}` : ""
-    }. Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.`;
-    const url = `${SITE}/produto/${encodeURIComponent(p.sku)}`;
+    }. ${t("Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.", "Envio para todo o Brasil. Consulte preço e disponibilidade pelo WhatsApp.")}`;
+    const caminho = `/produto/${encodeURIComponent(p.sku)}`;
+    const url = `${SITE}${comPrefixo(caminho, idioma)}`;
     // "redeparts" é o logo do fornecedor usado como foto provisória: não serve como imagem da peça
     const temFoto = !!p.imagem_principal && !p.imagem_principal.includes("redeparts");
     const imagem = temFoto ? urlImagem(p.imagem_principal!) : `${SITE}/icon-512.png`;
@@ -78,25 +88,27 @@ export const Route = createFileRoute("/produto/$sku")({
       sku: p.sku,
       mpn: codigo,
       image: [imagem],
-      description: descricaoEs(p),
-      category: categoriaEs(p.categoria) || undefined,
+      description: descricaoNo(p, idioma),
+      category: categoriaNo(p.categoria, idioma) || undefined,
       ...(marca && { brand: { "@type": "Brand", name: marca } }),
       url,
       ...(() => {
         const pr = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
         if (!pr) return {};
+        // Em português o preço vai em reais (cliente do Brasil); em espanhol, em pesos uruguaios
+        const emReais = idioma === "pt" ? !!pr.brl : !pr.uyu;
         return {
           offers: {
             "@type": "Offer",
             url,
-            priceCurrency: pr.uyu ? "UYU" : "BRL",
-            price: pr.uyu ?? pr.brl,
+            priceCurrency: emReais ? "BRL" : "UYU",
+            price: emReais ? pr.brl : pr.uyu,
             availability: p.estoque > 0 ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
             seller: { "@type": "Organization", name: "AGRO PARTS" },
             // Política de troca (a mesma de /ayuda#garantia): 7 dias, peça sem uso, envio por conta do cliente
             hasMerchantReturnPolicy: {
               "@type": "MerchantReturnPolicy",
-              applicableCountry: "UY",
+              applicableCountry: idioma === "pt" ? "BR" : "UY",
               returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
               merchantReturnDays: 7,
               returnMethod: "https://schema.org/ReturnByMail",
@@ -111,14 +123,14 @@ export const Route = createFileRoute("/produto/$sku")({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Inicio", item: SITE },
+        { "@type": "ListItem", position: 1, name: t("Inicio", "Início"), item: `${SITE}${idioma === "pt" ? "/pt" : ""}` },
         ...(p.categoria
           ? [
               {
                 "@type": "ListItem",
                 position: 2,
-                name: categoriaEs(p.categoria),
-                item: `${SITE}${urlRepuestos({ categoria: p.categoria }) ?? `/loja?categoria=${encodeURIComponent(p.categoria)}`}`,
+                name: categoriaNo(p.categoria, idioma),
+                item: `${SITE}${comPrefixo(urlRepuestos({ categoria: p.categoria }) ?? `/loja?categoria=${encodeURIComponent(p.categoria)}`, idioma)}`,
               },
             ]
           : []),
@@ -136,50 +148,61 @@ export const Route = createFileRoute("/produto/$sku")({
         { property: "og:image", content: imagem },
         { name: "twitter:image", content: imagem },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: linksIdioma(caminho, idioma),
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(produtoLd) },
         { type: "application/ld+json", children: JSON.stringify(trilhaLd) },
       ],
     };
   },
-  errorComponent: () => (
-    <div className="min-h-screen bg-background">
-      <SiteHeader />
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">No pudimos cargar el repuesto</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Probá recargar la página en unos segundos.</p>
-        <Button asChild className="mt-6">
-          <Link to="/loja">Volver al catálogo</Link>
-        </Button>
-      </div>
-    </div>
-  ),
-  notFoundComponent: () => (
-    <div className="min-h-screen bg-background">
-      <SiteHeader />
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Repuesto no encontrado</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          El código no existe o fue retirado del catálogo. Buscá otra pieza o consultanos por WhatsApp.
-        </p>
-        <Button asChild className="mt-6">
-          <Link to="/loja">Ver catálogo</Link>
-        </Button>
-      </div>
-    </div>
-  ),
+  errorComponent: ErroPeca,
+  notFoundComponent: PecaNaoEncontrada,
   component: ProductDetail,
 });
 
+function ErroPeca() {
+  const { t } = useT();
+  return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="text-2xl font-semibold">{t("No pudimos cargar el repuesto", "Não conseguimos carregar a peça")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t("Probá recargar la página en unos segundos.", "Tente recarregar a página em alguns segundos.")}</p>
+        <Button asChild className="mt-6">
+          <Link to="/loja">{t("Volver al catálogo", "Voltar ao catálogo")}</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PecaNaoEncontrada() {
+  const { t } = useT();
+  return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="text-2xl font-semibold">{t("Repuesto no encontrado", "Peça não encontrada")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("El código no existe o fue retirado del catálogo. Buscá otra pieza o consultanos por WhatsApp.", "O código não existe ou foi retirado do catálogo. Busque outra peça ou fale conosco pelo WhatsApp.")}
+        </p>
+        <Button asChild className="mt-6">
+          <Link to="/loja">{t("Ver catálogo", "Ver catálogo")}</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function ProductDetail() {
   const { product, precos } = Route.useLoaderData();
+  const { t, idioma } = useT();
   const precoAtual = usePreco(product, precos);
   const temPreco = !!precoAtual;
-  const precoBarra = precoAtual ? (precoAtual.uyu ? fmtUYU(precoAtual.uyu) : fmtBRL(precoAtual.brl!)) : null;
+  const precoBarra = precoAtual ? principalDe(precoAtual, idioma) : null;
   const { items, addItem, setIsCartOpen } = useCart();
   const marca = marcaExibicao(product);
-  const nome = nomeProduto(product);
+  const nome = nomePeca(product, idioma);
   const codigo = codigoExibicao(product);
   const naCotacao = items.some((i) => i.sku === product.sku);
   const [mainImage, setMainImage] = useState<string | null>(product.imagem_principal);
@@ -213,7 +236,7 @@ function ProductDetail() {
         sku: product.sku,
         codigo,
         name: product.nome,
-        nameEs: nome,
+        nameEs: nomeProduto(product),
         image: product.imagem_principal || undefined,
         quantity: 1,
       });
@@ -223,7 +246,7 @@ function ProductDetail() {
 
   // Compartilhar: menu nativo do celular; no computador, abre o WhatsApp com o link
   const compartilhar = async () => {
-    const url = `${SITE_URL}/produto/${encodeURIComponent(product.sku)}`;
+    const url = `${SITE_URL}${comPrefixo(`/produto/${encodeURIComponent(product.sku)}`, idioma)}`;
     const texto = `${nome} — Cód. ${codigo}`;
     try {
       if (navigator.share) {
@@ -253,16 +276,16 @@ function ProductDetail() {
       <SiteHeader />
       <main className="mx-auto max-w-7xl px-3 py-4 md:px-4 md:py-6">
         {/* Trilha */}
-        <nav aria-label="Ruta" className="mb-4 flex min-w-0 items-center gap-1 text-xs text-zinc-500 md:text-sm">
+        <nav aria-label={t("Ruta", "Caminho")} className="mb-4 flex min-w-0 items-center gap-1 text-xs text-zinc-500 md:text-sm">
           <Link to="/" className="shrink-0 hover:text-primary">
-            Inicio
+            {t("Inicio", "Início")}
           </Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
           <a
-            href={(product.categoria && urlRepuestos({ categoria: product.categoria })) || "/loja"}
+            href={comPrefixo((product.categoria && urlRepuestos({ categoria: product.categoria })) || "/loja", idioma)}
             className="shrink-0 hover:text-primary"
           >
-            {product.categoria ? categoriaEs(product.categoria) : "Catálogo"}
+            {product.categoria ? categoriaNo(product.categoria, idioma) : t("Catálogo", "Catálogo")}
           </a>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate text-zinc-700">{nome}</span>
@@ -276,7 +299,7 @@ function ProductDetail() {
             </Card>
             {product.imagem_origem && mainImage === product.imagem_principal && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Imagen ilustrativa. Confirmá la pieza por el código antes de comprar.
+                {t("Imagen ilustrativa. Confirmá la pieza por el código antes de comprar.", "Imagem ilustrativa. Confirme a peça pelo código antes de comprar.")}
               </p>
             )}
             {gallery.length > 1 && (
@@ -285,7 +308,7 @@ function ProductDetail() {
                   <button
                     key={path}
                     onClick={() => setMainImage(path)}
-                    aria-label="Ver imagen"
+                    aria-label={t("Ver imagen", "Ver imagem")}
                     className={cn(
                       "aspect-square overflow-hidden rounded-md border-2 transition-colors",
                       mainImage === path ? "border-primary" : "border-transparent hover:border-muted-foreground/30",
@@ -304,7 +327,7 @@ function ProductDetail() {
               {product.categoria && (
                 <Badge variant="secondary">
                   <Tag className="mr-1 h-3 w-3" />
-                  {categoriaEs(product.categoria)}
+                  {categoriaNo(product.categoria, idioma)}
                 </Badge>
               )}
               {marca && (
@@ -320,7 +343,7 @@ function ProductDetail() {
             <button
               onClick={copiarCodigo}
               className="mt-3 flex w-max items-center gap-2 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-700 transition hover:border-primary hover:text-primary"
-              title="Copiar código"
+              title={t("Copiar código", "Copiar código")}
             >
               <span className="text-zinc-500">Código:</span>
               <span className="font-mono font-bold">{codigo}</span>
@@ -330,25 +353,25 @@ function ProductDetail() {
               onClick={compartilhar}
               className="mt-2 flex w-max items-center gap-1.5 text-sm font-medium text-zinc-500 transition hover:text-primary"
             >
-              <Share2 className="h-4 w-4" /> Compartir
+              <Share2 className="h-4 w-4" /> {t("Compartir", "Compartilhar")}
             </button>
             {nome !== product.nome && (
-              <p className="mt-2 break-words text-xs text-zinc-400">Descripción original: {product.nome}</p>
+              <p className="mt-2 break-words text-xs text-zinc-400">{t("Descripción original:", "Descrição original:")} {product.nome}</p>
             )}
 
             {/* Caixa de compra */}
             <div className="mt-6 rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/5 to-white p-5 shadow-lg shadow-primary/10">
               {temPreco ? (
                 <>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">Precio</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("Precio", "Preço")}</p>
                   <PrecoTag p={product} tamanho="lg" inicial={precos} className="mt-1" />
-                  <p className="mt-1 text-sm text-zinc-600">Confirmá la disponibilidad y el costo de envío a tu localidad por WhatsApp.</p>
+                  <p className="mt-1 text-sm text-zinc-600">{t("Confirmá la disponibilidad y el costo de envío a tu localidad por WhatsApp.", "Confirme a disponibilidade e o frete para a sua cidade pelo WhatsApp.")}</p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">Precio por consulta</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("Precio por consulta", "Preço sob consulta")}</p>
                   <p className="mt-1 text-sm text-zinc-600">
-                    Escribinos y te pasamos el precio, la disponibilidad y el costo de envío a tu localidad.
+                    {t("Escribinos y te pasamos el precio, la disponibilidad y el costo de envío a tu localidad.", "Fale conosco e passamos o preço, a disponibilidade e o frete para a sua cidade.")}
                   </p>
                 </>
               )}
@@ -357,7 +380,7 @@ function ProductDetail() {
                   product={product}
                   size="lg"
                   fullWidth
-                  label={temPreco ? "Comprar por WhatsApp" : "Consultar precio por WhatsApp"}
+                  label={temPreco ? t("Comprar por WhatsApp", "Comprar pelo WhatsApp") : t("Consultar precio por WhatsApp", "Consultar preço pelo WhatsApp")}
                   className="h-14 text-base font-bold shadow-lg shadow-[#25D366]/30 md:text-lg"
                 />
                 <button
@@ -365,31 +388,31 @@ function ProductDetail() {
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-md border-2 border-primary font-bold text-primary transition-colors hover:bg-primary hover:text-white"
                 >
                   {naCotacao ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
-                  {naCotacao ? "En tu cotización · ver lista" : "Agregar a mi cotización"}
+                  {naCotacao ? t("En tu cotización · ver lista", "No seu orçamento · ver lista") : t("Agregar a mi cotización", "Adicionar ao meu orçamento")}
                 </button>
               </div>
               <ul className="mt-4 space-y-2 text-sm text-zinc-600">
                 <li className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 shrink-0 text-primary" /> Envío a todo Uruguay por DAC, con seguimiento
+                  <Truck className="h-4 w-4 shrink-0 text-primary" /> {t("Envío a todo Uruguay por DAC, con seguimiento", "Envio para todo o Brasil por Correios ou transportadora, com rastreio")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Confirmamos la compatibilidad antes de enviar
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> {t("Confirmamos la compatibilidad antes de enviar", "Confirmamos a compatibilidade antes de enviar")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" /> Sin compromiso de compra
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" /> {t("Sin compromiso de compra", "Sem compromisso de compra")}
                 </li>
               </ul>
             </div>
 
             <div className="mt-6 rounded-xl border bg-white p-5">
-              <h2 className="mb-2 text-base font-bold">Descripción</h2>
-              <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-700">{descricaoEs(product)}</p>
+              <h2 className="mb-2 text-base font-bold">{t("Descripción", "Descrição")}</h2>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-700">{descricaoNo(product, idioma)}</p>
             </div>
 
             {p.fichas_tecnicas?.length > 0 && (
               <div className="mt-6">
                 <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
-                  <Package2 className="h-5 w-5 text-primary" /> Ficha técnica
+                  <Package2 className="h-5 w-5 text-primary" /> {t("Ficha técnica", "Ficha técnica")}
                 </h2>
                 <div className="overflow-hidden rounded-xl border bg-white">
                   <div className="grid grid-cols-1 sm:grid-cols-2">
@@ -398,7 +421,7 @@ function ProductDetail() {
                         key={idx}
                         className="flex justify-between border-b border-muted/50 p-3 text-sm sm:last:border-b-0 sm:even:border-l"
                       >
-                        <span className="font-medium text-muted-foreground">{nomeEs(ficha.chave)}</span>
+                        <span className="font-medium text-muted-foreground">{idioma === "pt" ? ficha.chave : nomeEs(ficha.chave)}</span>
                         <span className="ml-4 text-right font-semibold">{ficha.valor}</span>
                       </div>
                     ))}
@@ -409,14 +432,14 @@ function ProductDetail() {
 
             {p.aplicacoes?.length > 0 && (
               <div className="mt-6 rounded-xl border bg-white p-5">
-                <h2 className="mb-4 text-base font-bold">Aplicaciones (tractores compatibles)</h2>
+                <h2 className="mb-4 text-base font-bold">{t("Aplicaciones (tractores compatibles)", "Aplicações (tratores compatíveis)")}</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-muted/50 text-muted-foreground">
                       <tr>
                         <th className="px-3 py-2 font-medium">Marca</th>
                         <th className="px-3 py-2 font-medium">Modelo</th>
-                        <th className="px-3 py-2 font-medium">Año</th>
+                        <th className="px-3 py-2 font-medium">{t("Año", "Ano")}</th>
                         <th className="px-3 py-2 font-medium">Motor</th>
                       </tr>
                     </thead>
@@ -437,7 +460,7 @@ function ProductDetail() {
 
             {p.similares?.length > 0 && (
               <div className="mt-6 rounded-xl border bg-white p-5">
-                <h2 className="mb-3 text-base font-bold">Códigos equivalentes (otras marcas)</h2>
+                <h2 className="mb-3 text-base font-bold">{t("Códigos equivalentes (otras marcas)", "Códigos equivalentes (outras marcas)")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {p.similares.map((sim: any, idx: number) => (
                     <Badge key={idx} variant="outline" className="text-xs">
@@ -450,7 +473,7 @@ function ProductDetail() {
 
             {product.veiculos_compativeis && (
               <div className="mt-6 rounded-xl border bg-white p-5">
-                <h2 className="mb-2 text-base font-bold">Tractores compatibles</h2>
+                <h2 className="mb-2 text-base font-bold">{t("Tractores compatibles", "Tratores compatíveis")}</h2>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-700">
                   {product.veiculos_compativeis}
                 </p>
@@ -459,10 +482,9 @@ function ProductDetail() {
 
             {product.variantes && product.variantes.length > 0 && (
               <div className="mt-6 rounded-xl border bg-white p-5">
-                <h2 className="mb-1 text-base font-bold">Versiones disponibles</h2>
+                <h2 className="mb-1 text-base font-bold">{t("Versiones disponibles", "Versões disponíveis")}</h2>
                 <p className="mb-3 text-xs text-muted-foreground">
-                  Esta pieza también está disponible con estos códigos y fabricantes. Indicá en la consulta cuál
-                  preferís.
+                  {t("Esta pieza también está disponible con estos códigos y fabricantes. Indicá en la consulta cuál preferís.", "Esta peça também está disponível com estes códigos e fabricantes. Diga no pedido qual prefere.")}
                 </p>
                 <ul className="divide-y text-sm">
                   {product.variantes.map((v) => (
@@ -476,23 +498,22 @@ function ProductDetail() {
             )}
 
             <div className="mt-6 rounded-xl border bg-white p-5">
-              <h2 className="mb-3 text-base font-bold">Especificaciones</h2>
+              <h2 className="mb-3 text-base font-bold">{t("Especificaciones", "Especificações")}</h2>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <SpecRow label="Código" value={codigo} />
                 {product.fabricante && <SpecRow label="Fabricante" value={product.fabricante} />}
-                {product.categoria && <SpecRow label="Categoría" value={categoriaEs(product.categoria)} />}
+                {product.categoria && <SpecRow label={t("Categoría", "Categoria")} value={categoriaNo(product.categoria, idioma)} />}
                 {marca && <SpecRow label="Marca" value={marca} />}
-                {product.tamanho && <SpecRow label="Medida" value={product.tamanho} />}
-                {product.altura != null && <SpecRow label="Alto" value={`${product.altura} cm`} />}
-                {product.largura != null && <SpecRow label="Ancho" value={`${product.largura} cm`} />}
+                {product.tamanho && <SpecRow label={t("Medida", "Medida")} value={product.tamanho} />}
+                {product.altura != null && <SpecRow label={t("Alto", "Altura")} value={`${product.altura} cm`} />}
+                {product.largura != null && <SpecRow label={t("Ancho", "Largura")} value={`${product.largura} cm`} />}
               </dl>
             </div>
 
             <div className="mt-6 flex items-start gap-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
               <Search className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
-                ¿No estás seguro de que sea la pieza correcta? Mandanos el modelo y el número de serie de tu
-                tractor por WhatsApp y te lo confirmamos.
+                {t("¿No estás seguro de que sea la pieza correcta? Mandanos el modelo y el número de serie de tu tractor por WhatsApp y te lo confirmamos.", "Não tem certeza se é a peça certa? Mande o modelo e o número de série do seu trator pelo WhatsApp e confirmamos.")}
               </p>
             </div>
 
@@ -504,7 +525,7 @@ function ProductDetail() {
 
         {relatedQuery.data && relatedQuery.data.length > 0 && (
           <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm md:p-8">
-            <h2 className="mb-4 text-xl font-bold tracking-tight md:text-2xl">También te puede interesar</h2>
+            <h2 className="mb-4 text-xl font-bold tracking-tight md:text-2xl">{t("También te puede interesar", "Você também pode gostar")}</h2>
             <ProductSlider title="" products={relatedQuery.data} />
           </div>
         )}
@@ -515,7 +536,7 @@ function ProductDetail() {
         <div className="flex gap-2">
           <button
             onClick={adicionar}
-            aria-label={naCotacao ? "Ver mi cotización" : "Agregar a mi cotización"}
+            aria-label={naCotacao ? t("Ver mi cotización", "Ver meu orçamento") : t("Agregar a mi cotización", "Adicionar ao meu orçamento")}
             className={cn(
               "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 transition active:scale-95",
               naCotacao ? "border-primary bg-primary text-white" : "border-primary text-primary",
@@ -524,12 +545,12 @@ function ProductDetail() {
             {naCotacao ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
           </button>
           <a
-            href={whatsappQuoteUrl(product)}
+            href={whatsappQuoteUrl(product, idioma)}
             target="_blank"
             rel="noreferrer noopener"
             className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] font-bold text-white shadow-lg shadow-[#25D366]/30 active:scale-[0.98]"
           >
-            <MessageCircle className="h-5 w-5" /> {precoBarra ? `Comprar · ${precoBarra}` : "Consultar precio"}
+            <MessageCircle className="h-5 w-5" /> {precoBarra ? `Comprar · ${precoBarra}` : t("Consultar precio", "Consultar preço")}
           </a>
         </div>
       </div>

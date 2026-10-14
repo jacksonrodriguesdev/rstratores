@@ -5,6 +5,8 @@ import { listarCatalogosFn, type Catalogo } from "@/lib/catalogos";
 import { getSessionFn } from "@/lib/user-auth";
 import { Reveal } from "@/components/home/Reveal";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/idioma";
+import { pedirCadastro } from "@/lib/pedir-cadastro";
 
 // Chamada "Creá tu cuenta y accedé a todos los catálogos" (home e página de produto).
 // Some sozinha quando não há catálogo publicado: não promete o que não existe.
@@ -24,6 +26,11 @@ function useCatalogos() {
 
 const CADASTRO = `/cadastro?redirect=${encodeURIComponent("/catalogos")}`;
 const LOGIN = `/login?redirect=${encodeURIComponent("/catalogos")}`;
+// Criar conta pelo pop-up (só o e-mail); o link fica como reserva sem JavaScript
+const abrirCadastro = (e: React.MouseEvent) => {
+  e.preventDefault();
+  pedirCadastro({ motivo: "catalogo", destino: "/catalogos" });
+};
 
 // Capa de manual desenhada (sem fotos de terceiros)
 function Capa({ marca, tipo, className, style }: { marca: string; tipo: string; className?: string; style?: React.CSSProperties }) {
@@ -48,10 +55,11 @@ function Capa({ marca, tipo, className, style }: { marca: string; tipo: string; 
 
 export function CatalogosCtaBlock() {
   const { lista, marcas, logado, pronto } = useCatalogos();
+  const { t, href } = useT();
   if (!pronto || lista.length === 0) return null;
   // Capas da pilha: tipos e marcas reais, completando com as marcas que mais vendem
   const capas = [...lista.slice(0, 3).map((c) => ({ marca: c.marca || "AGRO PARTS", tipo: c.tipo }))];
-  for (const m of ["Massey Ferguson", "John Deere", "Valtra"]) if (capas.length < 3 && !capas.some((c) => c.marca === m)) capas.push({ marca: m, tipo: "Catálogo de piezas" });
+  for (const m of ["Massey Ferguson", "John Deere", "Valtra"]) if (capas.length < 3 && !capas.some((c) => c.marca === m)) capas.push({ marca: m, tipo: t("Catálogo de piezas", "Catálogo de peças") });
 
   return (
     <Reveal>
@@ -64,7 +72,7 @@ export function CatalogosCtaBlock() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#06321b]">
-                <Wrench className="h-3.5 w-3.5" /> Para mecánicos y talleres
+                <Wrench className="h-3.5 w-3.5" /> {t("Para mecánicos y talleres", "Para mecânicos e oficinas")}
               </span>
               {/* No celular a pilha de manuais some; fica só o ícone */}
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15 md:hidden">
@@ -72,21 +80,21 @@ export function CatalogosCtaBlock() {
               </span>
             </div>
             <h2 id="cta-catalogos" className="mt-3 text-2xl font-extrabold leading-tight md:text-[2.4rem] md:leading-[1.1]">
-              {logado ? "Tus catálogos de mantenimiento y piezas, a un clic" : "Creá tu cuenta y accedé a todos nuestros catálogos"}
+              {logado ? t("Tus catálogos de mantenimiento y piezas, a un clic", "Seus catálogos de manutenção e peças, a um clique") : t("Creá tu cuenta y accedé a todos nuestros catálogos", "Crie sua conta e acesse todos os nossos catálogos")}
             </h2>
             <p className="mt-3 max-w-xl text-sm text-white/80 md:text-base">
-              Manuales de mantenimiento y catálogos de piezas de tractores y cosechadoras, en PDF.
-              {logado ? " Ya tenés acceso con tu cuenta." : " Gratis: solo necesitás registrarte."}
+              {t("Manuales de mantenimiento y catálogos de piezas de tractores y cosechadoras, en PDF.", "Manuais de manutenção e catálogos de peças de tratores e colheitadeiras, em PDF.")}
+              {logado ? t(" Ya tenés acceso con tu cuenta.", " Você já tem acesso com sua conta.") : t(" Gratis: solo necesitás registrarte.", " Grátis: só precisa se cadastrar.")}
             </p>
 
             <ul className="mt-5 grid gap-2 text-sm sm:grid-cols-2">
               {[
-                `${lista.length} ${lista.length === 1 ? "catálogo disponible" : "catálogos disponibles"}`,
-                "Encontrá el código exacto de la pieza",
-                "Abrilos desde el celular o la PC",
-                "Cotizá la pieza al instante por WhatsApp",
-              ].map((t) => (
-                <li key={t} className="flex items-center gap-2 text-white/90"><CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> {t}</li>
+                `${lista.length} ${lista.length === 1 ? t("catálogo disponible", "catálogo disponível") : t("catálogos disponibles", "catálogos disponíveis")}`,
+                t("Encontrá el código exacto de la pieza", "Encontre o código exato da peça"),
+                t("Abrilos desde el celular o la PC", "Abra no celular ou no computador"),
+                t("Cotizá la pieza al instante por WhatsApp", "Peça orçamento na hora pelo WhatsApp"),
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-white/90"><CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> {item}</li>
               ))}
             </ul>
 
@@ -103,30 +111,30 @@ export function CatalogosCtaBlock() {
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center">
               {logado ? (
                 <Link to="/catalogos" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 font-extrabold text-[#06321b] shadow-lg shadow-black/20 transition hover:bg-amber-300 active:scale-[0.98]">
-                  <BookOpen className="h-5 w-5" /> Ver catálogos <ArrowRight className="h-4 w-4" />
+                  <BookOpen className="h-5 w-5" /> {t("Ver catálogos", "Ver catálogos")} <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : (
                 <>
-                  <a href={CADASTRO} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 font-extrabold text-[#06321b] shadow-lg shadow-black/20 transition hover:bg-amber-300 active:scale-[0.98]">
-                    Crear cuenta gratis <ArrowRight className="h-4 w-4" />
+                  <a href={href(CADASTRO)} onClick={abrirCadastro} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 font-extrabold text-[#06321b] shadow-lg shadow-black/20 transition hover:bg-amber-300 active:scale-[0.98]">
+                    {t("Crear cuenta gratis", "Criar conta grátis")} <ArrowRight className="h-4 w-4" />
                   </a>
-                  <a href={LOGIN} className="inline-flex h-12 items-center justify-center rounded-xl px-5 text-sm font-bold text-white ring-1 ring-white/30 transition hover:bg-white/10">
-                    Ya tengo cuenta
+                  <a href={href(LOGIN)} className="inline-flex h-12 items-center justify-center rounded-xl px-5 text-sm font-bold text-white ring-1 ring-white/30 transition hover:bg-white/10">
+                    {t("Ya tengo cuenta", "Já tenho conta")}
                   </a>
                 </>
               )}
             </div>
-            {!logado && <p className="mt-3 text-xs text-white/55">Te lleva menos de un minuto. Sin costo y sin compromiso de compra.</p>}
+            {!logado && <p className="mt-3 text-xs text-white/55">{t("Te lleva menos de un minuto. Sin costo y sin compromiso de compra.", "Leva menos de um minuto. Sem custo e sem compromisso de compra.")}</p>}
           </div>
 
           {/* Pilha de manuais */}
-          <Link to="/catalogos" aria-label="Ver catálogos" className="group relative mx-auto hidden h-72 w-full max-w-sm md:block">
+          <Link to="/catalogos" aria-label={t("Ver catálogos", "Ver catálogos")} className="group relative mx-auto hidden h-72 w-full max-w-sm md:block">
             <Capa marca={capas[2].marca} tipo={capas[2].tipo} className="left-[8%] top-6 -rotate-[10deg] opacity-90 transition duration-500 group-hover:-translate-x-2 group-hover:-rotate-[13deg]" />
             <Capa marca={capas[1].marca} tipo={capas[1].tipo} className="right-[6%] top-4 rotate-[8deg] opacity-95 transition duration-500 group-hover:translate-x-2 group-hover:rotate-[11deg]" />
             <Capa marca={capas[0].marca} tipo={capas[0].tipo} className="left-1/2 top-0 -translate-x-1/2 transition duration-500 group-hover:-translate-y-2" />
             <span className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-white px-4 py-2 text-sm font-extrabold text-[#06321b] shadow-xl">
               {logado ? <Unlock className="h-4 w-4 text-emerald-600" /> : <Lock className="h-4 w-4 text-amber-500" />}
-              {logado ? "Acceso liberado" : "Solo para clientes registrados"}
+              {logado ? t("Acceso liberado", "Acesso liberado") : t("Solo para clientes registrados", "Só para clientes cadastrados")}
             </span>
           </Link>
         </div>
@@ -138,6 +146,7 @@ export function CatalogosCtaBlock() {
 // Versão compacta para a página de produto
 export function CatalogosCtaCompacto({ marca }: { marca?: string | null }) {
   const { lista, marcas, logado, pronto } = useCatalogos();
+  const { t, href } = useT();
   if (!pronto || lista.length === 0) return null;
   const daMarca = marca ? marcas.find((m) => marca.toLowerCase().includes(m.toLowerCase()) || m.toLowerCase().includes(marca.toLowerCase())) : undefined;
   const cor = corDe(daMarca);
@@ -147,13 +156,18 @@ export function CatalogosCtaCompacto({ marca }: { marca?: string | null }) {
         <BookOpen className="h-6 w-6" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="font-bold text-zinc-900">{daMarca ? `¿Necesitás el catálogo ${daMarca}?` : "¿Necesitás el manual de tu tractor?"}</p>
+        <p className="font-bold text-zinc-900">{daMarca ? t(`¿Necesitás el catálogo ${daMarca}?`, `Precisa do catálogo ${daMarca}?`) : t("¿Necesitás el manual de tu tractor?", "Precisa do manual do seu trator?")}</p>
         <p className="text-sm text-zinc-600">
-          {logado ? "Abrí nuestros catálogos de mantenimiento y piezas en PDF." : `Creá tu cuenta gratis y accedé a ${lista.length} ${lista.length === 1 ? "catálogo" : "catálogos"} de mantenimiento y piezas.`}
+          {logado
+            ? t("Abrí nuestros catálogos de mantenimiento y piezas en PDF.", "Abra nossos catálogos de manutenção e peças em PDF.")
+            : t(
+                `Creá tu cuenta gratis y accedé a ${lista.length} ${lista.length === 1 ? "catálogo" : "catálogos"} de mantenimiento y piezas.`,
+                `Crie sua conta grátis e acesse ${lista.length} ${lista.length === 1 ? "catálogo" : "catálogos"} de manutenção e peças.`,
+              )}
         </p>
       </div>
-      <a href={logado ? "/catalogos" : CADASTRO} className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-bold text-white hover:bg-primary/90">
-        {logado ? "Ver catálogos" : "Acceder gratis"} <ArrowRight className="h-4 w-4" />
+      <a href={href(logado ? "/catalogos" : CADASTRO)} onClick={logado ? undefined : abrirCadastro} className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-bold text-white hover:bg-primary/90">
+        {logado ? t("Ver catálogos", "Ver catálogos") : t("Acceder gratis", "Acessar grátis")} <ArrowRight className="h-4 w-4" />
       </a>
     </div>
   );

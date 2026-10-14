@@ -8,7 +8,8 @@ import { ProductImage } from "@/components/ProductImage";
 import { useDebounce } from "@/hooks/use-debounce";
 import { listProducts, marcaExibicao } from "@/lib/products";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { categoriaEs, nomeProduto } from "@/lib/pecas-es";
+import { categoriaEs, nomeProduto, nomePeca } from "@/lib/pecas-es";
+import { useT } from "@/lib/idioma";
 
 interface SearchAutocompleteProps {
   segment: "AGRICOLA" | "AUTOMOTIVA";
@@ -25,6 +26,7 @@ export function SearchAutocomplete({
   inputClassName = "",
   showButton = false,
 }: SearchAutocompleteProps) {
+  const { t, idioma } = useT();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const debouncedQuery = useDebounce(query, 300);
@@ -93,14 +95,14 @@ export function SearchAutocomplete({
         <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-background border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {!isLoading && !hasResults && (
             <div className="p-4 text-center text-sm text-muted-foreground">
-              No encontramos repuestos para "{debouncedQuery}".
+              {t("No encontramos repuestos para", "Não encontramos peças para")} "{debouncedQuery}".
               <a
-                href={whatsappContactUrl(`¡Hola! Busco este repuesto: ${debouncedQuery}`)}
+                href={whatsappContactUrl(t(`¡Hola! Busco este repuesto: ${debouncedQuery}`, `Olá! Procuro esta peça: ${debouncedQuery}`))}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="mt-2 block font-semibold text-[#128C4B] hover:underline"
               >
-                Preguntanos por WhatsApp, lo conseguimos →
+                {t("Preguntanos por WhatsApp, lo conseguimos →", "Pergunte pelo WhatsApp, conseguimos para você →")}
               </a>
             </div>
           )}
@@ -117,15 +119,15 @@ export function SearchAutocomplete({
                   className="flex items-center gap-4 p-3 hover:bg-accent/10 transition-colors text-left border-b last:border-b-0"
                 >
                   <div className="h-12 w-12 shrink-0 bg-muted rounded-md overflow-hidden flex items-center justify-center">
-                    <ProductImage src={product.imagem_principal} alt={nomeProduto(product)} />
+                    <ProductImage src={product.imagem_principal} alt={nomePeca(product, idioma)} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold truncate text-foreground">
-                      {nomeProduto(product)}
+                      {nomePeca(product, idioma)}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
                       Cód. {product.sku}
-                      {(marcaExibicao(product) || product.categoria) && ` · ${marcaExibicao(product) || categoriaEs(product.categoria)}`}
+                      {(marcaExibicao(product) || product.categoria) && ` · ${marcaExibicao(product) || (idioma === "pt" ? product.categoria : categoriaEs(product.categoria))}`}
                     </div>
                   </div>
                 </button>
@@ -135,7 +137,7 @@ export function SearchAutocomplete({
                 onClick={() => handleSubmit()}
                 className="p-3 text-sm font-semibold text-center text-primary bg-muted/30 hover:bg-muted/60 transition-colors"
               >
-                Ver todos los resultados
+                {t("Ver todos los resultados", "Ver todos os resultados")}
               </button>
             </div>
           )}

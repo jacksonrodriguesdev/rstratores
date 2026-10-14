@@ -353,3 +353,8 @@ export function categoriaFraseEs(nome: string | null | undefined): string {
 export function nomeProduto(p: { nome: string; nome_es?: string | null }): string {
   return p.nome_es?.trim() || nomeEs(p.nome);
 }
+
+// Nome da peça no idioma da página: em português (/pt) é o nome original do cadastro
+export function nomePeca(p: { nome: string; nome_es?: string | null }, idioma: "es" | "pt"): string {
+  return idioma === "pt" ? p.nome.trim().replace(/\s+/g, " ") : nomeProduto(p);
+}

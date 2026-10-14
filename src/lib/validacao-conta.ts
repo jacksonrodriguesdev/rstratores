@@ -13,6 +13,15 @@ export function normalizarCelularUY(entrada: string): string | null {
   return /^9\d{7}$/.test(d) ? `+598${d}` : null;
 }
 
+// Celular brasileiro com DDD (cadastros da versão em português): 10 ou 11 dígitos, com ou sem
+// o 55. Devolve "+55DDNNNNNNNNN" ou null.
+export function normalizarCelularBR(entrada: string): string | null {
+  let d = (entrada || "").replace(/\D/g, "");
+  if (d.length >= 12 && d.startsWith("55")) d = d.slice(2);
+  if (d.startsWith("0")) d = d.slice(1);
+  return /^[1-9]\d{9,10}$/.test(d) ? `+55${d}` : null;
+}
+
 // Máscara enquanto digita: "9X XXX XXX"
 export function mascararCelularUY(entrada: string): string {
   let d = (entrada || "").replace(/\D/g, "");

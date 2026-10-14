@@ -3,9 +3,24 @@ import { Package, type LucideIcon } from "lucide-react";
 import { listCategories } from "@/lib/categories";
 import { CATEGORIAS } from "@/lib/navegacao";
 import { categoriaCurtaEs, categoriaEs } from "@/lib/pecas-es";
+import { useIdioma, type Idioma } from "@/lib/idioma";
+
+// Nome curto em português (botões do menu); o nome completo em português é o do banco
+const CURTO_PT: Record<string, string> = {
+  "Engrenagens e Transmissão": "Transmissão",
+  "Hidráulica e Pneumática": "Hidráulica",
+  "Rolamentos e Mancais": "Rolamentos",
+  "Freios e Embreagens": "Freios",
+  "Elétrica e Sensores": "Elétrica",
+  "Elementos de Fixação": "Fixação",
+  "Estrutura e Suspensão": "Estrutura",
+  "Outros Componentes": "Outros",
+};
+export const categoriaRotulo = (nome: string, idioma: Idioma) => (idioma === "pt" ? nome : categoriaEs(nome));
+export const categoriaCurta = (nome: string, idioma: Idioma) => (idioma === "pt" ? CURTO_PT[nome] ?? nome : categoriaCurtaEs(nome));
 
 export type CategoriaLoja = {
-  // nome no banco (valor do filtro da loja); rotulo e curto são o que aparece no site, em espanhol
+  // nome no banco (valor do filtro da loja); rotulo e curto são o que aparece no site, no idioma da página
   nome: string;
   rotulo: string;
   curto: string;
@@ -21,13 +36,14 @@ const urlImagem = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p 
 // (src/lib/navegacao.ts); categorias novas usam um ícone genérico. Nomes em espanhol: src/lib/pecas-es.ts.
 // Enquanto carrega, usa a lista conhecida para o menu nunca aparecer vazio.
 export function useCategoriasLoja(): CategoriaLoja[] {
+  const idioma = useIdioma();
   const { data } = useQuery({
     queryKey: ["categorias_loja"],
     queryFn: () => listCategories({ linha: "AGRICOLA", onlyWithProducts: true }),
     staleTime: 5 * 60 * 1000,
   });
 
-  if (!data) return CATEGORIAS.map((c) => ({ ...c, rotulo: categoriaEs(c.nome), curto: categoriaCurtaEs(c.nome), imagem: null, total: 0 }));
+  if (!data) return CATEGORIAS.map((c) => ({ ...c, rotulo: categoriaRotulo(c.nome, idioma), curto: categoriaCurta(c.nome, idioma), imagem: null, total: 0 }));
 
   const ordem = (nome: string) => {
     const i = CATEGORIAS.findIndex((c) => c.nome === nome);
@@ -38,8 +54,8 @@ export function useCategoriasLoja(): CategoriaLoja[] {
       const conhecida = CATEGORIAS.find((k) => k.nome === c.nome);
       return {
         nome: c.nome as string,
-        rotulo: categoriaEs(c.nome),
-        curto: categoriaCurtaEs(c.nome),
+        rotulo: categoriaRotulo(c.nome, idioma),
+        curto: categoriaCurta(c.nome, idioma),
         icon: conhecida?.icon ?? Package,
         imagem: c.image_path ? urlImagem(c.image_path) : null,
         total: (c.totalProducts as number) ?? 0,
