@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 
 // Gráfico ECharts. Carrega a biblioteca só no navegador (o painel também é renderizado
 // no servidor) e redimensiona junto com o contêiner.
-type Props = { option: any; height?: number | string; className?: string; mapa?: boolean };
+// gl: gráficos 3D (echarts-gl), carregado só quando usado
+type Props = { option: any; height?: number | string; className?: string; mapa?: boolean; gl?: boolean; aoClicar?: (p: any) => void };
 
 let mapaRegistrado: Promise<void> | null = null;
 async function registrarMapa(echarts: any) {
@@ -13,12 +14,14 @@ async function registrarMapa(echarts: any) {
   return mapaRegistrado;
 }
 
-export function EChart({ option, height = 320, className, mapa }: Props) {
+export function EChart({ option, height = 320, className, mapa, gl, aoClicar }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const grafico = useRef<any>(null);
   // Última opção recebida: a biblioteca carrega depois do primeiro render
   const atual = useRef(option);
   atual.current = option;
+  const clique = useRef(aoClicar);
+  clique.current = aoClicar;
 
   useEffect(() => {
     let vivo = true;
@@ -26,9 +29,11 @@ export function EChart({ option, height = 320, className, mapa }: Props) {
     (async () => {
       const echarts = await import("echarts");
       if (mapa) await registrarMapa(echarts);
+      if (gl) await import("echarts-gl");
       if (!vivo || !ref.current) return;
       grafico.current = echarts.init(ref.current, undefined, { renderer: "canvas" });
       grafico.current.setOption(atual.current);
+      grafico.current.on("click", (p: any) => clique.current?.(p));
       ro = new ResizeObserver(() => grafico.current?.resize());
       ro.observe(ref.current);
     })();

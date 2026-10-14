@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import {
+  BarChart3,
   LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, Users, ShoppingCart, Mail,
   Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, Plug, Route as RouteIcon, type LucideIcon,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const GRUPOS: Grupo[] = [
       { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
       { to: "/admin/visitantes", label: "Visitantes", icon: Globe2 },
       { to: "/admin/jornadas", label: "Jornada dos visitantes", icon: RouteIcon },
+      { to: "/admin/analises", label: "Análises (10 ferramentas)", icon: BarChart3 },
       { to: "/admin/interesse", label: "Interesse dos clientes", icon: Flame },
     ],
   },

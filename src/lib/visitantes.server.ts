@@ -40,7 +40,8 @@ export async function resumoVisitantes(dias: number, pais: string | null = null)
   let linhas: Linha[];
   try {
     linhas = (await prisma.site_visits.findMany({
-      where: { created_at: { gte: desde } },
+      // Cliques e rolagem (Admin → Análises) ficam fora: só páginas e eventos de interesse
+      where: { created_at: { gte: desde }, NOT: [{ path: { startsWith: "/_evento/clique/" } }, { path: { startsWith: "/_evento/rolagem/" } }] },
       orderBy: { created_at: "asc" },
       take: 300000,
       select: {
@@ -52,7 +53,8 @@ export async function resumoVisitantes(dias: number, pais: string | null = null)
   } catch {
     // Banco sem as colunas novas: só o básico
     linhas = (await prisma.site_visits.findMany({
-      where: { created_at: { gte: desde } },
+      // Cliques e rolagem (Admin → Análises) ficam fora: só páginas e eventos de interesse
+      where: { created_at: { gte: desde }, NOT: [{ path: { startsWith: "/_evento/clique/" } }, { path: { startsWith: "/_evento/rolagem/" } }] },
       orderBy: { created_at: "asc" },
       take: 300000,
       select: { id: true, created_at: true, path: true, country: true, country_code: true, region: true, city: true },

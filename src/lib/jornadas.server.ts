@@ -37,7 +37,9 @@ const evento = (path: string) => {
   return { tipo, dado };
 };
 
-async function lerLinhas(where: any): Promise<Linha[]> {
+async function lerLinhas(filtro: any): Promise<Linha[]> {
+  // Cliques e rolagem (mapa de cliques, Admin → Análises) não entram na linha do tempo
+  const where = { ...filtro, NOT: [{ path: { startsWith: `${EV}clique/` } }, { path: { startsWith: `${EV}rolagem/` } }] };
   try {
     return (await prisma.site_visits.findMany({ where, orderBy: { created_at: "asc" }, take: 200000, select: SELECT })) as Linha[];
   } catch {
