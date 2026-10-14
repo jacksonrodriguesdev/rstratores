@@ -17,7 +17,7 @@ concurrency:
 jobs:
   verificar:
     name: Compila e testa o site
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
       mysql:
@@ -36,9 +36,9 @@ jobs:
       VITE_SITE_URL: https://agropartsuy.com
       UPLOADS_DIR: ${{ github.workspace }}/.ci-uploads
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -75,11 +75,11 @@ jobs:
     name: Liberar para a Hostinger (ramo producao)
     needs: verificar
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Atualizar o ramo producao
