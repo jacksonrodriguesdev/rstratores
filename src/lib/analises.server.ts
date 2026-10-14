@@ -7,7 +7,7 @@ const EV = "/_evento/";
 const H = 3600_000;
 const FUSO = -3 * H;
 
-type Pagina = {
+export type Pagina = {
   created_at: Date;
   path: string;
   visitor_id: string | null;
@@ -24,21 +24,21 @@ type Pagina = {
   os: string | null;
   language: string | null;
 };
-type Evento = { created_at: Date; tipo: string; dado: string; visitor_id: string | null; session_id: string | null; city: string | null; region: string | null; country_code: string | null };
+export type Evento = { created_at: Date; tipo: string; dado: string; visitor_id: string | null; session_id: string | null; city: string | null; region: string | null; country_code: string | null };
 
-const local = (d: Date) => new Date(d.getTime() + FUSO);
-const diaLocal = (d: Date) => local(d).toISOString().slice(0, 10);
-const desdeDias = (dias: number) => new Date(Date.now() - dias * 24 * H);
+export const local = (d: Date) => new Date(d.getTime() + FUSO);
+export const diaLocal = (d: Date) => local(d).toISOString().slice(0, 10);
+export const desdeDias = (dias: number) => new Date(Date.now() - dias * 24 * H);
 const regiaoDe = (l: { region: string | null; city: string | null; country: string | null; country_code: string | null }) =>
   l.region || l.city || l.country || l.country_code || "Desconhecida";
 const paisDe = (l: { country: string | null; country_code: string | null }) => l.country || l.country_code || "—";
 // "pt:pt-BR" → "pt"; registros antigos (sem prefixo) eram todos do site em espanhol
-const idiomaSite = (lang: string | null) => (lang?.startsWith("pt:") ? "pt" : "es");
-const sessao = (l: { session_id: string | null; visitor_id: string | null; created_at: Date }) =>
+export const idiomaSite = (lang: string | null) => (lang?.startsWith("pt:") ? "pt" : "es");
+export const sessao = (l: { session_id: string | null; visitor_id: string | null; created_at: Date }) =>
   l.session_id || `${l.visitor_id ?? "?"}-${diaLocal(l.created_at)}`;
-const canalDe = (f: string | null) => f || "direto";
+export const canalDe = (f: string | null) => f || "direto";
 
-async function paginas(desde: Date, ate?: Date): Promise<Pagina[]> {
+export async function paginas(desde: Date, ate?: Date): Promise<Pagina[]> {
   return (await prisma.site_visits.findMany({
     where: { created_at: { gte: desde, ...(ate && { lt: ate }) }, NOT: { path: { startsWith: EV } } },
     select: {
@@ -50,7 +50,7 @@ async function paginas(desde: Date, ate?: Date): Promise<Pagina[]> {
   })) as Pagina[];
 }
 
-async function eventos(desde: Date, tipos: string[]): Promise<Evento[]> {
+export async function eventos(desde: Date, tipos: string[]): Promise<Evento[]> {
   const rows = await prisma.site_visits.findMany({
     where: { created_at: { gte: desde }, OR: tipos.map((t) => ({ path: { startsWith: `${EV}${t}/` } })) },
     select: { created_at: true, path: true, visitor_id: true, session_id: true, city: true, region: true, country_code: true },
@@ -72,7 +72,7 @@ async function eventos(desde: Date, tipos: string[]): Promise<Evento[]> {
   return out;
 }
 
-const skuDaPagina = (path: string) => {
+export const skuDaPagina = (path: string) => {
   if (!path.startsWith("/produto/")) return null;
   try {
     return decodeURIComponent(path.slice(9)).trim();
@@ -95,7 +95,7 @@ async function nomesDasPecas(skus: string[]) {
 const grupoPagina = (p: string) => (p.startsWith("/produto/") ? "/produto/*" : p.startsWith("/catalogos/") && p !== "/catalogos" ? "/catalogos/*" : p);
 
 const topo = <T,>(m: Map<string, T>, por: (v: T) => number, n: number) => [...m.entries()].sort((a, b) => por(b[1]) - por(a[1])).slice(0, n);
-const inc = (m: Map<string, number>, k: string, v = 1) => m.set(k, (m.get(k) ?? 0) + v);
+export const inc = (m: Map<string, number>, k: string, v = 1) => m.set(k, (m.get(k) ?? 0) + v);
 
 // ---------------------------------------------------------------- 1. Resumo
 export async function resumo(dias: number) {

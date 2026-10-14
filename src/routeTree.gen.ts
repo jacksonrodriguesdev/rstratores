@@ -23,6 +23,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAnalisesRouteImport } from './routes/admin.analises'
+import { Route as AdminAnunciosRouteImport } from './routes/admin.anuncios'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
 import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
@@ -157,6 +158,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAnalisesRoute = AdminAnalisesRouteImport.update({
   id: '/analises',
   path: '/analises',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnunciosRoute = AdminAnunciosRouteImport.update({
+  id: '/anuncios',
+  path: '/anuncios',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminBannersRoute = AdminBannersRouteImport.update({
@@ -501,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/analises': typeof AdminAnalisesRoute
+  '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
@@ -581,6 +588,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/analises': typeof AdminAnalisesRoute
+  '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
@@ -663,6 +671,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/analises': typeof AdminAnalisesRoute
+  '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
@@ -746,6 +755,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/analises'
+    | '/admin/anuncios'
     | '/admin/banners'
     | '/admin/carrinhos'
     | '/admin/catalogos'
@@ -826,6 +836,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/analises'
+    | '/admin/anuncios'
     | '/admin/banners'
     | '/admin/carrinhos'
     | '/admin/catalogos'
@@ -907,6 +918,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/analises'
+    | '/admin/anuncios'
     | '/admin/banners'
     | '/admin/carrinhos'
     | '/admin/catalogos'
@@ -1119,6 +1131,13 @@ declare module '@tanstack/react-router' {
       path: '/analises'
       fullPath: '/admin/analises'
       preLoaderRoute: typeof AdminAnalisesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/anuncios': {
+      id: '/admin/anuncios'
+      path: '/anuncios'
+      fullPath: '/admin/anuncios'
+      preLoaderRoute: typeof AdminAnunciosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/banners': {
@@ -1581,6 +1600,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAnalisesRoute: typeof AdminAnalisesRoute
+  AdminAnunciosRoute: typeof AdminAnunciosRoute
   AdminBannersRoute: typeof AdminBannersRoute
   AdminCarrinhosRoute: typeof AdminCarrinhosRoute
   AdminCatalogosRoute: typeof AdminCatalogosRoute
@@ -1609,6 +1629,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalisesRoute: AdminAnalisesRoute,
+  AdminAnunciosRoute: AdminAnunciosRoute,
   AdminBannersRoute: AdminBannersRoute,
   AdminCarrinhosRoute: AdminCarrinhosRoute,
   AdminCatalogosRoute: AdminCatalogosRoute,

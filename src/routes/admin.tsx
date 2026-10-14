@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   BarChart3,
   LayoutDashboard, Package, Upload, LogOut, Tags, Calculator, Image, Flame, Globe2, BookOpen, Users, ShoppingCart, Mail,
-  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, Plug, Route as RouteIcon, type LucideIcon,
+  Zap, Images, ChevronDown, PanelLeftClose, PanelLeftOpen, Menu, X, ExternalLink, Home, Sparkles, Plug, Megaphone, Route as RouteIcon, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -52,6 +52,7 @@ const GRUPOS: Grupo[] = [
         ],
       },
       { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
+      { to: "/admin/anuncios", label: "Criador de anúncios", icon: Megaphone },
       { to: "/admin/marketing", label: "Integrações (Meta e Google)", icon: Plug },
     ],
   },
