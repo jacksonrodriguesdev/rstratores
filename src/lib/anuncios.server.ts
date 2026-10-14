@@ -887,6 +887,7 @@ export async function criadorAnuncios(dias: number) {
     marcas,
     produtos: candidatos,
     semResultado,
+    buscasReais: [...termos.values()].filter((t) => t.resultados > 0).sort((a, b) => b.vezes - a.vezes).slice(0, 80).map(({ termo, vezes }) => ({ termo, vezes })),
     perfis,
     campanhas,
     metricas,

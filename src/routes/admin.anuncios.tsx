@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { z } from "zod";
 import {
-  Megaphone, Stethoscope, MapPin, Users, Rocket, Target, Package, Type, CalendarDays, Copy, Check, Loader2, ExternalLink, AlertTriangle, CheckCircle2, Lightbulb, SearchX,
+  Megaphone, Stethoscope, MapPin, Users, Rocket, Target, Package, Type, CalendarDays, Copy, Check, Loader2, ExternalLink, AlertTriangle, CheckCircle2, Lightbulb, SearchX, KeyRound, Download,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { EChart } from "@/components/admin/EChart";
@@ -11,6 +11,7 @@ import { criadorAnunciosFn } from "@/lib/anuncios";
 import type { CriadorAnuncios } from "@/lib/anuncios.server";
 import { fmtUYU, fmtBRL } from "@/lib/precos";
 import { cn } from "@/lib/utils";
+import { gerarPalavras, csvGoogleAds, NEGATIVAS_PADRAO, type Grupo } from "@/lib/palavras-chave";
 
 // Admin → Criador de anúncios: estratégia de Meta e Google a partir dos dados do site
 const ABAS = [
@@ -22,6 +23,7 @@ const ABAS = [
   { id: "produtos", nome: "Peças para anunciar", icone: Package },
   { id: "textos", nome: "Textos da página inicial", icone: Type },
   { id: "calendario", nome: "Calendário agrícola", icone: CalendarDays },
+  { id: "palavras", nome: "Palavras-chave (SEO + Google)", icone: KeyRound },
 ] as const;
 type Aba = (typeof ABAS)[number]["id"];
 
@@ -82,6 +84,7 @@ function CriadorPage() {
           {aba === "produtos" && <Produtos d={d} />}
           {aba === "textos" && <Textos d={d} />}
           {aba === "calendario" && <Calendario d={d} />}
+          {aba === "palavras" && <Palavras d={d} />}
         </>
       )}
     </div>
@@ -592,6 +595,116 @@ function Calendario({ d }: { d: CriadorAnuncios }) {
             </div>
           </Card>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- 9. Palavras-chave
+const SITE = "https://agropartsuy.com";
+const GRUPOS: Grupo[] = ["Autoridade", "Local", "Fronteira", "Marca", "Categoria", "Marca + categoria", "Modelo", "Buscas reais", "Conteúdo"];
+const DESC_GRUPO: Record<Grupo, string> = {
+  Autoridade: "\"Mayor tienda / maior loja\", distribuidora, loja online: a marca como referência",
+  Local: "Cada departamento, cidade e região com sua própria página",
+  Fronteira: "Brasileiro que procura peças no Uruguai / Chuí",
+  Marca: "Repuestos Massey, John Deere, Valtra...",
+  Categoria: "Filtros, embragues, hidráulica...",
+  "Marca + categoria": "Filtros John Deere, embrague Massey...",
+  Modelo: "Cauda longa: embrague MF 290, bomba hidráulica Valtra 785",
+  "Buscas reais": "O que os visitantes já digitaram na busca do site",
+  Conteúdo: "Perguntas: viram artigos/guias (tráfego orgânico)",
+};
+function Palavras({ d }: { d: CriadorAnuncios }) {
+  const todas = useMemo(() => gerarPalavras({ buscasReais: d.buscasReais }), [d.buscasReais]);
+  const [mercado, setMercado] = useState<"todos" | "UY" | "RS">("todos");
+  const [grupo, setGrupo] = useState<Grupo | "todos">("todos");
+  const [prio, setPrio] = useState<0 | 1 | 2>(0);
+  const [q, setQ] = useState("");
+  const [limite, setLimite] = useState(200);
+  const lista = todas.filter(
+    (p) => (mercado === "todos" || p.mercado === mercado) && (grupo === "todos" || p.grupo === grupo) && (!prio || p.prioridade <= prio) && (!q || p.termo.includes(q.toLowerCase())),
+  );
+  const baixar = (nome: string, texto: string) => {
+    const url = URL.createObjectURL(new Blob(["﻿" + texto], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nome;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  const conta = (g: Grupo) => todas.filter((p) => p.grupo === g && (mercado === "todos" || p.mercado === mercado)).length;
+  const pecas = d.marcas.reduce((a, m) => a + m.pecasComFoto, 0);
+  return (
+    <div className="space-y-4">
+      <Card className="border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+        <b>Importante:</b> "mayor tienda / maior loja" funciona como <b>palavra-chave</b> (é o que o cliente digita), mas no <b>texto do anúncio</b> o Google exige comprovação de terceiros para superlativos ("el mayor", "el mejor"). No anúncio use fatos verificáveis: "+{n(Math.floor(pecas / 1000) * 1000)} repuestos online", "Envío a todo Uruguay", "Distribuidores en Uruguay".
+      </Card>
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
+        {GRUPOS.map((g) => (
+          <button key={g} onClick={() => setGrupo(grupo === g ? "todos" : g)} className={cn("rounded-xl border p-3 text-left transition", grupo === g ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card hover:border-primary/40")}>
+            <p className="flex items-center justify-between text-sm font-semibold">{g} <span className="tabular-nums text-primary">{n(conta(g))}</span></p>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{DESC_GRUPO[g]}</p>
+          </button>
+        ))}
+      </div>
+      <Card className="flex flex-wrap items-center gap-2 p-3">
+        <div className="flex rounded-md border p-0.5 text-xs">
+          {([["todos", "Todos"], ["UY", "Uruguai (es)"], ["RS", "RS (pt)"]] as const).map(([v, r]) => (
+            <button key={v} onClick={() => setMercado(v)} className={cn("rounded px-2.5 py-1 font-semibold", mercado === v ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{r}</button>
+          ))}
+        </div>
+        <div className="flex rounded-md border p-0.5 text-xs">
+          {([[0, "Todas"], [1, "Prioridade 1"], [2, "Prioridade 1 e 2"]] as const).map(([v, r]) => (
+            <button key={v} onClick={() => setPrio(v)} className={cn("rounded px-2.5 py-1 font-semibold", prio === v ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{r}</button>
+          ))}
+        </div>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrar (ex.: rocha, massey)" className="h-8 w-52 rounded-md border bg-background px-2 text-sm" />
+        <span className="text-sm text-muted-foreground"><b className="text-foreground">{n(lista.length)}</b> palavras</span>
+        <div className="ml-auto flex flex-wrap gap-2">
+          <button onClick={() => baixar(`palavras-google-ads-${mercado}.csv`, csvGoogleAds(lista, SITE))} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"><Download className="h-4 w-4" /> CSV p/ Google Ads Editor</button>
+          <Copiar texto={lista.map((p) => p.termo).join("\n")} rotulo="Copiar lista" />
+          <Copiar texto={[...(mercado !== "RS" ? NEGATIVAS_PADRAO.es : []), ...(mercado !== "UY" ? NEGATIVAS_PADRAO.pt : [])].join("\n")} rotulo="Copiar negativas" />
+        </div>
+      </Card>
+      <Card className="overflow-x-auto p-0">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
+            <tr><th className="px-3 py-2">Palavra-chave</th><th>Grupo</th><th className="text-center">Prior.</th><th>Corresp.</th><th>Página de destino</th><th>Campanha · grupo de anúncios</th><th>Uso</th></tr>
+          </thead>
+          <tbody className="divide-y">
+            {lista.slice(0, limite).map((p) => (
+              <tr key={`${p.idioma}${p.termo}`} className="hover:bg-muted/30">
+                <td className="px-3 py-1.5 font-medium">{p.termo} <span className="ml-1 rounded bg-muted px-1 text-[10px] uppercase text-muted-foreground">{p.idioma}</span></td>
+                <td className="text-xs">{p.grupo}</td>
+                <td className="text-center"><span className={cn("inline-block h-5 w-5 rounded-full text-center text-[11px] font-bold leading-5", p.prioridade === 1 ? "bg-emerald-600 text-white" : p.prioridade === 2 ? "bg-amber-100 text-amber-800" : "bg-muted text-muted-foreground")}>{p.prioridade}</span></td>
+                <td className="text-xs">{p.correspondencia}</td>
+                <td className="max-w-[260px] truncate text-xs">{p.destino ? <a href={p.destino} target="_blank" rel="noreferrer" className="text-primary hover:underline">{p.destino}</a> : <span className="text-amber-700">criar artigo</span>}</td>
+                <td className="text-xs text-muted-foreground">{p.campanha} · {p.grupoAnuncio}</td>
+                <td className="text-xs">{p.uso}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {lista.length > limite && <div className="p-3 text-center"><button onClick={() => setLimite((l) => l + 500)} className="text-sm font-semibold text-primary hover:underline">Mostrar mais ({n(lista.length - limite)} restantes)</button></div>}
+      </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Painel titulo="Como usar no Google Ads">
+          <ol className="list-decimal space-y-1 pl-5 text-sm">
+            <li>Filtre "Uruguai (es)" e "Prioridade 1 e 2" e baixe o CSV.</li>
+            <li>No Google Ads Editor: Conta → Importar → Do arquivo. Ele cria campanhas e grupos de anúncios com as palavras e a página certa de cada uma.</li>
+            <li>Em cada campanha: local "Uruguai (presença)", idioma espanhol, lance "Maximizar conversões" (conversão = clique no WhatsApp).</li>
+            <li>Adicione as negativas como lista compartilhada e use os títulos/descrições da aba Campanhas prontas.</li>
+            <li>Depois de 2 semanas, veja os "Termos de pesquisa": passe os bons para correspondência exata e os ruins para negativas.</li>
+          </ol>
+        </Painel>
+        <Painel titulo="Como funciona no Google orgânico (SEO)">
+          <ul className="list-disc space-y-1 pl-5 text-sm">
+            <li>Cada grupo já tem sua página no site: <b>48 páginas por local</b> (/repuestos-agricolas/…), páginas por marca, por categoria, por marca + categoria e cada peça.</li>
+            <li>Todas em espanhol e português (/pt), com hreflang, dados estruturados (FAQ, lista de produtos, trilha) e no sitemap.</li>
+            <li>Os termos de "Conteúdo" pedem artigos/guias: próxima etapa para atrair quem ainda está pesquisando.</li>
+            <li>Peça avaliações no Google Meu Negócio citando a cidade do cliente: ajuda nas buscas locais.</li>
+          </ul>
+        </Painel>
       </div>
     </div>
   );
