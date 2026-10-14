@@ -168,7 +168,9 @@ export const listarCarrinhosFn = createServerFn({ method: "GET" })
       let itens: ItemCarrinho[] = [];
       try {
         itens = JSON.parse(r.itens);
-      } catch {}
+      } catch {
+        /* itens inválidos: carrinho aparece vazio */
+      }
       const l = local.get(r.visitante_id);
       return {
         id: r.id,

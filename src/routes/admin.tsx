@@ -159,7 +159,9 @@ function AdminLayout() {
       .catch(() => (window.location.href = "/login"));
     try {
       setRecolhido(localStorage.getItem(CHAVE) === "1");
-    } catch {}
+    } catch {
+      /* sem localStorage: menu aberto */
+    }
   }, []);
 
   // Fecha a gaveta do celular ao trocar de página
@@ -169,7 +171,9 @@ function AdminLayout() {
     setRecolhido((v) => {
       try {
         localStorage.setItem(CHAVE, v ? "0" : "1");
-      } catch {}
+      } catch {
+        /* sem localStorage: só não lembra */
+      }
       return !v;
     });
   };

@@ -31,5 +31,9 @@ export const Route = createFileRoute("/repuestos-agricolas/")({
       ],
     };
   },
-  component: () => <PaginaZonas total={Route.useLoaderData().total} />,
+  component: PaginaDasZonas,
 });
+
+function PaginaDasZonas() {
+  return <PaginaZonas total={Route.useLoaderData().total} />;
+}

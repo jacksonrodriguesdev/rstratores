@@ -205,7 +205,9 @@ export async function registrarVendaFechada(carrinhoId: number) {
   let itens: Array<{ sku: string; quantity: number }> = [];
   try {
     itens = JSON.parse(c.itens);
-  } catch {}
+  } catch {
+    /* itens inválidos: envia a compra sem a lista de peças */
+  }
   const u = c.user;
   const meta = await enviarEventoMeta({
     evento: "Purchase",

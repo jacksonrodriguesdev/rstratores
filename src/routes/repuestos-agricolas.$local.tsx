@@ -36,8 +36,10 @@ export const Route = createFileRoute("/repuestos-agricolas/$local")({
       })),
     };
   },
-  component: () => {
-    const { local, dados } = Route.useLoaderData();
-    return <PaginaLocal local={local} dados={dados} />;
-  },
+  component: PaginaDoLocal,
 });
+
+function PaginaDoLocal() {
+  const { local, dados } = Route.useLoaderData();
+  return <PaginaLocal local={local} dados={dados} />;
+}

@@ -75,7 +75,9 @@ function PesquisaPrecos() {
   useEffect(() => {
     try {
       localStorage.setItem("pp_regra", regra);
-    } catch {}
+    } catch {
+      /* navegador sem localStorage: só não lembra a regra */
+    }
   }, [regra]);
   useEffect(() => {
     if (busca.ml === "ok") toast.success("Mercado Livre conectado");
@@ -669,7 +671,8 @@ function Resultados({
                     onChange={() =>
                       setMarcados((s) => {
                         const n = new Set(s);
-                        n.has(r.sku) ? n.delete(r.sku) : n.add(r.sku);
+                        if (n.has(r.sku)) n.delete(r.sku);
+                        else n.add(r.sku);
                         return n;
                       })
                     }

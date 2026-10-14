@@ -470,8 +470,8 @@ function NovoBanner({
     const c = celular ? URL.createObjectURL(celular) : null;
     setPrevia({ d, c });
     return () => {
-      d && URL.revokeObjectURL(d);
-      c && URL.revokeObjectURL(c);
+      if (d) URL.revokeObjectURL(d);
+      if (c) URL.revokeObjectURL(c);
     };
   }, [desktop, celular]);
 

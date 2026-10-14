@@ -77,7 +77,9 @@ export const listarCampanhasFn = createServerFn({ method: "GET" }).handler(
       let cabecalho: string | null = null;
       try {
         cabecalho = (JSON.parse(r.conteudo) as ConteudoEmail).cabecalho || null;
-      } catch {}
+      } catch {
+        /* conteúdo antigo/inválido: sem cabeçalho */
+      }
       return {
         id: r.id,
         nome: r.nome,

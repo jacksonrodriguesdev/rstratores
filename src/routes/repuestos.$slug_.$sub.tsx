@@ -46,8 +46,10 @@ export const Route = createFileRoute("/repuestos/$slug_/$sub")({
       })),
     };
   },
-  component: () => {
-    const { marca, categoria, dados } = Route.useLoaderData();
-    return <PaginaRepuestos marca={marca} categoria={categoria} dados={dados} />;
-  },
+  component: Pagina,
 });
+
+function Pagina() {
+  const { marca, categoria, dados } = Route.useLoaderData();
+  return <PaginaRepuestos marca={marca} categoria={categoria} dados={dados} />;
+}

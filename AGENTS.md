@@ -26,7 +26,10 @@ Deploy na Hostinger: ver `docs/DEPLOY_HOSTINGER.md`.
   `--aplicar` grava com backup em `dados/`, `--restaurar` desfaz).
 - Mudança no `prisma/schema.prisma`: pare o servidor de desenvolvimento antes do
   `npx prisma db push` (no Windows o arquivo do Prisma fica travado).
-- Verificação automática (`.github/workflows/verificar.yml`): TypeScript, banco MySQL de teste
+- Formatação: Prettier (`.prettierrc`). Antes de enviar: `npx prettier --write <arquivos>` e
+  `npm run lint` (zero erros; a verificação do GitHub bloqueia se falhar). O commit da formatação
+  geral está em `.git-blame-ignore-revs` (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
+- Verificação automática (`.github/workflows/verificar.yml`): TypeScript, lint, banco MySQL de teste
   com `scripts/ci/semente.cjs`, `scripts/ci/testar-resumo.ts`, build e `scripts/ci/fumaca.cjs`
   (páginas principais). Passou → o código vai para o ramo `producao`, que a Hostinger publica.
   Página nova importante? Acrescente em `PAGINAS` no `fumaca.cjs`.

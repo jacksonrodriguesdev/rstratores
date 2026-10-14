@@ -49,6 +49,9 @@ jobs:
       - name: Tipos (TypeScript)
         run: npx tsc --noEmit
 
+      - name: Lint e formatação (ESLint + Prettier)
+        run: npm run lint
+
       - name: Banco de teste
         run: |
           npx prisma db push --skip-generate
