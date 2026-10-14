@@ -45,8 +45,8 @@ const PREGUNTAS = {
       r: "Trabalhamos com mais de 49.000 peças. A maioria já tem preço publicado; nas demais, o preço depende da marca e da disponibilidade. Pelo WhatsApp passamos o preço final, o prazo e o frete na hora, sem compromisso.",
     },
     {
-      p: "Vocês enviam para todo o Brasil?",
-      r: "Sim. Estamos na fronteira Chuí / Chuy e enviamos para qualquer cidade do Brasil por Correios ou transportadora. Quando o pedido sai, mandamos o código de rastreio pelo WhatsApp.",
+      p: "Vocês enviam para todo o Rio Grande do Sul?",
+      r: "Sim. Estamos na fronteira Chuí / Chuy e enviamos para qualquer cidade do Rio Grande do Sul por Correios ou transportadora. Quando o pedido sai, mandamos o código de rastreio pelo WhatsApp.",
     },
     {
       p: "Posso pedir várias peças juntas?",
@@ -75,7 +75,7 @@ export const Route = createFileRoute("/ayuda")({
           name: "description",
           content: t(
             "Cómo comprar repuestos agrícolas en AGRO PARTS: cotización por WhatsApp, envíos a todo Uruguay por DAC, formas de pago y preguntas frecuentes.",
-            "Como comprar peças agrícolas na AGRO PARTS: orçamento pelo WhatsApp, envio para todo o Brasil, formas de pagamento e perguntas frequentes.",
+            "Como comprar peças agrícolas na AGRO PARTS: orçamento pelo WhatsApp, envio para todo o Rio Grande do Sul, formas de pagamento e perguntas frequentes.",
           ),
         },
       ],
@@ -160,9 +160,9 @@ function AyudaPage() {
         </Seccion>
 
         {pt ? (
-          <Seccion id="envios" icon={Truck} titulo="Envio para o Brasil">
+          <Seccion id="envios" icon={Truck} titulo="Envio para o Rio Grande do Sul">
             <p className="flex items-center gap-2 font-semibold text-zinc-900">
-              <BandeiraBrasil className="h-4 w-6 rounded-sm" /> Enviamos para qualquer cidade do Brasil por Correios ou transportadora.
+              <BandeiraBrasil className="h-4 w-6 rounded-sm" /> Enviamos para qualquer cidade do Rio Grande do Sul por Correios ou transportadora.
             </p>
             <p>Estamos na fronteira Chuí / Chuy. Quando o pedido sai, mandamos o código de rastreio pelo WhatsApp para você acompanhar a entrega.</p>
             <p>O frete e o prazo são confirmados junto com o orçamento, conforme a sua cidade. O frete é pago pelo cliente.</p>

@@ -44,7 +44,7 @@ export function AuthShell({ titulo, subtitulo, children }: { titulo: string; sub
             ))}
           </ul>
         </div>
-        <p className="relative text-sm text-white/50">© {new Date().getFullYear()} AGRO PARTS · {t("Envíos a todo Uruguay", "Envio para todo o Brasil")}</p>
+        <p className="relative text-sm text-white/50">© {new Date().getFullYear()} AGRO PARTS · {t("Envíos a todo Uruguay", "Envio para todo o Rio Grande do Sul")}</p>
       </aside>
 
       {/* Formulário */}

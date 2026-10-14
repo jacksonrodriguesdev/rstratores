@@ -99,10 +99,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
   head: ({ loaderData, match }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
     const t = (es: string, pt: string) => tr(idioma, es, pt);
-    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Brasil");
+    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Rio Grande do Sul");
     const resumo = t(
       "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      "Peças para tratores e colheitadeiras. Envio para todo o Brasil por Correios ou transportadora. Orçamento pelo WhatsApp.",
+      "Peças para tratores e colheitadeiras. Envio para todo o Rio Grande do Sul por Correios ou transportadora. Orçamento pelo WhatsApp.",
     );
     return {
     meta: [
@@ -121,7 +121,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
         name: "description",
         content: t(
           "Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-          "Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Envio para todo o Brasil. Orçamento pelo WhatsApp.",
+          "Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Envio para todo o Rio Grande do Sul. Orçamento pelo WhatsApp.",
         ),
       },
       { property: "og:locale", content: OG_LOCALE[idioma] },

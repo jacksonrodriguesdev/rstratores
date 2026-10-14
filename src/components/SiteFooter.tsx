@@ -9,7 +9,7 @@ import { SeletorIdioma } from "@/components/SeletorIdioma";
 
 const AYUDA = [
   { label: ["Cómo comprar", "Como comprar"], hash: "como-comprar" },
-  { label: ["Envíos a Uruguay", "Envio para o Brasil"], hash: "envios" },
+  { label: ["Envíos a Uruguay", "Envio para o Rio Grande do Sul"], hash: "envios" },
   { label: ["Formas de pago", "Formas de pagamento"], hash: "pagos" },
   { label: ["Garantía y devoluciones", "Garantia e trocas"], hash: "garantia" },
   { label: ["Preguntas frecuentes", "Perguntas frequentes"], hash: "preguntas" },
@@ -34,7 +34,7 @@ export function SiteFooter() {
           <p className="text-sm leading-relaxed">
             {t(
               "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Enviamos a todo Uruguay por DAC.",
-              "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Enviamos para todo o Brasil por Correios ou transportadora.",
+              "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Enviamos para todo o Rio Grande do Sul por Correios ou transportadora.",
             )}
           </p>
         </div>
@@ -66,7 +66,7 @@ export function SiteFooter() {
               <span>
                 {t("Tienda online · Chuy, Rocha (frontera con Brasil)", "Loja online · Chuí / Chuy (fronteira Brasil–Uruguai)")}
                 <br />
-                {t("Atendemos por WhatsApp y enviamos por DAC a todo Uruguay.", "Atendemos pelo WhatsApp e enviamos para todo o Brasil por Correios ou transportadora.")}
+                {t("Atendemos por WhatsApp y enviamos por DAC a todo Uruguay.", "Atendemos pelo WhatsApp e enviamos para todo o Rio Grande do Sul por Correios ou transportadora.")}
               </span>
             </li>
           </ul>
@@ -116,7 +116,7 @@ export function SiteFooter() {
             </li>
             <li className="flex items-center gap-2">
               {idioma === "pt" ? <BandeiraBrasil className="h-3.5 w-5 rounded-[2px]" /> : <BandeiraUruguay className="h-3.5 w-5 rounded-[2px]" />}{" "}
-              {t("Atendemos todo Uruguay", "Atendemos todo o Brasil")}
+              {t("Atendemos todo Uruguay", "Atendemos todo o RS e todo o Uruguai")}
             </li>
           </ul>
           {(INSTAGRAM_URL || FACEBOOK_URL) && (

@@ -22,10 +22,10 @@ const modelos = (m: MarcaSeo, idioma: Idioma) => (idioma === "pt" ? m.modelos.re
 
 export function tituloRepuestos(marca?: MarcaSeo | null, categoria?: CategoriaSeo | null, idioma: Idioma = "es") {
   if (idioma === "pt") {
-    if (marca && categoria) return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Brasil`;
-    if (marca) return `Peças ${marca.marca} com envio para todo o Brasil`;
-    if (categoria) return `${nomeCat(categoria, idioma)} para tratores com envio para todo o Brasil`;
-    return "Peças para tratores com envio para todo o Brasil";
+    if (marca && categoria) return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Rio Grande do Sul`;
+    if (marca) return `Peças ${marca.marca} com envio para todo o Rio Grande do Sul`;
+    if (categoria) return `${nomeCat(categoria, idioma)} para tratores com envio para todo o Rio Grande do Sul`;
+    return "Peças para tratores com envio para todo o Rio Grande do Sul";
   }
   if (marca && categoria) return `${categoria.nome} para ${marca.marca} en Uruguay`;
   if (marca) return `Repuestos ${marca.marca} en Uruguay`;
@@ -36,10 +36,10 @@ export function tituloRepuestos(marca?: MarcaSeo | null, categoria?: CategoriaSe
 export function descricaoRepuestos(marca?: MarcaSeo | null, categoria?: CategoriaSeo | null, total?: number, idioma: Idioma = "es") {
   if (idioma === "pt") {
     const qtd = total ? `${fmt(total, idioma)} peças` : "Peças";
-    if (marca && categoria) return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para tratores ${marca.marca}. Código original, envio para todo o Brasil e orçamento pelo WhatsApp.`;
-    if (marca) return `${qtd} para tratores ${marca.marca} (${modelos(marca, idioma).split(",").slice(0, 4).join(",")}…). Envio para todo o Brasil. Orçamento pelo WhatsApp.`;
-    if (categoria) return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland e mais. Envio para todo o Brasil.`;
-    return "Peças para tratores e colheitadeiras com envio para todo o Brasil.";
+    if (marca && categoria) return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para tratores ${marca.marca}. Código original, envio para todo o Rio Grande do Sul e orçamento pelo WhatsApp.`;
+    if (marca) return `${qtd} para tratores ${marca.marca} (${modelos(marca, idioma).split(",").slice(0, 4).join(",")}…). Envio para todo o Rio Grande do Sul. Orçamento pelo WhatsApp.`;
+    if (categoria) return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland e mais. Envio para todo o Rio Grande do Sul.`;
+    return "Peças para tratores e colheitadeiras com envio para todo o Rio Grande do Sul.";
   }
   const qtd = total ? `${fmt(total)} repuestos` : "Repuestos";
   if (marca && categoria) return `${qtd} de ${categoria.nome.toLowerCase()} para tractores ${marca.marca}. Código original, envío a todo Uruguay por DAC y cotización por WhatsApp.`;
@@ -141,7 +141,7 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
               </a>
             </div>
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
-              <li className="flex items-center gap-2"><Truck className="h-4 w-4 text-amber-300" /> {t("Envíos a todo Uruguay por DAC", "Envio para todo o Brasil")}</li>
+              <li className="flex items-center gap-2"><Truck className="h-4 w-4 text-amber-300" /> {t("Envíos a todo Uruguay por DAC", "Envio para todo o Rio Grande do Sul")}</li>
               <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-amber-300" /> {t("Código original y compatibilidad confirmada", "Código original e compatibilidade confirmada")}</li>
               <li className="flex items-center gap-2"><MessageCircle className="h-4 w-4 text-amber-300" /> {t("Atención por WhatsApp", "Atendimento pelo WhatsApp")}</li>
             </ul>

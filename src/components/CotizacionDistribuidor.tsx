@@ -26,7 +26,7 @@ export const VANTAGENS = [
 // Versão em português (cliente do Brasil)
 export const VANTAGENS_PT = [
   { icon: PackageCheck, titulo: "Catálogo amplo", texto: "Peças para tratores e colheitadeiras de todas as marcas." },
-  { icon: Truck, titulo: "Envio para todo o Brasil", texto: "Por Correios ou transportadora, com rastreio." },
+  { icon: Truck, titulo: "Envio para todo o Rio Grande do Sul", texto: "Por Correios ou transportadora, com rastreio." },
   { icon: Wrench, titulo: "A peça certa", texto: "Confirmamos a compatibilidade antes de enviar." },
   { icon: MessageCircle, titulo: "Resposta pelo WhatsApp", texto: "Passamos preço, disponibilidade e frete." },
 ];
@@ -187,7 +187,7 @@ export function CotizacionDistribuidorBlock() {
               {t("Distribuidores en Uruguay", "Na fronteira Chuí / Chuy")}
             </span>
             <h2 id="cotizar-titulo" className="mt-4 text-3xl font-extrabold leading-tight md:text-[2.6rem] md:leading-[1.08]">
-              {t("Somos distribuidores de repuestos agrícolas en Uruguay", "Peças agrícolas com envio para todo o Brasil")}
+              {t("Somos distribuidores de repuestos agrícolas en Uruguay", "Peças agrícolas com envio para todo o Rio Grande do Sul")}
             </h2>
             <p className="mt-3 text-lg font-bold text-amber-300 md:text-xl">{t("Hacé tu cotización con nosotros.", "Peça seu orçamento com a gente.")}</p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-1">

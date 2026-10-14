@@ -33,7 +33,7 @@ export const MARCAS_SEO: MarcaSeo[] = [
     marca: "John Deere",
     modelos: "John Deere series 5000, 6000 y 7000 (5705, 5725, 6110J, 6405, 6605, 7505) y cosechadoras",
     texto: "Repuestos para tractores y cosechadoras John Deere: filtros, rodamientos, juntas, piezas de motor, hidráulica y transmisión. Consultá precio y disponibilidad por WhatsApp y recibí en todo Uruguay.",
-    texto_pt: "Peças para tratores e colheitadeiras John Deere: filtros, rolamentos, juntas, peças de motor, hidráulica e transmissão. Consulte preço e disponibilidade pelo WhatsApp e receba em todo o Brasil.",
+    texto_pt: "Peças para tratores e colheitadeiras John Deere: filtros, rolamentos, juntas, peças de motor, hidráulica e transmissão. Consulte preço e disponibilidade pelo WhatsApp e receba em todo o Rio Grande do Sul.",
   },
   {
     marca: "Case IH",
@@ -92,8 +92,8 @@ export function perguntasFrequentes(alvo: string, idioma: "es" | "pt" = "es") {
   if (idioma === "pt")
     return [
       {
-        p: "Vocês enviam para todo o Brasil?",
-        r: "Sim. Enviamos para qualquer cidade do Brasil por Correios ou transportadora, com código de rastreio. Estamos na fronteira Chuí / Chuy. O frete é combinado pelo WhatsApp e pago pelo cliente.",
+        p: "Vocês enviam para todo o Rio Grande do Sul?",
+        r: "Sim. Enviamos para qualquer cidade do Rio Grande do Sul por Correios ou transportadora, com código de rastreio. Estamos na fronteira Chuí / Chuy. O frete é combinado pelo WhatsApp e pago pelo cliente.",
       },
       {
         p: `Como sei se a peça ${alvo} é a certa para o meu trator?`,

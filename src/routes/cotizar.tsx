@@ -15,15 +15,15 @@ export const Route = createFileRoute("/cotizar")({
     return {
       links: linksIdioma("/cotizar", idioma),
       meta: [
-        { title: t("Cotizá repuestos agrícolas — Distribuidores en Uruguay | AGRO PARTS", "Orçamento de peças agrícolas com envio para o Brasil | AGRO PARTS") },
+        { title: t("Cotizá repuestos agrícolas — Distribuidores en Uruguay | AGRO PARTS", "Orçamento de peças agrícolas com envio para o Rio Grande do Sul | AGRO PARTS") },
         {
           name: "description",
           content: t(
             "Somos distribuidores de repuestos para tractores y cosechadoras en Uruguay. Pedí tu cotización gratis: te respondemos por WhatsApp. Envíos por DAC a los 19 departamentos.",
-            "Peças para tratores e colheitadeiras na fronteira Chuí / Chuy. Peça seu orçamento grátis: respondemos pelo WhatsApp. Envio para todo o Brasil.",
+            "Peças para tratores e colheitadeiras na fronteira Chuí / Chuy. Peça seu orçamento grátis: respondemos pelo WhatsApp. Envio para todo o Rio Grande do Sul.",
           ),
         },
-        { property: "og:title", content: t("Cotizá tus repuestos con AGRO PARTS — Distribuidores en Uruguay", "Peça seu orçamento na AGRO PARTS — envio para todo o Brasil") },
+        { property: "og:title", content: t("Cotizá tus repuestos con AGRO PARTS — Distribuidores en Uruguay", "Peça seu orçamento na AGRO PARTS — envio para todo o Rio Grande do Sul") },
         { property: "og:url", content: `${SITE_URL}${comPrefixo("/cotizar", idioma)}` },
       ],
     };
@@ -57,7 +57,7 @@ function CotizarPage() {
               {pt ? <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> : <BandeiraUruguay className="h-3.5 w-5 rounded-sm" />}{" "}
               {t("Distribuidores en Uruguay", "Na fronteira Chuí / Chuy")}
             </span>
-            <h1 className="mt-4 text-3xl font-extrabold leading-tight md:text-5xl md:leading-[1.05]">{t("Somos distribuidores de repuestos agrícolas en Uruguay", "Peças agrícolas com envio para todo o Brasil")}</h1>
+            <h1 className="mt-4 text-3xl font-extrabold leading-tight md:text-5xl md:leading-[1.05]">{t("Somos distribuidores de repuestos agrícolas en Uruguay", "Peças agrícolas com envio para todo o Rio Grande do Sul")}</h1>
             <p className="mt-3 text-xl font-bold text-amber-300 md:text-2xl">{t("Hacé tu cotización con nosotros.", "Peça seu orçamento com a gente.")}</p>
             <p className="mt-4 max-w-xl text-white/80">
               {t(

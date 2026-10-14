@@ -334,7 +334,7 @@ export function PromoStripBlock({ title, config }: { title: string | null; confi
 export function FeaturesStripBlock({ config }: { config: string | null }) {
   const { t } = useT();
   const itens = [
-    { icon: Truck, titulo: t("Envíos a todo Uruguay", "Envio para todo o Brasil"), texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio") },
+    { icon: Truck, titulo: t("Envíos a todo Uruguay", "Envio para todo o RS"), texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio") },
     { icon: ShieldCheck, titulo: t("Cotización sin compromiso", "Orçamento sem compromisso"), texto: t("Rápida y segura por WhatsApp", "Rápido e seguro pelo WhatsApp") },
     { icon: Headset, titulo: t("Atención especializada", "Atendimento especializado"), texto: t("Te ayudamos a encontrar la pieza exacta", "Ajudamos a encontrar a peça exata") },
   ];
@@ -593,7 +593,7 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
 
 function EnvioBrasilBlock() {
   const vantagens = [
-    { icon: MapPin, titulo: "Todo o Brasil", texto: "Enviamos para qualquer cidade do país." },
+    { icon: MapPin, titulo: "Todo o Rio Grande do Sul", texto: "Enviamos para qualquer cidade do país." },
     { icon: Search, titulo: "Código de rastreio", texto: "Você acompanha o pacote do envio até a entrega." },
     { icon: PackageCheck, titulo: "Embalagem cuidadosa", texto: "Cada peça é embalada para viajar protegida." },
     { icon: MessageCircle, titulo: "Frete combinado", texto: "Cotamos Correios ou transportadora e você escolhe." },
@@ -608,14 +608,14 @@ function EnvioBrasilBlock() {
         <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
-              <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> Envio para todo o Brasil
+              <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> Envio para todo o Rio Grande do Sul
             </span>
-            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">Receba suas peças em qualquer cidade do Brasil</h2>
+            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">Receba suas peças em qualquer cidade do Rio Grande do Sul</h2>
             <p className="mt-2 text-sm text-white/85 md:text-base">
               Estamos na fronteira Chuí / Chuy e enviamos por Correios ou transportadora, com código de rastreio.
             </p>
             <a
-              href={whatsappContactUrl("Olá! Quero consultar o frete de peças para o Brasil.")}
+              href={whatsappContactUrl("Olá! Quero consultar o frete de peças para o Rio Grande do Sul.")}
               target="_blank"
               rel="noreferrer noopener"
               className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"

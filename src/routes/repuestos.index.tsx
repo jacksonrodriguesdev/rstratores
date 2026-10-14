@@ -14,7 +14,7 @@ export const Route = createFileRoute("/repuestos/")({
     const titulo = t("Repuestos para tractores por marca y categoría | AGRO PARTS", "Peças para tratores por marca e categoria | AGRO PARTS");
     const desc = t(
       "Repuestos para Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford y Agrale: filtros, rodamientos, juntas, transmisión, hidráulica y más. Envíos a todo Uruguay.",
-      "Peças para Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford e Agrale: filtros, rolamentos, juntas, transmissão, hidráulica e mais. Envio para todo o Brasil.",
+      "Peças para Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford e Agrale: filtros, rolamentos, juntas, transmissão, hidráulica e mais. Envio para todo o Rio Grande do Sul.",
     );
     return {
       links: linksIdioma("/repuestos", idioma),
@@ -43,11 +43,11 @@ function IndiceRepuestos() {
               <Link to="/" className="hover:text-white">{t("Inicio", "Início")}</Link> <ChevronRight className="h-3.5 w-3.5" />{" "}
               <span className="text-white">{t("Repuestos", "Peças")}</span>
             </nav>
-            <h1 className="mt-3 text-3xl font-extrabold md:text-5xl">{t("Repuestos para tractores en Uruguay", "Peças para tratores com envio para todo o Brasil")}</h1>
+            <h1 className="mt-3 text-3xl font-extrabold md:text-5xl">{t("Repuestos para tractores en Uruguay", "Peças para tratores com envio para todo o Rio Grande do Sul")}</h1>
             <p className="mt-4 max-w-3xl text-white/85 md:text-lg">
               {t(
                 "Elegí la marca de tu tractor o el tipo de repuesto. Todas las piezas con código original y envío a todo Uruguay por DAC.",
-                "Escolha a marca do seu trator ou o tipo de peça. Todas as peças com código original e envio para todo o Brasil.",
+                "Escolha a marca do seu trator ou o tipo de peça. Todas as peças com código original e envio para todo o Rio Grande do Sul.",
               )}
             </p>
           </div>

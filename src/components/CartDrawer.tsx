@@ -140,7 +140,7 @@ export function CartDrawer() {
                 {t("Pedir precio por WhatsApp", "Pedir preço pelo WhatsApp")}
               </Button>
             </div>
-            <p className="text-center text-xs text-zinc-500">{t("Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.", "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Brasil.")}</p>
+            <p className="text-center text-xs text-zinc-500">{t("Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.", "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Rio Grande do Sul.")}</p>
 
             <button
               onClick={clearCart}

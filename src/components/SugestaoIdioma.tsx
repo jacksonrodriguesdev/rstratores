@@ -66,7 +66,7 @@ export function SugestaoIdioma() {
       {paraPt ? <BandeiraBrasil className="h-6 w-9 shrink-0 rounded" /> : <BandeiraUruguay className="h-6 w-9 shrink-0 rounded" />}
       <div className="min-w-0 flex-1 text-sm">
         <p className="font-bold text-zinc-900">{paraPt ? "Está no Brasil?" : "¿Estás en Uruguay?"}</p>
-        <p className="text-xs text-zinc-600">{paraPt ? "Veja o site em português, com preços em R$ e envio para o Brasil." : "Mirá el sitio en español, con precios en $U y envíos por DAC."}</p>
+        <p className="text-xs text-zinc-600">{paraPt ? "Veja o site em português, com preços em R$ e envio para o Rio Grande do Sul." : "Mirá el sitio en español, con precios en $U y envíos por DAC."}</p>
       </div>
       <button onClick={() => trocarIdioma(paraPt ? "pt" : "es")} className="shrink-0 rounded-xl bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">
         {paraPt ? "Ver em português" : "Ver en español"}

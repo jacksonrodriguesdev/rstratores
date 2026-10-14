@@ -39,12 +39,13 @@ const lojaLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/icon-512.png`,
-  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC y a todo Brasil.",
+  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC y a todo Rio Grande do Sul (Brasil).",
   telephone: `+${PHONE}`,
   email: "comercialrsautoparts@gmail.com",
   areaServed: [
     { "@type": "Country", name: "Uruguay" },
-    { "@type": "Country", name: "Brasil" },
+    // No Brasil, só o Rio Grande do Sul
+    { "@type": "State", name: "Rio Grande do Sul", containedInPlace: { "@type": "Country", name: "Brasil" } },
   ],
   address: {
     "@type": "PostalAddress",
@@ -70,7 +71,7 @@ export const Route = createFileRoute("/")({
   head: ({ match }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
     const t = (es: string, pt: string) => tr(idioma, es, pt);
-    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Brasil");
+    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Rio Grande do Sul");
     return {
       meta: [
         { title: titulo },
@@ -78,7 +79,7 @@ export const Route = createFileRoute("/")({
           name: "description",
           content: t(
             "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-            "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Brasil. Orçamento pelo WhatsApp.",
+            "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Rio Grande do Sul. Orçamento pelo WhatsApp.",
           ),
         },
         { property: "og:title", content: titulo },
@@ -86,7 +87,7 @@ export const Route = createFileRoute("/")({
           property: "og:description",
           content: t(
             "Más de 49.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-            "Mais de 49.000 peças para tratores e colheitadeiras. Envio para todo o Brasil. Orçamento pelo WhatsApp.",
+            "Mais de 49.000 peças para tratores e colheitadeiras. Envio para todo o Rio Grande do Sul. Orçamento pelo WhatsApp.",
           ),
         },
       ],
@@ -184,7 +185,7 @@ function HomePage() {
       <SiteHeader />
 
       <main>
-        <h1 className="sr-only">{t("Repuestos para tractores y maquinaria agrícola en Uruguay", "Peças para tratores e máquinas agrícolas com envio para todo o Brasil")}</h1>
+        <h1 className="sr-only">{t("Repuestos para tractores y maquinaria agrícola en Uruguay", "Peças para tratores e máquinas agrícolas com envio para todo o Rio Grande do Sul")}</h1>
         {hero.map((b) => (
           <Bloco key={b.id} block={b} />
         ))}

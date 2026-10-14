@@ -74,7 +74,7 @@ export const Route = createFileRoute("/produto/$sku")({
     const title = `${nome}${marca ? ` ${marca}` : ""} — Cód. ${codigo} | AGRO PARTS`;
     const desc = `${nome.charAt(0)}${nome.slice(1).toLowerCase()}, código ${codigo}${
       marca ? `, para ${marca}` : ""
-    }. ${t("Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.", "Envio para todo o Brasil. Consulte preço e disponibilidade pelo WhatsApp.")}`;
+    }. ${t("Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.", "Envio para todo o Rio Grande do Sul. Consulte preço e disponibilidade pelo WhatsApp.")}`;
     const caminho = `/produto/${encodeURIComponent(p.sku)}`;
     const url = `${SITE}${comPrefixo(caminho, idioma)}`;
     // "redeparts" é o logo do fornecedor usado como foto provisória: não serve como imagem da peça
@@ -393,7 +393,7 @@ function ProductDetail() {
               </div>
               <ul className="mt-4 space-y-2 text-sm text-zinc-600">
                 <li className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 shrink-0 text-primary" /> {t("Envío a todo Uruguay por DAC, con seguimiento", "Envio para todo o Brasil por Correios ou transportadora, com rastreio")}
+                  <Truck className="h-4 w-4 shrink-0 text-primary" /> {t("Envío a todo Uruguay por DAC, con seguimiento", "Envio para todo o Rio Grande do Sul por Correios ou transportadora, com rastreio")}
                 </li>
                 <li className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> {t("Confirmamos la compatibilidad antes de enviar", "Confirmamos a compatibilidade antes de enviar")}

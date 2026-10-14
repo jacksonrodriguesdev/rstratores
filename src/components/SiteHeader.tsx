@@ -57,7 +57,7 @@ const AVISOS = {
   ],
   pt: [
     { icon: ShieldCheck, texto: "Peças agrícolas na fronteira Chuí / Chuy" },
-    { icon: Truck, texto: "Enviamos para todo o Brasil por Correios ou transportadora" },
+    { icon: Truck, texto: "Enviamos para todo o Rio Grande do Sul por Correios ou transportadora" },
     { icon: MessageCircle, texto: `Orçamento rápido pelo WhatsApp · ${PHONE_DISPLAY}` },
     { icon: ShieldCheck, texto: "Peças para Massey, Valtra, John Deere, New Holland e mais" },
     { icon: PackageSearch, texto: "Busque pelo código original da peça" },
@@ -461,7 +461,7 @@ export function SiteHeader() {
                 className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white xl:flex"
               >
                 {idioma === "pt" ? <BandeiraBrasil className="h-3 w-[18px] rounded-[2px]" /> : <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />}
-                {t("Envíos a todo Uruguay", "Envio para todo o Brasil")}
+                {t("Envíos a todo Uruguay", "Envio para todo o RS")}
               </a>
               <Link
                 to="/loja"

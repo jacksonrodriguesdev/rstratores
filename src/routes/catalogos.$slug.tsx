@@ -193,7 +193,7 @@ function CatalogoPage() {
         <section className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
             <h2 className="flex items-center gap-2 font-extrabold text-zinc-900"><Wrench className="h-5 w-5 text-primary" /> {t("¿Encontraste el código de la pieza?", "Encontrou o código da peça?")}</h2>
-            <p className="mt-2 text-sm text-zinc-600">{t("Buscalo en la tienda o mandanos el código por WhatsApp: te pasamos precio y te lo enviamos a todo Uruguay por DAC.", "Busque na loja ou mande o código pelo WhatsApp: passamos o preço e enviamos para todo o Brasil.")}</p>
+            <p className="mt-2 text-sm text-zinc-600">{t("Buscalo en la tienda o mandanos el código por WhatsApp: te pasamos precio y te lo enviamos a todo Uruguay por DAC.", "Busque na loja ou mande o código pelo WhatsApp: passamos o preço e enviamos para todo o Rio Grande do Sul.")}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link to="/loja" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">{t("Buscar por código", "Buscar por código")}</Link>
               {marcaSlug && <Link to="/repuestos/$slug" params={{ slug: marcaSlug }} className="rounded-xl px-4 py-2.5 text-sm font-bold text-primary ring-1 ring-primary/30 hover:bg-primary/5">{t("Repuestos", "Peças")} {c.marca}</Link>}
