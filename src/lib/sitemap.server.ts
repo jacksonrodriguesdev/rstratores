@@ -46,6 +46,7 @@ export async function indiceSitemap() {
 export async function sitemapParte(arquivo: string): Promise<string | null> {
   if (arquivo === "paginas.xml") {
     const { MARCAS_SEO, CATEGORIAS_SEO } = await import("./seo-paginas");
+    const { LOCAIS_SEO } = await import("./locais-seo");
     const { buscarSkus } = await import("./busca-catalogo.server");
     // Marca + categoria só quando tem peças (página vazia não vale a pena indexar)
     const combos: string[] = [];
@@ -59,6 +60,8 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
       ...MARCAS_SEO.map((m) => url(`/repuestos/${m.slug}`, "<changefreq>weekly</changefreq><priority>0.9</priority>")),
       ...CATEGORIAS_SEO.map((c) => url(`/repuestos/${c.slug}`, "<changefreq>weekly</changefreq><priority>0.8</priority>")),
       ...combos.map((u) => url(u, "<priority>0.7</priority>")),
+      url(`/repuestos-agricolas`, "<changefreq>weekly</changefreq><priority>0.8</priority>"),
+      ...LOCAIS_SEO.map((l) => url(`/repuestos-agricolas/${l.slug}`, "<changefreq>weekly</changefreq><priority>0.7</priority>")),
       url(`/catalogos`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
       ...(await catalogosPublicos()).map((c) => url(c.caminho, `<lastmod>${c.data}</lastmod><priority>0.7</priority>`)),
       url(`/cotizar`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),

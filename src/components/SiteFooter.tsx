@@ -4,6 +4,7 @@ import { whatsappContactUrl } from "@/lib/whatsapp";
 import { INSTAGRAM_URL, INSTAGRAM_USUARIO, FACEBOOK_URL } from "@/lib/navegacao";
 import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
 import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
+import { LOCAIS_SEO, nomeLocal } from "@/lib/locais-seo";
 import { useT } from "@/lib/idioma";
 import { SeletorIdioma } from "@/components/SeletorIdioma";
 
@@ -160,6 +161,12 @@ export function SiteFooter() {
           <span className="font-bold uppercase tracking-wider text-white">{t("Por categoría:", "Por categoria:")}</span>
           {CATEGORIAS_SEO.map((c) => (
             <a key={c.slug} href={href(`/repuestos/${c.slug}`)} className="hover:text-white">{idioma === "pt" ? c.categoria : c.nome}</a>
+          ))}
+        </p>
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <a href={href("/repuestos-agricolas")} className="font-bold uppercase tracking-wider text-white hover:text-primary">{t("Envíos a:", "Envios para:")}</a>
+          {LOCAIS_SEO.filter((l) => l.tipo !== "cidade" && l.tipo !== "departamento" || ["rocha", "montevideo", "treinta-y-tres", "rivera", "cerro-largo", "soriano", "paysandu", "chuy", "chui", "pelotas", "santa-vitoria-do-palmar"].includes(l.slug)).map((l) => (
+            <a key={l.slug} href={href(`/repuestos-agricolas/${l.slug}`)} className="hover:text-white">{nomeLocal(l, idioma)}</a>
           ))}
         </p>
       </div>

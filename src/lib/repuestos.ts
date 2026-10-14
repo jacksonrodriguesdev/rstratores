@@ -31,3 +31,16 @@ export const getPaginaRepuestosFn = createServerFn({ method: "GET" })
     }
     return { total: todos.length, produtos: pagina.rows as Product[], facetas: facetas.filter((f) => f.total > 0).sort((a, b) => b.total - a.total) };
   });
+
+// Páginas por local (/repuestos-agricolas/<local>): total do catálogo + peças da categoria em foco
+export const getPaginaLocalFn = createServerFn({ method: "GET" })
+  .validator((d: { foco?: string | null }) => ({ foco: d?.foco ? String(d.foco).slice(0, 80) : null }))
+  .handler(async ({ data }): Promise<{ total: number; produtos: Product[] }> => {
+    const { buscarSkus } = await import("./busca-catalogo.server");
+    const { listProducts } = await import("./products.server");
+    const [todos, pagina] = await Promise.all([
+      buscarSkus({ vitrine: true }),
+      listProducts({ linha: "AGRICOLA", vitrine: true, categoria: data.foco ?? undefined, hasImage: true, sort: "nome-asc", pageSize: 18 }),
+    ]);
+    return { total: todos.length, produtos: pagina.rows as Product[] };
+  });

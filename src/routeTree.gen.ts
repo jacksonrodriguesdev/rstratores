@@ -47,6 +47,8 @@ import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as CatalogosSlugRouteImport } from './routes/catalogos.$slug'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
+import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
+import { Route as RepuestosAgricolasLocalRouteImport } from './routes/repuestos-agricolas.$local'
 import { Route as RepuestosIndexRouteImport } from './routes/repuestos.index'
 import { Route as RepuestosSlugRouteImport } from './routes/repuestos.$slug'
 import { Route as SitemapsArquivoRouteImport } from './routes/sitemaps.$arquivo'
@@ -278,6 +280,16 @@ const FeedsArquivoRoute = FeedsArquivoRouteImport.update({
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
   id: '/produto/$sku',
   path: '/produto/$sku',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepuestosAgricolasIndexRoute = RepuestosAgricolasIndexRouteImport.update({
+  id: '/repuestos-agricolas/',
+  path: '/repuestos-agricolas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepuestosAgricolasLocalRoute = RepuestosAgricolasLocalRouteImport.update({
+  id: '/repuestos-agricolas/$local',
+  path: '/repuestos-agricolas/$local',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RepuestosIndexRoute = RepuestosIndexRouteImport.update({
@@ -530,11 +542,13 @@ export interface FileRoutesByFullPath {
   '/catalogos/$slug': typeof CatalogosSlugRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -611,11 +625,13 @@ export interface FileRoutesByTo {
   '/catalogos/$slug': typeof CatalogosSlugRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
   '/catalogos': typeof CatalogosIndexRoute
+  '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -694,11 +710,13 @@ export interface FileRoutesById {
   '/catalogos/$slug': typeof CatalogosSlugRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
+  '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -778,11 +796,13 @@ export interface FileRouteTypes {
     | '/catalogos/$slug'
     | '/feeds/$arquivo'
     | '/produto/$sku'
+    | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/repuestos-agricolas/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -859,11 +879,13 @@ export interface FileRouteTypes {
     | '/catalogos/$slug'
     | '/feeds/$arquivo'
     | '/produto/$sku'
+    | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin'
     | '/catalogos'
+    | '/repuestos-agricolas'
     | '/repuestos'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -941,11 +963,13 @@ export interface FileRouteTypes {
     | '/catalogos/$slug'
     | '/feeds/$arquivo'
     | '/produto/$sku'
+    | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/repuestos-agricolas/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1003,10 +1027,12 @@ export interface RootRouteChildren {
   CatalogosSlugRoute: typeof CatalogosSlugRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
+  RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
   SitemapsArquivoRoute: typeof SitemapsArquivoRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
   CatalogosIndexRoute: typeof CatalogosIndexRoute
+  RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
@@ -1299,6 +1325,20 @@ declare module '@tanstack/react-router' {
       path: '/produto/$sku'
       fullPath: '/produto/$sku'
       preLoaderRoute: typeof ProdutoSkuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-agricolas/': {
+      id: '/repuestos-agricolas/'
+      path: '/repuestos-agricolas'
+      fullPath: '/repuestos-agricolas/'
+      preLoaderRoute: typeof RepuestosAgricolasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-agricolas/$local': {
+      id: '/repuestos-agricolas/$local'
+      path: '/repuestos-agricolas/$local'
+      fullPath: '/repuestos-agricolas/$local'
+      preLoaderRoute: typeof RepuestosAgricolasLocalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repuestos/': {
@@ -1754,10 +1794,12 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogosSlugRoute: CatalogosSlugRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
+  RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,
   SitemapsArquivoRoute: SitemapsArquivoRoute,
   UploadsSplatRoute: UploadsSplatRoute,
   CatalogosIndexRoute: CatalogosIndexRoute,
+  RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
