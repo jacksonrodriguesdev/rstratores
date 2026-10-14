@@ -38,15 +38,22 @@ const evento = (path: string) => {
 };
 
 async function lerLinhas(filtro: any): Promise<Linha[]> {
-  // Cliques e rolagem (mapa de cliques, Admin → Análises) não entram na linha do tempo
-  const where = { ...filtro, NOT: [{ path: { startsWith: `${EV}clique/` } }, { path: { startsWith: `${EV}rolagem/` } }] };
-  try {
-    return (await prisma.site_visits.findMany({ where, orderBy: { created_at: "asc" }, take: 200000, select: SELECT })) as Linha[];
-  } catch {
-    // Produção sem a coluna user_id ainda (SQL não rodado): segue sem identificar
-    const { user_id, ...sem } = SELECT;
-    return ((await prisma.site_visits.findMany({ where, orderBy: { created_at: "asc" }, take: 200000, select: sem })) as any[]).map((l) => ({ ...l, user_id: null }));
-  }
+  // Páginas (site_visits) + eventos (site_eventos), na ordem do tempo. Cliques e rolagem
+  // (mapa de cliques, Admin → Análises) não entram na linha do tempo.
+  const { eventosProntos, caminhoDoEvento } = await import("./eventos-db.server");
+  await eventosProntos();
+  const where = { ...filtro, NOT: { path: { startsWith: EV } } };
+  const [paginas, eventos] = await Promise.all([
+    prisma.site_visits.findMany({ where, orderBy: { created_at: "asc" }, take: 150000, select: SELECT }) as Promise<Linha[]>,
+    prisma.site_eventos.findMany({
+      where: { ...filtro, tipo: { notIn: ["clique", "rolagem"] } },
+      orderBy: { created_at: "asc" },
+      take: 50000,
+      select: { id: true, created_at: true, tipo: true, dado: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true, meio: true, utm_campaign: true, referrer_host: true, city: true, region: true, country_code: true, device: true, os: true, browser: true, user_id: true },
+    }),
+  ]);
+  const comoLinha = eventos.map(({ tipo, dado, id, ...e }) => ({ ...e, id: -id, path: caminhoDoEvento({ tipo, dado }) }) as Linha);
+  return [...paginas, ...comoLinha].sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
 }
 
 const vazio = (): Acoes => ({ buscas: 0, buscasVazias: 0, produtos: 0, carrinho: 0, whatsapp: 0, popupVisto: false, popupFechou: false, popupCodigo: false, cadastro: false, login: false, catalogos: 0 });

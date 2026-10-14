@@ -48,29 +48,51 @@ export const Route = createFileRoute("/api/public/track")({
             city: geo.city,
           };
           const { prisma } = await import("@/lib/prisma");
-          try {
-            await prisma.site_visits.create({
-              data: {
-                ...basico,
-                visitor_id: texto(body.visitorId, 64),
-                session_id: texto(body.sessionId, 64),
-                ip_hash: r.hashIp(ip),
-                latitude: geo.latitude,
-                longitude: geo.longitude,
-                fonte: origem.fonte,
-                meio: origem.meio,
-                utm_source: texto(atr.utm_source, 100),
-                utm_medium: texto(atr.utm_medium, 100),
-                utm_campaign: texto(atr.utm_campaign, 150),
-                referrer_host: origem.referrer_host?.slice(0, 191) ?? null,
-                device: aparelho.device,
-                browser: aparelho.browser,
-                os: aparelho.os,
-                language: texto(body.language, 20),
-                entrada: !!body.entrada,
-                user_id: sessao?.id ? Number(sessao.id) || null : null,
-              },
-            });
+          const comum = {
+            visitor_id: texto(body.visitorId, 64),
+            session_id: texto(body.sessionId, 64),
+            ip_hash: r.hashIp(ip),
+            latitude: geo.latitude,
+            longitude: geo.longitude,
+            fonte: origem.fonte,
+            meio: origem.meio,
+            utm_source: texto(atr.utm_source, 100),
+            utm_medium: texto(atr.utm_medium, 100),
+            utm_campaign: texto(atr.utm_campaign, 150),
+            referrer_host: origem.referrer_host?.slice(0, 191) ?? null,
+            device: aparelho.device,
+            browser: aparelho.browser,
+            os: aparelho.os,
+            language: texto(body.language, 20),
+            user_id: sessao?.id ? Number(sessao.id) || null : null,
+          };
+          // Eventos (WhatsApp, busca, clique...) vão para a tabela própria; páginas, para site_visits
+          const { lerCaminhoEvento, garantirTabelas } = await import("@/lib/eventos-db.server");
+          const ev = lerCaminhoEvento(path);
+          let gravado = false;
+          if (ev) {
+            try {
+              await garantirTabelas();
+              await prisma.site_eventos.create({
+                data: {
+                  ...comum,
+                  tipo: ev.tipo,
+                  dado: ev.dado,
+                  pagina: basico.referrer,
+                  city: geo.city?.slice(0, 191) ?? null,
+                  region: geo.region?.slice(0, 191) ?? null,
+                  country: geo.country?.slice(0, 191) ?? null,
+                  country_code: geo.country_code?.slice(0, 8) ?? null,
+                },
+              });
+              gravado = true;
+            } catch (e) {
+              console.error("track: evento não gravado em site_eventos, vai para site_visits", e);
+            }
+          }
+          if (!gravado) try {
+            // (se cair aqui, a migração automática move o evento para site_eventos depois)
+            await prisma.site_visits.create({ data: { ...basico, ...comum, entrada: !!body.entrada } });
           } catch (e: any) {
             // Banco sem as colunas novas (scripts/importacao/rastreio_producao.sql ainda não rodado):
             // grava o básico para não perder a visita
@@ -82,6 +104,9 @@ export const Route = createFileRoute("/api/public/track")({
           const vid = texto(body.visitorId, 64);
           if (sessao?.id && vid && /^\/_evento\/popup\/(cadastro|login)/.test(path)) {
             await prisma.site_visits
+              .updateMany({ where: { visitor_id: vid, user_id: null }, data: { user_id: Number(sessao.id) } })
+              .catch(() => {});
+            await prisma.site_eventos
               .updateMany({ where: { visitor_id: vid, user_id: null }, data: { user_id: Number(sessao.id) } })
               .catch(() => {});
           }

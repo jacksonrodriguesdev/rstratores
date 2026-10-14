@@ -1,7 +1,9 @@
-// Admin → Análises: 10 ferramentas sobre as visitas (site_visits). Páginas são as linhas sem
-// "/_evento/"; eventos são "/_evento/<tipo>/<dado>" (whatsapp, cotacao, busca, carrinho, popup,
-// clique, rolagem). Horários no fuso do Uruguai (UTC−3, sem horário de verão).
+// Admin → Análises: 10 ferramentas sobre as visitas. As ferramentas 1–9 somam os resumos diários
+// (src/lib/resumo-diario.server.ts, tabela analise_dia); só o "tempo real" lê as linhas dos últimos
+// 30 minutos. Páginas ficam em site_visits; eventos (whatsapp, cotacao, busca, carrinho, popup,
+// clique, rolagem) em site_eventos. Horários no fuso do Uruguai (UTC−3, sem horário de verão).
 import { prisma } from "./prisma";
+import { resumosDoPeriodo, visitantesDoPeriodo, visitasAntes, somar, topoDe, medianaDuracao, grupoPagina, type ResumoDia, type Cont } from "./resumo-diario.server";
 
 const EV = "/_evento/";
 const H = 3600_000;
@@ -46,30 +48,19 @@ export async function paginas(desde: Date, ate?: Date): Promise<Pagina[]> {
       latitude: true, longitude: true, fonte: true, device: true, browser: true, os: true, language: true,
     },
     orderBy: { created_at: "asc" },
-    take: 300000,
+    take: 20000,
   })) as Pagina[];
 }
 
 export async function eventos(desde: Date, tipos: string[]): Promise<Evento[]> {
-  const rows = await prisma.site_visits.findMany({
-    where: { created_at: { gte: desde }, OR: tipos.map((t) => ({ path: { startsWith: `${EV}${t}/` } })) },
-    select: { created_at: true, path: true, visitor_id: true, session_id: true, city: true, region: true, country_code: true },
+  const { eventosProntos } = await import("./eventos-db.server");
+  await eventosProntos();
+  return prisma.site_eventos.findMany({
+    where: { created_at: { gte: desde }, tipo: { in: tipos } },
+    select: { created_at: true, tipo: true, dado: true, visitor_id: true, session_id: true, city: true, region: true, country_code: true },
     orderBy: { created_at: "asc" },
-    take: 300000,
+    take: 50000,
   });
-  const out: Evento[] = [];
-  for (const r of rows) {
-    const resto = r.path.slice(EV.length);
-    const i = resto.indexOf("/");
-    let dado = "";
-    try {
-      dado = decodeURIComponent(resto.slice(i + 1));
-    } catch {
-      continue;
-    }
-    out.push({ ...r, tipo: resto.slice(0, i), dado });
-  }
-  return out;
 }
 
 export const skuDaPagina = (path: string) => {
@@ -91,166 +82,108 @@ async function nomesDasPecas(skus: string[]) {
   return new Map(rows.map((r) => [r.sku.trim(), { nome: nomeProduto(r as any), imagem: r.imagem_principal && !/redeparts/i.test(r.imagem_principal) ? r.imagem_principal : null }]));
 }
 
-// Agrupa as páginas de peça em "/produto/*" para o mapa de cliques e a rolagem
-const grupoPagina = (p: string) => (p.startsWith("/produto/") ? "/produto/*" : p.startsWith("/catalogos/") && p !== "/catalogos" ? "/catalogos/*" : p);
 
 const topo = <T,>(m: Map<string, T>, por: (v: T) => number, n: number) => [...m.entries()].sort((a, b) => por(b[1]) - por(a[1])).slice(0, n);
 export const inc = (m: Map<string, number>, k: string, v = 1) => m.set(k, (m.get(k) ?? 0) + v);
 
 // ---------------------------------------------------------------- 1. Resumo
 export async function resumo(dias: number) {
-  const desde = desdeDias(dias);
-  const [ps, evs, anteriores] = await Promise.all([
-    paginas(desde),
-    eventos(desde, ["whatsapp", "cotacao", "busca", "carrinho", "popup"]),
-    prisma.site_visits.count({ where: { created_at: { gte: desdeDias(dias * 2), lt: desde }, NOT: { path: { startsWith: EV } } } }),
-  ]);
-  const visitantes = new Set(ps.map((p) => p.visitor_id).filter(Boolean) as string[]);
-  const sess = new Map<string, { n: number; ini: number; fim: number; acao: boolean }>();
-  for (const p of ps) {
-    const k = sessao(p);
-    const s = sess.get(k) ?? { n: 0, ini: p.created_at.getTime(), fim: p.created_at.getTime(), acao: false };
-    s.n++;
-    s.fim = Math.max(s.fim, p.created_at.getTime());
-    sess.set(k, s);
+  const [ds, unicos, anteriores] = await Promise.all([resumosDoPeriodo(dias), visitantesDoPeriodo(dias), visitasAntes(dias)]);
+  const soma = (f: (d: ResumoDia) => number) => ds.reduce((a, d) => a + f(d), 0);
+  const visitas = soma((d) => d.visitas);
+  const sessoes = soma((d) => d.sessoes);
+  const duracoes: Cont = {};
+  const paginasTop: Cont = {};
+  for (const d of ds) {
+    somar(duracoes, d.duracoes);
+    somar(paginasTop, d.paginas);
   }
-  for (const e of evs) {
-    const s = sess.get(sessao(e));
-    if (s) {
-      s.acao = true;
-      s.fim = Math.max(s.fim, e.created_at.getTime());
-    }
-  }
-  const lista = [...sess.values()];
-  const rejeicao = lista.length ? lista.filter((s) => s.n === 1 && !s.acao).length / lista.length : 0;
-  // Mediana (abas esquecidas abertas por horas distorcem a média), limitada a 1 h por sessão
-  const duracoes = lista.filter((s) => s.n > 1 || s.acao).map((s) => Math.min(s.fim - s.ini, 3_600_000)).sort((x, y) => x - y);
-  const duracaoMedia = duracoes.length ? duracoes[Math.floor(duracoes.length / 2)] / 1000 : 0;
-
-  // Novos x recorrentes: quem já tinha aparecido antes do período
-  const ids = [...visitantes];
-  const antes = new Set<string>();
-  for (let i = 0; i < ids.length && i < 20000; i += 2000) {
-    const r = await prisma.site_visits.findMany({
-      where: { created_at: { lt: desde }, visitor_id: { in: ids.slice(i, i + 2000) } },
-      distinct: ["visitor_id"],
-      select: { visitor_id: true },
-    });
-    for (const x of r) if (x.visitor_id) antes.add(x.visitor_id);
-  }
-
-  const porDia = new Map<string, { visitas: number; visitantes: Set<string>; acoes: number }>();
-  for (let d = 0; d < dias; d++) porDia.set(diaLocal(new Date(Date.now() - (dias - 1 - d) * 24 * H)), { visitas: 0, visitantes: new Set(), acoes: 0 });
-  for (const p of ps) {
-    const x = porDia.get(diaLocal(p.created_at));
-    if (!x) continue;
-    x.visitas++;
-    if (p.visitor_id) x.visitantes.add(p.visitor_id);
-  }
-  for (const e of evs) {
-    const x = porDia.get(diaLocal(e.created_at));
-    if (x && (e.tipo === "whatsapp" || e.tipo === "cotacao" || e.tipo === "carrinho")) x.acoes++;
-  }
-  const paginasTop = new Map<string, number>();
-  for (const p of ps) inc(paginasTop, grupoPagina(p.path));
   return {
-    visitas: ps.length,
+    visitas,
     visitasAntes: anteriores,
-    visitantes: visitantes.size,
-    sessoes: sess.size,
-    paginasPorSessao: sess.size ? ps.length / sess.size : 0,
-    duracaoMedia,
-    rejeicao,
-    novos: ids.filter((v) => !antes.has(v)).length,
-    recorrentes: antes.size,
-    whatsapp: evs.filter((e) => e.tipo === "whatsapp" || e.tipo === "cotacao").length,
-    carrinho: evs.filter((e) => e.tipo === "carrinho").length,
-    buscas: evs.filter((e) => e.tipo === "busca").length,
-    serie: [...porDia.entries()].map(([dia, x]) => ({ dia, visitas: x.visitas, visitantes: x.visitantes.size, acoes: x.acoes })),
-    paginasTop: topo(paginasTop, (v) => v, 10).map(([pagina, visitas]) => ({ pagina, visitas })),
+    visitantes: unicos.total,
+    sessoes,
+    paginasPorSessao: sessoes ? visitas / sessoes : 0,
+    // Mediana (abas esquecidas abertas por horas distorcem a média), limitada a 1 h por sessão
+    duracaoMedia: medianaDuracao(duracoes),
+    rejeicao: sessoes ? soma((d) => d.rejeitadas) / sessoes : 0,
+    novos: unicos.novos,
+    recorrentes: unicos.recorrentes,
+    whatsapp: soma((d) => d.whatsapp),
+    carrinho: soma((d) => d.carrinho),
+    buscas: soma((d) => d.buscas),
+    serie: ds.map((d) => ({ dia: d.dia, visitas: d.visitas, visitantes: d.visitantes, acoes: d.acoes })),
+    paginasTop: topoDe(paginasTop, 10).map(([pagina, visitas]) => ({ pagina, visitas })),
   };
 }
 
 // ---------------------------------------------------------------- 2. Mapa de calor 3D (dia × hora)
 export async function calor(dias: number) {
-  const ps = await paginas(desdeDias(dias));
+  const ds = await resumosDoPeriodo(dias);
   const m = Array.from({ length: 7 }, () => Array(24).fill(0) as number[]);
-  for (const p of ps) {
-    const d = local(p.created_at);
-    m[d.getUTCDay()][d.getUTCHours()]++;
-  }
+  for (const d of ds) d.horas.forEach((v, h) => (m[d.dow][h] += v));
   let pico = { dia: 0, hora: 0, visitas: 0 };
   m.forEach((linha, dia) => linha.forEach((v, hora) => v > pico.visitas && (pico = { dia, hora, visitas: v })));
   const porHora = Array.from({ length: 24 }, (_, h) => m.reduce((t, l) => t + l[h], 0));
   const porDia = m.map((l) => l.reduce((a, b) => a + b, 0));
-  return { matriz: m, pico, porHora, porDia, total: ps.length };
+  return { matriz: m, pico, porHora, porDia, total: ds.reduce((a, d) => a + d.visitas, 0) };
 }
 
 // ---------------------------------------------------------------- 3. Relevo 3D das regiões
+// (visitantes por cidade/célula = soma dos visitantes únicos de cada dia)
 export async function regioes(dias: number) {
-  const ps = await paginas(desdeDias(dias));
-  const celulas = new Map<string, { lat: number; lon: number; visitas: number; visitantes: Set<string>; cidades: Map<string, number> }>();
-  const cidades = new Map<string, { cidade: string; regiao: string; pais: string; visitas: number; visitantes: Set<string>; lat: number | null; lon: number | null }>();
-  const passo = 0.25; // ~25 km
-  for (const p of ps) {
-    const cidade = p.city || "Desconhecida";
-    const kc = `${cidade}|${p.region ?? ""}|${p.country_code ?? ""}`;
-    const c = cidades.get(kc) ?? { cidade, regiao: p.region || "—", pais: paisDe(p), visitas: 0, visitantes: new Set(), lat: p.latitude, lon: p.longitude };
-    c.visitas++;
-    if (p.visitor_id) c.visitantes.add(p.visitor_id);
-    cidades.set(kc, c);
-    if (p.latitude == null || p.longitude == null) continue;
-    const lat = Math.round(p.latitude / passo) * passo;
-    const lon = Math.round(p.longitude / passo) * passo;
-    const k = `${lat}|${lon}`;
-    const x = celulas.get(k) ?? { lat, lon, visitas: 0, visitantes: new Set(), cidades: new Map() };
-    x.visitas++;
-    if (p.visitor_id) x.visitantes.add(p.visitor_id);
-    inc(x.cidades, cidade);
-    celulas.set(k, x);
+  const ds = await resumosDoPeriodo(dias);
+  const celulas = new Map<string, { lat: number; lon: number; visitas: number; visitantes: number; cidades: Cont }>();
+  const cidades = new Map<string, { cidade: string; regiao: string; pais: string; visitas: number; visitantes: number; lat: number | null; lon: number | null }>();
+  const porPais: Cont = {};
+  for (const d of ds) {
+    for (const [k, c] of Object.entries(d.celulas)) {
+      const x = celulas.get(k) ?? { lat: c.lat, lon: c.lon, visitas: 0, visitantes: 0, cidades: {} };
+      x.visitas += c.v;
+      x.visitantes += c.u;
+      somar(x.cidades, c.c);
+      celulas.set(k, x);
+    }
+    for (const [k, c] of Object.entries(d.cidades)) {
+      const x = cidades.get(k) ?? { cidade: c.cidade, regiao: c.regiao, pais: c.pais, visitas: 0, visitantes: 0, lat: c.lat, lon: c.lon };
+      x.visitas += c.v;
+      x.visitantes += c.u;
+      cidades.set(k, x);
+    }
+    somar(porPais, d.paises);
   }
-  const porPais = new Map<string, number>();
-  for (const p of ps) inc(porPais, paisDe(p));
   return {
-    celulas: [...celulas.values()].map((c) => ({
-      lat: c.lat,
-      lon: c.lon,
-      visitas: c.visitas,
-      visitantes: c.visitantes.size,
-      cidade: [...c.cidades.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "",
-    })),
-    cidades: [...cidades.values()]
-      .sort((a, b) => b.visitas - a.visitas)
-      .slice(0, 60)
-      .map((c) => ({ cidade: c.cidade, regiao: c.regiao, pais: c.pais, visitas: c.visitas, visitantes: c.visitantes.size, lat: c.lat, lon: c.lon })),
-    paises: topo(porPais, (v) => v, 12).map(([pais, visitas]) => ({ pais, visitas })),
+    celulas: [...celulas.values()].map((c) => ({ lat: c.lat, lon: c.lon, visitas: c.visitas, visitantes: c.visitantes, cidade: topoDe(c.cidades, 1)[0]?.[0] ?? "" })),
+    cidades: [...cidades.values()].sort((a, b) => b.visitas - a.visitas).slice(0, 60),
+    paises: topoDe(porPais, 12).map(([pais, visitas]) => ({ pais, visitas })),
   };
+}
+
+// Soma as peças de todos os dias do período
+function somarSkus(ds: ResumoDia[]) {
+  const m = new Map<string, { vistas: number; visitantes: number; carrinho: number; whatsapp: number; regioes: Cont; pt: number; cidades: Map<string, { cidade: string; regiao: string; pais: string; visitas: number; lat: number | null; lon: number | null }> }>();
+  for (const d of ds)
+    for (const [sku, s] of Object.entries(d.skus)) {
+      const x = m.get(sku) ?? { vistas: 0, visitantes: 0, carrinho: 0, whatsapp: 0, regioes: {}, pt: 0, cidades: new Map() };
+      x.vistas += s.v;
+      x.visitantes += s.u;
+      x.carrinho += s.c;
+      x.whatsapp += s.w;
+      x.pt += s.pt;
+      somar(x.regioes, s.r);
+      for (const [k, c] of Object.entries(s.cid)) {
+        const y = x.cidades.get(k) ?? { cidade: c.cidade, regiao: c.regiao, pais: c.pais, visitas: 0, lat: c.lat, lon: c.lon };
+        y.visitas += c.v;
+        x.cidades.set(k, y);
+      }
+      m.set(sku, x);
+    }
+  return m;
 }
 
 // ---------------------------------------------------------------- 4. Peças mais acessadas
 export async function produtos(dias: number) {
-  const desde = desdeDias(dias);
-  const [ps, evs] = await Promise.all([paginas(desde), eventos(desde, ["whatsapp", "cotacao", "carrinho"])]);
-  const m = new Map<string, { vistas: number; visitantes: Set<string>; carrinho: number; whatsapp: number; regioes: Map<string, number>; pt: number }>();
-  const pega = (sku: string) => {
-    let x = m.get(sku);
-    if (!x) m.set(sku, (x = { vistas: 0, visitantes: new Set(), carrinho: 0, whatsapp: 0, regioes: new Map(), pt: 0 }));
-    return x;
-  };
-  for (const p of ps) {
-    const sku = skuDaPagina(p.path);
-    if (!sku) continue;
-    const x = pega(sku);
-    x.vistas++;
-    if (p.visitor_id) x.visitantes.add(p.visitor_id);
-    inc(x.regioes, regiaoDe(p));
-    if (idiomaSite(p.language) === "pt") x.pt++;
-  }
-  for (const e of evs) {
-    if (e.tipo === "carrinho" && e.dado) pega(e.dado.trim()).carrinho++;
-    else if (e.tipo === "whatsapp" && e.dado && !e.dado.startsWith("contato:")) pega(e.dado.trim()).whatsapp++;
-    else if (e.tipo === "cotacao") for (const s of e.dado.split(",")) if (s.trim()) pega(s.trim()).whatsapp++;
-  }
+  const m = somarSkus(await resumosDoPeriodo(dias));
   const lista = topo(m, (v) => v.vistas * 10 + v.whatsapp * 5 + v.carrinho * 3, 50);
   const nomes = await nomesDasPecas(lista.map(([s]) => s));
   return {
@@ -260,11 +193,11 @@ export async function produtos(dias: number) {
       nome: nomes.get(sku)?.nome ?? sku,
       imagem: nomes.get(sku)?.imagem ?? null,
       vistas: v.vistas,
-      visitantes: v.visitantes.size,
+      visitantes: v.visitantes,
       carrinho: v.carrinho,
       whatsapp: v.whatsapp,
       conversao: v.vistas ? v.whatsapp / v.vistas : 0,
-      regiao: [...v.regioes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—",
+      regiao: topoDe(v.regioes, 1)[0]?.[0] ?? "—",
       brasil: v.vistas ? v.pt / v.vistas : 0,
     })),
   };
@@ -272,160 +205,116 @@ export async function produtos(dias: number) {
 
 // ---------------------------------------------------------------- 5. Peça × região
 export async function produtoRegiao(dias: number, sku?: string) {
-  const ps = await paginas(desdeDias(dias));
-  const vistas = ps.filter((p) => p.path.startsWith("/produto/"));
+  const m = somarSkus(await resumosDoPeriodo(dias));
   if (sku) {
-    const doSku = vistas.filter((p) => skuDaPagina(p.path) === sku);
-    const cidades = new Map<string, { cidade: string; regiao: string; pais: string; visitas: number; lat: number | null; lon: number | null }>();
-    for (const p of doSku) {
-      const k = `${p.city}|${p.region}`;
-      const c = cidades.get(k) ?? { cidade: p.city || "Desconhecida", regiao: p.region || "—", pais: paisDe(p), visitas: 0, lat: p.latitude, lon: p.longitude };
-      c.visitas++;
-      cidades.set(k, c);
-    }
+    const x = m.get(sku);
     const nomes = await nomesDasPecas([sku]);
-    return { modo: "peca" as const, sku, nome: nomes.get(sku)?.nome ?? sku, total: doSku.length, cidades: [...cidades.values()].sort((a, b) => b.visitas - a.visitas) };
+    return { modo: "peca" as const, sku, nome: nomes.get(sku)?.nome ?? sku, total: x?.vistas ?? 0, cidades: [...(x?.cidades.values() ?? [])].sort((a, b) => b.visitas - a.visitas) };
   }
-  const porSku = new Map<string, number>();
-  const porReg = new Map<string, number>();
-  for (const p of vistas) {
-    const s = skuDaPagina(p.path);
-    if (!s) continue;
-    inc(porSku, s);
-    inc(porReg, regiaoDe(p));
-  }
-  const skus = topo(porSku, (v) => v, 12).map(([s]) => s);
-  const regs = topo(porReg, (v) => v, 10).map(([r]) => r);
-  const matriz = skus.map(() => regs.map(() => 0));
-  for (const p of vistas) {
-    const i = skus.indexOf(skuDaPagina(p.path) ?? "");
-    const j = regs.indexOf(regiaoDe(p));
-    if (i >= 0 && j >= 0) matriz[i][j]++;
-  }
+  const vistos = [...m.entries()].filter(([, v]) => v.vistas > 0);
+  const porReg: Cont = {};
+  for (const [, v] of vistos) somar(porReg, v.regioes);
+  const skus = vistos.sort((a, b) => b[1].vistas - a[1].vistas).slice(0, 12).map(([s]) => s);
+  const regs = topoDe(porReg, 10).map(([r]) => r);
+  const matriz = skus.map((s) => regs.map((r) => m.get(s)!.regioes[r] ?? 0));
   const nomes = await nomesDasPecas(skus);
   return { modo: "matriz" as const, skus: skus.map((s) => ({ sku: s, nome: nomes.get(s)?.nome ?? s })), regioes: regs, matriz };
 }
 
 // ---------------------------------------------------------------- 6. Mapa de cliques
 export async function cliques(dias: number, pagina?: string) {
-  const evs = await eventos(desdeDias(dias), ["clique"]);
-  const pontos: Array<{ p: string; x: number; y: number; tela: string; alvo: string }> = [];
-  for (const e of evs) {
-    const [p, x, y, tela, ...alvo] = e.dado.split("|");
-    if (!p || isNaN(Number(x)) || isNaN(Number(y))) continue;
-    pontos.push({ p: grupoPagina(p), x: Number(x), y: Number(y), tela: tela || "d", alvo: alvo.join("|") });
-  }
-  const porPagina = new Map<string, number>();
-  for (const c of pontos) inc(porPagina, c.p);
-  const paginasLista = topo(porPagina, (v) => v, 25).map(([p, n]) => ({ pagina: p, cliques: n }));
+  const ds = await resumosDoPeriodo(dias);
+  const porPagina = new Map<string, { n: number; m: number; g: Cont; a: Cont }>();
+  for (const d of ds)
+    for (const [p, c] of Object.entries(d.cliques)) {
+      const x = porPagina.get(p) ?? { n: 0, m: 0, g: {}, a: {} };
+      x.n += c.n;
+      x.m += c.m;
+      somar(x.g, c.g);
+      somar(x.a, c.a);
+      porPagina.set(p, x);
+    }
+  const paginasLista = topo(porPagina, (v) => v.n, 25).map(([p, v]) => ({ pagina: p, cliques: v.n }));
   const escolhida = pagina || paginasLista[0]?.pagina || "/";
-  const daPagina = pontos.filter((c) => c.p === escolhida);
-  const alvos = new Map<string, number>();
-  for (const c of daPagina) inc(alvos, c.alvo || "?");
-  // Grade 20 × 50 (largura × altura da página) para o mapa de calor
-  const grade = new Map<string, number>();
-  for (const c of daPagina) inc(grade, `${Math.min(19, Math.floor(c.x / 5))}|${Math.min(49, Math.floor(c.y / 2))}`);
+  const x = porPagina.get(escolhida) ?? { n: 0, m: 0, g: {}, a: {} };
   return {
     paginas: paginasLista,
     pagina: escolhida,
-    total: daPagina.length,
-    celular: daPagina.filter((c) => c.tela === "m").length,
-    grade: [...grade.entries()].map(([k, n]) => {
+    total: x.n,
+    celular: x.m,
+    // Grade 20 × 50 (largura × altura da página) para o mapa de calor
+    grade: Object.entries(x.g).map(([k, n]) => {
       const [gx, gy] = k.split("|").map(Number);
       return [gx, gy, n] as [number, number, number];
     }),
-    alvos: topo(alvos, (v) => v, 15).map(([alvo, n]) => ({ alvo, cliques: n })),
+    alvos: topoDe(x.a, 15).map(([alvo, n]) => ({ alvo, cliques: n })),
   };
 }
 
 // ---------------------------------------------------------------- 7. Rolagem
 export async function rolagem(dias: number) {
-  const evs = await eventos(desdeDias(dias), ["rolagem"]);
-  const m = new Map<string, number[]>();
-  for (const e of evs) {
-    const i = e.dado.lastIndexOf("|");
-    const pct = Number(e.dado.slice(i + 1));
-    if (i < 0 || isNaN(pct)) continue;
-    const p = grupoPagina(e.dado.slice(0, i));
-    if (!m.has(p)) m.set(p, []);
-    m.get(p)!.push(Math.max(0, Math.min(100, pct)));
-  }
-  const alcance = (l: number[], n: number) => (l.length ? l.filter((v) => v >= n).length / l.length : 0);
+  const ds = await resumosDoPeriodo(dias);
+  const m = new Map<string, { n: number; soma: number; a25: number; a50: number; a75: number; a100: number }>();
+  for (const d of ds)
+    for (const [p, r] of Object.entries(d.rolagem)) {
+      const x = m.get(p) ?? { n: 0, soma: 0, a25: 0, a50: 0, a75: 0, a100: 0 };
+      for (const k of ["n", "soma", "a25", "a50", "a75", "a100"] as const) x[k] += r[k];
+      m.set(p, x);
+    }
   return {
     paginas: [...m.entries()]
-      .sort((a, b) => b[1].length - a[1].length)
+      .sort((a, b) => b[1].n - a[1].n)
       .slice(0, 20)
-      .map(([pagina, l]) => ({
-        pagina,
-        visitas: l.length,
-        media: l.reduce((a, b) => a + b, 0) / l.length,
-        a25: alcance(l, 25),
-        a50: alcance(l, 50),
-        a75: alcance(l, 75),
-        a100: alcance(l, 95),
-      })),
+      .map(([pagina, x]) => ({ pagina, visitas: x.n, media: x.soma / x.n, a25: x.a25 / x.n, a50: x.a50 / x.n, a75: x.a75 / x.n, a100: x.a100 / x.n })),
   };
 }
 
 // ---------------------------------------------------------------- 8. Funil
 export async function funil(dias: number) {
-  const desde = desdeDias(dias);
-  const [ps, evs] = await Promise.all([paginas(desde), eventos(desde, ["whatsapp", "cotacao", "carrinho", "popup"])]);
-  type S = { canal: string; peca: boolean; carrinho: boolean; whatsapp: boolean; cadastro: boolean };
-  const sess = new Map<string, S>();
-  for (const p of ps) {
-    const k = sessao(p);
-    const s = sess.get(k) ?? { canal: canalDe(p.fonte), peca: false, carrinho: false, whatsapp: false, cadastro: false };
-    if (p.path.startsWith("/produto/")) s.peca = true;
-    sess.set(k, s);
-  }
-  for (const e of evs) {
-    const s = sess.get(sessao(e));
-    if (!s) continue;
-    if (e.tipo === "carrinho") s.carrinho = true;
-    if (e.tipo === "whatsapp" || e.tipo === "cotacao") s.whatsapp = true;
-    if (e.tipo === "popup" && (e.dado === "cadastro" || e.dado === "login")) s.cadastro = true;
-  }
-  const etapas = (l: S[]) => [l.length, l.filter((s) => s.peca).length, l.filter((s) => s.carrinho).length, l.filter((s) => s.whatsapp).length, l.filter((s) => s.cadastro).length];
-  const todas = [...sess.values()];
-  const porCanal = new Map<string, S[]>();
-  for (const s of todas) {
-    if (!porCanal.has(s.canal)) porCanal.set(s.canal, []);
-    porCanal.get(s.canal)!.push(s);
-  }
+  const ds = await resumosDoPeriodo(dias);
+  const porCanal = new Map<string, number[]>();
+  for (const d of ds)
+    for (const [canal, v] of Object.entries(d.funil)) {
+      const x = porCanal.get(canal) ?? [0, 0, 0, 0, 0];
+      v.forEach((n, i) => (x[i] += n));
+      porCanal.set(canal, x);
+    }
+  const total = [0, 0, 0, 0, 0];
+  for (const v of porCanal.values()) v.forEach((n, i) => (total[i] += n));
   return {
     etapas: ["Visitaram o site", "Viram uma peça", "Adicionaram ao carrinho", "Pediram preço no WhatsApp", "Criaram conta / entraram"],
-    total: etapas(todas),
-    canais: [...porCanal.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 8).map(([canal, l]) => ({ canal, valores: etapas(l) })),
+    total,
+    canais: [...porCanal.entries()].sort((a, b) => b[1][0] - a[1][0]).slice(0, 8).map(([canal, valores]) => ({ canal, valores })),
   };
 }
 
 // ---------------------------------------------------------------- 9. Canais, aparelhos e idioma
 export async function canais(dias: number) {
-  const ps = await paginas(desdeDias(dias));
-  const fontes = new Map<string, number>();
-  for (const p of ps) inc(fontes, canalDe(p.fonte));
-  const topFontes = topo(fontes, (v) => v, 6).map(([f]) => f);
-  const porDia = new Map<string, Map<string, number>>();
-  for (let d = 0; d < dias; d++) porDia.set(diaLocal(new Date(Date.now() - (dias - 1 - d) * 24 * H)), new Map());
-  for (const p of ps) {
-    const m = porDia.get(diaLocal(p.created_at));
-    if (m) inc(m, topFontes.includes(canalDe(p.fonte)) ? canalDe(p.fonte) : "outros");
+  const ds = await resumosDoPeriodo(dias);
+  const fontes: Cont = {};
+  const ap: Cont = {}, nav: Cont = {}, so: Cont = {}, idi: Cont = {}, pa: Cont = {};
+  for (const d of ds) {
+    somar(fontes, d.fontes);
+    somar(ap, d.aparelhos);
+    somar(nav, d.navegadores);
+    somar(so, d.sistemas);
+    somar(idi, d.idiomas);
+    somar(pa, d.paises);
   }
-  const conta = (f: (p: Pagina) => string) => {
-    const m = new Map<string, number>();
-    for (const p of ps) inc(m, f(p));
-    return topo(m, (v) => v, 10).map(([nome, visitas]) => ({ nome, visitas }));
-  };
-  const series = [...topFontes, "outros"].map((f) => ({ nome: f, valores: [...porDia.values()].map((m) => m.get(f) ?? 0) }));
+  const topFontes = topoDe(fontes, 6).map(([f]) => f);
+  const conta = (m: Cont) => topoDe(m, 10).map(([nome, visitas]) => ({ nome, visitas }));
+  const series = [...topFontes, "outros"].map((f) => ({
+    nome: f,
+    valores: ds.map((d) => (f === "outros" ? Object.entries(d.fontes).filter(([k]) => !topFontes.includes(k)).reduce((a, [, v]) => a + v, 0) : d.fontes[f] ?? 0)),
+  }));
   return {
-    dias: [...porDia.keys()],
+    dias: ds.map((d) => d.dia),
     series: series.filter((s) => s.valores.some(Boolean)),
-    aparelhos: conta((p) => p.device || "desconhecido"),
-    navegadores: conta((p) => p.browser || "desconhecido"),
-    sistemas: conta((p) => p.os || "desconhecido"),
-    idiomaSite: conta((p) => (idiomaSite(p.language) === "pt" ? "Português (/pt)" : "Espanhol")),
-    paises: conta(paisDe),
+    aparelhos: conta(ap),
+    navegadores: conta(nav),
+    sistemas: conta(so),
+    idiomaSite: conta({ "Espanhol": idi.es ?? 0, "Português (/pt)": idi.pt ?? 0 }).filter((x) => x.visitas),
+    paises: conta(pa),
   };
 }
 

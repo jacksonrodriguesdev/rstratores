@@ -1,0 +1,90 @@
+// Teste de fumaça: abre as páginas principais do site já compilado e confere status e conteúdo.
+// Uso: BASE_URL=http://localhost:3000 node scripts/ci/fumaca.cjs   (dados de scripts/ci/semente.cjs)
+const BASE = (process.env.BASE_URL || "http://localhost:3000").replace(/\/$/, "");
+
+// [caminho, status esperado, textos que precisam aparecer]
+const PAGINAS = [
+  ["/", 200, ["AGRO PARTS", "<h1"]],
+  ["/loja", 200, ["CI-0"]],
+  ["/pt", 200, ['lang="pt-BR"']],
+  ["/produto/CI-001", 200, ["CI-001", "application/ld+json"]],
+  ["/pt/produto/CI-001", 200, ["CI-001"]],
+  ["/repuestos", 200, ["John Deere"]],
+  ["/repuestos/john-deere", 200, ["John Deere"]],
+  ["/repuestos/filtros", 200, ["Filtros"]],
+  ["/repuestos-agricolas", 200, ["Rio Grande do Sul"]],
+  ["/repuestos-agricolas/rocha", 200, ["Repuestos agrícolas en Rocha"]],
+  ["/pt/repuestos-agricolas/pelotas", 200, ["Peças agrícolas em Pelotas"]],
+  ["/catalogos", 200, ["<h1"]],
+  ["/ayuda", 200, ["<h1"]],
+  ["/cotizar", 200, ["<h1"]],
+  ["/pedido-rapido", 200, []],
+  ["/login", 200, []],
+  ["/cadastro", 200, []],
+  ["/sitemap.xml", 200, ["<sitemapindex"]],
+  ["/sitemaps/paginas.xml", 200, ["/repuestos-agricolas/rocha"]],
+  ["/sitemaps/pecas-1.xml", 200, ["CI-001"]],
+  ["/robots.txt", 200, ["Sitemap"]],
+  ["/feeds/google-merchant.xml", 200, ["<?xml"]],
+  ["/pagina-que-nao-existe-ci", 404, []],
+];
+// Sinais de página quebrada (tela de erro do React/TanStack)
+const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/i, /"statusCode":\s*500/];
+
+(async () => {
+  const falhas = [];
+  for (const [caminho, status, textos] of PAGINAS) {
+    const t0 = Date.now();
+    let res, html = "";
+    try {
+      res = await fetch(BASE + caminho, { redirect: "manual", headers: { "user-agent": "Mozilla/5.0 (CI fumaça)" } });
+      html = await res.text();
+    } catch (e) {
+      falhas.push(`${caminho}: sem resposta (${e.message})`);
+      continue;
+    }
+    const erros = [];
+    if (res.status !== status) erros.push(`status ${res.status} (esperado ${status})`);
+    for (const t of textos) if (!html.includes(t)) erros.push(`falta "${t}"`);
+    if (status === 200) for (const re of QUEBRADA) if (re.test(html)) erros.push(`tela de erro (${re})`);
+    console.log(`${erros.length ? "✘" : "✔"} ${String(res.status).padEnd(3)} ${String(Date.now() - t0).padStart(5)}ms ${caminho}${erros.length ? "  ← " + erros.join("; ") : ""}`);
+    if (erros.length) falhas.push(`${caminho}: ${erros.join("; ")}`);
+  }
+
+  // Admin sem login: o painel não pode vir no HTML (src/routes/admin.tsx só mostra depois de confirmar
+  // a sessão; os dados passam por assertAdmin no servidor)
+  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes"]) {
+    const adm = await fetch(BASE + caminho, { redirect: "manual" });
+    const htmlAdm = adm.status === 200 ? await adm.text() : "";
+    const vazou = /Painel de controle|Criador de anúncios|E-mail marketing/.test(htmlAdm);
+    console.log(`${vazou ? "✘" : "✔"} ${adm.status} ${caminho} sem login ${vazou ? "MOSTRA O PAINEL" : "não mostra o painel"}`);
+    if (vazou) falhas.push(`${caminho} mostra o painel sem login`);
+  }
+
+  // Rastreio: grava uma visita e um evento
+  for (const corpo of [{ path: "/loja", visitorId: "ci-fumaca", sessionId: "ci-fumaca" }, { path: "/_evento/busca/0%7Cpeca%20ci", pagina: "/loja", visitorId: "ci-fumaca", sessionId: "ci-fumaca" }]) {
+    const r = await fetch(BASE + "/api/public/track", { method: "POST", headers: { "content-type": "application/json", "user-agent": "Mozilla/5.0 (CI fumaça)" }, body: JSON.stringify(corpo) });
+    const j = await r.json().catch(() => ({}));
+    const ok = r.status === 200 && j.ok === true;
+    console.log(`${ok ? "✔" : "✘"} ${r.status} POST /api/public/track ${corpo.path}`);
+    if (!ok) falhas.push(`track ${corpo.path}: ${r.status}`);
+  }
+
+  // O evento foi para site_eventos (e não para site_visits)?
+  if (process.env.DATABASE_URL) {
+    const { PrismaClient } = require("@prisma/client");
+    const prisma = new PrismaClient();
+    const ev = await prisma.site_eventos.count({ where: { visitor_id: "ci-fumaca", tipo: "busca", dado: "0|peca ci" } });
+    const antigo = await prisma.site_visits.count({ where: { path: { startsWith: "/_evento/" } } });
+    await prisma.$disconnect();
+    const ok = ev === 1 && antigo === 0;
+    console.log(`${ok ? "✔" : "✘"} evento gravado em site_eventos (${ev}) e nenhum em site_visits (${antigo})`);
+    if (!ok) falhas.push("evento não foi para site_eventos");
+  }
+
+  if (falhas.length) {
+    console.error(`\n${falhas.length} falha(s):\n- ${falhas.join("\n- ")}`);
+    process.exit(1);
+  }
+  console.log("\nTodas as páginas principais OK");
+})();

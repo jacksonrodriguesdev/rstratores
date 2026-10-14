@@ -26,3 +26,10 @@ Deploy na Hostinger: ver `docs/DEPLOY_HOSTINGER.md`.
   `--aplicar` grava com backup em `dados/`, `--restaurar` desfaz).
 - Mudança no `prisma/schema.prisma`: pare o servidor de desenvolvimento antes do
   `npx prisma db push` (no Windows o arquivo do Prisma fica travado).
+- Verificação automática (`.github/workflows/verificar.yml`): TypeScript, banco MySQL de teste
+  com `scripts/ci/semente.cjs`, `scripts/ci/testar-resumo.ts`, build e `scripts/ci/fumaca.cjs`
+  (páginas principais). Passou → o código vai para o ramo `producao`, que a Hostinger publica.
+  Página nova importante? Acrescente em `PAGINAS` no `fumaca.cjs`.
+- Eventos (WhatsApp, busca, carrinho, pop-up, clique, rolagem) ficam em `site_eventos`; as
+  análises somam resumos diários (`analise_dia`, `src/lib/resumo-diario.server.ts`). Mudou o
+  formato do resumo? Suba `VERSAO` lá: os dias são recalculados sozinhos.

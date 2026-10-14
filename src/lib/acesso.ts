@@ -62,13 +62,15 @@ export const painelPopupFn = createServerFn({ method: "GET" })
     const { prisma } = await import("./prisma");
     const { configPopup } = await import("./acesso.server");
     const desde = new Date(Date.now() - 30 * 86400_000);
-    // Eventos do pop-up gravados pelo site em site_visits ("/_evento/popup/<acao>")
-    const eventos = await prisma.site_visits.groupBy({
-      by: ["path"],
-      where: { path: { startsWith: "/_evento/popup/" }, created_at: { gte: desde } },
+    // Eventos do pop-up (site_eventos, tipo "popup", dado = ação)
+    const { eventosProntos } = await import("./eventos-db.server");
+    await eventosProntos();
+    const eventos = await prisma.site_eventos.groupBy({
+      by: ["dado"],
+      where: { tipo: "popup", created_at: { gte: desde } },
       _count: true,
     });
-    const n = (acao: string) => eventos.filter((e) => e.path.startsWith(`/_evento/popup/${acao}`)).reduce((t, e) => t + e._count, 0);
+    const n = (acao: string) => eventos.filter((e) => e.dado.startsWith(acao)).reduce((t, e) => t + e._count, 0);
     const q = data.busca;
     const where: any = { cupom: { not: null } };
     if (q) where.OR = [{ cupom: { contains: q } }, { nome_completo: { contains: q } }, { email: { contains: q } }, { telefone: { contains: q } }];

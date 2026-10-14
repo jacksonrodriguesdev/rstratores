@@ -7,34 +7,11 @@ import { nomeProduto } from "./pecas-es";
 import { MARCAS_SEO } from "./seo-paginas";
 import { precoVenda } from "./precos";
 import { configPrecos } from "./precos.server";
-import { paginas, eventos, desdeDias, local, sessao, canalDe, idiomaSite, skuDaPagina, inc, type Pagina } from "./analises.server";
+import { desdeDias, local, inc } from "./analises.server";
+import { resumosDoPeriodo, type Cont } from "./resumo-diario.server";
+import { PERFIL_DEPTO, DEPTOS, semAcento, type Local } from "./locais-anuncio";
 
 // ---------------------------------------------------------------- referências fixas
-// Perfil agrícola de cada departamento do Uruguai (conhecimento geral, não dado do site)
-const PERFIL_DEPTO: Record<string, { perfil: string; maquinas: string }> = {
-  Artigas: { perfil: "Arroz e pecuária", maquinas: "colheitadeiras arrozeiras, tratores médios" },
-  Canelones: { perfil: "Granja, horta, leite", maquinas: "tratores pequenos e médios, implementos" },
-  "Cerro Largo": { perfil: "Arroz e pecuária", maquinas: "colheitadeiras arrozeiras, tratores" },
-  Colonia: { perfil: "Leite e agricultura", maquinas: "tratores, misturadores, enfardadeiras" },
-  Durazno: { perfil: "Pecuária e agricultura", maquinas: "tratores médios, enfardadeiras" },
-  Flores: { perfil: "Agricultura e pecuária", maquinas: "tratores, plantadeiras" },
-  Florida: { perfil: "Leite e pecuária", maquinas: "tratores médios, enfardadeiras" },
-  Lavalleja: { perfil: "Pecuária e florestal", maquinas: "tratores médios" },
-  Maldonado: { perfil: "Pecuária e serviços", maquinas: "tratores pequenos e médios" },
-  Montevideo: { perfil: "Oficinas, revendas e empresas", maquinas: "compra para revenda e manutenção" },
-  Paysandú: { perfil: "Agricultura de grãos", maquinas: "colheitadeiras, plantadeiras, tratores grandes" },
-  "Río Negro": { perfil: "Agricultura de grãos e florestal", maquinas: "colheitadeiras, tratores grandes" },
-  Rivera: { perfil: "Pecuária e florestal (fronteira)", maquinas: "tratores médios" },
-  Rocha: { perfil: "Arroz e pecuária (nossa base, Chuy)", maquinas: "colheitadeiras arrozeiras, tratores" },
-  Salto: { perfil: "Citros, horta e pecuária", maquinas: "tratores pequenos e médios" },
-  "San José": { perfil: "Leite e agricultura", maquinas: "tratores, enfardadeiras, misturadores" },
-  Soriano: { perfil: "Agricultura de grãos (maior polo)", maquinas: "colheitadeiras, plantadeiras, tratores grandes" },
-  Tacuarembó: { perfil: "Pecuária e florestal", maquinas: "tratores médios" },
-  "Treinta y Tres": { perfil: "Arroz e pecuária", maquinas: "colheitadeiras arrozeiras, tratores" },
-};
-const DEPTOS = Object.keys(PERFIL_DEPTO);
-const semAcento = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const DEPTO_POR_CHAVE = new Map(DEPTOS.map((d) => [semAcento(d), d]));
 const CIDADES_RS_FRONTEIRA = ["Chuí", "Santa Vitória do Palmar", "Jaguarão", "Pelotas", "Bagé", "Santana do Livramento"];
 
 // Marcas: nome canônico + como aparecem nas buscas
@@ -95,43 +72,11 @@ const utm = (caminho: string, fonte: "facebook" | "google", campanha: string, pt
 const topN = <T>(m: Map<string, T>, por: (v: T) => number, n: number) => [...m.entries()].sort((a, b) => por(b[1]) - por(a[1])).slice(0, n);
 const ordenado = (m: Map<string, number>, n: number) => topN(m, (v) => v, n).map(([k, v]) => ({ nome: k, valor: v }));
 
-// Onde está o visitante, no nível em que anunciamos
-type Local = { chave: string; nome: string; pais: "UY" | "RS" | "BR" | "OUTRO" | "?" };
-function localDe(l: { region: string | null; city: string | null; country_code: string | null }): Local {
-  const cc = (l.country_code || "").toUpperCase();
-  const reg = (l.region || "").replace(/^Departamento de /i, "").replace(/ Department$/i, "").trim();
-  if (cc === "UY") {
-    const d = DEPTO_POR_CHAVE.get(semAcento(reg)) ?? (reg || "Uruguai (sem departamento)");
-    return { chave: `UY:${d}`, nome: d, pais: "UY" };
-  }
-  if (cc === "BR") return /grande do sul/i.test(reg) ? { chave: "RS", nome: "Rio Grande do Sul", pais: "RS" } : { chave: "BR", nome: "Brasil (outros estados)", pais: "BR" };
-  if (cc) return { chave: "OUTRO", nome: "Outros países", pais: "OUTRO" };
-  return { chave: "?", nome: "Sem localização", pais: "?" };
-}
-
-type Sess = {
-  local: Local;
-  cidade: string | null;
-  mobile: boolean;
-  pt: boolean;
-  canal: string;
-  hora: number;
-  paginas: number;
-  pecas: Set<string>;
-  leads: number;
-  carrinho: number;
-  buscas: number;
-  catalogos: boolean;
-  b2b: boolean;
-  visitante: string | null;
-};
-
 // ---------------------------------------------------------------- principal
 export async function criadorAnuncios(dias: number) {
   const desde = desdeDias(dias);
-  const [ps, evs, cfg, carrinhosGanhos, totalCarrinhos, ofertaMarcas, clientesDepto] = await Promise.all([
-    paginas(desde),
-    eventos(desde, ["whatsapp", "cotacao", "carrinho", "busca"]),
+  const [ds, cfg, carrinhosGanhos, totalCarrinhos, ofertaMarcas, clientesDepto] = await Promise.all([
+    resumosDoPeriodo(dias),
     configPrecos().catch(() => null),
     prisma.carrinhos.findMany({ where: { etapa: "GANHO", valor_fechado: { gt: 0 } }, select: { valor_fechado: true }, take: 2000 }).catch(() => []),
     prisma.carrinhos.count({ where: { created_at: { gte: desde } } }).catch(() => 0),
@@ -139,49 +84,11 @@ export async function criadorAnuncios(dias: number) {
     prisma.users.groupBy({ by: ["departamento"], where: { role: { not: "ADMIN" } }, _count: { _all: true } }).catch(() => []),
   ]);
 
-  // Visitante → dias diferentes em que apareceu (recorrência)
-  const diasDoVisitante = new Map<string, Set<string>>();
-  for (const p of ps) if (p.visitor_id) (diasDoVisitante.get(p.visitor_id) ?? diasDoVisitante.set(p.visitor_id, new Set()).get(p.visitor_id)!).add(local(p.created_at).toISOString().slice(0, 10));
-
-  // ---- sessões
-  const sess = new Map<string, Sess>();
-  const novaSess = (p: Pagina): Sess => ({
-    local: localDe(p),
-    cidade: p.city,
-    mobile: p.device === "mobile" || p.device === "tablet",
-    pt: idiomaSite(p.language) === "pt",
-    canal: canalDe(p.fonte),
-    hora: local(p.created_at).getUTCHours(),
-    paginas: 0,
-    pecas: new Set(),
-    leads: 0,
-    carrinho: 0,
-    buscas: 0,
-    catalogos: false,
-    b2b: false,
-    visitante: p.visitor_id,
-  });
-  const horas = Array(24).fill(0) as number[];
-  const diasSemana = Array(7).fill(0) as number[];
-  for (const p of ps) {
-    const k = sessao(p);
-    const s = sess.get(k) ?? novaSess(p);
-    sess.set(k, s);
-    s.paginas++;
-    const sku = skuDaPagina(p.path);
-    if (sku) s.pecas.add(sku);
-    if (p.path.startsWith("/catalogos")) s.catalogos = true;
-    if (p.path.startsWith("/cotizar") || p.path.startsWith("/pedido-rapido")) s.b2b = true;
-    const t = local(p.created_at);
-    horas[t.getUTCHours()]++;
-    diasSemana[t.getUTCDay()]++;
-  }
-
-  // ---- por local
+  // ---- soma dos resumos diários (src/lib/resumo-diario.server.ts)
   type PorLocal = {
     local: Local;
     visitas: number;
-    visitantes: Set<string>;
+    visitantes: number;
     sessoes: number;
     leads: number;
     carrinho: number;
@@ -192,69 +99,82 @@ export async function criadorAnuncios(dias: number) {
     pecas: Map<string, number>;
     termos: Map<string, number>;
   };
-  const locais = new Map<string, PorLocal>();
-  const pegaLocal = (l: Local) => {
-    let x = locais.get(l.chave);
-    if (!x) locais.set(l.chave, (x = { local: l, visitas: 0, visitantes: new Set(), sessoes: 0, leads: 0, carrinho: 0, buscas: 0, mobile: 0, cidades: new Map(), marcas: new Map(), pecas: new Map(), termos: new Map() }));
-    return x;
+  type Seg = { n: number; mob: number; lead: number; loc: Map<string, number>; can: Map<string, number>; horas: number[]; skus: Map<string, number> };
+  const somaMapa = (m: Map<string, number>, c: Cont) => {
+    for (const k in c) inc(m, k, c[k]);
   };
-  for (const p of ps) {
-    const x = pegaLocal(localDe(p));
-    x.visitas++;
-    if (p.visitor_id) x.visitantes.add(p.visitor_id);
-    if (p.city) inc(x.cidades, p.city);
-    const sku = skuDaPagina(p.path);
-    if (sku) inc(x.pecas, sku);
-  }
-  for (const s of sess.values()) {
-    const x = pegaLocal(s.local);
-    x.sessoes++;
-    if (s.mobile) x.mobile++;
-  }
-
-  // ---- eventos: leads, carrinho, buscas (por local e por sessão)
+  const horas = Array(24).fill(0) as number[];
+  const diasSemana = Array(7).fill(0) as number[];
+  const locais = new Map<string, PorLocal>();
+  const vistasSku = new Map<string, number>();
   const leadsSku = new Map<string, number>();
   const carrinhoSku = new Map<string, number>();
   const termos = new Map<string, { termo: string; vezes: number; resultados: number }>();
   const leadsCanal = new Map<string, number>();
-  let leads = 0;
-  for (const e of evs) {
-    const x = pegaLocal(localDe(e));
-    const s = sess.get(sessao(e));
-    if (e.tipo === "whatsapp" || e.tipo === "cotacao") {
-      leads++;
-      x.leads++;
-      if (s) {
-        s.leads++;
-        inc(leadsCanal, s.canal);
-      }
-      for (const sku of e.dado.split(",")) if (sku.trim() && !sku.startsWith("contato:")) inc(leadsSku, sku.trim());
-    } else if (e.tipo === "carrinho") {
-      x.carrinho++;
-      if (s) s.carrinho++;
-      if (e.dado.trim()) inc(carrinhoSku, e.dado.trim());
-    } else if (e.tipo === "busca") {
-      x.buscas++;
-      if (s) s.buscas++;
-      const i = e.dado.indexOf("|");
-      const termo = e.dado.slice(i + 1).trim().toLowerCase();
-      if (!termo || termo.length < 2) continue;
-      const t = termos.get(termo) ?? { termo, vezes: 0, resultados: Number(e.dado.slice(0, i)) || 0 };
-      t.vezes++;
-      t.resultados = Number(e.dado.slice(0, i)) || 0;
-      termos.set(termo, t);
-      inc(x.termos, termo);
-      const m = marcaDaBusca(termo);
-      if (m) inc(x.marcas, m, 2);
+  const canais = new Map<string, number>();
+  const segs = new Map<string, Seg>();
+  let visitas = 0, sessoes = 0, mobile = 0, pt = 0, sessComLead = 0, leads = 0;
+  for (const d of ds) {
+    visitas += d.visitas;
+    sessoes += d.sessoes;
+    mobile += d.sessMobile;
+    pt += d.sessPt;
+    sessComLead += d.sessLead;
+    leads += d.whatsapp;
+    d.horas.forEach((v, h) => {
+      horas[h] += v;
+      diasSemana[d.dow] += v;
+    });
+    somaMapa(leadsCanal, d.leadsCanal);
+    somaMapa(canais, d.sessCanal);
+    for (const [sku, s] of Object.entries(d.skus)) {
+      if (s.v) inc(vistasSku, sku, s.v);
+      if (s.w) inc(leadsSku, sku, s.w);
+      if (s.c) inc(carrinhoSku, sku, s.c);
+    }
+    for (const [t, x] of Object.entries(d.termos)) {
+      const y = termos.get(t) ?? { termo: t, vezes: 0, resultados: x.r };
+      y.vezes += x.n;
+      y.resultados = x.r;
+      termos.set(t, y);
+    }
+    for (const [chave, L] of Object.entries(d.locais)) {
+      const x = locais.get(chave) ?? {
+        local: { chave, nome: L.nome, pais: L.pais as Local["pais"] }, visitas: 0, visitantes: 0, sessoes: 0, leads: 0, carrinho: 0, buscas: 0, mobile: 0,
+        cidades: new Map(), marcas: new Map(), pecas: new Map(), termos: new Map(),
+      };
+      x.visitas += L.v;
+      x.visitantes += L.u;
+      x.sessoes += L.s;
+      x.leads += L.leads;
+      x.carrinho += L.car;
+      x.buscas += L.bus;
+      x.mobile += L.mob;
+      somaMapa(x.cidades, L.cid);
+      somaMapa(x.pecas, L.skus);
+      somaMapa(x.termos, L.termos);
+      locais.set(chave, x);
+    }
+    for (const [id, g] of Object.entries(d.segmentos)) {
+      const x = segs.get(id) ?? { n: 0, mob: 0, lead: 0, loc: new Map(), can: new Map(), horas: Array(24).fill(0), skus: new Map() };
+      x.n += g.n;
+      x.mob += g.mob;
+      x.lead += g.lead;
+      somaMapa(x.loc, g.loc);
+      somaMapa(x.can, g.can);
+      g.horas.forEach((v, h) => (x.horas[h] += v));
+      somaMapa(x.skus, g.skus);
+      segs.set(id, x);
     }
   }
+  // Marcas citadas nas buscas de cada local (as das peças vistas entram abaixo)
+  for (const x of locais.values())
+    for (const [t, n] of x.termos) {
+      const m = marcaDaBusca(t);
+      if (m) inc(x.marcas, m, 2 * n);
+    }
 
   // ---- peças envolvidas: nome, marca, preço, foto
-  const vistasSku = new Map<string, number>();
-  for (const p of ps) {
-    const sku = skuDaPagina(p.path);
-    if (sku) inc(vistasSku, sku);
-  }
   const skusInteresse = [...new Set([...vistasSku.keys(), ...leadsSku.keys(), ...carrinhoSku.keys()])].slice(0, 3000);
   const camposPeca = { sku: true, nome: true, nome_es: true, marca: true, imagem_principal: true, preco_brl: true, preco_modo: true, preco_uyu: true, valor_promocional: true, category: { select: { nome: true } } } as const;
   const pecasDb = skusInteresse.length ? await prisma.agricolas.findMany({ where: { sku: { in: skusInteresse } }, select: camposPeca }) : [];
@@ -315,12 +235,7 @@ export async function criadorAnuncios(dias: number) {
   }
 
   // ---- números gerais
-  const visitas = ps.length;
-  const sessoes = sess.size;
-  const listaSess = [...sess.values()];
-  const mobile = listaSess.filter((s) => s.mobile).length;
-  const pt = listaSess.filter((s) => s.pt).length;
-  const taxaLead = sessoes ? listaSess.filter((s) => s.leads > 0).length / sessoes : 0;
+  const taxaLead = sessoes ? sessComLead / sessoes : 0;
   const ticketReal = carrinhosGanhos.length ? carrinhosGanhos.reduce((a, c) => a + Number(c.valor_fechado ?? 0), 0) / carrinhosGanhos.length : null;
   const precosLead = [...leadsSku.keys()].map((s) => pecaPorSku.get(s)).filter(Boolean).map((p) => precoVenda(p!, cfg)?.uyu ?? 0).filter((v) => v > 0);
   const ticketEstimado = ticketReal ?? (precosLead.length ? precosLead.reduce((a, b) => a + b, 0) / precosLead.length * 1.6 : null);
@@ -328,8 +243,6 @@ export async function criadorAnuncios(dias: number) {
   const faixaHoras = faixas(melhoresHoras);
   const DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
   const melhoresDias = diasSemana.map((v, d) => ({ d, v })).sort((a, b) => b.v - a.v).slice(0, 3).map((x) => DIAS[x.d]);
-  const canais = new Map<string, number>();
-  for (const s of listaSess) inc(canais, s.canal);
 
   // ---- onde anunciar: pontuação por local
   const comDados = visitas >= 150;
@@ -344,7 +257,7 @@ export async function criadorAnuncios(dias: number) {
         nome: x.local.nome,
         pais: x.local.pais,
         visitas: x.visitas,
-        visitantes: x.visitantes.size,
+        visitantes: x.visitantes,
         sessoes: x.sessoes,
         leads: x.leads,
         carrinho: x.carrinho,
@@ -420,14 +333,12 @@ export async function criadorAnuncios(dias: number) {
   }
 
   // ---- perfis de clientes (segmentos das sessões)
-  const recorrente = (s: Sess) => (s.visitante ? (diasDoVisitante.get(s.visitante)?.size ?? 0) >= 3 : false);
-  const interior = (s: Sess) => s.local.pais === "UY" && !["Montevideo", "Canelones"].includes(s.local.nome);
-  const SEGMENTOS: Array<{ id: string; nome: string; quem: string; filtro: (s: Sess) => boolean; dor: string; mensagem: string; formato: string; oferta: string; exemplo: string; idioma: "es" | "pt" }> = [
+  // Quem entra em cada perfil é decidido no resumo diário (SEGMENTOS_IDS em resumo-diario.server.ts)
+  const SEGMENTOS: Array<{ id: string; nome: string; quem: string; dor: string; mensagem: string; formato: string; oferta: string; exemplo: string; idioma: "es" | "pt" }> = [
     {
       id: "produtor",
       nome: "Produtor do interior, no celular",
       quem: "Dono ou peão da fazenda, entra pelo celular, quer saber se tem a peça e quanto custa.",
-      filtro: (s) => interior(s) && s.mobile,
       dor: "Máquina parada no meio da safra; loja longe.",
       mensagem: "Tem a peça, preço claro e envio para o interior.",
       formato: "Meta (Instagram/Facebook) com botão 'Enviar mensagem' no WhatsApp; vídeo curto ou carrossel de peças.",
@@ -439,7 +350,6 @@ export async function criadorAnuncios(dias: number) {
       id: "oficina",
       nome: "Oficina, mecânico ou revendedor",
       quem: "Compra com frequência, olha várias peças, usa cotação/pedido rápido.",
-      filtro: (s) => s.b2b || s.pecas.size >= 5 || recorrente(s),
       dor: "Precisa de vários códigos rápido e com preço de revenda.",
       mensagem: "Pedido rápido por lista de códigos, preço para distribuidor.",
       formato: "Google Pesquisa (termos com código/modelo) + Meta para público de oficinas; levar para /cotizar.",
@@ -451,7 +361,6 @@ export async function criadorAnuncios(dias: number) {
       id: "comparador",
       nome: "Comparador de preços",
       quem: "Vê várias peças, busca, mas não chama no WhatsApp.",
-      filtro: (s) => s.pecas.size >= 2 && s.leads === 0,
       dor: "Não sabe se o preço é bom ou se a peça serve.",
       mensagem: "Preço visível, compatibilidade explicada e garantia de que serve.",
       formato: "Remarketing (Meta) com as peças que viu + prova social (avaliações do Google).",
@@ -463,7 +372,6 @@ export async function criadorAnuncios(dias: number) {
       id: "decidido",
       nome: "Comprador decidido",
       quem: "Chega, acha a peça e chama no WhatsApp em poucas páginas.",
-      filtro: (s) => s.leads > 0 && s.paginas <= 3,
       dor: "Só quer a peça certa, rápido.",
       mensagem: "Busque pelo código e peça no WhatsApp em 1 clique.",
       formato: "Google Pesquisa com o nome/código da peça; anúncio leva direto à página do produto.",
@@ -475,7 +383,6 @@ export async function criadorAnuncios(dias: number) {
       id: "catalogo",
       nome: "Leitor de catálogos",
       quem: "Baixa catálogos em PDF para consultar códigos depois.",
-      filtro: (s) => s.catalogos,
       dor: "Precisa do código certo da peça.",
       mensagem: "Catálogos grátis por marca; depois, cotação.",
       formato: "Meta com objetivo Cadastros: 'baixe o catálogo da sua marca'. Gera e-mails para as automações.",
@@ -487,7 +394,6 @@ export async function criadorAnuncios(dias: number) {
       id: "fronteira",
       nome: "Cliente brasileiro do RS (português)",
       quem: "Visita em português ou de dentro do Rio Grande do Sul.",
-      filtro: (s) => s.pt || s.local.pais === "RS",
       dor: "Peças caras ou demoradas no Brasil; quer comprar na fronteira.",
       mensagem: "Preço em R$, envio por Correios/transportadora para todo o RS.",
       formato: "Meta em português para cidades do RS (opcional: hoje a regra é só Uruguai).",
@@ -497,30 +403,21 @@ export async function criadorAnuncios(dias: number) {
     },
   ];
   const perfis = SEGMENTOS.map((g) => {
-    const ss = listaSess.filter(g.filtro);
-    const loc = new Map<string, number>();
-    const can = new Map<string, number>();
-    const hs = Array(24).fill(0) as number[];
+    const x = segs.get(g.id) ?? { n: 0, mob: 0, lead: 0, loc: new Map(), can: new Map(), horas: Array(24).fill(0), skus: new Map() };
     const mar = new Map<string, number>();
-    for (const s of ss) {
-      inc(loc, s.local.nome);
-      inc(can, s.canal);
-      hs[s.hora]++;
-      for (const sku of s.pecas) {
-        const m = marcaCanonica(pecaPorSku.get(sku)?.marca);
-        if (m) inc(mar, m);
-      }
+    for (const [sku, n] of x.skus) {
+      const m = marcaCanonica(pecaPorSku.get(sku)?.marca);
+      if (m) inc(mar, m, n);
     }
-    const hTop = hs.map((v, h) => ({ h, v })).sort((a, b) => b.v - a.v).slice(0, 4).filter((x) => x.v).map((x) => x.h).sort((a, b) => a - b);
-    const { filtro: _f, ...resto } = g;
+    const hTop = x.horas.map((v, h) => ({ h, v })).sort((a, b) => b.v - a.v).slice(0, 4).filter((y) => y.v).map((y) => y.h).sort((a, b) => a - b);
     return {
-      ...resto,
-      sessoes: ss.length,
-      fatia: sessoes ? ss.length / sessoes : 0,
-      celular: ss.length ? ss.filter((s) => s.mobile).length / ss.length : 0,
-      conversao: ss.length ? ss.filter((s) => s.leads > 0).length / ss.length : 0,
-      locais: ordenado(loc, 3),
-      canais: ordenado(can, 3),
+      ...g,
+      sessoes: x.n,
+      fatia: sessoes ? x.n / sessoes : 0,
+      celular: x.n ? x.mob / x.n : 0,
+      conversao: x.n ? x.lead / x.n : 0,
+      locais: ordenado(x.loc, 3),
+      canais: ordenado(x.can, 3),
       marcas: ordenado(mar, 3),
       horas: faixas(hTop),
     };

@@ -282,11 +282,13 @@ async function gatilho(a: Automacao, cfg: ConfigAutomacao, publico: Publico, ago
   }
 
   if (tipo === "busca_sem_resultado") {
-    // Buscas com 0 resultado ("/_evento/busca/0|termo") de clientes identificados
-    const PREFIXO = "/_evento/busca/0%7C";
-    const buscas = await prisma.site_visits.findMany({
-      where: { path: { startsWith: PREFIXO }, created_at: { gte: new Date(agora - (cfg.dias ?? 60) * DIA) }, OR: [{ user_id: { not: null } }, { visitor_id: { not: null } }] },
-      select: { path: true, user_id: true, visitor_id: true },
+    // Buscas com 0 resultado (evento "busca", dado "0|termo") de clientes identificados
+    const PREFIXO = "0|";
+    const { eventosProntos } = await import("./eventos-db.server");
+    await eventosProntos();
+    const buscas = await prisma.site_eventos.findMany({
+      where: { tipo: "busca", dado: { startsWith: PREFIXO }, created_at: { gte: new Date(agora - (cfg.dias ?? 60) * DIA) }, OR: [{ user_id: { not: null } }, { visitor_id: { not: null } }] },
+      select: { dado: true, user_id: true, visitor_id: true },
       orderBy: { id: "desc" },
       take: 5000,
     });
@@ -299,12 +301,7 @@ async function gatilho(a: Automacao, cfg: ConfigAutomacao, publico: Publico, ago
     for (const b of buscas) {
       const uid = b.user_id ?? (b.visitor_id ? userDoVisitante.get(b.visitor_id) : undefined);
       if (!uid) continue;
-      let termo = "";
-      try {
-        termo = decodeURIComponent(b.path.slice(PREFIXO.length)).trim().toLowerCase().slice(0, 100);
-      } catch {
-        continue;
-      }
+      const termo = b.dado.slice(PREFIXO.length).trim().toLowerCase().slice(0, 100);
       if (termo.length < 3) continue;
       const l = termosDe.get(uid) ?? [];
       if (!l.includes(termo)) l.push(termo);

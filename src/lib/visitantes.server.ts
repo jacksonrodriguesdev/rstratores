@@ -37,29 +37,32 @@ const ordenar = <T extends Record<string, any>>(a: T[], campo: keyof T) => a.sor
 // pais: "UY" = só sessões localizadas no Uruguai (o tráfego pago é segmentado para o Uruguai)
 export async function resumoVisitantes(dias: number, pais: string | null = null): Promise<Visitantes> {
   const desde = new Date(Date.now() - dias * 24 * 3600 * 1000);
-  let linhas: Linha[];
-  try {
-    linhas = (await prisma.site_visits.findMany({
-      // Cliques e rolagem (Admin → Análises) ficam fora: só páginas e eventos de interesse
-      where: { created_at: { gte: desde }, NOT: [{ path: { startsWith: "/_evento/clique/" } }, { path: { startsWith: "/_evento/rolagem/" } }] },
+  // Páginas (site_visits) + eventos de interesse (site_eventos: WhatsApp e buscas), na ordem do tempo
+  const { eventosProntos, caminhoDoEvento } = await import("./eventos-db.server");
+  await eventosProntos();
+  const campos = {
+    id: true, created_at: true, country: true, country_code: true, region: true, city: true,
+    latitude: true, longitude: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true,
+    meio: true, utm_campaign: true, device: true, browser: true, os: true, referrer_host: true,
+  } as const;
+  const [linhasPaginas, eventos] = await Promise.all([
+    prisma.site_visits.findMany({
+      where: { created_at: { gte: desde }, NOT: { path: { startsWith: PREFIXO_EVENTO } } },
       orderBy: { created_at: "asc" },
-      take: 300000,
-      select: {
-        id: true, created_at: true, path: true, country: true, country_code: true, region: true, city: true,
-        latitude: true, longitude: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true,
-        meio: true, utm_campaign: true, device: true, browser: true, os: true, referrer_host: true,
-      },
-    })) as Linha[];
-  } catch {
-    // Banco sem as colunas novas: só o básico
-    linhas = (await prisma.site_visits.findMany({
-      // Cliques e rolagem (Admin → Análises) ficam fora: só páginas e eventos de interesse
-      where: { created_at: { gte: desde }, NOT: [{ path: { startsWith: "/_evento/clique/" } }, { path: { startsWith: "/_evento/rolagem/" } }] },
+      take: 250000,
+      select: { ...campos, path: true },
+    }),
+    prisma.site_eventos.findMany({
+      where: { created_at: { gte: desde }, tipo: { in: ["whatsapp", "cotacao", "busca"] } },
       orderBy: { created_at: "asc" },
-      take: 300000,
-      select: { id: true, created_at: true, path: true, country: true, country_code: true, region: true, city: true },
-    })).map((l) => ({ ...l, latitude: null, longitude: null, visitor_id: null, session_id: null, ip_hash: null, fonte: null, meio: null, utm_campaign: null, device: null, browser: null, os: null, referrer_host: null }));
-  }
+      take: 50000,
+      select: { ...campos, tipo: true, dado: true },
+    }),
+  ]);
+  const linhas: Linha[] = [
+    ...(linhasPaginas as Linha[]),
+    ...eventos.map(({ tipo, dado, id, ...e }) => ({ ...e, id: -id, path: caminhoDoEvento({ tipo, dado }) }) as Linha),
+  ].sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
 
   const visitante = (l: Linha) => l.visitor_id || l.ip_hash || `v${l.id}`;
   const sessaoDe = (l: Linha) => l.session_id || `${visitante(l)}|${diaLocal(l.created_at)}`;

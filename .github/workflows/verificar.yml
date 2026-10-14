@@ -1,0 +1,86 @@
+# Rede de segurança: a cada envio para o main, o GitHub compila o site, cria um banco MySQL de
+# teste, roda os testes e abre as páginas principais. Só se tudo passar, o código vai para o ramo
+# "producao", que é o ramo que a Hostinger publica (docs/DEPLOY_HOSTINGER.md).
+# Se falhar: o site no ar continua na última versão boa e o GitHub manda um e-mail com o erro.
+name: Verificar
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Compila e testa o site
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci
+          MYSQL_DATABASE: agro_ci
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      # Banco de teste descartável (o script de dados recusa bancos sem "ci"/"teste" no nome)
+      DATABASE_URL: mysql://root:ci@127.0.0.1:3306/agro_ci
+      JWT_SECRET: ci-segredo-de-teste-com-mais-de-trinta-e-dois-caracteres
+      VITE_SITE_URL: https://agropartsuy.com
+      UPLOADS_DIR: ${{ github.workspace }}/.ci-uploads
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Tipos (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: Banco de teste
+        run: |
+          npx prisma db push --skip-generate
+          node scripts/ci/semente.cjs
+
+      - name: Resumo diário e eventos
+        run: npx tsx scripts/ci/testar-resumo.ts
+
+      - name: Build (o mesmo da Hostinger)
+        run: npm run build
+
+      - name: Páginas principais (teste de fumaça)
+        run: |
+          mkdir -p "$UPLOADS_DIR"
+          PORT=3999 NODE_ENV=production node .output/server/index.mjs > servidor.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3999/robots.txt > /dev/null && break; sleep 1; done
+          BASE_URL=http://localhost:3999 node scripts/ci/fumaca.cjs
+
+      - name: Log do servidor (quando falha)
+        if: failure()
+        run: cat servidor.log || true
+
+  publicar:
+    name: Liberar para a Hostinger (ramo producao)
+    needs: verificar
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Atualizar o ramo producao
+        run: git push --force origin HEAD:refs/heads/producao

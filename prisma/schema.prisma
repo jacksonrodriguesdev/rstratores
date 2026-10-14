@@ -150,6 +150,51 @@ model site_visits {
   @@index([session_id])
 }
 
+// Eventos do site (WhatsApp, busca, carrinho, pop-up, clique, rolagem). Antes iam para site_visits
+// como "/_evento/<tipo>/<dado>"; a tabela é criada e preenchida sozinha (src/lib/eventos-db.server.ts).
+model site_eventos {
+  id            Int      @id @default(autoincrement())
+  created_at    DateTime @default(now())
+  tipo          String   @db.VarChar(20)
+  dado          String   @db.VarChar(400)
+  pagina        String?  @db.VarChar(512) // página onde aconteceu
+  visitor_id    String?  @db.VarChar(64)
+  session_id    String?  @db.VarChar(64)
+  ip_hash       String?  @db.VarChar(64)
+  user_id       Int?
+  city          String?  @db.VarChar(191)
+  region        String?  @db.VarChar(191)
+  country       String?  @db.VarChar(191)
+  country_code  String?  @db.VarChar(8)
+  latitude      Float?
+  longitude     Float?
+  fonte         String?  @db.VarChar(40)
+  meio          String?  @db.VarChar(40)
+  utm_source    String?  @db.VarChar(100)
+  utm_medium    String?  @db.VarChar(100)
+  utm_campaign  String?  @db.VarChar(150)
+  referrer_host String?  @db.VarChar(191)
+  device        String?  @db.VarChar(20)
+  browser       String?  @db.VarChar(40)
+  os            String?  @db.VarChar(40)
+  language      String?  @db.VarChar(20)
+
+  @@index([created_at])
+  @@index([tipo, created_at])
+  @@index([visitor_id])
+  @@index([session_id])
+  @@index([user_id])
+}
+
+// Resumo de cada dia fechado (horário do Uruguai) para Admin → Análises e Criador de anúncios:
+// as telas somam os resumos em vez de reler todas as visitas (src/lib/resumo-diario.server.ts).
+model analise_dia {
+  dia       String   @id @db.VarChar(10) // AAAA-MM-DD
+  versao    Int
+  dados     String   @db.LongText // JSON
+  gerado_em DateTime @default(now())
+}
+
 model quotes {
   id         Int      @id @default(autoincrement())
   nome       String

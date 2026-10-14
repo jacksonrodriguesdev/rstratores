@@ -6,10 +6,12 @@ import type { Interesse } from "./interesse";
 // Junta os eventos gravados por src/lib/eventos.ts nos últimos `dias` dias.
 export async function resumoInteresse(dias: number): Promise<Interesse> {
   const desde = new Date(Date.now() - dias * 24 * 60 * 60 * 1000);
+  const { eventosProntos } = await import("./eventos-db.server");
+  await eventosProntos();
   const [eventos, visitas] = await Promise.all([
-    prisma.site_visits.findMany({
-      where: { created_at: { gte: desde }, path: { startsWith: PREFIXO_EVENTO } },
-      select: { path: true, created_at: true },
+    prisma.site_eventos.findMany({
+      where: { created_at: { gte: desde }, tipo: { in: ["whatsapp", "cotacao", "busca"] } },
+      select: { tipo: true, dado: true, created_at: true },
       take: 100000,
     }),
     prisma.site_visits.count({ where: { created_at: { gte: desde }, NOT: { path: { startsWith: PREFIXO_EVENTO } } } }),
@@ -23,13 +25,7 @@ export async function resumoInteresse(dias: number): Promise<Interesse> {
   let buscas = 0;
 
   for (const e of eventos) {
-    const [tipo, ...resto] = e.path.slice(PREFIXO_EVENTO.length).split("/");
-    let dado = "";
-    try {
-      dado = decodeURIComponent(resto.join("/"));
-    } catch {
-      continue;
-    }
+    const { tipo, dado } = e;
     const dia = e.created_at.toISOString().slice(0, 10);
     const d = porDia.get(dia) ?? { whatsapp: 0, buscas: 0 };
     porDia.set(dia, d);

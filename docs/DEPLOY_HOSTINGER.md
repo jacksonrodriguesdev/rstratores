@@ -38,7 +38,14 @@ node scripts/deploy/exportar_banco.cjs
 
 ## 3. App Node.js
 
-hPanel → **Websites** → app Node.js → importar do **GitHub** (`rstratores`, branch `main`).
+hPanel → **Websites** → app Node.js → importar do **GitHub** (`rstratores`, branch **`producao`**).
+
+> **Por que `producao` e não `main`:** a cada envio para o `main`, o GitHub Actions
+> (`.github/workflows/verificar.yml`) compila o site, cria um banco de teste, roda os testes e
+> abre as páginas principais. Só se tudo passar ele copia o código para o ramo `producao`. Assim
+> um erro nunca chega ao site no ar: ele fica na última versão boa e o GitHub avisa por e-mail.
+> Acompanhe em GitHub → aba **Actions**. Para publicar sem esperar (emergência), dá para voltar
+> o branch da Hostinger para `main` temporariamente.
 
 | Campo | Valor |
 |---|---|
