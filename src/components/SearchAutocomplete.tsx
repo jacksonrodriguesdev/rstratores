@@ -97,12 +97,20 @@ export function SearchAutocomplete({
             <div className="p-4 text-center text-sm text-muted-foreground">
               {t("No encontramos repuestos para", "Não encontramos peças para")} "{debouncedQuery}".
               <a
-                href={whatsappContactUrl(t(`¡Hola! Busco este repuesto: ${debouncedQuery}`, `Olá! Procuro esta peça: ${debouncedQuery}`))}
+                href={whatsappContactUrl(
+                  t(
+                    `¡Hola! Busco este repuesto: ${debouncedQuery}`,
+                    `Olá! Procuro esta peça: ${debouncedQuery}`,
+                  ),
+                )}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="mt-2 block font-semibold text-[#128C4B] hover:underline"
               >
-                {t("Preguntanos por WhatsApp, lo conseguimos →", "Pergunte pelo WhatsApp, conseguimos para você →")}
+                {t(
+                  "Preguntanos por WhatsApp, lo conseguimos →",
+                  "Pergunte pelo WhatsApp, conseguimos para você →",
+                )}
               </a>
             </div>
           )}
@@ -127,7 +135,8 @@ export function SearchAutocomplete({
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
                       Cód. {product.sku}
-                      {(marcaExibicao(product) || product.categoria) && ` · ${marcaExibicao(product) || (idioma === "pt" ? product.categoria : categoriaEs(product.categoria))}`}
+                      {(marcaExibicao(product) || product.categoria) &&
+                        ` · ${marcaExibicao(product) || (idioma === "pt" ? product.categoria : categoriaEs(product.categoria))}`}
                     </div>
                   </div>
                 </button>

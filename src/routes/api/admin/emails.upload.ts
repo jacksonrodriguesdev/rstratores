@@ -16,10 +16,16 @@ export const Route = createFileRoute("/api/admin/emails/upload")({
           const ext = file.name.split(".").pop()?.toLowerCase() || "";
           // Sem WEBP/AVIF: o Outlook não mostra
           if (!["jpg", "jpeg", "png", "gif"].includes(ext)) {
-            return Response.json({ error: "Use JPG, PNG ou GIF (o Outlook não mostra WEBP)" }, { status: 400 });
+            return Response.json(
+              { error: "Use JPG, PNG ou GIF (o Outlook não mostra WEBP)" },
+              { status: 400 },
+            );
           }
           if (file.size > 3 * 1024 * 1024) {
-            return Response.json({ error: "Imagem maior que 3 MB: e-mails pesados vão para spam" }, { status: 400 });
+            return Response.json(
+              { error: "Imagem maior que 3 MB: e-mails pesados vão para spam" },
+              { status: 400 },
+            );
           }
           const relativo = `emails/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
           const { caminhoUpload } = await import("@/lib/uploads.server");

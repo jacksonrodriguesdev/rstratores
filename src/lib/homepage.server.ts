@@ -1,8 +1,6 @@
 import type { HomepageBlock } from "./homepage";
 import { prisma } from "./prisma";
 
-
-
 export async function listHomepageBlocks(): Promise<HomepageBlock[]> {
   // @ts-ignore - prisma type may not be updated until dev server restarts
   return await prisma.homepage_blocks.findMany({

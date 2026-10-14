@@ -15,7 +15,8 @@ export const Route = createFileRoute("/api/admin/products")({
           // Sem espaços nas pontas: "82636800 " virava /produto/82636800%20
           const sku = String(body.sku ?? "").trim();
           if (typeof body.nome === "string") body.nome = body.nome.trim();
-          if (typeof body.codigo_fabricante === "string") body.codigo_fabricante = body.codigo_fabricante.trim() || null;
+          if (typeof body.codigo_fabricante === "string")
+            body.codigo_fabricante = body.codigo_fabricante.trim() || null;
           if (!sku || !body.nome) {
             return Response.json({ error: "SKU e nome são obrigatórios." }, { status: 400 });
           }

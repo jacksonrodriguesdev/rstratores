@@ -86,7 +86,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = (newItem: CartItem) => {
     // AddToCart (Meta) / add_to_cart (GA4)
-    eventoCarrinho({ sku: newItem.sku, nome: newItem.nameEs || newItem.name, quantidade: newItem.quantity });
+    eventoCarrinho({
+      sku: newItem.sku,
+      nome: newItem.nameEs || newItem.name,
+      quantidade: newItem.quantity,
+    });
     // Jornada dos visitantes (admin): "adicionou ao carrinho"
     registrarEvento("carrinho", newItem.sku);
     setItems((currentItems) => {

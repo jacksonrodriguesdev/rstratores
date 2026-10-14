@@ -22,85 +22,500 @@ type Base = Omit<LocalSeo, "slug" | "vizinhos"> & { vizinhos: string[] };
 // Perfis reaproveitados
 const P = {
   arroz: { es: "arroz y ganadería", pt: "arroz e pecuária" },
-  granos: { es: "agricultura de granos (soja, trigo, maíz, cebada)", pt: "lavoura de grãos (soja, trigo, milho, cevada)" },
+  granos: {
+    es: "agricultura de granos (soja, trigo, maíz, cebada)",
+    pt: "lavoura de grãos (soja, trigo, milho, cevada)",
+  },
   leche: { es: "lechería, agricultura y granja", pt: "leite, lavoura e granja" },
   ganaderia: { es: "ganadería y forestación", pt: "pecuária e silvicultura" },
   granja: { es: "granja, horticultura y lechería", pt: "granja, horticultura e leite" },
-  talleres: { es: "talleres, repuesteras y empresas de servicios agrícolas", pt: "oficinas, revendas e prestadores de serviço agrícola" },
-  citrus: { es: "citricultura, horticultura y ganadería", pt: "citricultura, horticultura e pecuária" },
+  talleres: {
+    es: "talleres, repuesteras y empresas de servicios agrícolas",
+    pt: "oficinas, revendas e prestadores de serviço agrícola",
+  },
+  citrus: {
+    es: "citricultura, horticultura y ganadería",
+    pt: "citricultura, horticultura e pecuária",
+  },
 };
 const M = {
-  arroz: { es: "cosechadoras arroceras, tractores medianos y grandes, niveladoras", pt: "colheitadeiras de arroz, tratores médios e grandes, plainas" },
-  granos: { es: "cosechadoras, sembradoras, pulverizadoras y tractores de alta potencia", pt: "colheitadeiras, plantadeiras, pulverizadores e tratores de alta potência" },
-  leche: { es: "tractores medianos, mixers, enfardadoras y segadoras", pt: "tratores médios, vagões misturadores, enfardadeiras e segadeiras" },
-  ganaderia: { es: "tractores medianos, rotativas, enfardadoras y equipos forestales", pt: "tratores médios, roçadeiras, enfardadeiras e equipamentos florestais" },
-  granja: { es: "tractores chicos y medianos, rotovadores e implementos", pt: "tratores pequenos e médios, enxadas rotativas e implementos" },
-  talleres: { es: "toda la línea: tractores, cosechadoras e implementos", pt: "toda a linha: tratores, colheitadeiras e implementos" },
+  arroz: {
+    es: "cosechadoras arroceras, tractores medianos y grandes, niveladoras",
+    pt: "colheitadeiras de arroz, tratores médios e grandes, plainas",
+  },
+  granos: {
+    es: "cosechadoras, sembradoras, pulverizadoras y tractores de alta potencia",
+    pt: "colheitadeiras, plantadeiras, pulverizadores e tratores de alta potência",
+  },
+  leche: {
+    es: "tractores medianos, mixers, enfardadoras y segadoras",
+    pt: "tratores médios, vagões misturadores, enfardadeiras e segadeiras",
+  },
+  ganaderia: {
+    es: "tractores medianos, rotativas, enfardadoras y equipos forestales",
+    pt: "tratores médios, roçadeiras, enfardadeiras e equipamentos florestais",
+  },
+  granja: {
+    es: "tractores chicos y medianos, rotovadores e implementos",
+    pt: "tratores pequenos e médios, enxadas rotativas e implementos",
+  },
+  talleres: {
+    es: "toda la línea: tractores, cosechadoras e implementos",
+    pt: "toda a linha: tratores, colheitadeiras e implementos",
+  },
 };
 const MAR = ["Massey Ferguson", "John Deere", "Valtra", "New Holland"];
-const UY = (nome: string, perfil: keyof typeof P, foco: string, marcas: string[], vizinhos: string[], tipo: LocalSeo["tipo"] = "departamento", dentro?: string): Base => ({
-  nome, pais: "UY", tipo, dentro, perfil: P[perfil], maquinas: M[perfil === "citrus" ? "granja" : perfil], foco, marcas, vizinhos,
+const UY = (
+  nome: string,
+  perfil: keyof typeof P,
+  foco: string,
+  marcas: string[],
+  vizinhos: string[],
+  tipo: LocalSeo["tipo"] = "departamento",
+  dentro?: string,
+): Base => ({
+  nome,
+  pais: "UY",
+  tipo,
+  dentro,
+  perfil: P[perfil],
+  maquinas: M[perfil === "citrus" ? "granja" : perfil],
+  foco,
+  marcas,
+  vizinhos,
 });
-const RS = (nome: string, perfil: keyof typeof P, foco: string, marcas: string[], vizinhos: string[], tipo: LocalSeo["tipo"] = "cidade", dentro = "Rio Grande do Sul"): Base => ({
-  nome, pais: "RS", tipo, dentro, perfil: P[perfil], maquinas: M[perfil === "citrus" ? "granja" : perfil], foco, marcas, vizinhos,
+const RS = (
+  nome: string,
+  perfil: keyof typeof P,
+  foco: string,
+  marcas: string[],
+  vizinhos: string[],
+  tipo: LocalSeo["tipo"] = "cidade",
+  dentro = "Rio Grande do Sul",
+): Base => ({
+  nome,
+  pais: "RS",
+  tipo,
+  dentro,
+  perfil: P[perfil],
+  maquinas: M[perfil === "citrus" ? "granja" : perfil],
+  foco,
+  marcas,
+  vizinhos,
 });
 
-const F = { tr: "Engrenagens e Transmissão", hi: "Hidráulica e Pneumática", fi: "Filtros", ve: "Vedações", ro: "Rolamentos e Mancais", fr: "Freios e Embreagens", el: "Elétrica e Sensores", es: "Estrutura e Suspensão" };
+const F = {
+  tr: "Engrenagens e Transmissão",
+  hi: "Hidráulica e Pneumática",
+  fi: "Filtros",
+  ve: "Vedações",
+  ro: "Rolamentos e Mancais",
+  fr: "Freios e Embreagens",
+  el: "Elétrica e Sensores",
+  es: "Estrutura e Suspensão",
+};
 
 const BASE: Base[] = [
   // Uruguai (país e regiões)
-  { ...UY("Uruguay", "granos", F.fi, MAR, ["montevideo", "rocha", "soriano", "paysandu", "rivera", "treinta-y-tres"], "pais"), perfil: { es: "agricultura de granos, arroz, lechería y ganadería en los 19 departamentos", pt: "grãos, arroz, leite e pecuária nos 19 departamentos" } },
-  { ...UY("Este de Uruguay", "arroz", F.ro, MAR, ["rocha", "treinta-y-tres", "cerro-largo", "lavalleja", "maldonado", "chuy"], "regiao"), perfil: { es: "arroz y ganadería en Rocha, Treinta y Tres, Cerro Largo, Lavalleja y Maldonado", pt: "arroz e pecuária em Rocha, Treinta y Tres, Cerro Largo, Lavalleja e Maldonado" } },
-  { ...UY("Litoral oeste de Uruguay", "granos", F.tr, ["John Deere", "Case IH", "New Holland", "Massey Ferguson"], ["soriano", "rio-negro", "paysandu", "colonia", "salto", "young"], "regiao"), perfil: { es: "el mayor polo agrícola del país: Soriano, Río Negro, Paysandú y Colonia", pt: "o maior polo agrícola do país: Soriano, Río Negro, Paysandú e Colonia" } },
-  { ...UY("Norte de Uruguay", "ganaderia", F.hi, MAR, ["rivera", "tacuarembo", "artigas", "salto"], "regiao"), perfil: { es: "ganadería, forestación y arroz en Rivera, Tacuarembó, Artigas y Salto", pt: "pecuária, silvicultura e arroz em Rivera, Tacuarembó, Artigas e Salto" } },
+  {
+    ...UY(
+      "Uruguay",
+      "granos",
+      F.fi,
+      MAR,
+      ["montevideo", "rocha", "soriano", "paysandu", "rivera", "treinta-y-tres"],
+      "pais",
+    ),
+    perfil: {
+      es: "agricultura de granos, arroz, lechería y ganadería en los 19 departamentos",
+      pt: "grãos, arroz, leite e pecuária nos 19 departamentos",
+    },
+  },
+  {
+    ...UY(
+      "Este de Uruguay",
+      "arroz",
+      F.ro,
+      MAR,
+      ["rocha", "treinta-y-tres", "cerro-largo", "lavalleja", "maldonado", "chuy"],
+      "regiao",
+    ),
+    perfil: {
+      es: "arroz y ganadería en Rocha, Treinta y Tres, Cerro Largo, Lavalleja y Maldonado",
+      pt: "arroz e pecuária em Rocha, Treinta y Tres, Cerro Largo, Lavalleja e Maldonado",
+    },
+  },
+  {
+    ...UY(
+      "Litoral oeste de Uruguay",
+      "granos",
+      F.tr,
+      ["John Deere", "Case IH", "New Holland", "Massey Ferguson"],
+      ["soriano", "rio-negro", "paysandu", "colonia", "salto", "young"],
+      "regiao",
+    ),
+    perfil: {
+      es: "el mayor polo agrícola del país: Soriano, Río Negro, Paysandú y Colonia",
+      pt: "o maior polo agrícola do país: Soriano, Río Negro, Paysandú e Colonia",
+    },
+  },
+  {
+    ...UY(
+      "Norte de Uruguay",
+      "ganaderia",
+      F.hi,
+      MAR,
+      ["rivera", "tacuarembo", "artigas", "salto"],
+      "regiao",
+    ),
+    perfil: {
+      es: "ganadería, forestación y arroz en Rivera, Tacuarembó, Artigas y Salto",
+      pt: "pecuária, silvicultura e arroz em Rivera, Tacuarembó, Artigas e Salto",
+    },
+  },
   // 19 departamentos
-  UY("Artigas", "arroz", F.ro, ["John Deere", "New Holland", "Massey Ferguson"], ["salto", "rivera", "norte-de-uruguay"]),
-  UY("Canelones", "granja", F.fi, ["Massey Ferguson", "Ford", "New Holland"], ["montevideo", "san-jose", "florida", "lavalleja", "maldonado"]),
-  UY("Cerro Largo", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra"], ["treinta-y-tres", "rivera", "tacuarembo", "este-de-uruguay"]),
-  UY("Colonia", "leche", F.hi, ["John Deere", "New Holland", "Massey Ferguson"], ["soriano", "san-jose", "flores", "litoral-oeste-de-uruguay"]),
-  UY("Durazno", "ganaderia", F.fr, ["Massey Ferguson", "Valtra", "John Deere"], ["florida", "flores", "tacuarembo", "treinta-y-tres"]),
-  UY("Flores", "granos", F.tr, ["John Deere", "Massey Ferguson", "New Holland"], ["soriano", "durazno", "florida", "colonia"]),
-  UY("Florida", "leche", F.hi, ["Massey Ferguson", "New Holland", "Valtra"], ["durazno", "canelones", "lavalleja", "san-jose"]),
-  UY("Lavalleja", "ganaderia", F.fr, ["Massey Ferguson", "Valtra", "Ford"], ["maldonado", "rocha", "treinta-y-tres", "florida"]),
-  UY("Maldonado", "ganaderia", F.fi, ["Massey Ferguson", "New Holland", "Ford"], ["rocha", "lavalleja", "canelones", "este-de-uruguay"]),
-  { ...UY("Montevideo", "talleres", F.fi, MAR, ["canelones", "san-jose", "uruguay"]), maquinas: M.talleres },
-  UY("Paysandú", "granos", F.tr, ["John Deere", "Case IH", "New Holland"], ["salto", "rio-negro", "tacuarembo", "litoral-oeste-de-uruguay"]),
-  UY("Río Negro", "granos", F.tr, ["John Deere", "Case IH", "Massey Ferguson"], ["young", "soriano", "paysandu", "litoral-oeste-de-uruguay"]),
-  UY("Rivera", "ganaderia", F.hi, ["Massey Ferguson", "Valtra", "John Deere"], ["tacuarembo", "artigas", "cerro-largo", "santana-do-livramento"]),
-  UY("Rocha", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra", "New Holland"], ["chuy", "treinta-y-tres", "lavalleja", "maldonado", "chui"]),
-  UY("Salto", "citrus", F.fi, ["Massey Ferguson", "John Deere", "New Holland"], ["paysandu", "artigas", "norte-de-uruguay"]),
-  UY("San José", "leche", F.hi, ["Massey Ferguson", "John Deere", "New Holland"], ["colonia", "flores", "canelones", "montevideo"]),
-  UY("Soriano", "granos", F.tr, ["John Deere", "Case IH", "New Holland", "Massey Ferguson"], ["rio-negro", "colonia", "flores", "litoral-oeste-de-uruguay"]),
-  UY("Tacuarembó", "ganaderia", F.hi, ["Massey Ferguson", "Valtra", "John Deere"], ["rivera", "durazno", "paysandu", "cerro-largo"]),
-  UY("Treinta y Tres", "arroz", F.ro, ["John Deere", "New Holland", "Massey Ferguson", "Valtra"], ["rocha", "cerro-largo", "lavalleja", "este-de-uruguay"]),
+  UY(
+    "Artigas",
+    "arroz",
+    F.ro,
+    ["John Deere", "New Holland", "Massey Ferguson"],
+    ["salto", "rivera", "norte-de-uruguay"],
+  ),
+  UY(
+    "Canelones",
+    "granja",
+    F.fi,
+    ["Massey Ferguson", "Ford", "New Holland"],
+    ["montevideo", "san-jose", "florida", "lavalleja", "maldonado"],
+  ),
+  UY(
+    "Cerro Largo",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["treinta-y-tres", "rivera", "tacuarembo", "este-de-uruguay"],
+  ),
+  UY(
+    "Colonia",
+    "leche",
+    F.hi,
+    ["John Deere", "New Holland", "Massey Ferguson"],
+    ["soriano", "san-jose", "flores", "litoral-oeste-de-uruguay"],
+  ),
+  UY(
+    "Durazno",
+    "ganaderia",
+    F.fr,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["florida", "flores", "tacuarembo", "treinta-y-tres"],
+  ),
+  UY(
+    "Flores",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "New Holland"],
+    ["soriano", "durazno", "florida", "colonia"],
+  ),
+  UY(
+    "Florida",
+    "leche",
+    F.hi,
+    ["Massey Ferguson", "New Holland", "Valtra"],
+    ["durazno", "canelones", "lavalleja", "san-jose"],
+  ),
+  UY(
+    "Lavalleja",
+    "ganaderia",
+    F.fr,
+    ["Massey Ferguson", "Valtra", "Ford"],
+    ["maldonado", "rocha", "treinta-y-tres", "florida"],
+  ),
+  UY(
+    "Maldonado",
+    "ganaderia",
+    F.fi,
+    ["Massey Ferguson", "New Holland", "Ford"],
+    ["rocha", "lavalleja", "canelones", "este-de-uruguay"],
+  ),
+  {
+    ...UY("Montevideo", "talleres", F.fi, MAR, ["canelones", "san-jose", "uruguay"]),
+    maquinas: M.talleres,
+  },
+  UY(
+    "Paysandú",
+    "granos",
+    F.tr,
+    ["John Deere", "Case IH", "New Holland"],
+    ["salto", "rio-negro", "tacuarembo", "litoral-oeste-de-uruguay"],
+  ),
+  UY(
+    "Río Negro",
+    "granos",
+    F.tr,
+    ["John Deere", "Case IH", "Massey Ferguson"],
+    ["young", "soriano", "paysandu", "litoral-oeste-de-uruguay"],
+  ),
+  UY(
+    "Rivera",
+    "ganaderia",
+    F.hi,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["tacuarembo", "artigas", "cerro-largo", "santana-do-livramento"],
+  ),
+  UY(
+    "Rocha",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+    ["chuy", "treinta-y-tres", "lavalleja", "maldonado", "chui"],
+  ),
+  UY(
+    "Salto",
+    "citrus",
+    F.fi,
+    ["Massey Ferguson", "John Deere", "New Holland"],
+    ["paysandu", "artigas", "norte-de-uruguay"],
+  ),
+  UY(
+    "San José",
+    "leche",
+    F.hi,
+    ["Massey Ferguson", "John Deere", "New Holland"],
+    ["colonia", "flores", "canelones", "montevideo"],
+  ),
+  UY(
+    "Soriano",
+    "granos",
+    F.tr,
+    ["John Deere", "Case IH", "New Holland", "Massey Ferguson"],
+    ["rio-negro", "colonia", "flores", "litoral-oeste-de-uruguay"],
+  ),
+  UY(
+    "Tacuarembó",
+    "ganaderia",
+    F.hi,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["rivera", "durazno", "paysandu", "cerro-largo"],
+  ),
+  UY(
+    "Treinta y Tres",
+    "arroz",
+    F.ro,
+    ["John Deere", "New Holland", "Massey Ferguson", "Valtra"],
+    ["rocha", "cerro-largo", "lavalleja", "este-de-uruguay"],
+  ),
   // Cidades do Uruguai
-  UY("Chuy", "arroz", F.ro, MAR, ["rocha", "chui", "santa-vitoria-do-palmar", "treinta-y-tres"], "cidade", "Rocha"),
-  UY("Young", "granos", F.tr, ["John Deere", "Case IH", "New Holland"], ["rio-negro", "paysandu", "soriano"], "cidade", "Río Negro"),
-  UY("Mercedes", "granos", F.tr, ["John Deere", "Case IH", "Massey Ferguson"], ["soriano", "rio-negro", "colonia"], "cidade", "Soriano"),
-  UY("Melo", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra"], ["cerro-largo", "treinta-y-tres", "jaguarao"], "cidade", "Cerro Largo"),
+  UY(
+    "Chuy",
+    "arroz",
+    F.ro,
+    MAR,
+    ["rocha", "chui", "santa-vitoria-do-palmar", "treinta-y-tres"],
+    "cidade",
+    "Rocha",
+  ),
+  UY(
+    "Young",
+    "granos",
+    F.tr,
+    ["John Deere", "Case IH", "New Holland"],
+    ["rio-negro", "paysandu", "soriano"],
+    "cidade",
+    "Río Negro",
+  ),
+  UY(
+    "Mercedes",
+    "granos",
+    F.tr,
+    ["John Deere", "Case IH", "Massey Ferguson"],
+    ["soriano", "rio-negro", "colonia"],
+    "cidade",
+    "Soriano",
+  ),
+  UY(
+    "Melo",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["cerro-largo", "treinta-y-tres", "jaguarao"],
+    "cidade",
+    "Cerro Largo",
+  ),
   // Rio Grande do Sul (estado e regiões)
-  { ...RS("Rio Grande do Sul", "granos", F.fi, ["Massey Ferguson", "John Deere", "Valtra", "New Holland"], ["extremo-sul", "pelotas", "porto-alegre", "passo-fundo", "campanha-gaucha"], "estado", ""), perfil: { es: "soja, arroz, trigo, maíz y ganadería en todo el estado", pt: "soja, arroz, trigo, milho e pecuária em todo o estado" } },
-  { ...RS("Extremo Sul", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra", "New Holland"], ["chui", "santa-vitoria-do-palmar", "rio-grande", "pelotas", "jaguarao", "arroio-grande"], "regiao"), perfil: { es: "arroz y ganadería en Chuí, Santa Vitória do Palmar, Rio Grande, Pelotas y Jaguarão", pt: "arroz irrigado e pecuária no Chuí, Santa Vitória do Palmar, Rio Grande, Pelotas e Jaguarão" } },
-  { ...RS("Zona Sul do RS", "arroz", F.hi, ["Massey Ferguson", "John Deere", "Valtra"], ["pelotas", "rio-grande", "camaqua", "jaguarao", "extremo-sul"], "regiao"), perfil: { es: "arroz, soja y ganadería en Pelotas, Rio Grande, Camaquã y alrededores", pt: "arroz, soja e pecuária em Pelotas, Rio Grande, Camaquã e região" } },
-  { ...RS("Campanha Gaúcha", "arroz", F.tr, ["Massey Ferguson", "John Deere", "Valtra", "New Holland"], ["bage", "dom-pedrito", "santana-do-livramento", "sao-gabriel", "uruguaiana"], "regiao"), perfil: { es: "arroz, soja y ganadería en Bagé, Dom Pedrito, Livramento, São Gabriel y la Frontera Oeste", pt: "arroz, soja e pecuária em Bagé, Dom Pedrito, Livramento, São Gabriel e Fronteira Oeste" } },
+  {
+    ...RS(
+      "Rio Grande do Sul",
+      "granos",
+      F.fi,
+      ["Massey Ferguson", "John Deere", "Valtra", "New Holland"],
+      ["extremo-sul", "pelotas", "porto-alegre", "passo-fundo", "campanha-gaucha"],
+      "estado",
+      "",
+    ),
+    perfil: {
+      es: "soja, arroz, trigo, maíz y ganadería en todo el estado",
+      pt: "soja, arroz, trigo, milho e pecuária em todo o estado",
+    },
+  },
+  {
+    ...RS(
+      "Extremo Sul",
+      "arroz",
+      F.ro,
+      ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+      ["chui", "santa-vitoria-do-palmar", "rio-grande", "pelotas", "jaguarao", "arroio-grande"],
+      "regiao",
+    ),
+    perfil: {
+      es: "arroz y ganadería en Chuí, Santa Vitória do Palmar, Rio Grande, Pelotas y Jaguarão",
+      pt: "arroz irrigado e pecuária no Chuí, Santa Vitória do Palmar, Rio Grande, Pelotas e Jaguarão",
+    },
+  },
+  {
+    ...RS(
+      "Zona Sul do RS",
+      "arroz",
+      F.hi,
+      ["Massey Ferguson", "John Deere", "Valtra"],
+      ["pelotas", "rio-grande", "camaqua", "jaguarao", "extremo-sul"],
+      "regiao",
+    ),
+    perfil: {
+      es: "arroz, soja y ganadería en Pelotas, Rio Grande, Camaquã y alrededores",
+      pt: "arroz, soja e pecuária em Pelotas, Rio Grande, Camaquã e região",
+    },
+  },
+  {
+    ...RS(
+      "Campanha Gaúcha",
+      "arroz",
+      F.tr,
+      ["Massey Ferguson", "John Deere", "Valtra", "New Holland"],
+      ["bage", "dom-pedrito", "santana-do-livramento", "sao-gabriel", "uruguaiana"],
+      "regiao",
+    ),
+    perfil: {
+      es: "arroz, soja y ganadería en Bagé, Dom Pedrito, Livramento, São Gabriel y la Frontera Oeste",
+      pt: "arroz, soja e pecuária em Bagé, Dom Pedrito, Livramento, São Gabriel e Fronteira Oeste",
+    },
+  },
   // Cidades do RS
   RS("Chuí", "arroz", F.ro, MAR, ["santa-vitoria-do-palmar", "chuy", "extremo-sul", "rocha"]),
-  RS("Santa Vitória do Palmar", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra", "New Holland"], ["chui", "rio-grande", "extremo-sul", "chuy"]),
-  RS("Rio Grande", "arroz", F.hi, ["Massey Ferguson", "John Deere", "New Holland"], ["pelotas", "santa-vitoria-do-palmar", "zona-sul-do-rs"]),
-  RS("Pelotas", "arroz", F.hi, ["Massey Ferguson", "John Deere", "Valtra", "New Holland"], ["rio-grande", "camaqua", "jaguarao", "zona-sul-do-rs"]),
-  RS("Jaguarão", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra"], ["arroio-grande", "pelotas", "melo", "extremo-sul"]),
-  RS("Arroio Grande", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra"], ["jaguarao", "pelotas", "santa-vitoria-do-palmar"]),
-  RS("Camaquã", "arroz", F.tr, ["Massey Ferguson", "John Deere", "Valtra"], ["pelotas", "porto-alegre", "zona-sul-do-rs"]),
-  RS("Bagé", "ganaderia", F.fr, ["Massey Ferguson", "Valtra", "John Deere"], ["dom-pedrito", "santana-do-livramento", "campanha-gaucha"]),
-  RS("Dom Pedrito", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra"], ["bage", "santana-do-livramento", "campanha-gaucha"]),
-  RS("Santana do Livramento", "ganaderia", F.hi, ["Massey Ferguson", "Valtra", "John Deere"], ["rivera", "dom-pedrito", "bage", "campanha-gaucha"]),
-  RS("São Gabriel", "arroz", F.tr, ["Massey Ferguson", "John Deere", "Valtra"], ["bage", "santa-maria", "campanha-gaucha"]),
-  RS("Uruguaiana", "arroz", F.ro, ["John Deere", "New Holland", "Massey Ferguson"], ["alegrete", "campanha-gaucha", "artigas"]),
-  RS("Alegrete", "arroz", F.ro, ["John Deere", "Massey Ferguson", "Valtra"], ["uruguaiana", "sao-gabriel", "campanha-gaucha"]),
-  RS("Santa Maria", "granos", F.tr, ["Massey Ferguson", "John Deere", "Valtra", "New Holland"], ["sao-gabriel", "cruz-alta", "rio-grande-do-sul"]),
-  RS("Cruz Alta", "granos", F.tr, ["John Deere", "Massey Ferguson", "Case IH"], ["passo-fundo", "santa-maria", "rio-grande-do-sul"]),
-  RS("Passo Fundo", "granos", F.tr, ["John Deere", "Massey Ferguson", "Case IH", "New Holland"], ["cruz-alta", "rio-grande-do-sul"]),
-  { ...RS("Porto Alegre", "talleres", F.fi, ["Massey Ferguson", "John Deere", "Valtra", "New Holland"], ["camaqua", "pelotas", "rio-grande-do-sul"]), maquinas: M.talleres },
+  RS(
+    "Santa Vitória do Palmar",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+    ["chui", "rio-grande", "extremo-sul", "chuy"],
+  ),
+  RS(
+    "Rio Grande",
+    "arroz",
+    F.hi,
+    ["Massey Ferguson", "John Deere", "New Holland"],
+    ["pelotas", "santa-vitoria-do-palmar", "zona-sul-do-rs"],
+  ),
+  RS(
+    "Pelotas",
+    "arroz",
+    F.hi,
+    ["Massey Ferguson", "John Deere", "Valtra", "New Holland"],
+    ["rio-grande", "camaqua", "jaguarao", "zona-sul-do-rs"],
+  ),
+  RS(
+    "Jaguarão",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["arroio-grande", "pelotas", "melo", "extremo-sul"],
+  ),
+  RS(
+    "Arroio Grande",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["jaguarao", "pelotas", "santa-vitoria-do-palmar"],
+  ),
+  RS(
+    "Camaquã",
+    "arroz",
+    F.tr,
+    ["Massey Ferguson", "John Deere", "Valtra"],
+    ["pelotas", "porto-alegre", "zona-sul-do-rs"],
+  ),
+  RS(
+    "Bagé",
+    "ganaderia",
+    F.fr,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["dom-pedrito", "santana-do-livramento", "campanha-gaucha"],
+  ),
+  RS(
+    "Dom Pedrito",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["bage", "santana-do-livramento", "campanha-gaucha"],
+  ),
+  RS(
+    "Santana do Livramento",
+    "ganaderia",
+    F.hi,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["rivera", "dom-pedrito", "bage", "campanha-gaucha"],
+  ),
+  RS(
+    "São Gabriel",
+    "arroz",
+    F.tr,
+    ["Massey Ferguson", "John Deere", "Valtra"],
+    ["bage", "santa-maria", "campanha-gaucha"],
+  ),
+  RS(
+    "Uruguaiana",
+    "arroz",
+    F.ro,
+    ["John Deere", "New Holland", "Massey Ferguson"],
+    ["alegrete", "campanha-gaucha", "artigas"],
+  ),
+  RS(
+    "Alegrete",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["uruguaiana", "sao-gabriel", "campanha-gaucha"],
+  ),
+  RS(
+    "Santa Maria",
+    "granos",
+    F.tr,
+    ["Massey Ferguson", "John Deere", "Valtra", "New Holland"],
+    ["sao-gabriel", "cruz-alta", "rio-grande-do-sul"],
+  ),
+  RS(
+    "Cruz Alta",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["passo-fundo", "santa-maria", "rio-grande-do-sul"],
+  ),
+  RS(
+    "Passo Fundo",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH", "New Holland"],
+    ["cruz-alta", "rio-grande-do-sul"],
+  ),
+  {
+    ...RS(
+      "Porto Alegre",
+      "talleres",
+      F.fi,
+      ["Massey Ferguson", "John Deere", "Valtra", "New Holland"],
+      ["camaqua", "pelotas", "rio-grande-do-sul"],
+    ),
+    maquinas: M.talleres,
+  },
 ];
 
 export const LOCAIS_SEO: LocalSeo[] = BASE.map((b) => ({ ...b, slug: slugify(b.nome) }));
@@ -130,8 +545,13 @@ export function textoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number)
 }
 
 export function tituloLocal(l: LocalSeo, idioma: "es" | "pt") {
-  if (idioma === "pt") return l.pais === "RS" ? `Peças agrícolas em ${nomeLocal(l, idioma)}${l.tipo === "cidade" ? " – RS" : ""}` : `Peças agrícolas em ${nomeLocal(l, idioma)}`;
-  return l.tipo === "pais" ? "Repuestos agrícolas en todo Uruguay" : `Repuestos agrícolas en ${nomeLocal(l, idioma)}`;
+  if (idioma === "pt")
+    return l.pais === "RS"
+      ? `Peças agrícolas em ${nomeLocal(l, idioma)}${l.tipo === "cidade" ? " – RS" : ""}`
+      : `Peças agrícolas em ${nomeLocal(l, idioma)}`;
+  return l.tipo === "pais"
+    ? "Repuestos agrícolas en todo Uruguay"
+    : `Repuestos agrícolas en ${nomeLocal(l, idioma)}`;
 }
 
 export function descricaoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number) {
@@ -144,18 +564,44 @@ export function descricaoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: num
 export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
   if (idioma === "pt")
     return [
-      { p: `Vocês enviam peças agrícolas para ${nomeLocal(l, idioma)}?`, r: `Sim. Enviamos para ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios ou transportadora, com código de rastreio e preço em R$" : "pela DAC, com número de rastreio"}. O frete é combinado pelo WhatsApp e pago pelo cliente.` },
-      { p: "Quanto tempo demora a entrega?", r: "Depende da cidade e da transportadora. Informamos o prazo junto com o orçamento, antes de você confirmar a compra." },
-      { p: "Como sei se a peça serve no meu trator?", r: "Mande pelo WhatsApp o código original da peça ou o modelo e número de série do trator. Confirmamos a compatibilidade antes da compra." },
-      { p: "Vocês têm loja física?", r: "Somos uma loja online na fronteira Chuí / Chuy. Todo o atendimento é pelo WhatsApp e enviamos para todo o Uruguai e todo o Rio Grande do Sul." },
+      {
+        p: `Vocês enviam peças agrícolas para ${nomeLocal(l, idioma)}?`,
+        r: `Sim. Enviamos para ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios ou transportadora, com código de rastreio e preço em R$" : "pela DAC, com número de rastreio"}. O frete é combinado pelo WhatsApp e pago pelo cliente.`,
+      },
+      {
+        p: "Quanto tempo demora a entrega?",
+        r: "Depende da cidade e da transportadora. Informamos o prazo junto com o orçamento, antes de você confirmar a compra.",
+      },
+      {
+        p: "Como sei se a peça serve no meu trator?",
+        r: "Mande pelo WhatsApp o código original da peça ou o modelo e número de série do trator. Confirmamos a compatibilidade antes da compra.",
+      },
+      {
+        p: "Vocês têm loja física?",
+        r: "Somos uma loja online na fronteira Chuí / Chuy. Todo o atendimento é pelo WhatsApp e enviamos para todo o Uruguai e todo o Rio Grande do Sul.",
+      },
     ];
   return [
-    { p: `¿Hacen envíos de repuestos agrícolas a ${nomeLocal(l, idioma)}?`, r: `Sí. Enviamos a ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios o transportadora, con número de rastreo y precio en reales" : "por DAC, con número de rastreo"}. El costo del envío lo paga el cliente.` },
-    { p: "¿Cuánto demora el envío?", r: "Depende de la localidad y de la agencia. Te confirmamos el plazo junto con la cotización, antes de que confirmes la compra." },
-    { p: "¿Cómo sé si el repuesto sirve para mi tractor?", r: "Mandanos por WhatsApp el código original de la pieza o el modelo y número de serie del tractor. Te confirmamos la compatibilidad antes de comprar." },
-    { p: "¿Tienen local físico?", r: "Somos una tienda online en la frontera Chuy / Chuí. Atendemos por WhatsApp y enviamos a todo Uruguay y a todo Rio Grande do Sul." },
+    {
+      p: `¿Hacen envíos de repuestos agrícolas a ${nomeLocal(l, idioma)}?`,
+      r: `Sí. Enviamos a ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios o transportadora, con número de rastreo y precio en reales" : "por DAC, con número de rastreo"}. El costo del envío lo paga el cliente.`,
+    },
+    {
+      p: "¿Cuánto demora el envío?",
+      r: "Depende de la localidad y de la agencia. Te confirmamos el plazo junto con la cotización, antes de que confirmes la compra.",
+    },
+    {
+      p: "¿Cómo sé si el repuesto sirve para mi tractor?",
+      r: "Mandanos por WhatsApp el código original de la pieza o el modelo y número de serie del tractor. Te confirmamos la compatibilidad antes de comprar.",
+    },
+    {
+      p: "¿Tienen local físico?",
+      r: "Somos una tienda online en la frontera Chuy / Chuí. Atendemos por WhatsApp y enviamos a todo Uruguay y a todo Rio Grande do Sul.",
+    },
   ];
 }
 
 export const nomeLocal = (l: LocalSeo, idioma: "es" | "pt") =>
-  idioma === "pt" ? l.nome.replace(/ de Uruguay$/, " do Uruguai").replace(/^Uruguay$/, "Uruguai") : l.nome;
+  idioma === "pt"
+    ? l.nome.replace(/ de Uruguay$/, " do Uruguai").replace(/^Uruguay$/, "Uruguai")
+    : l.nome;

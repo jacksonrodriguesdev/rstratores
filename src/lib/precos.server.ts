@@ -27,7 +27,11 @@ export async function salvarConfiguracoes(valores: Record<string, string>) {
   const { prisma } = await import("./prisma");
   for (const [chave, valor] of Object.entries(valores)) {
     if (!(chave in PADROES)) continue;
-    await prisma.configuracoes.upsert({ where: { chave }, create: { chave, valor: String(valor) }, update: { valor: String(valor) } });
+    await prisma.configuracoes.upsert({
+      where: { chave },
+      create: { chave, valor: String(valor) },
+      update: { valor: String(valor) },
+    });
   }
   memo = null;
 }
@@ -35,7 +39,11 @@ export async function salvarConfiguracoes(valores: Record<string, string>) {
 async function buscarNaInternet(): Promise<{ valor: number; fonte: string } | null> {
   const fontes: Array<[string, string, (j: any) => number]> = [
     ["open.er-api.com", "https://open.er-api.com/v6/latest/BRL", (j) => j?.rates?.UYU],
-    ["currency-api (jsDelivr)", "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/brl.json", (j) => j?.brl?.uyu],
+    [
+      "currency-api (jsDelivr)",
+      "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/brl.json",
+      (j) => j?.brl?.uyu,
+    ],
   ];
   for (const [nome, url, ler] of fontes) {
     try {
@@ -52,7 +60,10 @@ async function buscarNaInternet(): Promise<{ valor: number; fonte: string } | nu
 
 export async function cotacaoGuardada(forcar = false) {
   const { prisma } = await import("./prisma");
-  const ultima = await prisma.cotacoes.findFirst({ where: { par: PAR }, orderBy: { created_at: "desc" } });
+  const ultima = await prisma.cotacoes.findFirst({
+    where: { par: PAR },
+    orderBy: { created_at: "desc" },
+  });
   if (!forcar && ultima && Date.now() - ultima.created_at.getTime() < SEIS_HORAS) return ultima;
   const nova = await buscarNaInternet();
   if (!nova) return ultima; // sem internet: segue com a última
@@ -65,9 +76,9 @@ export async function configPrecos(forcarCotacao = false): Promise<ConfigPrecos>
   const manual = Number(String(c.cotacao_manual).replace(",", "."));
   const cot = manual > 0 ? null : await cotacaoGuardada(forcarCotacao).catch(() => null);
   const cfg: ConfigPrecos = {
-    cotacao: manual > 0 ? manual : cot?.valor ?? null,
-    cotacaoEm: manual > 0 ? null : cot?.created_at.toISOString() ?? null,
-    fonte: manual > 0 ? "manual" : cot?.fonte ?? null,
+    cotacao: manual > 0 ? manual : (cot?.valor ?? null),
+    cotacaoEm: manual > 0 ? null : (cot?.created_at.toISOString() ?? null),
+    fonte: manual > 0 ? "manual" : (cot?.fonte ?? null),
     manual: manual > 0,
     arredondar: Number(c.arredondar_uyu) || 0,
     ajuste: Number(c.ajuste_cambio) || 0,

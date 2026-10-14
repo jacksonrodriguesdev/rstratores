@@ -16,8 +16,10 @@ const CURTO_PT: Record<string, string> = {
   "Estrutura e Suspensão": "Estrutura",
   "Outros Componentes": "Outros",
 };
-export const categoriaRotulo = (nome: string, idioma: Idioma) => (idioma === "pt" ? nome : categoriaEs(nome));
-export const categoriaCurta = (nome: string, idioma: Idioma) => (idioma === "pt" ? CURTO_PT[nome] ?? nome : categoriaCurtaEs(nome));
+export const categoriaRotulo = (nome: string, idioma: Idioma) =>
+  idioma === "pt" ? nome : categoriaEs(nome);
+export const categoriaCurta = (nome: string, idioma: Idioma) =>
+  idioma === "pt" ? (CURTO_PT[nome] ?? nome) : categoriaCurtaEs(nome);
 
 export type CategoriaLoja = {
   // nome no banco (valor do filtro da loja); rotulo e curto são o que aparece no site, no idioma da página
@@ -43,7 +45,14 @@ export function useCategoriasLoja(): CategoriaLoja[] {
     staleTime: 5 * 60 * 1000,
   });
 
-  if (!data) return CATEGORIAS.map((c) => ({ ...c, rotulo: categoriaRotulo(c.nome, idioma), curto: categoriaCurta(c.nome, idioma), imagem: null, total: 0 }));
+  if (!data)
+    return CATEGORIAS.map((c) => ({
+      ...c,
+      rotulo: categoriaRotulo(c.nome, idioma),
+      curto: categoriaCurta(c.nome, idioma),
+      imagem: null,
+      total: 0,
+    }));
 
   const ordem = (nome: string) => {
     const i = CATEGORIAS.findIndex((c) => c.nome === nome);

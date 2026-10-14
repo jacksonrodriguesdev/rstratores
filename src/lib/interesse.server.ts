@@ -14,7 +14,9 @@ export async function resumoInteresse(dias: number): Promise<Interesse> {
       select: { tipo: true, dado: true, created_at: true },
       take: 100000,
     }),
-    prisma.site_visits.count({ where: { created_at: { gte: desde }, NOT: { path: { startsWith: PREFIXO_EVENTO } } } }),
+    prisma.site_visits.count({
+      where: { created_at: { gte: desde }, NOT: { path: { startsWith: PREFIXO_EVENTO } } },
+    }),
   ]);
 
   const cliquesPorSku = new Map<string, number>();
@@ -43,7 +45,10 @@ export async function resumoInteresse(dias: number): Promise<Interesse> {
       d.buscas++;
       const i = dado.indexOf("|");
       const total = Number(dado.slice(0, i));
-      const termo = dado.slice(i + 1).trim().toLowerCase();
+      const termo = dado
+        .slice(i + 1)
+        .trim()
+        .toLowerCase();
       if (!termo) continue;
       const t = termos.get(termo) ?? { termo, vezes: 0, resultados: total };
       t.vezes++;
@@ -54,7 +59,10 @@ export async function resumoInteresse(dias: number): Promise<Interesse> {
 
   const topSkus = [...cliquesPorSku.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30);
   const nomes = topSkus.length
-    ? await prisma.agricolas.findMany({ where: { sku: { in: topSkus.map(([s]) => s) } }, select: { sku: true, nome: true } })
+    ? await prisma.agricolas.findMany({
+        where: { sku: { in: topSkus.map(([s]) => s) } },
+        select: { sku: true, nome: true },
+      })
     : [];
   const nomePorSku = new Map(nomes.map((n) => [n.sku, n.nome]));
 
@@ -65,12 +73,17 @@ export async function resumoInteresse(dias: number): Promise<Interesse> {
     cliquesWhatsapp,
     cotacoesCarrinho,
     buscas,
-    porDia: [...porDia.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([dia, v]) => ({ dia, ...v })),
+    porDia: [...porDia.entries()]
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .map(([dia, v]) => ({ dia, ...v })),
     pecas: topSkus.map(([sku, cliques]) => {
       const nome = nomePorSku.get(sku) ?? "(peça não encontrada)";
       return { sku, nome, nomeEs: nomeEs(nome), cliques };
     }),
     termos: listaTermos.filter((t) => t.resultados > 0).slice(0, 30),
-    semResultado: listaTermos.filter((t) => t.resultados === 0).slice(0, 50).map(({ termo, vezes }) => ({ termo, vezes })),
+    semResultado: listaTermos
+      .filter((t) => t.resultados === 0)
+      .slice(0, 50)
+      .map(({ termo, vezes }) => ({ termo, vezes })),
   };
 }

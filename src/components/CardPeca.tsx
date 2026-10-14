@@ -20,7 +20,11 @@ export function CardLoja({ p }: { p: Product }) {
 
   return (
     <Card className="group relative flex h-full flex-col overflow-hidden border-zinc-200/70 bg-white p-0 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.12)]">
-      <Link to="/produto/$sku" params={{ sku: p.sku }} className="relative block aspect-square overflow-hidden bg-white p-3 md:p-4">
+      <Link
+        to="/produto/$sku"
+        params={{ sku: p.sku }}
+        className="relative block aspect-square overflow-hidden bg-white p-3 md:p-4"
+      >
         <ProductImage
           src={p.imagem_principal}
           alt={nome}
@@ -33,13 +37,30 @@ export function CardLoja({ p }: { p: Product }) {
       <button
         onClick={() => {
           if (!naCotacao)
-            addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, nameEs: nomeProduto(p), image: p.imagem_principal || undefined, quantity: 1 });
+            addItem({
+              sku: p.sku,
+              codigo: codigoExibicao(p),
+              name: p.nome,
+              nameEs: nomeProduto(p),
+              image: p.imagem_principal || undefined,
+              quantity: 1,
+            });
         }}
-        aria-label={naCotacao ? t("Ya está en tu cotización", "Já está no seu orçamento") : t("Agregar a la cotización", "Adicionar ao orçamento")}
-        title={naCotacao ? t("Ya está en tu cotización", "Já está no seu orçamento") : t("Agregar a la cotización", "Adicionar ao orçamento")}
+        aria-label={
+          naCotacao
+            ? t("Ya está en tu cotización", "Já está no seu orçamento")
+            : t("Agregar a la cotización", "Adicionar ao orçamento")
+        }
+        title={
+          naCotacao
+            ? t("Ya está en tu cotización", "Já está no seu orçamento")
+            : t("Agregar a la cotización", "Adicionar ao orçamento")
+        }
         className={cn(
           "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 transition active:scale-90",
-          naCotacao ? "bg-primary text-white ring-primary" : "bg-white text-primary ring-zinc-200 hover:bg-primary hover:text-white",
+          naCotacao
+            ? "bg-primary text-white ring-primary"
+            : "bg-white text-primary ring-zinc-200 hover:bg-primary hover:text-white",
         )}
       >
         {naCotacao ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -50,7 +71,9 @@ export function CardLoja({ p }: { p: Product }) {
             Cód. {codigoExibicao(p)}
           </div>
           {marca && (
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">{marca}</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/90">
+              {marca}
+            </span>
           )}
         </div>
         <Link

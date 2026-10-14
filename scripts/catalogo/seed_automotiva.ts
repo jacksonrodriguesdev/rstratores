@@ -49,7 +49,7 @@ async function seed() {
 
     // Cria as subcategorias
     for (const sub of subcategorias) {
-      let subCat = await prisma.categories.findFirst({
+      const subCat = await prisma.categories.findFirst({
         where: { nome: sub, parent_id: catMarca.id, linha: "AUTOMOTIVA" },
       });
 

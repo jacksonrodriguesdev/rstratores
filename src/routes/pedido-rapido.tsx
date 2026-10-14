@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
 import { useState } from "react";
-import { ListChecks, Loader2, MessageCircle, ShoppingCart, CheckCircle2, HelpCircle, Trash2 } from "lucide-react";
+import {
+  ListChecks,
+  Loader2,
+  MessageCircle,
+  ShoppingCart,
+  CheckCircle2,
+  HelpCircle,
+  Trash2,
+} from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useCart } from "@/components/CartContext";
 import { acharPorCodigos, codigoExibicao, type Product } from "@/lib/products";
@@ -17,7 +25,12 @@ export const Route = createFileRoute("/pedido-rapido")({
     return {
       links: linksIdioma("/pedido-rapido", idioma),
       meta: [
-        { title: t("Pedido rápido por códigos | AGRO PARTS", "Pedido rápido por códigos | AGRO PARTS") },
+        {
+          title: t(
+            "Pedido rápido por códigos | AGRO PARTS",
+            "Pedido rápido por códigos | AGRO PARTS",
+          ),
+        },
         {
           name: "description",
           content: t(
@@ -43,7 +56,10 @@ function lerLista(texto: string) {
     .slice(0, 100)
     .map((l) => {
       // "2x COD", "2 COD", "COD x2", "COD 2" (no fim só até 2 dígitos: "MF 9790" é código, não quantidade)
-      const m = l.match(/^(\d{1,3})\s*x?\s+(.+)$/i) || l.match(/^(.+?)\s+x(\d{1,3})$/i) || l.match(/^(.+?)\s+(\d{1,2})$/);
+      const m =
+        l.match(/^(\d{1,3})\s*x?\s+(.+)$/i) ||
+        l.match(/^(.+?)\s+x(\d{1,3})$/i) ||
+        l.match(/^(.+?)\s+(\d{1,2})$/);
       if (m && /^\d+$/.test(m[1])) return { codigo: m[2].trim(), qtd: Number(m[1]) };
       if (m && /^\d+$/.test(m[2])) return { codigo: m[1].trim(), qtd: Number(m[2]) };
       return { codigo: l, qtd: 1 };
@@ -75,7 +91,14 @@ function PedidoRapido() {
   const agregarTodos = () => {
     for (const r of encontrados) {
       const p = r.produto!;
-      addItem({ sku: p.sku, codigo: codigoExibicao(p), name: p.nome, nameEs: nomeProduto(p), image: p.imagem_principal || undefined, quantity: r.qtd });
+      addItem({
+        sku: p.sku,
+        codigo: codigoExibicao(p),
+        name: p.nome,
+        nameEs: nomeProduto(p),
+        image: p.imagem_principal || undefined,
+        quantity: r.qtd,
+      });
     }
     setIsCartOpen(true);
   };
@@ -88,7 +111,11 @@ function PedidoRapido() {
         return `• ${r.qtd}x ${exibido}${exibido !== p.nome ? ` (${p.nome})` : ""} — Cód: ${p.sku}`;
       }),
       ...(faltantes.length
-        ? ["", t("También busco estos códigos:", "Também procuro estes códigos:"), ...faltantes.map((r) => `• ${r.qtd}x ${r.codigo}`)]
+        ? [
+            "",
+            t("También busco estos códigos:", "Também procuro estes códigos:"),
+            ...faltantes.map((r) => `• ${r.qtd}x ${r.codigo}`),
+          ]
         : []),
     ];
     const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(
@@ -104,7 +131,8 @@ function PedidoRapido() {
       <main className="mx-auto flex max-w-4xl flex-col gap-4 px-3 py-6 md:px-4 md:py-10">
         <div className="px-1">
           <h1 className="flex items-center gap-2 text-2xl font-extrabold text-zinc-900 md:text-4xl">
-            <ListChecks className="h-7 w-7 text-primary md:h-9 md:w-9" /> {t("Pedido rápido por códigos", "Pedido rápido por códigos")}
+            <ListChecks className="h-7 w-7 text-primary md:h-9 md:w-9" />{" "}
+            {t("Pedido rápido por códigos", "Pedido rápido por códigos")}
           </h1>
           <p className="mt-2 text-zinc-600">
             {t(
@@ -132,7 +160,11 @@ function PedidoRapido() {
               disabled={buscando || !texto.trim()}
               className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-bold text-white transition hover:bg-primary/90 disabled:opacity-50"
             >
-              {buscando ? <Loader2 className="h-5 w-5 animate-spin" /> : <ListChecks className="h-5 w-5" />}
+              {buscando ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <ListChecks className="h-5 w-5" />
+              )}
               {t("Buscar códigos", "Buscar códigos")}
             </button>
             {texto && (
@@ -152,8 +184,13 @@ function PedidoRapido() {
         {resultado && (
           <div className="rounded-2xl bg-white p-4 shadow-sm md:p-6">
             <p className="mb-3 text-sm font-semibold text-zinc-700">
-              {t("Encontramos", "Encontramos")} {encontrados.length} {t("de", "de")} {resultado.length} {t("códigos.", "códigos.")}
-              {faltantes.length > 0 && t(" Los demás también te los cotizamos por WhatsApp.", " Os demais também orçamos pelo WhatsApp.")}
+              {t("Encontramos", "Encontramos")} {encontrados.length} {t("de", "de")}{" "}
+              {resultado.length} {t("códigos.", "códigos.")}
+              {faltantes.length > 0 &&
+                t(
+                  " Los demás también te los cotizamos por WhatsApp.",
+                  " Os demais também orçamos pelo WhatsApp.",
+                )}
             </p>
             <ul className="divide-y text-sm">
               {resultado.map((r, i) => (
@@ -163,7 +200,9 @@ function PedidoRapido() {
                   ) : (
                     <HelpCircle className="h-5 w-5 shrink-0 text-amber-500" />
                   )}
-                  <span className="w-10 shrink-0 text-right font-semibold text-zinc-500">{r.qtd}x</span>
+                  <span className="w-10 shrink-0 text-right font-semibold text-zinc-500">
+                    {r.qtd}x
+                  </span>
                   <div className="min-w-0 flex-1">
                     {r.produto ? (
                       <Link
@@ -177,7 +216,12 @@ function PedidoRapido() {
                       <span className="block font-semibold text-zinc-900">{r.codigo}</span>
                     )}
                     <span className="block truncate text-xs text-zinc-500">
-                      {r.produto ? `Cód. ${codigoExibicao(r.produto)}${r.produto.marca ? ` · ${r.produto.marca}` : ""}` : t("No está publicado: lo consultamos por vos", "Não está publicado: consultamos para você")}
+                      {r.produto
+                        ? `Cód. ${codigoExibicao(r.produto)}${r.produto.marca ? ` · ${r.produto.marca}` : ""}`
+                        : t(
+                            "No está publicado: lo consultamos por vos",
+                            "Não está publicado: consultamos para você",
+                          )}
                     </span>
                   </div>
                 </li>
@@ -188,14 +232,16 @@ function PedidoRapido() {
                 onClick={enviarWhatsapp}
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 font-bold text-white shadow-lg shadow-[#25D366]/30 hover:bg-[#1EBE57]"
               >
-                <MessageCircle className="h-5 w-5" /> {t("Pedir precio de toda la lista", "Pedir preço da lista toda")}
+                <MessageCircle className="h-5 w-5" />{" "}
+                {t("Pedir precio de toda la lista", "Pedir preço da lista toda")}
               </button>
               {encontrados.length > 0 && (
                 <button
                   onClick={agregarTodos}
                   className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary px-5 py-3 font-bold text-primary hover:bg-primary hover:text-white"
                 >
-                  <ShoppingCart className="h-5 w-5" /> {t("Agregar a mi cotización", "Adicionar ao meu orçamento")}
+                  <ShoppingCart className="h-5 w-5" />{" "}
+                  {t("Agregar a mi cotización", "Adicionar ao meu orçamento")}
                 </button>
               )}
             </div>

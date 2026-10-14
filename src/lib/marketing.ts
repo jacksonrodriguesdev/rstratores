@@ -20,7 +20,10 @@ export function scriptsMarketing(cfg?: MarketingPublico | null) {
   const gtagId = cfg.ga4 || cfg.gads;
   if (gtagId && seguro(gtagId)) {
     scripts.push({ src: `https://www.googletagmanager.com/gtag/js?id=${gtagId}`, async: true });
-    const configs = [cfg.ga4, cfg.gads].filter((x) => x && seguro(x)).map((x) => `gtag('config','${x}');`).join("");
+    const configs = [cfg.ga4, cfg.gads]
+      .filter((x) => x && seguro(x))
+      .map((x) => `gtag('config','${x}');`)
+      .join("");
     scripts.push({
       children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());if(${fora}){${configs}}`,
     });
@@ -48,7 +51,8 @@ export function scriptsMarketing(cfg?: MarketingPublico | null) {
 export function metasVerificacao(cfg?: MarketingPublico | null) {
   const m: Array<{ name: string; content: string }> = [];
   if (cfg?.metaDominio) m.push({ name: "facebook-domain-verification", content: cfg.metaDominio });
-  if (cfg?.googleVerificacao) m.push({ name: "google-site-verification", content: cfg.googleVerificacao });
+  if (cfg?.googleVerificacao)
+    m.push({ name: "google-site-verification", content: cfg.googleVerificacao });
   return m;
 }
 
@@ -61,7 +65,8 @@ export function novoEventId(prefixo = "ev") {
 
 function adsConversao(rotulo: "gadsLead" | "gadsCadastro", extra: Record<string, unknown> = {}) {
   const m = w()?.__mkt;
-  if (m?.gads && m[rotulo]) w()?.gtag?.("event", "conversion", { send_to: `${m.gads}/${m[rotulo]}`, ...extra });
+  if (m?.gads && m[rotulo])
+    w()?.gtag?.("event", "conversion", { send_to: `${m.gads}/${m[rotulo]}`, ...extra });
 }
 
 // Mudou de página sem recarregar (navegação do site): PageView do Pixel
@@ -117,14 +122,23 @@ export function eventoBusca(termo: string) {
 }
 
 type Peca = { sku: string; nome: string; valor?: number | null; quantidade?: number };
-const comValor = (p: Peca) => (p.valor && p.valor > 0 ? { value: p.valor * (p.quantidade ?? 1), currency: "UYU" } : {});
+const comValor = (p: Peca) =>
+  p.valor && p.valor > 0 ? { value: p.valor * (p.quantidade ?? 1), currency: "UYU" } : {};
 
 // Página de uma peça (ViewContent / view_item): base dos anúncios de catálogo e remarketing
 export function eventoVerProduto(p: Peca) {
   if (!naoAdmin()) return;
   try {
-    w()?.fbq?.("track", "ViewContent", { content_ids: [p.sku], content_type: "product", content_name: p.nome, ...comValor(p) });
-    w()?.gtag?.("event", "view_item", { ...comValor(p), items: [{ item_id: p.sku, item_name: p.nome, ...(p.valor ? { price: p.valor } : {}) }] });
+    w()?.fbq?.("track", "ViewContent", {
+      content_ids: [p.sku],
+      content_type: "product",
+      content_name: p.nome,
+      ...comValor(p),
+    });
+    w()?.gtag?.("event", "view_item", {
+      ...comValor(p),
+      items: [{ item_id: p.sku, item_name: p.nome, ...(p.valor ? { price: p.valor } : {}) }],
+    });
   } catch {
     /* ignora */
   }
@@ -135,8 +149,19 @@ export function eventoCarrinho(p: Peca) {
   if (!naoAdmin()) return;
   try {
     const q = p.quantidade ?? 1;
-    w()?.fbq?.("track", "AddToCart", { content_ids: [p.sku], content_type: "product", content_name: p.nome, contents: [{ id: p.sku, quantity: q }], ...comValor(p) });
-    w()?.gtag?.("event", "add_to_cart", { ...comValor(p), items: [{ item_id: p.sku, item_name: p.nome, quantity: q, ...(p.valor ? { price: p.valor } : {}) }] });
+    w()?.fbq?.("track", "AddToCart", {
+      content_ids: [p.sku],
+      content_type: "product",
+      content_name: p.nome,
+      contents: [{ id: p.sku, quantity: q }],
+      ...comValor(p),
+    });
+    w()?.gtag?.("event", "add_to_cart", {
+      ...comValor(p),
+      items: [
+        { item_id: p.sku, item_name: p.nome, quantity: q, ...(p.valor ? { price: p.valor } : {}) },
+      ],
+    });
   } catch {
     /* ignora */
   }

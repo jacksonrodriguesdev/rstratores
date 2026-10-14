@@ -1,5 +1,12 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { renderEmail, textoEmail, personalizar, type ConteudoEmail, type Publico, type DadosRender } from "./email-template";
+import {
+  renderEmail,
+  textoEmail,
+  personalizar,
+  type ConteudoEmail,
+  type Publico,
+  type DadosRender,
+} from "./email-template";
 import { PHONE } from "./whatsapp";
 
 // Envio de e-mails pelo Resend (https://resend.com).
@@ -28,13 +35,22 @@ export function configEmail() {
 
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-type Mensagem = { to: string; subject: string; html: string; text: string; headers?: Record<string, string> };
+type Mensagem = {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  headers?: Record<string, string>;
+};
 
 async function chamar(caminho: string, corpo: unknown): Promise<any> {
   for (let tentativa = 0; ; tentativa++) {
     const r = await fetch(API + caminho, {
       method: "POST",
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(corpo),
     });
     const j = await r.json().catch(() => ({}));
@@ -50,12 +66,22 @@ async function chamar(caminho: string, corpo: unknown): Promise<any> {
 
 const base = () => ({
   from: process.env.EMAIL_REMETENTE!.trim(),
-  ...(process.env.EMAIL_RESPONDER_PARA?.trim() && { reply_to: process.env.EMAIL_RESPONDER_PARA.trim() }),
+  ...(process.env.EMAIL_RESPONDER_PARA?.trim() && {
+    reply_to: process.env.EMAIL_RESPONDER_PARA.trim(),
+  }),
 });
 
 export async function enviarUm(m: Mensagem): Promise<string> {
-  if (!resendConfigurado()) throw new Error("Resend não configurado (RESEND_API_KEY e EMAIL_REMETENTE).");
-  const j = await chamar("/emails", { ...base(), to: [m.to], subject: m.subject, html: m.html, text: m.text, headers: m.headers });
+  if (!resendConfigurado())
+    throw new Error("Resend não configurado (RESEND_API_KEY e EMAIL_REMETENTE).");
+  const j = await chamar("/emails", {
+    ...base(),
+    to: [m.to],
+    subject: m.subject,
+    html: m.html,
+    text: m.text,
+    headers: m.headers,
+  });
   return j.id as string;
 }
 
@@ -63,7 +89,14 @@ export async function enviarUm(m: Mensagem): Promise<string> {
 export async function enviarLote(ms: Mensagem[]): Promise<string[]> {
   const j = await chamar(
     "/emails/batch",
-    ms.map((m) => ({ ...base(), to: [m.to], subject: m.subject, html: m.html, text: m.text, headers: m.headers })),
+    ms.map((m) => ({
+      ...base(),
+      to: [m.to],
+      subject: m.subject,
+      html: m.html,
+      text: m.text,
+      headers: m.headers,
+    })),
   );
   return (j.data ?? []).map((d: any) => d.id as string);
 }
@@ -82,7 +115,8 @@ export function tokenBaixaValido(userId: number, token: string) {
   const b = Buffer.from(String(token));
   return a.length === b.length && timingSafeEqual(a, b);
 }
-export const urlBaixa = (origem: string, userId: number) => `${origem}/baja?u=${userId}&t=${tokenBaixa(userId)}`;
+export const urlBaixa = (origem: string, userId: number) =>
+  `${origem}/baja?u=${userId}&t=${tokenBaixa(userId)}`;
 const urlBaixaUmClique = (origem: string, userId: number) =>
   `${origem}/api/public/email-baja?u=${userId}&t=${tokenBaixa(userId)}`;
 
@@ -131,13 +165,19 @@ export async function destinatarios(p: Publico) {
   const { prisma } = await import("./prisma");
   const desde = new Date(Date.now() - Math.max(1, Number(p.dias) || 30) * 86400000);
   const where: any = { role: { not: "ADMIN" }, recebe_emails: true };
-  if (p.tipo === "departamentos") where.departamento = { in: p.departamentos?.length ? p.departamentos : ["-"] };
+  if (p.tipo === "departamentos")
+    where.departamento = { in: p.departamentos?.length ? p.departamentos : ["-"] };
   if (p.tipo === "carrinho") where.carrinhos = { some: { updated_at: { gte: desde } } };
   if (p.tipo === "catalogos") where.downloads = { some: { created_at: { gte: desde } } };
   if (p.tipo === "recentes") where.created_at = { gte: desde };
   if (p.tipo === "inativos") where.OR = [{ ultimo_login: null }, { ultimo_login: { lt: desde } }];
-  if (p.tipo === "ids") where.id = { in: (p.ids ?? []).map(Number).filter(Boolean).slice(0, 20000) };
-  const rows = await prisma.users.findMany({ where, select: { id: true, email: true, nome_completo: true, cupom: true }, orderBy: { id: "asc" } });
+  if (p.tipo === "ids")
+    where.id = { in: (p.ids ?? []).map(Number).filter(Boolean).slice(0, 20000) };
+  const rows = await prisma.users.findMany({
+    where,
+    select: { id: true, email: true, nome_completo: true, cupom: true },
+    orderBy: { id: "asc" },
+  });
   // Só e-mails com formato válido
   return rows.filter((r) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email));
 }
@@ -147,7 +187,13 @@ const rodando = new Set<number>();
 export const campanhaRodando = (id: number) => rodando.has(id);
 
 const slug = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
 
 export async function processarCampanha(id: number, origem: string) {
   if (rodando.has(id)) return;
@@ -161,35 +207,83 @@ export async function processarCampanha(id: number, origem: string) {
     const lista = await destinatarios(publico);
     // Quem já recebeu esta campanha não recebe de novo (permite retomar ou mandar aos novos)
     const ja = new Set(
-      (await prisma.email_envios.findMany({ where: { campanha_id: id, status: { not: "FALHA" } }, select: { user_id: true } })).map((e) => e.user_id),
+      (
+        await prisma.email_envios.findMany({
+          where: { campanha_id: id, status: { not: "FALHA" } },
+          select: { user_id: true },
+        })
+      ).map((e) => e.user_id),
     );
     const pendentes = lista.filter((u) => !ja.has(u.id));
     await prisma.email_campanhas.update({
       where: { id },
-      data: { status: "ENVIANDO", erro: null, total: ja.size + pendentes.length, enviados: ja.size, falhas: 0 },
+      data: {
+        status: "ENVIANDO",
+        erro: null,
+        total: ja.size + pendentes.length,
+        enviados: ja.size,
+        falhas: 0,
+      },
     });
     const tag = slug(c.nome) || `campanha-${id}`;
     for (let i = 0; i < pendentes.length; i += 100) {
       const lote = pendentes.slice(i, i + 100);
-      const msgs = lote.map((u) => montarMensagem(conteudo, c.assunto, c.preheader, origem, { id: u.id, email: u.email, nome: u.nome_completo }, tag));
+      const msgs = lote.map((u) =>
+        montarMensagem(
+          conteudo,
+          c.assunto,
+          c.preheader,
+          origem,
+          { id: u.id, email: u.email, nome: u.nome_completo },
+          tag,
+        ),
+      );
       try {
         const ids = await enviarLote(msgs);
         await prisma.email_envios.createMany({
-          data: lote.map((u, k) => ({ campanha_id: id, user_id: u.id, email: u.email, tipo: "CAMPANHA", status: "ENVIADO", resend_id: ids[k] ?? null })),
+          data: lote.map((u, k) => ({
+            campanha_id: id,
+            user_id: u.id,
+            email: u.email,
+            tipo: "CAMPANHA",
+            status: "ENVIADO",
+            resend_id: ids[k] ?? null,
+          })),
         });
-        await prisma.email_campanhas.update({ where: { id }, data: { enviados: { increment: lote.length } } });
+        await prisma.email_campanhas.update({
+          where: { id },
+          data: { enviados: { increment: lote.length } },
+        });
       } catch (e: any) {
         await prisma.email_envios.createMany({
-          data: lote.map((u) => ({ campanha_id: id, user_id: u.id, email: u.email, tipo: "CAMPANHA", status: "FALHA", erro: String(e?.message ?? e).slice(0, 500) })),
+          data: lote.map((u) => ({
+            campanha_id: id,
+            user_id: u.id,
+            email: u.email,
+            tipo: "CAMPANHA",
+            status: "FALHA",
+            erro: String(e?.message ?? e).slice(0, 500),
+          })),
         });
-        await prisma.email_campanhas.update({ where: { id }, data: { falhas: { increment: lote.length }, erro: String(e?.message ?? e).slice(0, 500) } });
+        await prisma.email_campanhas.update({
+          where: { id },
+          data: { falhas: { increment: lote.length }, erro: String(e?.message ?? e).slice(0, 500) },
+        });
       }
       await espera(600); // respeita o limite de 2 chamadas por segundo do Resend
     }
-    await prisma.email_campanhas.update({ where: { id }, data: { status: "ENVIADA", enviado_em: new Date() } });
+    await prisma.email_campanhas.update({
+      where: { id },
+      data: { status: "ENVIADA", enviado_em: new Date() },
+    });
   } catch (e: any) {
     console.error("campanha", id, e);
-    await prisma.email_campanhas.update({ where: { id }, data: { status: "ERRO", erro: String(e?.message ?? e).slice(0, 500) } }).catch(() => {});
+    await prisma.email_campanhas
+      .update({
+        where: { id },
+        data: { status: "ERRO", erro: String(e?.message ?? e).slice(0, 500) },
+      })
+      .catch(() => {});
   } finally {
     rodando.delete(id);
   }
@@ -199,7 +293,9 @@ export async function processarCampanha(id: number, origem: string) {
 export function webhookValido(corpo: string, h: Headers): boolean {
   const secret = process.env.RESEND_WEBHOOK_SECRET?.trim();
   if (!secret) return false;
-  const id = h.get("svix-id"), ts = h.get("svix-timestamp"), assinaturas = h.get("svix-signature");
+  const id = h.get("svix-id"),
+    ts = h.get("svix-timestamp"),
+    assinaturas = h.get("svix-signature");
   if (!id || !ts || !assinaturas) return false;
   if (Math.abs(Date.now() / 1000 - Number(ts)) > 300) return false;
   const chave = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
@@ -234,10 +330,14 @@ export async function registrarEventoWebhook(ev: { type?: string; data?: any }) 
     if (!envio.aberto_em) data.aberto_em = agora;
   }
   // Status só avança (aberto não volta para entregue); rebote/queixa sempre vale
-  if (st === "REBOTADO" || st === "QUEIXA" || ORDEM.indexOf(st) > ORDEM.indexOf(envio.status)) data.status = st;
+  if (st === "REBOTADO" || st === "QUEIXA" || ORDEM.indexOf(st) > ORDEM.indexOf(envio.status))
+    data.status = st;
   if (Object.keys(data).length) await prisma.email_envios.update({ where: { id: envio.id }, data });
   // Quem reclamou de spam ou tem e-mail inexistente não recebe mais campanhas
   if (st === "QUEIXA" || st === "REBOTADO") {
-    await prisma.users.updateMany({ where: { email: envio.email }, data: { recebe_emails: false } });
+    await prisma.users.updateMany({
+      where: { email: envio.email },
+      data: { recebe_emails: false },
+    });
   }
 }

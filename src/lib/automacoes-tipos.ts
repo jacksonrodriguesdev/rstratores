@@ -1,6 +1,11 @@
 // Tipos de automação de e-mail: textos padrão (em espanhol, para o cliente) e opções do gatilho.
 // Código puro: usado no painel e no servidor.
-import { CONTEUDO_PADRAO, PUBLICO_PADRAO, type ConteudoEmail, type Publico } from "./email-template";
+import {
+  CONTEUDO_PADRAO,
+  PUBLICO_PADRAO,
+  type ConteudoEmail,
+  type Publico,
+} from "./email-template";
 
 export type TipoAutomacao =
   | "boas_vindas"
@@ -45,7 +50,13 @@ export type DefTipo = {
   conteudo: Partial<ConteudoEmail>;
 };
 
-const base = (c: Partial<ConteudoEmail>): Partial<ConteudoEmail> => ({ produtosTitulo: "", produtos: [], fotos: true, whatsapp: true, ...c });
+const base = (c: Partial<ConteudoEmail>): Partial<ConteudoEmail> => ({
+  produtosTitulo: "",
+  produtos: [],
+  fotos: true,
+  whatsapp: true,
+  ...c,
+});
 
 export const TIPOS: DefTipo[] = [
   {
@@ -66,7 +77,11 @@ export const TIPOS: DefTipo[] = [
       texto:
         "Ya tenés acceso a **todos nuestros catálogos de tractores** y a miles de repuestos agrícolas.\n\nBuscá por código o por modelo y pedí tu cotización por WhatsApp. Enviamos por DAC a todo Uruguay.",
       // O código é trocado pelo cupom único de cada cliente (AGRO-XXXX) na hora do envio
-      cupom: { codigo: "AGRO-XXXX", texto: "15% de descuento en tu primera compra", validade: "para tu primera compra" },
+      cupom: {
+        codigo: "AGRO-XXXX",
+        texto: "15% de descuento en tu primera compra",
+        validade: "para tu primera compra",
+      },
       botaoTexto: "Ver catálogos",
       botaoUrl: "/catalogos",
     }),
@@ -86,8 +101,13 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "CUPÓN EXCLUSIVO",
       titulo: "{{nombre}}, este regalo es para vos",
-      texto: "Usá tu cupón en tu próxima compra de repuestos. Pedí tu cotización por WhatsApp y mencioná el código.",
-      cupom: { codigo: "AGRO10", texto: "10% de descuento en tu próxima compra", validade: "hasta fin de mes" },
+      texto:
+        "Usá tu cupón en tu próxima compra de repuestos. Pedí tu cotización por WhatsApp y mencioná el código.",
+      cupom: {
+        codigo: "AGRO10",
+        texto: "10% de descuento en tu próxima compra",
+        validade: "hasta fin de mes",
+      },
       botaoTexto: "Ver repuestos",
       botaoUrl: "/loja",
       cor: "#e07b00",
@@ -108,7 +128,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "OFERTA",
       titulo: "{{nombre}}, estos repuestos entraron en oferta",
-      texto: "Precios especiales **por tiempo limitado**. Pedí el tuyo por WhatsApp y te lo enviamos por DAC.",
+      texto:
+        "Precios especiales **por tiempo limitado**. Pedí el tuyo por WhatsApp y te lo enviamos por DAC.",
       produtosTitulo: "En oferta",
       botaoTexto: "Ver todas las ofertas",
       botaoUrl: "/loja",
@@ -130,7 +151,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "BAJÓ DE PRECIO",
       titulo: "{{nombre}}, estos repuestos ahora están más baratos",
-      texto: "Actualizamos precios y estos repuestos **bajaron**. Aprovechá y pedí tu cotización por WhatsApp.",
+      texto:
+        "Actualizamos precios y estos repuestos **bajaron**. Aprovechá y pedí tu cotización por WhatsApp.",
       produtosTitulo: "Nuevos precios",
       botaoTexto: "Ver repuestos",
       botaoUrl: "/loja",
@@ -152,7 +174,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "TU LISTA BAJÓ DE PRECIO",
       titulo: "{{nombre}}, un repuesto de tu lista está más barato",
-      texto: "Guardaste estos repuestos en tu lista y **bajaron de precio**. ¿Te los reservamos? Respondé por WhatsApp.",
+      texto:
+        "Guardaste estos repuestos en tu lista y **bajaron de precio**. ¿Te los reservamos? Respondé por WhatsApp.",
       produtosTitulo: "De tu lista",
       botaoTexto: "Ver más repuestos",
       botaoUrl: "/loja",
@@ -173,7 +196,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "TU LISTA",
       titulo: "{{nombre}}, tus repuestos te esperan",
-      texto: "Vimos que armaste una lista y no llegaste a pedirla. **Te ayudamos** con precio, disponibilidad y envío a todo Uruguay.",
+      texto:
+        "Vimos que armaste una lista y no llegaste a pedirla. **Te ayudamos** con precio, disponibilidad y envío a todo Uruguay.",
       produtosTitulo: "Tu lista",
       botaoTexto: "Ver más repuestos",
       botaoUrl: "/loja",
@@ -194,7 +218,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "TE EXTRAÑAMOS",
       titulo: "{{nombre}}, ¿necesitás repuestos para la zafra?",
-      texto: "Sumamos repuestos y catálogos nuevos. Buscá por código o modelo, o mandanos la foto de la pieza por WhatsApp y te la conseguimos.",
+      texto:
+        "Sumamos repuestos y catálogos nuevos. Buscá por código o modelo, o mandanos la foto de la pieza por WhatsApp y te la conseguimos.",
       botaoTexto: "Ver novedades",
       botaoUrl: "/loja",
     }),
@@ -215,7 +240,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "{{marca}}",
       titulo: "{{nombre}}, repuestos {{marca}} con precio especial",
-      texto: "Vimos que consultaste el catálogo de **{{marca}}**. Te dejamos repuestos de esa marca listos para enviar a todo Uruguay.",
+      texto:
+        "Vimos que consultaste el catálogo de **{{marca}}**. Te dejamos repuestos de esa marca listos para enviar a todo Uruguay.",
       produtosTitulo: "Repuestos {{marca}}",
       botaoTexto: "Ver más de {{marca}}",
       botaoUrl: "/loja",
@@ -237,7 +263,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "YA LO TENEMOS",
       titulo: "{{nombre}}, encontramos “{{busqueda}}”",
-      texto: "Hace unos días buscaste **{{busqueda}}** y no lo teníamos. ¡Ahora sí! Pedilo por WhatsApp y te lo enviamos.",
+      texto:
+        "Hace unos días buscaste **{{busqueda}}** y no lo teníamos. ¡Ahora sí! Pedilo por WhatsApp y te lo enviamos.",
       produtosTitulo: "Lo que buscabas",
       botaoTexto: "Ver resultados",
       botaoUrl: "/loja",
@@ -259,7 +286,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "NUEVO CATÁLOGO",
       titulo: "{{nombre}}, sumamos el catálogo “{{catalogo}}”",
-      texto: "Ya podés consultarlo gratis con tu cuenta. Buscá el código de la pieza y pedila por WhatsApp.",
+      texto:
+        "Ya podés consultarlo gratis con tu cuenta. Buscá el código de la pieza y pedila por WhatsApp.",
       botaoTexto: "Ver catálogo",
       botaoUrl: "/catalogos",
     }),
@@ -279,8 +307,13 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "BLACK FRIDAY",
       titulo: "{{nombre}}, llegó el Black Friday del campo",
-      texto: "**Solo por tiempo limitado**: usá tu cupón en repuestos para tu tractor. Pedí por WhatsApp y mencioná el código.",
-      cupom: { codigo: "BLACK15", texto: "15% de descuento en repuestos", validade: "solo hasta el domingo" },
+      texto:
+        "**Solo por tiempo limitado**: usá tu cupón en repuestos para tu tractor. Pedí por WhatsApp y mencioná el código.",
+      cupom: {
+        codigo: "BLACK15",
+        texto: "15% de descuento en repuestos",
+        validade: "solo hasta el domingo",
+      },
       botaoTexto: "Ver repuestos",
       botaoUrl: "/loja",
       cor: "#18181b",
@@ -302,7 +335,8 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "¡FELIZ ANIVERSARIO!",
       titulo: "{{nombre}}, hace {{tiempo}} que sos parte de AGRO PARTS",
-      texto: "Gracias por confiar en nosotros. Para festejar, te regalamos un descuento en tu próxima compra.",
+      texto:
+        "Gracias por confiar en nosotros. Para festejar, te regalamos un descuento en tu próxima compra.",
       cupom: { codigo: "GRACIAS10", texto: "10% de descuento de regalo", validade: "por 30 días" },
       botaoTexto: "Ver repuestos",
       botaoUrl: "/loja",
@@ -327,6 +361,22 @@ export function blackFriday(ano: number) {
 
 // Produtos de exemplo para a prévia dos tipos que mostram peças
 export const PRODUTOS_EXEMPLO = [
-  { sku: "82636800", nome: "Kit Motor Sisu Valtra", codigo: "82636800", imagem: null, preco: "$U 7.160", precoDe: "$U 8.750", selo: "-18%" },
-  { sku: "3136019", nome: "Filtro de Aceite Motor Massey Ferguson", codigo: "3136019", imagem: null, preco: "$U 1.290", precoDe: "$U 1.490", selo: "-13%" },
+  {
+    sku: "82636800",
+    nome: "Kit Motor Sisu Valtra",
+    codigo: "82636800",
+    imagem: null,
+    preco: "$U 7.160",
+    precoDe: "$U 8.750",
+    selo: "-18%",
+  },
+  {
+    sku: "3136019",
+    nome: "Filtro de Aceite Motor Massey Ferguson",
+    codigo: "3136019",
+    imagem: null,
+    preco: "$U 1.290",
+    precoDe: "$U 1.490",
+    selo: "-13%",
+  },
 ];

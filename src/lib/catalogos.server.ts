@@ -26,7 +26,13 @@ const MARCAS: Array<[RegExp, string]> = [
   [/agrale/i, "Agrale"],
 ];
 const tipoPorNome = (n: string) =>
-  /servi[cç]o|oficina|taller|reparaci|workshop/i.test(n) ? "Manual de taller" : /operador|operaci|instru/i.test(n) ? "Manual del operador" : /pe[cç]as|piezas|parts|repuestos/i.test(n) ? "Catálogo de piezas" : "Catálogo de piezas";
+  /servi[cç]o|oficina|taller|reparaci|workshop/i.test(n)
+    ? "Manual de taller"
+    : /operador|operaci|instru/i.test(n)
+      ? "Manual del operador"
+      : /pe[cç]as|piezas|parts|repuestos/i.test(n)
+        ? "Catálogo de piezas"
+        : "Catálogo de piezas";
 const tituloPorNome = (n: string) =>
   path
     .basename(n, path.extname(n))
@@ -50,7 +56,9 @@ function listarPdfs(dir: string, base = dir): string[] {
 export async function detectarCatalogos() {
   const pasta = pastaCatalogos();
   fs.mkdirSync(pasta, { recursive: true });
-  const existentes = new Set((await prisma.catalogos.findMany({ select: { arquivo: true } })).map((c) => c.arquivo));
+  const existentes = new Set(
+    (await prisma.catalogos.findMany({ select: { arquivo: true } })).map((c) => c.arquivo),
+  );
   const novos = [];
   for (const rel of listarPdfs(pasta)) {
     if (existentes.has(rel)) continue;
@@ -60,7 +68,11 @@ export async function detectarCatalogos() {
         titulo: tituloPorNome(rel).slice(0, 200),
         marca: MARCAS.find(([re]) => re.test(nome))?.[1] ?? null,
         tipo: tipoPorNome(nome),
-        idioma: /portugu|pt\b|_por/i.test(nome) ? "Portugués" : /ingl|english|_ing/i.test(nome) ? "Inglés" : "Español",
+        idioma: /portugu|pt\b|_por/i.test(nome)
+          ? "Portugués"
+          : /ingl|english|_ing/i.test(nome)
+            ? "Inglés"
+            : "Español",
         arquivo: rel,
         tamanho: BigInt(fs.statSync(path.join(pasta, rel)).size),
         ativo: false,

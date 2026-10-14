@@ -9,11 +9,27 @@ const ORIGEM = "vteximg.com.br";
 const PASTA = "agrotrator";
 const SIMULTANEAS = 4;
 
-type Estado = { rodando: boolean; copiadas: number; falhas: number; inicio: string | null; fim: string | null; erro: string | null };
+type Estado = {
+  rodando: boolean;
+  copiadas: number;
+  falhas: number;
+  inicio: string | null;
+  fim: string | null;
+  erro: string | null;
+};
 const g = globalThis as unknown as { __fotosAgrotrator?: Estado };
-const estado = (): Estado => (g.__fotosAgrotrator ??= { rodando: false, copiadas: 0, falhas: 0, inicio: null, fim: null, erro: null });
+const estado = (): Estado =>
+  (g.__fotosAgrotrator ??= {
+    rodando: false,
+    copiadas: 0,
+    falhas: 0,
+    inicio: null,
+    fim: null,
+    erro: null,
+  });
 
-const nomeArquivo = (sku: string, ordem: number) => `${PASTA}/${sku.trim().replace(/[^A-Za-z0-9._-]/g, "_")}-${ordem + 1}.jpg`;
+const nomeArquivo = (sku: string, ordem: number) =>
+  `${PASTA}/${sku.trim().replace(/[^A-Za-z0-9._-]/g, "_")}-${ordem + 1}.jpg`;
 
 export async function situacaoFotos() {
   const { prisma } = await import("./prisma");
@@ -31,19 +47,30 @@ async function copiarUma(img: { id: number; sku: string; image_path: string; sor
   const destino = caminhoUpload(relativo);
   if (!fs.existsSync(destino)) {
     const r = await fetch(img.image_path, { signal: AbortSignal.timeout(30_000) });
-    if (!r.ok || !(r.headers.get("content-type") || "").startsWith("image/")) throw new Error(`HTTP ${r.status}`);
+    if (!r.ok || !(r.headers.get("content-type") || "").startsWith("image/"))
+      throw new Error(`HTTP ${r.status}`);
     const buf = Buffer.from(await r.arrayBuffer());
     fs.mkdirSync(path.dirname(destino), { recursive: true });
     fs.writeFileSync(destino, buf);
   }
   await prisma.agricolas_img.update({ where: { id: img.id }, data: { image_path: relativo } });
-  await prisma.agricolas.updateMany({ where: { sku: img.sku, imagem_principal: img.image_path }, data: { imagem_principal: relativo } });
+  await prisma.agricolas.updateMany({
+    where: { sku: img.sku, imagem_principal: img.image_path },
+    data: { imagem_principal: relativo },
+  });
 }
 
 export function iniciarCopiaFotos() {
   const e = estado();
   if (e.rodando) return e;
-  Object.assign(e, { rodando: true, copiadas: 0, falhas: 0, inicio: new Date().toISOString(), fim: null, erro: null });
+  Object.assign(e, {
+    rodando: true,
+    copiadas: 0,
+    falhas: 0,
+    inicio: new Date().toISOString(),
+    fim: null,
+    erro: null,
+  });
   void (async () => {
     const { prisma } = await import("./prisma");
     // Fotos que falharam nesta rodada ficam para a próxima (não trava em loop)

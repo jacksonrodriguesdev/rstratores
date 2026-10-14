@@ -5,12 +5,6 @@ import { buscaParaPortugues } from "./pecas-es";
 import { limparCacheCatalogo } from "./busca-catalogo.server";
 import { semCusto } from "./precos.server";
 
-
-
-
-
-
-
 export async function listProducts(params: ListParams) {
   // Com a linha automotiva desligada, toda listagem vem da tabela agrícola.
   const linha = AUTOMOTIVA_ATIVA ? params.linha : "AGRICOLA";
@@ -155,7 +149,7 @@ export async function listProducts(params: ListParams) {
               { descricao: { contains: m } },
               { categoria: { contains: m } },
               { marca: { contains: m } },
-              { aplicacoes: { some: { montadora: m } } }, 
+              { aplicacoes: { some: { montadora: m } } },
             ],
           })),
         });
@@ -229,14 +223,16 @@ export async function listProducts(params: ListParams) {
 
 export async function getProduct(sku: string) {
   // Linha automotiva desligada: produtos da tabela `products` não são exibidos.
-  let data = !AUTOMOTIVA_ATIVA ? null : await prisma.products.findUnique({
-    where: { sku },
-    include: {
-      aplicacoes: true,
-      fichas_tecnicas: true,
-      similares: true,
-    },
-  });
+  let data = !AUTOMOTIVA_ATIVA
+    ? null
+    : await prisma.products.findUnique({
+        where: { sku },
+        include: {
+          aplicacoes: true,
+          fichas_tecnicas: true,
+          similares: true,
+        },
+      });
 
   if (!data) {
     data = (await prisma.agricolas.findUnique({
@@ -258,10 +254,12 @@ export async function getProduct(sku: string) {
 }
 
 export async function getProductImages(sku: string) {
-  let data = !AUTOMOTIVA_ATIVA ? [] : await prisma.products_img.findMany({
-    where: { sku },
-    orderBy: { sort_order: "asc" },
-  });
+  let data = !AUTOMOTIVA_ATIVA
+    ? []
+    : await prisma.products_img.findMany({
+        where: { sku },
+        orderBy: { sort_order: "asc" },
+      });
 
   if (!data || data.length === 0) {
     data = (await prisma.agricolas_img.findMany({
@@ -319,7 +317,11 @@ export async function getFacets(linha?: string) {
     const where = { duplicado_de: null, category_id: { not: null } };
     const [cats, marcas] = await Promise.all([
       prisma.agricolas.groupBy({ by: ["categoria"], where, _count: { _all: true } }),
-      prisma.agricolas.groupBy({ by: ["marca"], where: { ...where, marca: { not: null } }, _count: { _all: true } }),
+      prisma.agricolas.groupBy({
+        by: ["marca"],
+        where: { ...where, marca: { not: null } },
+        _count: { _all: true },
+      }),
     ]);
     const lista = (rows: any[], campo: string) =>
       rows
@@ -387,16 +389,25 @@ export async function getStats() {
       { imagem_principal: { contains: "redeparts" } },
     ],
   };
-  const [pecas, semFotoN, semCategoria, marcasConfirmadas, categorias, cotacoesNovas, bannersAtivos] =
-    await Promise.all([
-      prisma.agricolas.count({ where: visiveis }),
-      prisma.agricolas.count({ where: { ...visiveis, ...semFoto } }),
-      prisma.agricolas.count({ where: { ...visiveis, category_id: null } }),
-      prisma.agricolas.count({ where: { ...visiveis, marca_confirmada: true, marca: { not: null } } }),
-      prisma.categories.count({ where: { linha: "AGRICOLA", agricolas: { some: {} } } }),
-      prisma.quotes.count({ where: { status: "NOVA" } }),
-      prisma.site_banners.count({ where: { active: true, linha: "AGRICOLA" } }),
-    ]);
+  const [
+    pecas,
+    semFotoN,
+    semCategoria,
+    marcasConfirmadas,
+    categorias,
+    cotacoesNovas,
+    bannersAtivos,
+  ] = await Promise.all([
+    prisma.agricolas.count({ where: visiveis }),
+    prisma.agricolas.count({ where: { ...visiveis, ...semFoto } }),
+    prisma.agricolas.count({ where: { ...visiveis, category_id: null } }),
+    prisma.agricolas.count({
+      where: { ...visiveis, marca_confirmada: true, marca: { not: null } },
+    }),
+    prisma.categories.count({ where: { linha: "AGRICOLA", agricolas: { some: {} } } }),
+    prisma.quotes.count({ where: { status: "NOVA" } }),
+    prisma.site_banners.count({ where: { active: true, linha: "AGRICOLA" } }),
+  ]);
   return {
     pecas,
     comFoto: pecas - semFotoN,

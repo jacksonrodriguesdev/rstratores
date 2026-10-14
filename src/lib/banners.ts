@@ -23,12 +23,20 @@ export type Banner = {
 // Descrição de cada tipo para o admin: onde aparece e o tamanho ideal da arte.
 export const TIPOS_BANNER: Record<
   BannerKind,
-  { nome: string; onde: string; desktop: string; celular: string; aspecto: string; aspectoCelular: string }
+  {
+    nome: string;
+    onde: string;
+    desktop: string;
+    celular: string;
+    aspecto: string;
+    aspectoCelular: string;
+  }
 > = {
   hero: {
     nome: "Carrossel principal",
     onde: "Topo da página inicial. Vários banners viram um carrossel com troca automática.",
-    desktop: "1920 × 500 px. Deixe os ~100 px de baixo sem texto: os cartões de atalho ficam por cima.",
+    desktop:
+      "1920 × 500 px. Deixe os ~100 px de baixo sem texto: os cartões de atalho ficam por cima.",
     celular: "800 × 400 px",
     aspecto: "aspect-[1366/400]",
     aspectoCelular: "aspect-[366/170]",
@@ -91,7 +99,8 @@ export async function uploadBannerImage(file: File, kind: BannerKind): Promise<s
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao enviar a imagem");
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => null))?.error || "Falha ao enviar a imagem");
   const { path } = await res.json();
   return path;
 }
@@ -117,7 +126,10 @@ export async function createBanner(input: {
 export async function updateBanner(
   id: number,
   patch: Partial<
-    Pick<Banner, "position" | "link_url" | "active" | "image_path" | "image_path_mobile" | "titulo" | "linha">
+    Pick<
+      Banner,
+      "position" | "link_url" | "active" | "image_path" | "image_path_mobile" | "titulo" | "linha"
+    >
   >,
 ) {
   const res = await fetch(`/api/admin/banners/${id}`, {

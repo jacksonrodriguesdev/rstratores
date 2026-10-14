@@ -1,8 +1,25 @@
 // Regras de cadastro usadas no navegador (avisos na hora) e no servidor (validação final).
 
 export const DEPARTAMENTOS_UY = [
-  "Artigas", "Canelones", "Cerro Largo", "Colonia", "Durazno", "Flores", "Florida", "Lavalleja", "Maldonado",
-  "Montevideo", "Paysandú", "Río Negro", "Rivera", "Rocha", "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres",
+  "Artigas",
+  "Canelones",
+  "Cerro Largo",
+  "Colonia",
+  "Durazno",
+  "Flores",
+  "Florida",
+  "Lavalleja",
+  "Maldonado",
+  "Montevideo",
+  "Paysandú",
+  "Río Negro",
+  "Rivera",
+  "Rocha",
+  "Salto",
+  "San José",
+  "Soriano",
+  "Tacuarembó",
+  "Treinta y Tres",
 ];
 
 // Celular uruguaio: 09X XXX XXX (local) ou +598 9X XXX XXX. Devolve "+5989XXXXXXX" ou null.

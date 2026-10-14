@@ -6,17 +6,26 @@ const CARDS = [
   {
     icon: Truck,
     title: ["Envíos a todo Uruguay", "Envio para todo o Rio Grande do Sul"],
-    desc: ["Despachamos por DAC con número de rastreo a cualquier punto del país.", "Enviamos por Correios ou transportadora, com código de rastreio, para qualquer cidade."],
+    desc: [
+      "Despachamos por DAC con número de rastreo a cualquier punto del país.",
+      "Enviamos por Correios ou transportadora, com código de rastreio, para qualquer cidade.",
+    ],
   },
   {
     icon: ShieldCheck,
     title: ["Repuestos de confianza", "Peças de confiança"],
-    desc: ["Originales y alternativos de proveedores seleccionados.", "Originais e alternativas de fornecedores selecionados."],
+    desc: [
+      "Originales y alternativos de proveedores seleccionados.",
+      "Originais e alternativas de fornecedores selecionados.",
+    ],
   },
   {
     icon: Clock,
     title: ["Cotización en minutos", "Orçamento em minutos"],
-    desc: ["Escribinos por WhatsApp y te pasamos el precio sin compromiso.", "Fale conosco pelo WhatsApp e passamos o preço sem compromisso."],
+    desc: [
+      "Escribinos por WhatsApp y te pasamos el precio sin compromiso.",
+      "Fale conosco pelo WhatsApp e passamos o preço sem compromisso.",
+    ],
   },
 ];
 

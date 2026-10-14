@@ -15,10 +15,15 @@ function buildUrl(text: string): string {
 // Mensagem em espanhol para o cliente; o nome original em português e o link da peça
 // vão junto para a equipe identificar a peça sem dúvida.
 // idioma "pt": cliente do Brasil (página /pt), mensagem e link em português.
-export function whatsappQuoteUrl(product: { sku: string; nome: string; nome_es?: string | null }, idioma: "es" | "pt" = "es"): string {
+export function whatsappQuoteUrl(
+  product: { sku: string; nome: string; nome_es?: string | null },
+  idioma: "es" | "pt" = "es",
+): string {
   if (idioma === "pt") {
     const link = `${SITE_URL}/pt/produto/${encodeURIComponent(product.sku)}`;
-    return buildUrl(`Olá! Quero orçamento desta peça (cliente do Brasil):\n\n*${product.nome}*\nCódigo: ${product.sku}\n${link}`);
+    return buildUrl(
+      `Olá! Quero orçamento desta peça (cliente do Brasil):\n\n*${product.nome}*\nCódigo: ${product.sku}\n${link}`,
+    );
   }
   const es = nomeProduto(product);
   const link = `${SITE_URL}/produto/${encodeURIComponent(product.sku)}`;

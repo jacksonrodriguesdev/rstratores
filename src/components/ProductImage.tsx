@@ -47,7 +47,15 @@ export function ProductImage({ src, alt, className, marca }: Props) {
   // Peça agrícola sem foto: imagem com a logo da AGRO PARTS (public/img/sem-foto.jpg, 500×500,
   // gerada por marketing/sem-foto/gerar.cjs). Não vai para o banco: o Google Shopping recusa logo como foto.
   if (semFoto && currentSegment !== "AUTOMOTIVA") {
-    return <img decoding="async" src="/img/sem-foto.jpg?v=2" alt={alt} loading="lazy" className={cn("h-full w-full object-contain", className)} />;
+    return (
+      <img
+        decoding="async"
+        src="/img/sem-foto.jpg?v=2"
+        alt={alt}
+        loading="lazy"
+        className={cn("h-full w-full object-contain", className)}
+      />
+    );
   }
 
   if (semFoto || (url === null && src && !src.startsWith("http"))) {
@@ -75,7 +83,8 @@ export function ProductImage({ src, alt, className, marca }: Props) {
   }
 
   return (
-    <img decoding="async"
+    <img
+      decoding="async"
       src={url ?? undefined}
       alt={alt}
       loading="lazy"

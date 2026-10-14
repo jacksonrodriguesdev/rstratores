@@ -14,9 +14,17 @@ import { pipeline } from "stream/promises";
 import { pastaUploads } from "./uploads.server";
 
 // ---------- GeoIP ----------
-type Geo = { country: string | null; country_code: string | null; region: string | null; city: string | null; latitude: number | null; longitude: number | null };
+type Geo = {
+  country: string | null;
+  country_code: string | null;
+  region: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
 
-const pastaGeo = () => path.resolve(process.env.GEOIP_DIR || path.join(pastaUploads(), "..", "geoip-agroparts"));
+const pastaGeo = () =>
+  path.resolve(process.env.GEOIP_DIR || path.join(pastaUploads(), "..", "geoip-agroparts"));
 const arquivoGeo = () => path.join(pastaGeo(), "dbip-city-lite.mmdb");
 
 let leitor: any = null;
@@ -34,7 +42,11 @@ async function baixarBase() {
     const res = await fetch(`https://download.db-ip.com/free/dbip-city-lite-${m}.mmdb.gz`);
     if (!res.ok || !res.body) continue;
     const tmp = arquivoGeo() + ".baixando";
-    await pipeline(Readable.fromWeb(res.body as any), zlib.createGunzip(), fs.createWriteStream(tmp));
+    await pipeline(
+      Readable.fromWeb(res.body as any),
+      zlib.createGunzip(),
+      fs.createWriteStream(tmp),
+    );
     fs.renameSync(tmp, arquivoGeo());
     console.log(`[rastreio] base de localização atualizada (${m})`);
     return;
@@ -44,13 +56,18 @@ async function baixarBase() {
 
 async function abrirLeitor() {
   const arq = arquivoGeo();
-  const velho = !fs.existsSync(arq) || Date.now() - fs.statSync(arq).mtimeMs > 35 * 24 * 3600 * 1000;
+  const velho =
+    !fs.existsSync(arq) || Date.now() - fs.statSync(arq).mtimeMs > 35 * 24 * 3600 * 1000;
   if (velho && !baixando) {
     // Em segundo plano: a visita é gravada mesmo sem localização enquanto a base baixa
     baixando = baixarBase()
-      .then(() => { leitor = null; })
+      .then(() => {
+        leitor = null;
+      })
       .catch((e) => console.error("[rastreio]", e.message))
-      .finally(() => { baixando = null; });
+      .finally(() => {
+        baixando = null;
+      });
   }
   if (!fs.existsSync(arq)) return null;
   if (!leitor || Date.now() - carregadoEm > 24 * 3600 * 1000) {
@@ -64,7 +81,14 @@ async function abrirLeitor() {
 const nome = (n: any) => n?.names?.["pt-BR"] || n?.names?.es || n?.names?.en || null;
 
 export async function localizar(ip: string | null): Promise<Geo> {
-  const vazio: Geo = { country: null, country_code: null, region: null, city: null, latitude: null, longitude: null };
+  const vazio: Geo = {
+    country: null,
+    country_code: null,
+    region: null,
+    city: null,
+    latitude: null,
+    longitude: null,
+  };
   if (!ip) return vazio;
   try {
     const l = await abrirLeitor();
@@ -99,13 +123,31 @@ export function ipDaRequisicao(request: Request): string | null {
 
 export function hashIp(ip: string | null): string | null {
   if (!ip) return null;
-  return crypto.createHash("sha256").update(ip + "|" + (process.env.JWT_SECRET || "agroparts")).digest("hex").slice(0, 32);
+  return crypto
+    .createHash("sha256")
+    .update(ip + "|" + (process.env.JWT_SECRET || "agroparts"))
+    .digest("hex")
+    .slice(0, 32);
 }
 
 // ---------- Aparelho ----------
 export function lerAparelho(ua: string) {
-  const device = /iPad|Tablet|(Android(?!.*Mobile))/i.test(ua) ? "tablet" : /Mobi|iPhone|Android/i.test(ua) ? "celular" : "computador";
-  const os = /Android/i.test(ua) ? "Android" : /iPhone|iPad|iPod/i.test(ua) ? "iOS" : /Windows/i.test(ua) ? "Windows" : /Mac OS X/i.test(ua) ? "macOS" : /Linux/i.test(ua) ? "Linux" : "Outro";
+  const device = /iPad|Tablet|(Android(?!.*Mobile))/i.test(ua)
+    ? "tablet"
+    : /Mobi|iPhone|Android/i.test(ua)
+      ? "celular"
+      : "computador";
+  const os = /Android/i.test(ua)
+    ? "Android"
+    : /iPhone|iPad|iPod/i.test(ua)
+      ? "iOS"
+      : /Windows/i.test(ua)
+        ? "Windows"
+        : /Mac OS X/i.test(ua)
+          ? "macOS"
+          : /Linux/i.test(ua)
+            ? "Linux"
+            : "Outro";
   const browser = /Instagram/i.test(ua)
     ? "Instagram (app)"
     : /FBAN|FBAV|FB_IAB/i.test(ua)
@@ -129,7 +171,9 @@ export function lerAparelho(ua: string) {
 }
 
 export const ehRobo = (ua: string) =>
-  /bot|crawler|spider|preview|lighthouse|headless|facebookexternalhit|whatsapp\/|slurp|bingpreview|curl|wget|python|axios|node-fetch/i.test(ua);
+  /bot|crawler|spider|preview|lighthouse|headless|facebookexternalhit|whatsapp\/|slurp|bingpreview|curl|wget|python|axios|node-fetch/i.test(
+    ua,
+  );
 
 // ---------- Origem ----------
 export type Atribuicao = {
@@ -159,22 +203,39 @@ export function classificarOrigem(a: Atribuicao, siteHost: string) {
       return "";
     }
   })();
-  const interno = !!host && (host === siteHost || host.endsWith("." + siteHost) || host === "localhost");
+  const interno =
+    !!host && (host === siteHost || host.endsWith("." + siteHost) || host === "localhost");
 
   if (a.utm_source) {
-    const fonte = FONTES.find(([re]) => re.test(a.utm_source!))?.[1] ?? a.utm_source.toLowerCase().slice(0, 40);
+    const fonte =
+      FONTES.find(([re]) => re.test(a.utm_source!))?.[1] ?? a.utm_source.toLowerCase().slice(0, 40);
     const m = (a.utm_medium || "").toLowerCase();
-    const meio = /cpc|ppc|paid|ads|pago/.test(m) ? "pago" : /email/.test(m) ? "email" : m ? m.slice(0, 40) : "campanha";
+    const meio = /cpc|ppc|paid|ads|pago/.test(m)
+      ? "pago"
+      : /email/.test(m)
+        ? "email"
+        : m
+          ? m.slice(0, 40)
+          : "campanha";
     return { fonte, meio, referrer_host: interno ? null : host || null };
   }
   if (a.gclid) return { fonte: "google", meio: "pago", referrer_host: host || null };
-  if (a.fbclid) return { fonte: /instagram/.test(host) ? "instagram" : "facebook", meio: "pago", referrer_host: host || null };
+  if (a.fbclid)
+    return {
+      fonte: /instagram/.test(host) ? "instagram" : "facebook",
+      meio: "pago",
+      referrer_host: host || null,
+    };
   if (!host || interno) return { fonte: "direto", meio: "direto", referrer_host: null };
   if (/google\./.test(host)) return { fonte: "google", meio: "orgânico", referrer_host: host };
-  if (/bing\.|duckduckgo|yahoo|ecosia/.test(host)) return { fonte: host.split(".")[0], meio: "orgânico", referrer_host: host };
+  if (/bing\.|duckduckgo|yahoo|ecosia/.test(host))
+    return { fonte: host.split(".")[0], meio: "orgânico", referrer_host: host };
   if (/instagram\./.test(host)) return { fonte: "instagram", meio: "social", referrer_host: host };
-  if (/facebook\.|fb\.com|fb\.me/.test(host)) return { fonte: "facebook", meio: "social", referrer_host: host };
-  if (/whatsapp|wa\.me/.test(host)) return { fonte: "whatsapp", meio: "social", referrer_host: host };
-  if (/t\.co|twitter|x\.com|tiktok|youtube|linkedin/.test(host)) return { fonte: host.split(".")[0], meio: "social", referrer_host: host };
+  if (/facebook\.|fb\.com|fb\.me/.test(host))
+    return { fonte: "facebook", meio: "social", referrer_host: host };
+  if (/whatsapp|wa\.me/.test(host))
+    return { fonte: "whatsapp", meio: "social", referrer_host: host };
+  if (/t\.co|twitter|x\.com|tiktok|youtube|linkedin/.test(host))
+    return { fonte: host.split(".")[0], meio: "social", referrer_host: host };
   return { fonte: host, meio: "referência", referrer_host: host };
 }

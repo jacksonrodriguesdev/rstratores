@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MessageCircle, Search, ShoppingCart, Truck, CreditCard, ShieldCheck, HelpCircle, ChevronDown } from "lucide-react";
+import {
+  MessageCircle,
+  Search,
+  ShoppingCart,
+  Truck,
+  CreditCard,
+  ShieldCheck,
+  HelpCircle,
+  ChevronDown,
+} from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
@@ -70,7 +79,12 @@ export const Route = createFileRoute("/ayuda")({
     return {
       links: linksIdioma("/ayuda", idioma),
       meta: [
-        { title: t("Ayuda — Cómo comprar, envíos y preguntas frecuentes | AGRO PARTS", "Ajuda — Como comprar, envio e perguntas frequentes | AGRO PARTS") },
+        {
+          title: t(
+            "Ayuda — Cómo comprar, envíos y preguntas frecuentes | AGRO PARTS",
+            "Ajuda — Como comprar, envio e perguntas frequentes | AGRO PARTS",
+          ),
+        },
         {
           name: "description",
           content: t(
@@ -100,22 +114,67 @@ export const Route = createFileRoute("/ayuda")({
 
 const PASOS = {
   es: [
-    { icon: Search, titulo: "Buscá tu repuesto", texto: "Por código original, nombre de la pieza o marca del tractor." },
-    { icon: ShoppingCart, titulo: "Armá tu cotización", texto: "Agregá todas las piezas que necesitás con el botón «+»." },
-    { icon: MessageCircle, titulo: "Pedí el precio", texto: "Nos llega la lista por WhatsApp y te respondemos con precio y plazo." },
-    { icon: Truck, titulo: "Recibilo en tu casa", texto: "Confirmás el pedido y lo despachamos por DAC con seguimiento." },
+    {
+      icon: Search,
+      titulo: "Buscá tu repuesto",
+      texto: "Por código original, nombre de la pieza o marca del tractor.",
+    },
+    {
+      icon: ShoppingCart,
+      titulo: "Armá tu cotización",
+      texto: "Agregá todas las piezas que necesitás con el botón «+».",
+    },
+    {
+      icon: MessageCircle,
+      titulo: "Pedí el precio",
+      texto: "Nos llega la lista por WhatsApp y te respondemos con precio y plazo.",
+    },
+    {
+      icon: Truck,
+      titulo: "Recibilo en tu casa",
+      texto: "Confirmás el pedido y lo despachamos por DAC con seguimiento.",
+    },
   ],
   pt: [
-    { icon: Search, titulo: "Busque sua peça", texto: "Pelo código original, nome da peça ou marca do trator." },
-    { icon: ShoppingCart, titulo: "Monte seu orçamento", texto: "Adicione todas as peças que precisa com o botão «+»." },
-    { icon: MessageCircle, titulo: "Peça o preço", texto: "A lista chega pelo WhatsApp e respondemos com preço, prazo e frete." },
-    { icon: Truck, titulo: "Receba em casa", texto: "Você confirma o pedido e enviamos por Correios ou transportadora, com rastreio." },
+    {
+      icon: Search,
+      titulo: "Busque sua peça",
+      texto: "Pelo código original, nome da peça ou marca do trator.",
+    },
+    {
+      icon: ShoppingCart,
+      titulo: "Monte seu orçamento",
+      texto: "Adicione todas as peças que precisa com o botão «+».",
+    },
+    {
+      icon: MessageCircle,
+      titulo: "Peça o preço",
+      texto: "A lista chega pelo WhatsApp e respondemos com preço, prazo e frete.",
+    },
+    {
+      icon: Truck,
+      titulo: "Receba em casa",
+      texto: "Você confirma o pedido e enviamos por Correios ou transportadora, com rastreio.",
+    },
   ],
 };
 
-function Seccion({ id, icon: Icon, titulo, children }: { id: string; icon: typeof Truck; titulo: string; children: React.ReactNode }) {
+function Seccion({
+  id,
+  icon: Icon,
+  titulo,
+  children,
+}: {
+  id: string;
+  icon: typeof Truck;
+  titulo: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section id={id} className="scroll-mt-[calc(var(--altura-header,120px)+16px)] rounded-2xl bg-white p-5 shadow-sm md:p-8">
+    <section
+      id={id}
+      className="scroll-mt-[calc(var(--altura-header,120px)+16px)] rounded-2xl bg-white p-5 shadow-sm md:p-8"
+    >
       <h2 className="mb-4 flex items-center gap-3 text-xl font-extrabold text-zinc-900 md:text-2xl">
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
@@ -135,9 +194,14 @@ function AyudaPage() {
       <SiteHeader />
       <main className="mx-auto flex max-w-4xl flex-col gap-4 px-3 py-6 md:gap-6 md:px-4 md:py-10">
         <div className="px-1">
-          <h1 className="text-2xl font-extrabold text-zinc-900 md:text-4xl">{t("¿Cómo podemos ayudarte?", "Como podemos ajudar?")}</h1>
+          <h1 className="text-2xl font-extrabold text-zinc-900 md:text-4xl">
+            {t("¿Cómo podemos ayudarte?", "Como podemos ajudar?")}
+          </h1>
           <p className="mt-2 text-zinc-600">
-            {t("Todo lo que necesitás saber para comprar tus repuestos agrícolas con tranquilidad.", "Tudo o que você precisa saber para comprar suas peças agrícolas com tranquilidade.")}
+            {t(
+              "Todo lo que necesitás saber para comprar tus repuestos agrícolas con tranquilidad.",
+              "Tudo o que você precisa saber para comprar suas peças agrícolas com tranquilidade.",
+            )}
           </p>
         </div>
 
@@ -162,25 +226,41 @@ function AyudaPage() {
         {pt ? (
           <Seccion id="envios" icon={Truck} titulo="Envio para o Rio Grande do Sul">
             <p className="flex items-center gap-2 font-semibold text-zinc-900">
-              <BandeiraBrasil className="h-4 w-6 rounded-sm" /> Enviamos para qualquer cidade do Rio Grande do Sul por Correios ou transportadora.
+              <BandeiraBrasil className="h-4 w-6 rounded-sm" /> Enviamos para qualquer cidade do Rio
+              Grande do Sul por Correios ou transportadora.
             </p>
-            <p>Estamos na fronteira Chuí / Chuy. Quando o pedido sai, mandamos o código de rastreio pelo WhatsApp para você acompanhar a entrega.</p>
-            <p>O frete e o prazo são confirmados junto com o orçamento, conforme a sua cidade. O frete é pago pelo cliente.</p>
+            <p>
+              Estamos na fronteira Chuí / Chuy. Quando o pedido sai, mandamos o código de rastreio
+              pelo WhatsApp para você acompanhar a entrega.
+            </p>
+            <p>
+              O frete e o prazo são confirmados junto com o orçamento, conforme a sua cidade. O
+              frete é pago pelo cliente.
+            </p>
           </Seccion>
         ) : (
           <Seccion id="envios" icon={Truck} titulo="Envíos a Uruguay">
             <p className="flex items-center gap-2 font-semibold text-zinc-900">
-              <BandeiraUruguay className="h-4 w-6 rounded-sm" /> Enviamos a los 19 departamentos por DAC.
+              <BandeiraUruguay className="h-4 w-6 rounded-sm" /> Enviamos a los 19 departamentos por
+              DAC.
             </p>
             <p>
-              Cuando tu pedido sale, te mandamos por WhatsApp el número de seguimiento. Con ese número seguís el
-              paquete en{" "}
-              <a href="https://www.dac.com.uy/envios/rastrear" target="_blank" rel="noreferrer noopener" className="font-semibold text-primary underline">
+              Cuando tu pedido sale, te mandamos por WhatsApp el número de seguimiento. Con ese
+              número seguís el paquete en{" "}
+              <a
+                href="https://www.dac.com.uy/envios/rastrear"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="font-semibold text-primary underline"
+              >
                 dac.com.uy
               </a>
               .
             </p>
-            <p>El costo y el plazo de envío te los confirmamos junto con la cotización, según tu localidad.</p>
+            <p>
+              El costo y el plazo de envío te los confirmamos junto con la cotización, según tu
+              localidad.
+            </p>
           </Seccion>
         )}
 
@@ -199,14 +279,23 @@ function AyudaPage() {
               "Para mejorar el sitio registramos datos de navegación anónimos: páginas visitadas, ciudad aproximada, de dónde llegaste (Google, Instagram, etc.) y tipo de dispositivo. No guardamos tu dirección IP ni datos personales sin que nos los envíes. La ubicación aproximada se obtiene con IP Geolocation by",
               "Para melhorar o site registramos dados de navegação anônimos: páginas visitadas, cidade aproximada, de onde você chegou (Google, Instagram etc.) e tipo de aparelho. Não guardamos seu endereço IP nem dados pessoais sem que você os envie. A localização aproximada é obtida com IP Geolocation by",
             )}{" "}
-            <a href="https://db-ip.com" target="_blank" rel="noreferrer noopener" className="font-semibold text-primary underline">
+            <a
+              href="https://db-ip.com"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="font-semibold text-primary underline"
+            >
               DB-IP
             </a>
             .
           </p>
         </Seccion>
 
-        <Seccion id="garantia" icon={ShieldCheck} titulo={t("Garantía y devoluciones", "Garantia e trocas")}>
+        <Seccion
+          id="garantia"
+          icon={ShieldCheck}
+          titulo={t("Garantía y devoluciones", "Garantia e trocas")}
+        >
           <p>
             {t(
               "Antes de despachar confirmamos con vos el código y la compatibilidad de cada pieza, para que recibas el repuesto correcto.",
@@ -220,10 +309,19 @@ function AyudaPage() {
               "você tem 7 dias a partir do recebimento para trocar ou devolver uma peça sem uso, na embalagem original. O envio da devolução é por conta do cliente.",
             )}
           </p>
-          <p>{t("Si tenés algún problema con tu pedido, escribinos por WhatsApp y lo resolvemos juntos.", "Se tiver qualquer problema com o pedido, fale conosco pelo WhatsApp e resolvemos juntos.")}</p>
+          <p>
+            {t(
+              "Si tenés algún problema con tu pedido, escribinos por WhatsApp y lo resolvemos juntos.",
+              "Se tiver qualquer problema com o pedido, fale conosco pelo WhatsApp e resolvemos juntos.",
+            )}
+          </p>
         </Seccion>
 
-        <Seccion id="preguntas" icon={HelpCircle} titulo={t("Preguntas frecuentes", "Perguntas frequentes")}>
+        <Seccion
+          id="preguntas"
+          icon={HelpCircle}
+          titulo={t("Preguntas frecuentes", "Perguntas frequentes")}
+        >
           <div className="divide-y divide-zinc-100">
             {PREGUNTAS[idioma].map((q) => (
               <details key={q.p} className="group py-3">
@@ -238,18 +336,34 @@ function AyudaPage() {
         </Seccion>
 
         <div className="flex flex-col items-center gap-3 rounded-2xl bg-gradient-to-br from-primary to-emerald-900 p-6 text-center text-white md:p-10">
-          <h2 className="text-xl font-extrabold md:text-2xl">{t("¿Te quedó alguna duda?", "Ficou alguma dúvida?")}</h2>
-          <p className="text-white/85">{t("Hablá con nuestro equipo, te respondemos por WhatsApp.", "Fale com a nossa equipe, respondemos pelo WhatsApp.")}</p>
+          <h2 className="text-xl font-extrabold md:text-2xl">
+            {t("¿Te quedó alguna duda?", "Ficou alguma dúvida?")}
+          </h2>
+          <p className="text-white/85">
+            {t(
+              "Hablá con nuestro equipo, te respondemos por WhatsApp.",
+              "Fale com a nossa equipe, respondemos pelo WhatsApp.",
+            )}
+          </p>
           <div className="flex flex-wrap justify-center gap-2">
             <a
-              href={whatsappContactUrl(t("¡Hola! Tengo una consulta sobre una compra.", "Olá! Tenho uma dúvida sobre uma compra."))}
+              href={whatsappContactUrl(
+                t(
+                  "¡Hola! Tengo una consulta sobre una compra.",
+                  "Olá! Tenho uma dúvida sobre uma compra.",
+                ),
+              )}
               target="_blank"
               rel="noreferrer noopener"
               className="flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-bold text-white shadow-lg transition hover:bg-[#1EBE57] active:scale-95"
             >
-              <MessageCircle className="h-5 w-5" /> {t("Escribinos por WhatsApp", "Fale pelo WhatsApp")}
+              <MessageCircle className="h-5 w-5" />{" "}
+              {t("Escribinos por WhatsApp", "Fale pelo WhatsApp")}
             </a>
-            <Link to="/loja" className="rounded-full bg-white px-6 py-3 font-bold text-primary shadow-lg transition hover:bg-zinc-50 active:scale-95">
+            <Link
+              to="/loja"
+              className="rounded-full bg-white px-6 py-3 font-bold text-primary shadow-lg transition hover:bg-zinc-50 active:scale-95"
+            >
               {t("Ver catálogo", "Ver catálogo")}
             </Link>
           </div>

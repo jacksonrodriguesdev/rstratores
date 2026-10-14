@@ -24,5 +24,7 @@ export function BannerImage({ src, alt, className }: Props) {
   }, [src]);
 
   if (!url) return null;
-  return <img decoding="async" src={url} alt={alt} className={cn("block", className)} loading="lazy" />;
+  return (
+    <img decoding="async" src={url} alt={alt} className={cn("block", className)} loading="lazy" />
+  );
 }

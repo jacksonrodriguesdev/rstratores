@@ -8,9 +8,15 @@ export const Route = createFileRoute("/api/auth/google")({
         const g = await import("@/lib/google-oauth.server");
         const { destinoSeguro } = await import("@/lib/auth.server");
         if (!g.googleConfigurado()) {
-          return new Response(null, { status: 302, headers: { Location: "/login?erro=google_no_configurado" } });
+          return new Response(null, {
+            status: 302,
+            headers: { Location: "/login?erro=google_no_configurado" },
+          });
         }
-        return g.iniciarGoogle(request, destinoSeguro(new URL(request.url).searchParams.get("redirect")));
+        return g.iniciarGoogle(
+          request,
+          destinoSeguro(new URL(request.url).searchParams.get("redirect")),
+        );
       },
     },
   },

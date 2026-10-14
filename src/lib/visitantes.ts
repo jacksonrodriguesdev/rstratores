@@ -15,12 +15,26 @@ export type Visitantes = {
     pctUruguay: number;
     pctComLocal: number;
   };
-  porDia: Array<{ dia: string; visitas: number; visitantes: number; sessoes: number; whatsapp: number }>;
+  porDia: Array<{
+    dia: string;
+    visitas: number;
+    visitantes: number;
+    sessoes: number;
+    whatsapp: number;
+  }>;
   paises: Array<Grupo & { code: string; nome: string }>;
   regioes: Array<Grupo & { region: string; code: string | null }>;
   pagoPorRegiao: Array<Grupo & { region: string; code: string | null }>;
   pagoForaDoPais: number;
-  cidades: Array<Grupo & { city: string; region: string | null; code: string | null; lat: number | null; lon: number | null }>;
+  cidades: Array<
+    Grupo & {
+      city: string;
+      region: string | null;
+      code: string | null;
+      lat: number | null;
+      lon: number | null;
+    }
+  >;
   fontes: Array<Grupo & { fonte: string; meio: string }>;
   campanhas: Array<Grupo & { campanha: string; fonte: string; meio: string }>;
   dispositivos: Array<{ nome: string; sessoes: number }>;
@@ -29,7 +43,17 @@ export type Visitantes = {
   paginas: Array<{ path: string; visitas: number }>;
   entradas: Array<{ path: string; sessoes: number }>;
   horario: number[][];
-  recentes: Array<{ quando: string; path: string; city: string | null; region: string | null; code: string | null; fonte: string | null; device: string | null; browser: string | null; visitante: string }>;
+  recentes: Array<{
+    quando: string;
+    path: string;
+    city: string | null;
+    region: string | null;
+    code: string | null;
+    fonte: string | null;
+    device: string | null;
+    browser: string | null;
+    visitante: string;
+  }>;
 };
 
 // Painel Visitantes (só admin)

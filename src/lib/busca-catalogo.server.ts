@@ -29,7 +29,9 @@ const CONFERIR = 30 * 1000;
 // Índice guardado em globalThis: as rotas de API do admin e as funções da loja podem carregar
 // este módulo separadamente; assim todas usam (e limpam) o mesmo índice.
 type Indice = { itens: Item[]; em: number; assinatura: string; conferido: number };
-const G = globalThis as unknown as { __indiceCatalogo?: { cache: Indice | null; carregando: Promise<Item[]> | null } };
+const G = globalThis as unknown as {
+  __indiceCatalogo?: { cache: Indice | null; carregando: Promise<Item[]> | null };
+};
 const estado = (G.__indiceCatalogo ??= { cache: null, carregando: null });
 
 async function assinaturaCatalogo(): Promise<string> {
@@ -40,10 +42,7 @@ async function assinaturaCatalogo(): Promise<string> {
 }
 
 export const normalizar = (s: string | null | undefined) =>
-  (s ?? "")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toUpperCase();
+  (s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
 
 const soCodigo = (s: string) => normalizar(s).replace(/[^A-Z0-9]/g, "");
 
@@ -85,7 +84,10 @@ async function carregar(): Promise<Item[]> {
     .filter((l) => !l.duplicado_de)
     .map((l) => {
       const ext = extras.get(l.sku) ?? [];
-      const codigos = [l.sku, l.codigo_fabricante ?? "", ...ext].map(soCodigo).filter(Boolean).join(" ");
+      const codigos = [l.sku, l.codigo_fabricante ?? "", ...ext]
+        .map(soCodigo)
+        .filter(Boolean)
+        .join(" ");
       const img = l.imagem_principal ?? "";
       return {
         sku: l.sku,
@@ -93,7 +95,17 @@ async function carregar(): Promise<Item[]> {
         nomeN: normalizar(l.nome),
         codigos,
         texto: normalizar(
-          [l.nome, l.nome_es, l.sku, l.codigo_fabricante, l.fabricante, l.marca, l.categoria, l.veiculos_compativeis, ...ext].join(" "),
+          [
+            l.nome,
+            l.nome_es,
+            l.sku,
+            l.codigo_fabricante,
+            l.fabricante,
+            l.marca,
+            l.categoria,
+            l.veiculos_compativeis,
+            ...ext,
+          ].join(" "),
         ),
         categoria: l.categoria,
         categoriaN: normalizar(l.categoria),
@@ -136,9 +148,11 @@ export type FiltrosBusca = {
   vitrine?: boolean;
 };
 
-const comoLista = (v?: string | string[]) => (v == null ? [] : Array.isArray(v) ? v : [v]).filter(Boolean);
+const comoLista = (v?: string | string[]) =>
+  (v == null ? [] : Array.isArray(v) ? v : [v]).filter(Boolean);
 const fotoPeso = (i: Item) => (i.fotoPropria ? 2 : i.comImagem ? 1 : 0);
-const compararNome = (a: Item, b: Item) => (a.nome < b.nome ? -1 : a.nome > b.nome ? 1 : a.sku < b.sku ? -1 : 1);
+const compararNome = (a: Item, b: Item) =>
+  a.nome < b.nome ? -1 : a.nome > b.nome ? 1 : a.sku < b.sku ? -1 : 1;
 
 // Devolve os SKUs na ordem de exibição.
 export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
@@ -156,7 +170,8 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
   if (f.hasImage) lista = lista.filter((i) => i.comImagem);
 
   const categorias = comoLista(f.categoria).map(normalizar);
-  if (categorias.length) lista = lista.filter((i) => categorias.some((c) => i.categoriaN.includes(c)));
+  if (categorias.length)
+    lista = lista.filter((i) => categorias.some((c) => i.categoriaN.includes(c)));
 
   const marcas = comoLista(f.marca);
   if (marcas.length) lista = lista.filter((i) => i.marca != null && marcas.includes(i.marca));
@@ -192,7 +207,8 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
 
   const ordenada = [...lista];
   if (f.sort === "nome-desc") ordenada.sort((a, b) => compararNome(b, a));
-  else if (f.sort === "created-desc") ordenada.sort((a, b) => b.criado - a.criado || (a.sku < b.sku ? -1 : 1));
+  else if (f.sort === "created-desc")
+    ordenada.sort((a, b) => b.criado - a.criado || (a.sku < b.sku ? -1 : 1));
   else if (f.sort === "sku") ordenada.sort((a, b) => (a.sku < b.sku ? -1 : 1));
   // Ordem padrão: peças com foto própria primeiro, depois as com alguma foto, depois o resto
   else ordenada.sort((a, b) => fotoPeso(b) - fotoPeso(a) || compararNome(a, b));
@@ -201,7 +217,9 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
 
 // Pedido rápido: acha cada código digitado pelo cliente (SKU, código do fabricante ou de uma
 // versão). Devolve, para cada código, o SKU da peça ou null.
-export async function acharPorCodigos(codigos: string[]): Promise<Array<{ codigo: string; sku: string | null }>> {
+export async function acharPorCodigos(
+  codigos: string[],
+): Promise<Array<{ codigo: string; sku: string | null }>> {
   const lista = await itens();
   const porCodigo = new Map<string, string>();
   for (const i of lista) {

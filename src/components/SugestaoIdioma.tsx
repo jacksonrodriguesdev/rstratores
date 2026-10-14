@@ -11,7 +11,8 @@ import { trocarIdioma } from "@/components/SeletorIdioma";
 // Some para sempre depois de escolher um idioma ou fechar.
 const ESCOLHIDO = "idioma_escolhido";
 const FECHADO = "idioma_sugestao_fechada";
-const FUSOS_BR = /^America\/(Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus|Cuiaba|Campo_Grande|Porto_Velho|Boa_Vista|Rio_Branco|Maceio|Araguaina|Santarem|Noronha)$/;
+const FUSOS_BR =
+  /^America\/(Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus|Cuiaba|Campo_Grande|Porto_Velho|Boa_Vista|Rio_Branco|Maceio|Araguaina|Santarem|Noronha)$/;
 
 const ler = (k: string) => {
   try {
@@ -45,7 +46,8 @@ export function SugestaoIdioma() {
     return () => clearTimeout(t);
   }, [idioma]);
 
-  if (!mostrar || pathname.startsWith("/admin") || pathname.startsWith("/catalogos/ver/")) return null;
+  if (!mostrar || pathname.startsWith("/admin") || pathname.startsWith("/catalogos/ver/"))
+    return null;
 
   const fechar = () => {
     try {
@@ -63,15 +65,32 @@ export function SugestaoIdioma() {
       aria-label={paraPt ? "Ver o site em português" : "Ver el sitio en español"}
       className="fixed inset-x-3 bottom-[calc(var(--barra-inferior,0px)+0.75rem)] z-[90] mx-auto flex max-w-md animate-in slide-in-from-bottom-4 items-center gap-3 rounded-2xl bg-white p-3 pr-2 shadow-2xl ring-1 ring-black/10 md:bottom-5 md:left-5 md:right-auto"
     >
-      {paraPt ? <BandeiraBrasil className="h-6 w-9 shrink-0 rounded" /> : <BandeiraUruguay className="h-6 w-9 shrink-0 rounded" />}
+      {paraPt ? (
+        <BandeiraBrasil className="h-6 w-9 shrink-0 rounded" />
+      ) : (
+        <BandeiraUruguay className="h-6 w-9 shrink-0 rounded" />
+      )}
       <div className="min-w-0 flex-1 text-sm">
-        <p className="font-bold text-zinc-900">{paraPt ? "Está no Brasil?" : "¿Estás en Uruguay?"}</p>
-        <p className="text-xs text-zinc-600">{paraPt ? "Veja o site em português, com preços em R$ e envio para o Rio Grande do Sul." : "Mirá el sitio en español, con precios en $U y envíos por DAC."}</p>
+        <p className="font-bold text-zinc-900">
+          {paraPt ? "Está no Brasil?" : "¿Estás en Uruguay?"}
+        </p>
+        <p className="text-xs text-zinc-600">
+          {paraPt
+            ? "Veja o site em português, com preços em R$ e envio para o Rio Grande do Sul."
+            : "Mirá el sitio en español, con precios en $U y envíos por DAC."}
+        </p>
       </div>
-      <button onClick={() => trocarIdioma(paraPt ? "pt" : "es")} className="shrink-0 rounded-xl bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">
+      <button
+        onClick={() => trocarIdioma(paraPt ? "pt" : "es")}
+        className="shrink-0 rounded-xl bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90"
+      >
         {paraPt ? "Ver em português" : "Ver en español"}
       </button>
-      <button onClick={fechar} aria-label={paraPt ? "Fechar" : "Cerrar"} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700">
+      <button
+        onClick={fechar}
+        aria-label={paraPt ? "Fechar" : "Cerrar"}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+      >
         <X className="h-4 w-4" />
       </button>
     </div>

@@ -20,7 +20,9 @@ export const Route = createFileRoute("/api/admin/banners/upload")({
 
           // `kind` vira parte do caminho: só tipos conhecidos, para não gravar fora de uploads/site
           if (!["hero", "duplo", "strip", "dac"].includes(kind)) {
-            return new Response(JSON.stringify({ error: "Tipo de banner inválido" }), { status: 400 });
+            return new Response(JSON.stringify({ error: "Tipo de banner inválido" }), {
+              status: 400,
+            });
           }
           const ext = file.name.split(".").pop()?.toLowerCase() || "";
           if (!["jpg", "jpeg", "png", "webp", "avif"].includes(ext)) {
@@ -29,7 +31,9 @@ export const Route = createFileRoute("/api/admin/banners/upload")({
             });
           }
           if (file.size > 8 * 1024 * 1024) {
-            return new Response(JSON.stringify({ error: "Imagem maior que 8 MB" }), { status: 400 });
+            return new Response(JSON.stringify({ error: "Imagem maior que 8 MB" }), {
+              status: 400,
+            });
           }
           const buffer = Buffer.from(await file.arrayBuffer());
           const relativePath = `site/${kind}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;

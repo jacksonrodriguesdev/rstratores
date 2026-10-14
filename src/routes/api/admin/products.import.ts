@@ -8,7 +8,8 @@ export const Route = createFileRoute("/api/admin/products/import")({
         const denied = await requireAdmin(request);
         if (denied) return denied;
         const { prisma } = await import("@/lib/prisma");
-        const { delegates, dadosProduto, tabelasCatalogo } = await import("@/lib/catalogo-admin.server");
+        const { delegates, dadosProduto, tabelasCatalogo } =
+          await import("@/lib/catalogo-admin.server");
         try {
           const { rows } = await request.json();
           if (!Array.isArray(rows)) {
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/api/admin/products/import")({
                   ...r,
                   categoria: nomeCat || null,
                   category_id: nomeCat
-                    ? catMap.get(`${t.agricola ? "AGRICOLA" : "AUTOMOTIVA"}|${nomeCat}`) ?? null
+                    ? (catMap.get(`${t.agricola ? "AGRICOLA" : "AUTOMOTIVA"}|${nomeCat}`) ?? null)
                     : null,
                 },
                 t.agricola,

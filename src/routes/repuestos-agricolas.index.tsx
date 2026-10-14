@@ -10,7 +10,11 @@ export const Route = createFileRoute("/repuestos-agricolas/")({
   head: ({ match, loaderData }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
     const n = (loaderData?.total ?? 0).toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
-    const titulo = tr(idioma, "Repuestos agrícolas en todo Uruguay y Rio Grande do Sul | AGRO PARTS", "Peças agrícolas em todo o Uruguai e Rio Grande do Sul | AGRO PARTS");
+    const titulo = tr(
+      idioma,
+      "Repuestos agrícolas en todo Uruguay y Rio Grande do Sul | AGRO PARTS",
+      "Peças agrícolas em todo o Uruguai e Rio Grande do Sul | AGRO PARTS",
+    );
     const desc = tr(
       idioma,
       `Más de ${n} repuestos para tractores y cosechadoras con envío a los 19 departamentos de Uruguay y a todo Rio Grande do Sul. Elegí tu zona.`,

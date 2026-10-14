@@ -12,13 +12,7 @@ type Props = {
   label?: string;
 };
 
-export function QuoteButton({
-  product,
-  size = "sm",
-  className,
-  fullWidth,
-  label,
-}: Props) {
+export function QuoteButton({ product, size = "sm", className, fullWidth, label }: Props) {
   const { t, idioma } = useT();
   return (
     <Button

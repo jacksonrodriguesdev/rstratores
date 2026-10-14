@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/admin/images/import")({
           const knownSkus = new Set(existingProducts.map((p) => p.sku));
 
           let uploaded = 0;
-          let skipped = allSkus.length - knownSkus.size;
+          const skipped = allSkus.length - knownSkus.size;
           const errors: string[] = [];
 
           for (const sku of knownSkus) {

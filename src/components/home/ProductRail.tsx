@@ -14,16 +14,26 @@ import { usePreco, PrecoVisual, SeloOferta } from "@/components/PrecoTag";
 function PrecoComFallback({ p }: { p: Product }) {
   const { t } = useT();
   const preco = usePreco(p);
-  if (!preco) return <span className="text-sm font-semibold text-primary">{t("Consultá el precio", "Consulte o preço")}</span>;
+  if (!preco)
+    return (
+      <span className="text-sm font-semibold text-primary">
+        {t("Consultá el precio", "Consulte o preço")}
+      </span>
+    );
   return <PrecoVisual preco={preco} />;
 }
 
 // Larguras por tela: no celular aparece um pedaço do próximo cartão, convidando a arrastar.
-const LARGURA = "flex-[0_0_44%] sm:flex-[0_0_31%] md:flex-[0_0_24%] lg:flex-[0_0_19.2%] xl:flex-[0_0_16%]";
+const LARGURA =
+  "flex-[0_0_44%] sm:flex-[0_0_31%] md:flex-[0_0_24%] lg:flex-[0_0_19.2%] xl:flex-[0_0_16%]";
 
 export function ProductRail({ products, loading }: { products: Product[]; loading?: boolean }) {
   const { t } = useT();
-  const [emblaRef, api] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" });
+  const [emblaRef, api] = useEmblaCarousel({
+    align: "start",
+    dragFree: true,
+    containScroll: "trimSnaps",
+  });
   const [pode, setPode] = useState({ prev: false, next: false });
 
   useEffect(() => {
@@ -112,11 +122,17 @@ export function RailCard({ p }: { p: Product }) {
       </div>
       <div className="flex flex-1 flex-col gap-1 border-t border-zinc-100 p-3">
         <span className="text-[11px] font-medium text-zinc-400">Cód. {codigoExibicao(p)}</span>
-        <span className="line-clamp-2 min-h-[2.75em] text-[13px] leading-snug text-zinc-800">{nome}</span>
+        <span className="line-clamp-2 min-h-[2.75em] text-[13px] leading-snug text-zinc-800">
+          {nome}
+        </span>
         <span className="mt-auto pt-1">
           <PrecoComFallback p={p} />
         </span>
-        {marca && <span className="truncate text-[11px] uppercase tracking-wide text-zinc-400">{marca}</span>}
+        {marca && (
+          <span className="truncate text-[11px] uppercase tracking-wide text-zinc-400">
+            {marca}
+          </span>
+        )}
       </div>
 
       {/* Adicionar à cotação sem sair da vitrine */}
@@ -128,13 +144,18 @@ export function RailCard({ p }: { p: Product }) {
             addItem({
               sku: p.sku,
               codigo: codigoExibicao(p),
-              name: p.nome, nameEs: nomeProduto(p),
+              name: p.nome,
+              nameEs: nomeProduto(p),
               image: p.imagem_principal || undefined,
               quantity: 1,
             });
           }
         }}
-        aria-label={noCarrinho ? t("Ya está en tu cotización", "Já está no seu orçamento") : t("Agregar a la cotización", "Adicionar ao orçamento")}
+        aria-label={
+          noCarrinho
+            ? t("Ya está en tu cotización", "Já está no seu orçamento")
+            : t("Agregar a la cotización", "Adicionar ao orçamento")
+        }
         className={cn(
           "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md ring-1 transition active:scale-90",
           noCarrinho

@@ -1,8 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { MessageCircle, Search, SearchX, ShoppingCart, Eye, Flame, ExternalLink } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import {
+  MessageCircle,
+  Search,
+  SearchX,
+  ShoppingCart,
+  Eye,
+  Flame,
+  ExternalLink,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 import { getInteresseFn } from "@/lib/interesse";
 import { cn } from "@/lib/utils";
@@ -24,9 +41,24 @@ function InteressePage() {
 
   const cards = [
     { label: "Visitas", value: data?.visitas, icon: Eye, cor: "text-sky-600 bg-sky-50" },
-    { label: "Cliques no WhatsApp", value: data?.cliquesWhatsapp, icon: MessageCircle, cor: "text-[#128C4B] bg-[#25D366]/10" },
-    { label: "Cotações do carrinho", value: data?.cotacoesCarrinho, icon: ShoppingCart, cor: "text-primary bg-primary/10" },
-    { label: "Buscas no site", value: data?.buscas, icon: Search, cor: "text-amber-700 bg-amber-50" },
+    {
+      label: "Cliques no WhatsApp",
+      value: data?.cliquesWhatsapp,
+      icon: MessageCircle,
+      cor: "text-[#128C4B] bg-[#25D366]/10",
+    },
+    {
+      label: "Cotações do carrinho",
+      value: data?.cotacoesCarrinho,
+      icon: ShoppingCart,
+      cor: "text-primary bg-primary/10",
+    },
+    {
+      label: "Buscas no site",
+      value: data?.buscas,
+      icon: Search,
+      cor: "text-amber-700 bg-amber-50",
+    },
   ];
 
   return (
@@ -38,8 +70,8 @@ function InteressePage() {
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Quais peças os clientes pedem no WhatsApp e o que procuram no site. As buscas{" "}
-            <strong>sem resultado</strong> são peças que o cliente queria e não encontrou: vale cadastrar ou
-            conseguir com o fornecedor.
+            <strong>sem resultado</strong> são peças que o cliente queria e não encontrou: vale
+            cadastrar ou conseguir com o fornecedor.
           </p>
         </div>
         <div className="flex gap-1 rounded-lg border bg-card p-1">
@@ -58,7 +90,9 @@ function InteressePage() {
         </div>
       </div>
 
-      {isError && <Card className="p-4 text-sm text-destructive">Não foi possível carregar os dados.</Card>}
+      {isError && (
+        <Card className="p-4 text-sm text-destructive">Não foi possível carregar os dados.</Card>
+      )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {cards.map((c) => (
@@ -67,8 +101,12 @@ function InteressePage() {
               <c.icon className="h-5 w-5" />
             </span>
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{c.label}</div>
-              <div className="text-2xl font-bold">{isLoading ? "…" : (c.value ?? 0).toLocaleString("pt-BR")}</div>
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {c.label}
+              </div>
+              <div className="text-2xl font-bold">
+                {isLoading ? "…" : (c.value ?? 0).toLocaleString("pt-BR")}
+              </div>
             </div>
           </Card>
         ))}
@@ -79,7 +117,12 @@ function InteressePage() {
           <h2 className="mb-3 font-semibold">Por dia</h2>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.porDia.map((d) => ({ ...d, dia: d.dia.slice(5).split("-").reverse().join("/") }))}>
+              <BarChart
+                data={data.porDia.map((d) => ({
+                  ...d,
+                  dia: d.dia.slice(5).split("-").reverse().join("/"),
+                }))}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="dia" fontSize={11} />
                 <YAxis allowDecimals={false} fontSize={11} width={30} />
@@ -98,7 +141,9 @@ function InteressePage() {
           <h2 className="mb-1 flex items-center gap-2 font-semibold">
             <MessageCircle className="h-4 w-4 text-[#128C4B]" /> Peças mais pedidas no WhatsApp
           </h2>
-          <p className="mb-3 text-xs text-muted-foreground">Cliques em “Consultar precio” e cotações do carrinho.</p>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Cliques em “Consultar precio” e cotações do carrinho.
+          </p>
           {data?.pecas.length ? (
             <ol className="divide-y text-sm">
               {data.pecas.map((p, i) => (
@@ -165,7 +210,10 @@ function InteressePage() {
                   target="_blank"
                   className="rounded-full border bg-muted/40 px-3 py-1 text-sm hover:border-primary hover:text-primary"
                 >
-                  {t.termo} <span className="text-xs text-muted-foreground">· {t.vezes}× · {t.resultados} peças</span>
+                  {t.termo}{" "}
+                  <span className="text-xs text-muted-foreground">
+                    · {t.vezes}× · {t.resultados} peças
+                  </span>
                 </Link>
               ))}
             </div>
@@ -179,5 +227,9 @@ function InteressePage() {
 }
 
 function Vazio({ carregando, texto }: { carregando: boolean; texto: string }) {
-  return <p className="py-6 text-center text-sm text-muted-foreground">{carregando ? "Carregando…" : texto}</p>;
+  return (
+    <p className="py-6 text-center text-sm text-muted-foreground">
+      {carregando ? "Carregando…" : texto}
+    </p>
+  );
 }

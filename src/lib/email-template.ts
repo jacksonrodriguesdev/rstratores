@@ -35,7 +35,9 @@ export type ConteudoEmail = {
 
 // Variáveis das automações: {{cupon}}, {{validez}}, {{descuento}}... (o {{nombre}} é por cliente)
 export function trocarVariaveis(s: string, vars: Record<string, string>) {
-  return s.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k) => (k.toLowerCase() in vars ? vars[k.toLowerCase()] : m));
+  return s.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k) =>
+    k.toLowerCase() in vars ? vars[k.toLowerCase()] : m,
+  );
 }
 export function aplicarVariaveis(c: ConteudoEmail, vars: Record<string, string>): ConteudoEmail {
   const t = (x?: string) => (x == null ? x : trocarVariaveis(x, vars));
@@ -46,7 +48,9 @@ export function aplicarVariaveis(c: ConteudoEmail, vars: Record<string, string>)
     texto: t(c.texto)!,
     produtosTitulo: t(c.produtosTitulo),
     botaoTexto: t(c.botaoTexto),
-    cupom: c.cupom ? { codigo: t(c.cupom.codigo)!, texto: t(c.cupom.texto), validade: t(c.cupom.validade) } : c.cupom,
+    cupom: c.cupom
+      ? { codigo: t(c.cupom.codigo)!, texto: t(c.cupom.texto), validade: t(c.cupom.validade) }
+      : c.cupom,
   };
 }
 
@@ -102,7 +106,9 @@ export const primeiroNome = (n?: string | null) => (n ?? "").trim().split(/\s+/)
 export function personalizar(s: string, nome?: string | null) {
   const p = primeiroNome(nome);
   const nomeFmt = p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : "";
-  return nomeFmt ? s.replace(/\{\{\s*nombre\s*\}\}/gi, nomeFmt) : s.replace(/[ ,]*\{\{\s*nombre\s*\}\}/gi, "");
+  return nomeFmt
+    ? s.replace(/\{\{\s*nombre\s*\}\}/gi, nomeFmt)
+    : s.replace(/[ ,]*\{\{\s*nombre\s*\}\}/gi, "");
 }
 
 export function urlAbsoluta(u: string | null | undefined, origem: string) {
@@ -130,7 +136,11 @@ function formatarTexto(t: string, d: DadosRender, cor: string) {
     .map((p) => {
       let h = esc(p.trim());
       h = h.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-      h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, txt, href) => `<a href="${esc(comUtm(href.replace(/&amp;/g, "&"), d))}" style="color:${cor};font-weight:700">${txt}</a>`);
+      h = h.replace(
+        /\[([^\]]+)\]\(([^)\s]+)\)/g,
+        (_m, txt, href) =>
+          `<a href="${esc(comUtm(href.replace(/&amp;/g, "&"), d))}" style="color:${cor};font-weight:700">${txt}</a>`,
+      );
       h = h.replace(/\n/g, "<br>");
       return `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#3f3f46">${h}</p>`;
     })
@@ -145,9 +155,16 @@ function botao(texto: string, href: string, fundo: string, corTexto = "#ffffff")
 </td></tr></table>`;
 }
 
-function cartaoProduto(p: ProdutoEmail, d: DadosRender, cor: string, fotos: boolean, largura = "50%") {
+function cartaoProduto(
+  p: ProdutoEmail,
+  d: DadosRender,
+  cor: string,
+  fotos: boolean,
+  largura = "50%",
+) {
   const link = comUtm(`/produto/${encodeURIComponent(p.sku)}`, d);
-  const img = fotos && p.imagem && !p.imagem.includes("redeparts") ? urlAbsoluta(p.imagem, d.origem) : "";
+  const img =
+    fotos && p.imagem && !p.imagem.includes("redeparts") ? urlAbsoluta(p.imagem, d.origem) : "";
   return `<td width="${largura}" valign="top" style="padding:6px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px">
 <tr><td align="center" style="padding:14px 14px 0"><a href="${esc(link)}" style="text-decoration:none">${
@@ -158,8 +175,12 @@ function cartaoProduto(p: ProdutoEmail, d: DadosRender, cor: string, fotos: bool
 <tr><td style="padding:10px 14px 14px;${fonte}">
 <p style="margin:0;font-size:14px;font-weight:700;line-height:1.35;color:#18181b">${p.quantidade ? `${p.quantidade}× ` : ""}${esc(p.nome)}</p>
 ${p.codigo && img ? `<p style="margin:4px 0 0;font-size:12px;color:#71717a">Cód: ${esc(p.codigo)}</p>` : ""}
-${p.preco ? `<p style="margin:10px 0 0">${p.precoDe ? `<span style="font-size:13px;color:#a1a1aa;text-decoration:line-through">${esc(p.precoDe)}</span> ` : ""}${p.selo ? `<span style="display:inline-block;background:#dc2626;color:#ffffff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px">${esc(p.selo)}</span>` : ""}</p>
-<p style="margin:2px 0 0;font-size:22px;font-weight:800;color:${p.precoDe ? "#dc2626" : "#18181b"}">${esc(p.preco)}</p>` : ""}
+${
+  p.preco
+    ? `<p style="margin:10px 0 0">${p.precoDe ? `<span style="font-size:13px;color:#a1a1aa;text-decoration:line-through">${esc(p.precoDe)}</span> ` : ""}${p.selo ? `<span style="display:inline-block;background:#dc2626;color:#ffffff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px">${esc(p.selo)}</span>` : ""}</p>
+<p style="margin:2px 0 0;font-size:22px;font-weight:800;color:${p.precoDe ? "#dc2626" : "#18181b"}">${esc(p.preco)}</p>`
+    : ""
+}
 <p style="margin:10px 0 0"><a href="${esc(link)}" style="font-size:13px;font-weight:800;color:${cor};text-decoration:none">${p.preco ? "Pedir ahora" : "Cotizar"} &rarr;</a></p>
 </td></tr></table></td>`;
 }
@@ -174,8 +195,12 @@ export function renderEmail(c: ConteudoEmail, d: DadosRender): string {
   for (let i = 0; i < c.produtos.length; i += 2) {
     const par = c.produtos.slice(i, i + 2);
     // Um produto só (oferta): cartão na largura toda
-    if (c.produtos.length === 1) linhas.push(`<tr>${cartaoProduto(par[0], d, cor, !!c.fotos, "100%")}</tr>`);
-    else linhas.push(`<tr>${par.map((p) => cartaoProduto(p, d, cor, !!c.fotos)).join("")}${par.length === 1 ? '<td width="50%"></td>' : ""}</tr>`);
+    if (c.produtos.length === 1)
+      linhas.push(`<tr>${cartaoProduto(par[0], d, cor, !!c.fotos, "100%")}</tr>`);
+    else
+      linhas.push(
+        `<tr>${par.map((p) => cartaoProduto(p, d, cor, !!c.fotos)).join("")}${par.length === 1 ? '<td width="50%"></td>' : ""}</tr>`,
+      );
   }
 
   return `<!doctype html>
@@ -197,12 +222,16 @@ ${c.destaque ? `<span style="display:inline-block;background:#fbbf24;color:#0632
 <h1 style="margin:${c.destaque ? "14px" : "0"} 0 16px;font-size:26px;line-height:1.25;color:#06321b;font-weight:800">${esc(titulo)}</h1>
 ${formatarTexto(texto, d, cor)}
 </td></tr>
-${c.cupom?.codigo ? `<tr><td style="padding:4px 30px 10px;${fonte}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px dashed ${cor};border-radius:16px;background:#fffbeb"><tr><td align="center" style="padding:20px 16px">
+${
+  c.cupom?.codigo
+    ? `<tr><td style="padding:4px 30px 10px;${fonte}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px dashed ${cor};border-radius:16px;background:#fffbeb"><tr><td align="center" style="padding:20px 16px">
 ${c.cupom.texto ? `<p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#3f3f46">${esc(c.cupom.texto)}</p>` : ""}
 <p style="margin:0;font-size:12px;font-weight:800;letter-spacing:2px;color:#71717a">TU CÓDIGO</p>
 <p style="margin:6px 0 0;font-family:'Courier New',monospace;font-size:32px;font-weight:800;letter-spacing:4px;color:${cor}">${esc(c.cupom.codigo)}</p>
 ${c.cupom.validade ? `<p style="margin:8px 0 0;font-size:12px;color:#71717a">Válido ${esc(c.cupom.validade)}</p>` : ""}
-</td></tr></table></td></tr>` : ""}
+</td></tr></table></td></tr>`
+    : ""
+}
 ${
   c.produtos.length
     ? `<tr><td style="padding:6px 24px 6px;${fonte}">${c.produtosTitulo ? `<p style="margin:0 6px 8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${cor}">${esc(c.produtosTitulo)}</p>` : ""}
@@ -225,11 +254,32 @@ ${d.urlBaixa ? `<br><a href="${esc(d.urlBaixa)}" style="color:#71717a;text-decor
 
 // Versão em texto puro (melhora a entrega e aparece em leitores sem HTML)
 export function textoEmail(c: ConteudoEmail, d: DadosRender): string {
-  const limpo = (s: string) => personalizar(s, d.nome).replace(/\*\*(.+?)\*\*/g, "$1").replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, "$1 ($2)");
+  const limpo = (s: string) =>
+    personalizar(s, d.nome)
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, "$1 ($2)");
   const partes = [c.destaque ?? "", limpo(c.titulo), limpo(c.texto)];
-  if (c.cupom?.codigo) partes.push([c.cupom.texto, `Tu código: ${c.cupom.codigo}`, c.cupom.validade ? `Válido ${c.cupom.validade}` : ""].filter(Boolean).join("\n"));
+  if (c.cupom?.codigo)
+    partes.push(
+      [
+        c.cupom.texto,
+        `Tu código: ${c.cupom.codigo}`,
+        c.cupom.validade ? `Válido ${c.cupom.validade}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
   if (c.produtos.length) {
-    partes.push((c.produtosTitulo ?? "") + "\n" + c.produtos.map((p) => `- ${p.quantidade ? p.quantidade + "x " : ""}${p.nome}${p.codigo ? ` (Cód: ${p.codigo})` : ""}${p.preco ? ` · ${p.precoDe ? `antes ${p.precoDe}, ahora ` : ""}${p.preco}` : ""}: ${comUtm(`/produto/${encodeURIComponent(p.sku)}`, d)}`).join("\n"));
+    partes.push(
+      (c.produtosTitulo ?? "") +
+        "\n" +
+        c.produtos
+          .map(
+            (p) =>
+              `- ${p.quantidade ? p.quantidade + "x " : ""}${p.nome}${p.codigo ? ` (Cód: ${p.codigo})` : ""}${p.preco ? ` · ${p.precoDe ? `antes ${p.precoDe}, ahora ` : ""}${p.preco}` : ""}: ${comUtm(`/produto/${encodeURIComponent(p.sku)}`, d)}`,
+          )
+          .join("\n"),
+    );
   }
   if (c.botaoTexto && c.botaoUrl) partes.push(`${c.botaoTexto}: ${comUtm(c.botaoUrl, d)}`);
   if (c.whatsapp && d.whatsappUrl) partes.push(`Cotizar por WhatsApp: ${d.whatsappUrl}`);

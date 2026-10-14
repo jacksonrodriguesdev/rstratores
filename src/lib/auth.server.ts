@@ -83,8 +83,11 @@ export async function assertAdmin(): Promise<SessionPayload> {
 // a requisição ao Node por http, então vale também o cabeçalho x-forwarded-proto).
 export function cookieSessao(request: Request, token: string | null): string {
   const https =
-    new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto") === "https";
-  const valor = token ? `${AUTH_COOKIE}=${token}; Max-Age=${60 * 60 * 24 * 7}` : `${AUTH_COOKIE}=; Max-Age=0`;
+    new URL(request.url).protocol === "https:" ||
+    request.headers.get("x-forwarded-proto") === "https";
+  const valor = token
+    ? `${AUTH_COOKIE}=${token}; Max-Age=${60 * 60 * 24 * 7}`
+    : `${AUTH_COOKIE}=; Max-Age=0`;
   return `${valor}; Path=/; HttpOnly; SameSite=Lax${https ? "; Secure" : ""}`;
 }
 
@@ -95,7 +98,9 @@ const MAX_TENTATIVAS = 8;
 
 function chaveTentativa(request: Request, email: string) {
   const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("x-real-ip") || "local";
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "local";
   return `${ip}|${email.toLowerCase()}`;
 }
 
@@ -128,12 +133,21 @@ export async function abrirSessao(
   user: { id: number; nome_completo: string; email: string; role: string },
 ): Promise<string> {
   const { prisma } = await import("./prisma");
-  await prisma.users.update({ where: { id: user.id }, data: { ultimo_login: new Date() } }).catch(() => {});
-  const token = await createSessionToken({ id: user.id, nome: user.nome_completo, email: user.email, role: user.role });
+  await prisma.users
+    .update({ where: { id: user.id }, data: { ultimo_login: new Date() } })
+    .catch(() => {});
+  const token = await createSessionToken({
+    id: user.id,
+    nome: user.nome_completo,
+    email: user.email,
+    role: user.role,
+  });
   return cookieSessao(request, token);
 }
 
 // Destino depois do login: só caminhos internos do site (evita redirecionar para outro domínio)
 export function destinoSeguro(r: unknown, padrao = "/cuenta"): string {
-  return typeof r === "string" && /^\/(?!\/)[\w\-/?=&.%#]*$/.test(r) && !r.startsWith("/api/") ? r : padrao;
+  return typeof r === "string" && /^\/(?!\/)[\w\-/?=&.%#]*$/.test(r) && !r.startsWith("/api/")
+    ? r
+    : padrao;
 }

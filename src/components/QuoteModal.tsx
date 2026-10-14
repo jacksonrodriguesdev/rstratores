@@ -36,11 +36,21 @@ export function QuoteModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nome || !formData.endereco || !formData.whatsapp) {
-      toast.error(t("Completá los campos obligatorios (nombre, ciudad y WhatsApp).", "Preencha os campos obrigatórios (nome, cidade e WhatsApp)."));
+      toast.error(
+        t(
+          "Completá los campos obligatorios (nombre, ciudad y WhatsApp).",
+          "Preencha os campos obrigatórios (nome, cidade e WhatsApp).",
+        ),
+      );
       return;
     }
     if (!formData.mensagem && !file) {
-      toast.error(t("Adjuntá el presupuesto o escribí qué repuestos necesitás.", "Anexe o orçamento ou escreva quais peças você precisa."));
+      toast.error(
+        t(
+          "Adjuntá el presupuesto o escribí qué repuestos necesitás.",
+          "Anexe o orçamento ou escreva quais peças você precisa.",
+        ),
+      );
       return;
     }
 
@@ -63,7 +73,11 @@ export function QuoteModal({
 
       if (!res.ok) {
         const json = await res.json();
-        throw new Error(idioma === "pt" ? "Não conseguimos enviar o orçamento" : json.error || "No pudimos enviar el presupuesto");
+        throw new Error(
+          idioma === "pt"
+            ? "Não conseguimos enviar o orçamento"
+            : json.error || "No pudimos enviar el presupuesto",
+        );
       }
 
       setSuccess(true);
@@ -89,9 +103,14 @@ export function QuoteModal({
         {success ? (
           <div className="flex flex-col items-center justify-center py-10 text-center animate-in zoom-in-95 duration-300">
             <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold tracking-tight mb-2">{t("¡Presupuesto recibido!", "Orçamento recebido!")}</h2>
+            <h2 className="text-2xl font-bold tracking-tight mb-2">
+              {t("¡Presupuesto recibido!", "Orçamento recebido!")}
+            </h2>
             <p className="text-muted-foreground mb-6">
-              {t("Nuestro equipo lo revisa y te escribe por WhatsApp con la mejor oferta.", "Nossa equipe analisa e responde pelo WhatsApp com a melhor oferta.")}
+              {t(
+                "Nuestro equipo lo revisa y te escribe por WhatsApp con la mejor oferta.",
+                "Nossa equipe analisa e responde pelo WhatsApp com a melhor oferta.",
+              )}
             </p>
             <Button onClick={handleClose} className="w-full">
               {t("Cerrar", "Fechar")}
@@ -102,7 +121,10 @@ export function QuoteModal({
             <DialogHeader>
               <DialogTitle>{t("Mejoramos tu presupuesto", "Cobrimos seu orçamento")}</DialogTitle>
               <DialogDescription>
-                {t("¿Tenés un presupuesto de otro proveedor? Mandánoslo y hacemos lo posible por mejorarlo.", "Tem um orçamento de outro fornecedor? Mande para nós e fazemos o possível para cobrir.")}
+                {t(
+                  "¿Tenés un presupuesto de otro proveedor? Mandánoslo y hacemos lo posible por mejorarlo.",
+                  "Tem um orçamento de outro fornecedor? Mande para nós e fazemos o possível para cobrir.",
+                )}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -128,7 +150,9 @@ export function QuoteModal({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="endereco">{t("Ciudad / Departamento *", "Cidade / Estado *")}</Label>
+                  <Label htmlFor="endereco">
+                    {t("Ciudad / Departamento *", "Cidade / Estado *")}
+                  </Label>
                   <Input
                     id="endereco"
                     value={formData.endereco}
@@ -139,12 +163,17 @@ export function QuoteModal({
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="mensagem">{t("Mensaje / repuestos que necesitás", "Mensagem / peças que você precisa")}</Label>
+                <Label htmlFor="mensagem">
+                  {t("Mensaje / repuestos que necesitás", "Mensagem / peças que você precisa")}
+                </Label>
                 <Textarea
                   id="mensagem"
                   value={formData.mensagem}
                   onChange={(e) => setFormData({ ...formData, mensagem: e.target.value })}
-                  placeholder={t("Escribí los repuestos, códigos o el modelo del tractor…", "Escreva as peças, códigos ou o modelo do trator…")}
+                  placeholder={t(
+                    "Escribí los repuestos, códigos o el modelo del tractor…",
+                    "Escreva as peças, códigos ou o modelo do trator…",
+                  )}
                   rows={3}
                 />
               </div>
@@ -167,7 +196,10 @@ export function QuoteModal({
                   <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-md cursor-pointer hover:bg-muted/50 transition-colors">
                     <Upload className="h-6 w-6 text-muted-foreground mb-2" />
                     <span className="text-sm text-muted-foreground font-medium">
-                      {t("Tocá para adjuntar un archivo o una foto", "Toque para anexar um arquivo ou uma foto")}
+                      {t(
+                        "Tocá para adjuntar un archivo o una foto",
+                        "Toque para anexar um arquivo ou uma foto",
+                      )}
                     </span>
                     <input
                       type="file"
@@ -183,7 +215,9 @@ export function QuoteModal({
                 )}
               </div>
               <Button type="submit" className="w-full mt-2" disabled={loading}>
-                {loading ? t("Enviando…", "Enviando…") : t("Enviar presupuesto", "Enviar orçamento")}
+                {loading
+                  ? t("Enviando…", "Enviando…")
+                  : t("Enviar presupuesto", "Enviar orçamento")}
               </Button>
             </form>
           </>

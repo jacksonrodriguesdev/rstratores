@@ -100,7 +100,9 @@ export async function updateCategory(id: number, data: Partial<Category>) {
   const nome = typeof data.nome === "string" ? data.nome.trim() : undefined;
   if (nome === "") throw new Error("Informe o nome da categoria.");
   if (nome && nome !== antes.nome) {
-    const igual = await prisma.categories.findFirst({ where: { nome, linha: antes.linha, id: { not: id } } });
+    const igual = await prisma.categories.findFirst({
+      where: { nome, linha: antes.linha, id: { not: id } },
+    });
     if (igual) throw new Error(`Já existe a categoria "${nome}".`);
   }
 

@@ -62,14 +62,16 @@ export async function updateCategory(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao salvar a categoria");
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => null))?.error || "Falha ao salvar a categoria");
 }
 
 // moverPara: categoria que recebe as peças (obrigatória se a categoria tiver peças)
 export async function deleteCategory(id: number, moverPara?: number | null) {
   const qs = moverPara ? `?mover_para=${moverPara}` : "";
   const res = await fetch(`/api/admin/categories/${id}${qs}`, { method: "DELETE" });
-  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error || "Falha ao excluir a categoria");
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => null))?.error || "Falha ao excluir a categoria");
   return (await res.json()) as { movidas: number };
 }
 

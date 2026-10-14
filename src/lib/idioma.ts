@@ -10,7 +10,8 @@ export const HREFLANG: Record<Idioma, string> = { es: "es-UY", pt: "pt-BR" };
 export const OG_LOCALE: Record<Idioma, string> = { es: "es_UY", pt: "pt_BR" };
 
 // Caminhos que nunca são traduzidos (admin, APIs, arquivos, mapas do site, feeds)
-const SEM_IDIOMA = /^\/(admin|api|_serverFn|uploads|sitemap|sitemaps|feeds|catalogo|img|pdfjs|assets|[0-9a-f]{32}\.txt)(\/|$|\.)/;
+const SEM_IDIOMA =
+  /^\/(admin|api|_serverFn|uploads|sitemap|sitemaps|feeds|catalogo|img|pdfjs|assets|[0-9a-f]{32}\.txt)(\/|$|\.)/;
 export const caminhoSemIdioma = (caminho: string) => SEM_IDIOMA.test(caminho);
 
 export function idiomaDoCaminho(caminho: string): Idioma {
@@ -24,7 +25,8 @@ export function tirarPrefixo(caminho: string): string {
 
 // "/loja" + pt -> "/pt/loja"
 export function comPrefixo(caminho: string, idioma: Idioma): string {
-  if (idioma === "es" || caminhoSemIdioma(caminho) || idiomaDoCaminho(caminho) === "pt") return caminho;
+  if (idioma === "es" || caminhoSemIdioma(caminho) || idiomaDoCaminho(caminho) === "pt")
+    return caminho;
   return caminho === "/" ? "/pt" : `/pt${caminho}`;
 }
 

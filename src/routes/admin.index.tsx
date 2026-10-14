@@ -59,7 +59,12 @@ function AdminDashboard() {
     { label: "Peças no catálogo", value: stats.data?.pecas, icon: Package, color: "text-primary" },
     { label: "Peças com foto", value: stats.data?.comFoto, icon: Boxes, color: "text-accent" },
     { label: "Categorias", value: stats.data?.categorias, icon: Tag, color: "text-primary" },
-    { label: "Cotações novas", value: stats.data?.cotacoesNovas, icon: Factory, color: "text-accent" },
+    {
+      label: "Cotações novas",
+      value: stats.data?.cotacoesNovas,
+      icon: Factory,
+      color: "text-accent",
+    },
     {
       label: "Acessos (total)",
       value: analytics.data?.total,
@@ -189,11 +194,7 @@ function AdminDashboard() {
                       <stop offset="100%" stopColor="var(--primary)" stopOpacity={1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--border)"
-                    horizontal={false}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                   <XAxis
                     type="number"
                     tick={{ fontSize: 11 }}
@@ -307,11 +308,7 @@ function AdminDashboard() {
                       <stop offset="100%" stopColor="var(--primary)" stopOpacity={1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--border)"
-                    horizontal={false}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                   <XAxis
                     type="number"
                     tick={{ fontSize: 11 }}

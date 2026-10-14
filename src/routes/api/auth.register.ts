@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { normalizarCelularUY, normalizarCelularBR, emailValido, avaliarSenha, DEPARTAMENTOS_UY } from "@/lib/validacao-conta";
+import {
+  normalizarCelularUY,
+  normalizarCelularBR,
+  emailValido,
+  avaliarSenha,
+  DEPARTAMENTOS_UY,
+} from "@/lib/validacao-conta";
 import { comIdioma, idiomaDaRequisicao } from "@/lib/idioma-servidor";
 
 // Texto curto e sem espaços nas pontas; corta campos gigantes enviados de propósito.
@@ -18,24 +24,50 @@ export const Route = createFileRoute("/api/auth/register")({
           const email = texto(body.email, 191).toLowerCase();
           const senha = typeof body.senha === "string" ? body.senha : "";
           const confirmar = typeof body.confirmar === "string" ? body.confirmar : "";
-          const telefone = brasil ? normalizarCelularBR(texto(body.telefone, 30)) : normalizarCelularUY(texto(body.telefone, 30));
-          const departamento = !brasil && DEPARTAMENTOS_UY.includes(body.departamento) ? body.departamento : null;
+          const telefone = brasil
+            ? normalizarCelularBR(texto(body.telefone, 30))
+            : normalizarCelularUY(texto(body.telefone, 30));
+          const departamento =
+            !brasil && DEPARTAMENTOS_UY.includes(body.departamento) ? body.departamento : null;
 
-          if (!nome_completo || nome_completo.length < 3) return Response.json({ error: "Escribí tu nombre completo." }, { status: 400 });
-          if (!emailValido(email)) return Response.json({ error: "El e-mail no es válido." }, { status: 400 });
+          if (!nome_completo || nome_completo.length < 3)
+            return Response.json({ error: "Escribí tu nombre completo." }, { status: 400 });
+          if (!emailValido(email))
+            return Response.json({ error: "El e-mail no es válido." }, { status: 400 });
           if (!telefone)
-            return Response.json({ error: brasil ? "Celular com DDD: ex. (53) 99999-9999." : "El celular debe ser uruguayo: 09X XXX XXX." }, { status: 400 });
+            return Response.json(
+              {
+                error: brasil
+                  ? "Celular com DDD: ex. (53) 99999-9999."
+                  : "El celular debe ser uruguayo: 09X XXX XXX.",
+              },
+              { status: 400 },
+            );
           if (!avaliarSenha(senha).valida || senha.length > 200)
-            return Response.json({ error: "La contraseña debe tener al menos 8 caracteres, con letras y números." }, { status: 400 });
-          if (senha !== confirmar) return Response.json({ error: "Las contraseñas no coinciden." }, { status: 400 });
-          if (body.aceita !== true) return Response.json({ error: "Aceptá los términos para crear la cuenta." }, { status: 400 });
+            return Response.json(
+              { error: "La contraseña debe tener al menos 8 caracteres, con letras y números." },
+              { status: 400 },
+            );
+          if (senha !== confirmar)
+            return Response.json({ error: "Las contraseñas no coinciden." }, { status: 400 });
+          if (body.aceita !== true)
+            return Response.json(
+              { error: "Aceptá los términos para crear la cuenta." },
+              { status: 400 },
+            );
 
           const { prisma } = await import("@/lib/prisma");
           const bcrypt = (await import("bcryptjs")).default;
           const { abrirSessao, destinoSeguro } = await import("@/lib/auth.server");
 
           if (await prisma.users.findUnique({ where: { email } })) {
-            return Response.json({ error: "Ya existe una cuenta con este e-mail. Ingresá con tu contraseña o con Google." }, { status: 400 });
+            return Response.json(
+              {
+                error:
+                  "Ya existe una cuenta con este e-mail. Ingresá con tu contraseña o con Google.",
+              },
+              { status: 400 },
+            );
           }
 
           // `role` nunca vem do formulário: toda conta criada aqui é de cliente
@@ -56,10 +88,16 @@ export const Route = createFileRoute("/api/auth/register")({
           const { registrarCadastro } = await import("@/lib/conversoes.server");
           void registrarCadastro(request, user);
           const cookie = await abrirSessao(request, user);
-          return Response.json({ success: true, destino: destinoSeguro(body.redirect) }, { headers: { "Set-Cookie": cookie } });
+          return Response.json(
+            { success: true, destino: destinoSeguro(body.redirect) },
+            { headers: { "Set-Cookie": cookie } },
+          );
         } catch (err) {
           console.error("Erro no cadastro:", err);
-          return Response.json({ error: "No pudimos crear la cuenta. Probá de nuevo." }, { status: 500 });
+          return Response.json(
+            { error: "No pudimos crear la cuenta. Probá de nuevo." },
+            { status: 500 },
+          );
         }
       }),
     },

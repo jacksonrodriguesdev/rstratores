@@ -17,14 +17,23 @@ export const Route = createFileRoute("/catalogos/archivo/$id")({
 
         const c = await prisma.catalogos.findUnique({ where: { id: Number(params.id) || 0 } });
         const sessao = await getSessionFromRequest(request);
-        if (!c || (!c.ativo && sessao?.role !== "ADMIN")) return new Response("Catálogo no encontrado", { status: 404 });
+        if (!c || (!c.ativo && sessao?.role !== "ADMIN"))
+          return new Response("Catálogo no encontrado", { status: 404 });
         if (c.exige_login && !sessao) {
-          return new Response(null, { status: 302, headers: { Location: `/cadastro?redirect=${"/catalogos/ver/" + c.id}` } });
+          return new Response(null, {
+            status: 302,
+            headers: { Location: `/cadastro?redirect=${"/catalogos/ver/" + c.id}` },
+          });
         }
         // Pedido que não veio do visualizador (navegação direta, gerenciador de downloads): vai para o visualizador
-        const doVisor = request.headers.get("x-visor") === "1" && request.headers.get("sec-fetch-dest") !== "document";
+        const doVisor =
+          request.headers.get("x-visor") === "1" &&
+          request.headers.get("sec-fetch-dest") !== "document";
         if (!doVisor && sessao?.role !== "ADMIN") {
-          return new Response(null, { status: 302, headers: { Location: `/catalogos/ver/${c.id}`, "Cache-Control": "no-store" } });
+          return new Response(null, {
+            status: 302,
+            headers: { Location: `/catalogos/ver/${c.id}`, "Cache-Control": "no-store" },
+          });
         }
 
         let arq: string;
@@ -39,10 +48,17 @@ export const Route = createFileRoute("/catalogos/archivo/$id")({
 
         // Conta uma vista por abertura do visor (o primeiro pedaço vem marcado), não a cada pedaço
         if (request.headers.get("x-visor-inicio") === "1") {
-          await prisma.$transaction([
-            prisma.catalogos.update({ where: { id: c.id }, data: { downloads: { increment: 1 } } }),
-            prisma.catalogos_downloads.create({ data: { catalogo_id: c.id, user_id: sessao?.id ?? null } }),
-          ]).catch(() => {});
+          await prisma
+            .$transaction([
+              prisma.catalogos.update({
+                where: { id: c.id },
+                data: { downloads: { increment: 1 } },
+              }),
+              prisma.catalogos_downloads.create({
+                data: { catalogo_id: c.id, user_id: sessao?.id ?? null },
+              }),
+            ])
+            .catch(() => {});
         }
 
         const nome = `${c.titulo.replace(/[^\w\- áéíóúñÁÉÍÓÚÑ]+/g, "").trim() || "catalogo"}.pdf`;
@@ -59,14 +75,26 @@ export const Route = createFileRoute("/catalogos/archivo/$id")({
           const ini = m[1] ? Number(m[1]) : Math.max(0, tamanho - Number(m[2]));
           const fim = m[1] && m[2] ? Math.min(Number(m[2]), tamanho - 1) : tamanho - 1;
           if (ini >= tamanho || ini > fim) {
-            return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${tamanho}` } });
+            return new Response(null, {
+              status: 416,
+              headers: { "Content-Range": `bytes */${tamanho}` },
+            });
           }
-          return new Response(Readable.toWeb(fs.createReadStream(arq, { start: ini, end: fim })) as any, {
-            status: 206,
-            headers: { ...base, "Content-Range": `bytes ${ini}-${fim}/${tamanho}`, "Content-Length": String(fim - ini + 1) },
-          });
+          return new Response(
+            Readable.toWeb(fs.createReadStream(arq, { start: ini, end: fim })) as any,
+            {
+              status: 206,
+              headers: {
+                ...base,
+                "Content-Range": `bytes ${ini}-${fim}/${tamanho}`,
+                "Content-Length": String(fim - ini + 1),
+              },
+            },
+          );
         }
-        return new Response(Readable.toWeb(fs.createReadStream(arq)) as any, { headers: { ...base, "Content-Length": String(tamanho) } });
+        return new Response(Readable.toWeb(fs.createReadStream(arq)) as any, {
+          headers: { ...base, "Content-Length": String(tamanho) },
+        });
       },
     },
   },

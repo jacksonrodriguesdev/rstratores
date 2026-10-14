@@ -56,13 +56,18 @@ export function Section({
     <Reveal>
       <section
         id={id}
-        className={cn("scroll-mt-[calc(var(--altura-header,112px)+12px)] rounded-2xl bg-white p-4 shadow-sm md:p-6", className)}
+        className={cn(
+          "scroll-mt-[calc(var(--altura-header,112px)+12px)] rounded-2xl bg-white p-4 shadow-sm md:p-6",
+          className,
+        )}
       >
         {(title || verTodos) && (
           <div className="mb-3 flex items-end justify-between gap-3 md:mb-4">
             <div>
               {title && (
-                <h2 className="text-lg font-bold tracking-tight text-zinc-900 md:text-xl">{title}</h2>
+                <h2 className="text-lg font-bold tracking-tight text-zinc-900 md:text-xl">
+                  {title}
+                </h2>
               )}
               {subtitle && <p className="mt-0.5 text-sm text-zinc-500">{subtitle}</p>}
             </div>

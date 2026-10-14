@@ -14,9 +14,15 @@ export type ConfigPrecos = {
 };
 
 // valor_promocional = preço promocional de venda em R$ (vale quando é menor que preco_brl)
-export type CamposPreco = { preco_brl?: number | null; preco_modo?: string | null; preco_uyu?: number | null; valor_promocional?: number | null };
+export type CamposPreco = {
+  preco_brl?: number | null;
+  preco_modo?: string | null;
+  preco_uyu?: number | null;
+  valor_promocional?: number | null;
+};
 
-export const arredondar = (v: number, passo: number) => (passo > 0 ? Math.ceil(v / passo - 1e-9) * passo : Math.round(v));
+export const arredondar = (v: number, passo: number) =>
+  passo > 0 ? Math.ceil(v / passo - 1e-9) * passo : Math.round(v);
 
 export function uyuDeBrl(brl: number, c: Pick<ConfigPrecos, "cotacao" | "ajuste" | "arredondar">) {
   if (!c.cotacao) return null;
@@ -47,13 +53,27 @@ export function precoVenda(p: CamposPreco, c: ConfigPrecos | null | undefined): 
   if (!promo || !cheio.brl || promo >= cheio.brl) return cheio;
   // Promoção: mesmo desconto em R$ e em $U (no modo fixo, aplica a proporção sobre o $U fixo)
   const fator = promo / cheio.brl;
-  const uyuPromo = p.preco_modo === "FIXO" && cheio.uyu ? arredondar(cheio.uyu * fator, c?.arredondar ?? 0) : c ? uyuDeBrl(promo, c) : null;
-  return { uyu: uyuPromo, brl: promo, deUyu: cheio.uyu, deBrl: cheio.brl, desconto: Math.round((1 - fator) * 100) };
+  const uyuPromo =
+    p.preco_modo === "FIXO" && cheio.uyu
+      ? arredondar(cheio.uyu * fator, c?.arredondar ?? 0)
+      : c
+        ? uyuDeBrl(promo, c)
+        : null;
+  return {
+    uyu: uyuPromo,
+    brl: promo,
+    deUyu: cheio.uyu,
+    deBrl: cheio.brl,
+    desconto: Math.round((1 - fator) * 100),
+  };
 }
 
 // Venda em R$ a partir do custo e da margem (%)
-export const vendaDeCusto = (custo: number, margem: number) => Math.round(custo * (1 + margem / 100) * 100) / 100;
-export const margemDe = (custo: number, venda: number) => (custo > 0 ? Math.round(((venda / custo - 1) * 100) * 10) / 10 : null);
+export const vendaDeCusto = (custo: number, margem: number) =>
+  Math.round(custo * (1 + margem / 100) * 100) / 100;
+export const margemDe = (custo: number, venda: number) =>
+  custo > 0 ? Math.round((venda / custo - 1) * 100 * 10) / 10 : null;
 
 export const fmtUYU = (n: number) => `$U ${Math.round(n).toLocaleString("es-UY")}`;
-export const fmtBRL = (n: number) => `R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export const fmtBRL = (n: number) =>
+  `R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

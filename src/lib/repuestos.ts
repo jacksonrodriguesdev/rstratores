@@ -17,30 +17,65 @@ export const getPaginaRepuestosFn = createServerFn({ method: "GET" })
     const { buscarSkus } = await import("./busca-catalogo.server");
     const { listProducts } = await import("./products.server");
     const { MARCAS_SEO, CATEGORIAS_SEO } = await import("./seo-paginas");
-    const filtro = { marca: data.marca ?? undefined, categoria: data.categoria ?? undefined, vitrine: true };
+    const filtro = {
+      marca: data.marca ?? undefined,
+      categoria: data.categoria ?? undefined,
+      vitrine: true,
+    };
     const [todos, pagina] = await Promise.all([
       buscarSkus(filtro),
-      listProducts({ linha: "AGRICOLA", ...filtro, hasImage: true, sort: "nome-asc", pageSize: 24 }),
+      listProducts({
+        linha: "AGRICOLA",
+        ...filtro,
+        hasImage: true,
+        sort: "nome-asc",
+        pageSize: 24,
+      }),
     ]);
     // Na página da marca: quantas peças em cada categoria (e vice-versa)
     let facetas: PaginaRepuestos["facetas"] = [];
     if (data.marca && !data.categoria) {
-      facetas = await Promise.all(CATEGORIAS_SEO.map(async (c) => ({ chave: c.categoria, total: (await buscarSkus({ marca: data.marca!, categoria: c.categoria, vitrine: true })).length })));
+      facetas = await Promise.all(
+        CATEGORIAS_SEO.map(async (c) => ({
+          chave: c.categoria,
+          total: (await buscarSkus({ marca: data.marca!, categoria: c.categoria, vitrine: true }))
+            .length,
+        })),
+      );
     } else if (data.categoria && !data.marca) {
-      facetas = await Promise.all(MARCAS_SEO.map(async (m) => ({ chave: m.marca, total: (await buscarSkus({ marca: m.marca, categoria: data.categoria!, vitrine: true })).length })));
+      facetas = await Promise.all(
+        MARCAS_SEO.map(async (m) => ({
+          chave: m.marca,
+          total: (await buscarSkus({ marca: m.marca, categoria: data.categoria!, vitrine: true }))
+            .length,
+        })),
+      );
     }
-    return { total: todos.length, produtos: pagina.rows as Product[], facetas: facetas.filter((f) => f.total > 0).sort((a, b) => b.total - a.total) };
+    return {
+      total: todos.length,
+      produtos: pagina.rows as Product[],
+      facetas: facetas.filter((f) => f.total > 0).sort((a, b) => b.total - a.total),
+    };
   });
 
 // Páginas por local (/repuestos-agricolas/<local>): total do catálogo + peças da categoria em foco
 export const getPaginaLocalFn = createServerFn({ method: "GET" })
-  .validator((d: { foco?: string | null }) => ({ foco: d?.foco ? String(d.foco).slice(0, 80) : null }))
+  .validator((d: { foco?: string | null }) => ({
+    foco: d?.foco ? String(d.foco).slice(0, 80) : null,
+  }))
   .handler(async ({ data }): Promise<{ total: number; produtos: Product[] }> => {
     const { buscarSkus } = await import("./busca-catalogo.server");
     const { listProducts } = await import("./products.server");
     const [todos, pagina] = await Promise.all([
       buscarSkus({ vitrine: true }),
-      listProducts({ linha: "AGRICOLA", vitrine: true, categoria: data.foco ?? undefined, hasImage: true, sort: "nome-asc", pageSize: 18 }),
+      listProducts({
+        linha: "AGRICOLA",
+        vitrine: true,
+        categoria: data.foco ?? undefined,
+        hasImage: true,
+        sort: "nome-asc",
+        pageSize: 18,
+      }),
     ]);
     return { total: todos.length, produtos: pagina.rows as Product[] };
   });

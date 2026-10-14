@@ -39,13 +39,18 @@ const lojaLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/icon-512.png`,
-  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC y a todo Rio Grande do Sul (Brasil).",
+  description:
+    "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC y a todo Rio Grande do Sul (Brasil).",
   telephone: `+${PHONE}`,
   email: "comercialrsautoparts@gmail.com",
   areaServed: [
     { "@type": "Country", name: "Uruguay" },
     // No Brasil, só o Rio Grande do Sul
-    { "@type": "State", name: "Rio Grande do Sul", containedInPlace: { "@type": "Country", name: "Brasil" } },
+    {
+      "@type": "State",
+      name: "Rio Grande do Sul",
+      containedInPlace: { "@type": "Country", name: "Brasil" },
+    },
   ],
   address: {
     "@type": "PostalAddress",
@@ -71,7 +76,10 @@ export const Route = createFileRoute("/")({
   head: ({ match }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
     const t = (es: string, pt: string) => tr(idioma, es, pt);
-    const titulo = t("AGRO PARTS — Repuestos para tractores en Uruguay", "AGRO PARTS — Peças para tratores com envio para todo o Rio Grande do Sul");
+    const titulo = t(
+      "AGRO PARTS — Repuestos para tractores en Uruguay",
+      "AGRO PARTS — Peças para tratores com envio para todo o Rio Grande do Sul",
+    );
     return {
       meta: [
         { title: titulo },
@@ -94,7 +102,10 @@ export const Route = createFileRoute("/")({
       links: linksIdioma("/", idioma),
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(lojaLd) },
-        { type: "application/ld+json", children: JSON.stringify({ ...siteLd, inLanguage: idioma === "pt" ? "pt-BR" : "es-UY" }) },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({ ...siteLd, inLanguage: idioma === "pt" ? "pt-BR" : "es-UY" }),
+        },
       ],
     };
   },
@@ -170,7 +181,9 @@ function HomePage() {
   const ctaNoCms = blocks.some((b) => b.type === "CATALOGOS_CTA");
   const posCta = ctaNoCms ? -1 : Math.min(1, resto.length - 1);
   // "Somos distribuidores… hacé tu cotización": sem bloco no CMS, entra depois do 4º bloco (ou no fim)
-  const posCotizacao = blocks.some((b) => b.type === "COTIZACION") ? -1 : Math.min(3, resto.length - 1);
+  const posCotizacao = blocks.some((b) => b.type === "COTIZACION")
+    ? -1
+    : Math.min(3, resto.length - 1);
 
   return (
     <div className="min-h-screen bg-zinc-100">
@@ -185,7 +198,12 @@ function HomePage() {
       <SiteHeader />
 
       <main>
-        <h1 className="sr-only">{t("Repuestos para tractores y maquinaria agrícola en Uruguay", "Peças para tratores e máquinas agrícolas com envio para todo o Rio Grande do Sul")}</h1>
+        <h1 className="sr-only">
+          {t(
+            "Repuestos para tractores y maquinaria agrícola en Uruguay",
+            "Peças para tratores e máquinas agrícolas com envio para todo o Rio Grande do Sul",
+          )}
+        </h1>
         {hero.map((b) => (
           <Bloco key={b.id} block={b} />
         ))}
@@ -198,7 +216,12 @@ function HomePage() {
 
           {!isLoading && ativos.length === 0 && (
             <div className="rounded-2xl bg-white py-16 text-center">
-              <p className="mb-4 text-muted-foreground">{t("Estamos preparando la página de inicio.", "Estamos preparando a página inicial.")}</p>
+              <p className="mb-4 text-muted-foreground">
+                {t(
+                  "Estamos preparando la página de inicio.",
+                  "Estamos preparando a página inicial.",
+                )}
+              </p>
               <Button asChild>
                 <Link to="/loja">{t("Ver catálogo", "Ver catálogo")}</Link>
               </Button>

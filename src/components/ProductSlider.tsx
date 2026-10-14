@@ -100,7 +100,9 @@ export function ProductSlider({ title, subtitle, products, rows = 1 }: Props) {
                       >
                         {nomePeca(p, idioma)}
                       </Link>
-                      <div className="text-[11px] text-muted-foreground">Cód. {codigoExibicao(p)}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        Cód. {codigoExibicao(p)}
+                      </div>
                       <div className="mt-auto pt-2">
                         <QuoteButton product={p} fullWidth />
                       </div>

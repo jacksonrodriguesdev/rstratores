@@ -1,7 +1,8 @@
 // Reduz a foto no navegador antes de enviar: lado maior até 1600 px, WEBP.
 // Foto de celular (4–8 MB) vira ~150–300 KB: envio rápido e site leve.
 export async function reduzirImagem(arq: File, max = 1600, qualidade = 0.85): Promise<File> {
-  if (!arq.type.startsWith("image/") || arq.type === "image/gif" || arq.type === "image/svg+xml") return arq;
+  if (!arq.type.startsWith("image/") || arq.type === "image/gif" || arq.type === "image/svg+xml")
+    return arq;
   try {
     const bmp = await createImageBitmap(arq);
     const escala = Math.min(1, max / Math.max(bmp.width, bmp.height));

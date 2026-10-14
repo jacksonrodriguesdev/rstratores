@@ -14,7 +14,13 @@ export function trocarIdioma(novo: Idioma) {
 }
 
 // ES | PT, com bandeira. variante "escura": sobre o header verde
-export function SeletorIdioma({ className, variante = "escura" }: { className?: string; variante?: "escura" | "clara" }) {
+export function SeletorIdioma({
+  className,
+  variante = "escura",
+}: {
+  className?: string;
+  variante?: "escura" | "clara";
+}) {
   const idioma = useIdioma();
   const opcao = (i: Idioma, Bandeira: typeof BandeiraUruguay, rotulo: string, nome: string) => (
     <button
@@ -26,8 +32,12 @@ export function SeletorIdioma({ className, variante = "escura" }: { className?: 
       className={cn(
         "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold transition",
         i === idioma
-          ? variante === "escura" ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
-          : variante === "escura" ? "text-white/70 hover:text-white" : "text-zinc-500 hover:text-zinc-900",
+          ? variante === "escura"
+            ? "bg-white/20 text-white"
+            : "bg-primary/10 text-primary"
+          : variante === "escura"
+            ? "text-white/70 hover:text-white"
+            : "text-zinc-500 hover:text-zinc-900",
       )}
     >
       <Bandeira className="h-3 w-[18px] rounded-[2px]" /> {rotulo}

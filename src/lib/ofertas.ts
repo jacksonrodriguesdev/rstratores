@@ -36,7 +36,8 @@ async function carregar(sku: string): Promise<ProdutoOferta | null> {
   if (!p) return null;
   const c = await configPrecos();
   const cheio = precoVenda({ ...p, valor_promocional: null }, c);
-  const img = p.imagem_principal && !/redeparts/i.test(p.imagem_principal) ? p.imagem_principal : null;
+  const img =
+    p.imagem_principal && !/redeparts/i.test(p.imagem_principal) ? p.imagem_principal : null;
   return {
     sku: p.sku.trim(),
     nome: nomeProduto(p as any),
@@ -51,14 +52,26 @@ async function carregar(sku: string): Promise<ProdutoOferta | null> {
 }
 
 export const buscarProdutoOfertaFn = createServerFn({ method: "GET" })
-  .validator((d: { q: string }) => ({ q: String(d?.q ?? "").trim().slice(0, 80) }))
+  .validator((d: { q: string }) => ({
+    q: String(d?.q ?? "")
+      .trim()
+      .slice(0, 80),
+  }))
   .handler(async ({ data }): Promise<ProdutoOferta[]> => {
     await admin();
     if (data.q.length < 2) return [];
     const { prisma } = await import("./prisma");
     const q = data.q;
     const rows = await prisma.agricolas.findMany({
-      where: { duplicado_de: null, OR: [{ sku: { startsWith: q } }, { codigo_fabricante: { contains: q } }, { nome: { contains: q } }, { nome_es: { contains: q } }] },
+      where: {
+        duplicado_de: null,
+        OR: [
+          { sku: { startsWith: q } },
+          { codigo_fabricante: { contains: q } },
+          { nome: { contains: q } },
+          { nome_es: { contains: q } },
+        ],
+      },
       select: { sku: true },
       orderBy: [{ preco_brl: "desc" }],
       take: 10,
@@ -67,12 +80,20 @@ export const buscarProdutoOfertaFn = createServerFn({ method: "GET" })
   });
 
 // Valor promocional em R$ a partir do modo escolhido (null = sem promoção). Usado também no painel.
-export function promoBrl(p: Pick<ProdutoOferta, "cheioBrl" | "cheioUyu">, modo: ModoDesconto, valor: number): number | null {
+export function promoBrl(
+  p: Pick<ProdutoOferta, "cheioBrl" | "cheioUyu">,
+  modo: ModoDesconto,
+  valor: number,
+): number | null {
   if (!p.cheioBrl) return null;
-  if (modo === "percent") return valor > 0 && valor < 90 ? Math.round(p.cheioBrl * (1 - valor / 100) * 100) / 100 : null;
+  if (modo === "percent")
+    return valor > 0 && valor < 90 ? Math.round(p.cheioBrl * (1 - valor / 100) * 100) / 100 : null;
   if (modo === "brl") return valor > 0 && valor < p.cheioBrl ? Math.round(valor * 100) / 100 : null;
   // $U: mesma proporção sobre o preço cheio em $U
-  if (modo === "uyu") return p.cheioUyu && valor > 0 && valor < p.cheioUyu ? Math.round(p.cheioBrl * (valor / p.cheioUyu) * 100) / 100 : null;
+  if (modo === "uyu")
+    return p.cheioUyu && valor > 0 && valor < p.cheioUyu
+      ? Math.round(p.cheioBrl * (valor / p.cheioUyu) * 100) / 100
+      : null;
   return null;
 }
 
@@ -109,8 +130,16 @@ export const enviarOfertaFn = createServerFn({ method: "POST" })
 
     if (data.aplicarNoSite && data.modo !== "atual") {
       const promo = promoBrl(p, data.modo, data.valor);
-      if (!promo) throw new Error(p.cheioBrl ? "Desconto inválido: o preço da oferta precisa ser menor que o preço normal." : "Este produto ainda não tem preço. Precifique antes de dar desconto.");
-      await prisma.agricolas.updateMany({ where: { sku: p.sku }, data: { valor_promocional: promo } });
+      if (!promo)
+        throw new Error(
+          p.cheioBrl
+            ? "Desconto inválido: o preço da oferta precisa ser menor que o preço normal."
+            : "Este produto ainda não tem preço. Precifique antes de dar desconto.",
+        );
+      await prisma.agricolas.updateMany({
+        where: { sku: p.sku },
+        data: { valor_promocional: promo },
+      });
       const { limparCacheCatalogo } = await import("./busca-catalogo.server");
       const { limparCacheFacets } = await import("./products.server");
       limparCacheCatalogo();
@@ -121,8 +150,15 @@ export const enviarOfertaFn = createServerFn({ method: "POST" })
     let campanhaId: number | null = null;
     let destinatarios = 0;
     if (data.email && data.ids.length) {
-      const { resendConfigurado, processarCampanha, destinatarios: lista } = await import("./email.server");
-      if (!resendConfigurado()) throw new Error("Configure RESEND_API_KEY e EMAIL_REMETENTE na Hostinger antes de enviar e-mails.");
+      const {
+        resendConfigurado,
+        processarCampanha,
+        destinatarios: lista,
+      } = await import("./email.server");
+      if (!resendConfigurado())
+        throw new Error(
+          "Configure RESEND_API_KEY e EMAIL_REMETENTE na Hostinger antes de enviar e-mails.",
+        );
       const { CONTEUDO_PADRAO } = await import("./email-template");
       const { fmtUYU } = await import("./precos");
       const publico = { tipo: "ids" as const, departamentos: [], dias: 30, ids: data.ids };
@@ -134,21 +170,31 @@ export const enviarOfertaFn = createServerFn({ method: "POST" })
         titulo: data.titulo,
         texto: data.texto,
         produtosTitulo: "",
-        produtos: [{
-          sku: p.sku, nome: p.nome, codigo: p.codigo, imagem: p.imagem,
-          preco: pr?.uyu ? fmtUYU(pr.uyu) : null,
-          precoDe: pr?.deUyu ? fmtUYU(pr.deUyu) : null,
-          selo: pr?.desconto ? `-${pr.desconto}%` : null,
-        }],
+        produtos: [
+          {
+            sku: p.sku,
+            nome: p.nome,
+            codigo: p.codigo,
+            imagem: p.imagem,
+            preco: pr?.uyu ? fmtUYU(pr.uyu) : null,
+            precoDe: pr?.deUyu ? fmtUYU(pr.deUyu) : null,
+            selo: pr?.desconto ? `-${pr.desconto}%` : null,
+          },
+        ],
         botaoTexto: "Ver la oferta",
         botaoUrl: `/produto/${encodeURIComponent(p.sku)}`,
         fotos: data.foto && !!p.imagem,
       };
       const c = await prisma.email_campanhas.create({
         data: {
-          nome: `Oferta ${p.codigo} · ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Montevideo" })}`.slice(0, 150),
+          nome: `Oferta ${p.codigo} · ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Montevideo" })}`.slice(
+            0,
+            150,
+          ),
           assunto: data.assunto,
-          preheader: pr?.uyu ? `${p.nome} por ${fmtUYU(pr.uyu)}. Envíos a todo Uruguay.`.slice(0, 200) : "Envíos a todo Uruguay por DAC.",
+          preheader: pr?.uyu
+            ? `${p.nome} por ${fmtUYU(pr.uyu)}. Envíos a todo Uruguay.`.slice(0, 200)
+            : "Envíos a todo Uruguay por DAC.",
           conteudo: JSON.stringify(conteudo),
           publico: JSON.stringify(publico),
         },

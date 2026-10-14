@@ -2,10 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import type { MarketingPublico, ChaveMkt } from "./marketing-config.server";
 
 // IDs públicos das tags (rota raiz: entram no <head> de todas as páginas)
-export const getMarketingPublicoFn = createServerFn({ method: "GET" }).handler(async (): Promise<MarketingPublico> => {
-  const { marketingPublico } = await import("./marketing-config.server");
-  return marketingPublico();
-});
+export const getMarketingPublicoFn = createServerFn({ method: "GET" }).handler(
+  async (): Promise<MarketingPublico> => {
+    const { marketingPublico } = await import("./marketing-config.server");
+    return marketingPublico();
+  },
+);
 
 // ---------- Admin: Marketing → Integrações ----------
 const admin = async () => {
@@ -13,7 +15,15 @@ const admin = async () => {
   return assertAdmin();
 };
 
-export type EventoMkt = { id: number; plataforma: string; evento: string; ok: boolean; teste: boolean; detalhe: string | null; quando: string };
+export type EventoMkt = {
+  id: number;
+  plataforma: string;
+  evento: string;
+  ok: boolean;
+  teste: boolean;
+  detalhe: string | null;
+  quando: string;
+};
 
 export const obterIntegracoesFn = createServerFn({ method: "GET" }).handler(async () => {
   await admin();
@@ -23,15 +33,29 @@ export const obterIntegracoesFn = createServerFn({ method: "GET" }).handler(asyn
     (Object.keys(CAMPOS) as ChaveMkt[]).map((k) => [k, CAMPOS[k].segredo ? mascarar(c[k]) : c[k]]),
   ) as Record<ChaveMkt, string>;
   // Valores vindos de variável de ambiente não podem ser editados pela tela
-  const doAmbiente = (Object.keys(CAMPOS) as ChaveMkt[]).filter((k) => !!process.env[k.toUpperCase()]?.trim());
+  const doAmbiente = (Object.keys(CAMPOS) as ChaveMkt[]).filter(
+    (k) => !!process.env[k.toUpperCase()]?.trim(),
+  );
   const { prisma } = await import("./prisma");
   const desde = new Date(Date.now() - 7 * 86400_000);
   let eventos: EventoMkt[] = [];
   let resumo: Array<{ plataforma: string; evento: string; ok: number; falha: number }> = [];
   try {
     const rows = await prisma.marketing_eventos.findMany({ orderBy: { id: "desc" }, take: 40 });
-    eventos = rows.map((r) => ({ id: r.id, plataforma: r.plataforma, evento: r.evento, ok: r.ok, teste: r.teste, detalhe: r.detalhe, quando: r.created_at.toISOString() }));
-    const g = await prisma.marketing_eventos.groupBy({ by: ["plataforma", "evento", "ok"], where: { created_at: { gte: desde } }, _count: true });
+    eventos = rows.map((r) => ({
+      id: r.id,
+      plataforma: r.plataforma,
+      evento: r.evento,
+      ok: r.ok,
+      teste: r.teste,
+      detalhe: r.detalhe,
+      quando: r.created_at.toISOString(),
+    }));
+    const g = await prisma.marketing_eventos.groupBy({
+      by: ["plataforma", "evento", "ok"],
+      where: { created_at: { gte: desde } },
+      _count: true,
+    });
     const m = new Map<string, { plataforma: string; evento: string; ok: number; falha: number }>();
     for (const x of g) {
       const k = `${x.plataforma}|${x.evento}`;
@@ -77,7 +101,11 @@ export const salvarIntegracoesFn = createServerFn({ method: "POST" })
     conf("mkt_ga4_id", /^G-[A-Z0-9]{4,15}$/, "GA4: formato G-XXXXXXXXXX.");
     conf("mkt_gtm_id", /^GTM-[A-Z0-9]{4,12}$/, "Tag Manager: formato GTM-XXXXXXX.");
     conf("mkt_gads_id", /^AW-\d{6,15}$/, "Google Ads: formato AW-123456789.");
-    conf("mkt_meta_ad_account", /^(act_)?\d{6,25}$/, "Conta de anúncios: números (com ou sem act_).");
+    conf(
+      "mkt_meta_ad_account",
+      /^(act_)?\d{6,25}$/,
+      "Conta de anúncios: números (com ou sem act_).",
+    );
     if (erros.length) throw new Error(erros.join(" "));
     await salvarConfigMarketing(data);
     return { ok: true };
@@ -101,7 +129,11 @@ export const testarMetaFn = createServerFn({ method: "POST" }).handler(async () 
 export const testarGA4Fn = createServerFn({ method: "POST" }).handler(async () => {
   await admin();
   const { enviarEventoGA4 } = await import("./conversoes.server");
-  return enviarEventoGA4({ evento: "teste_painel", clientId: `teste.${Date.now()}`, params: { debug_mode: 1 } });
+  return enviarEventoGA4({
+    evento: "teste_painel",
+    clientId: `teste.${Date.now()}`,
+    params: { debug_mode: 1 },
+  });
 });
 
 // ---------- Buscadores: Bing (IndexNow) e Google Shopping (feed do Merchant Center) ----------
@@ -111,7 +143,11 @@ export const buscadoresFn = createServerFn({ method: "GET" }).handler(async () =
   const { feedGoogle } = await import("./feed-google.server");
   const { configPrecos } = await import("./precos.server");
   const { SITE_URL } = await import("./site");
-  const [indexnow, feed, precos] = await Promise.all([ultimoIndexNow(), feedGoogle().catch(() => ({ itens: 0 })), configPrecos()]);
+  const [indexnow, feed, precos] = await Promise.all([
+    ultimoIndexNow(),
+    feedGoogle().catch(() => ({ itens: 0 })),
+    configPrecos(),
+  ]);
   return {
     indexnow,
     feedUrl: `${SITE_URL}/feeds/google-merchant.xml`,

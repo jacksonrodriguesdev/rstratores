@@ -31,7 +31,9 @@ export function FotosAgrotrator() {
     <Card className="space-y-3 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="flex items-center gap-2 font-semibold"><Images className="h-4 w-4 text-primary" /> Fotos do agrotrator</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <Images className="h-4 w-4 text-primary" /> Fotos do agrotrator
+          </h2>
           <p className="text-sm text-muted-foreground">
             {data.faltam
               ? `${data.faltam.toLocaleString("pt-BR")} fotos ainda são mostradas direto do agrotrator. Copie para o servidor para não depender do site de lá.`
@@ -45,10 +47,15 @@ export function FotosAgrotrator() {
           </Button>
         )}
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} /></div>
+      <div className="h-2 overflow-hidden rounded-full bg-muted">
+        <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+      </div>
       <p className="text-xs text-muted-foreground">
-        {data.copiadasTotal.toLocaleString("pt-BR")} de {total.toLocaleString("pt-BR")} no servidor ({pct}%)
-        {data.rodando || data.copiadas || data.falhas ? ` · nesta rodada: ${data.copiadas} copiadas${data.falhas ? `, ${data.falhas} falharam (tente de novo depois)` : ""}` : ""}
+        {data.copiadasTotal.toLocaleString("pt-BR")} de {total.toLocaleString("pt-BR")} no servidor
+        ({pct}%)
+        {data.rodando || data.copiadas || data.falhas
+          ? ` · nesta rodada: ${data.copiadas} copiadas${data.falhas ? `, ${data.falhas} falharam (tente de novo depois)` : ""}`
+          : ""}
         {data.erro ? ` · erro: ${data.erro}` : ""}
       </p>
     </Card>

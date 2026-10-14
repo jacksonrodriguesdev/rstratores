@@ -6,7 +6,8 @@
 const MIN30 = 30 * 60 * 1000;
 
 const id = () =>
-  (crypto as any)?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  (crypto as any)?.randomUUID?.() ??
+  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 
 function ler(store: Storage, chave: string) {
   try {
@@ -35,7 +36,8 @@ let memoria: DadosVisitante | null = null;
 
 // Chamada a cada página vista: renova a sessão e diz se é a primeira página dela
 export function dadosVisitante(novaPagina = false): DadosVisitante {
-  if (typeof window === "undefined") return { visitorId: "", sessionId: "", entrada: false, atribuicao: {}, language: "" };
+  if (typeof window === "undefined")
+    return { visitorId: "", sessionId: "", entrada: false, atribuicao: {}, language: "" };
   let visitorId: string = ler(localStorage, "ap_vid") ?? "";
   if (!visitorId) {
     visitorId = id();
@@ -69,7 +71,13 @@ export function dadosVisitante(novaPagina = false): DadosVisitante {
     gravar(localStorage, "ap_atr", JSON.stringify(atribuicao));
   }
   if (novaPagina) gravar(localStorage, "ap_ult", String(agora));
-  const dados: DadosVisitante = { visitorId, sessionId, entrada, atribuicao, language: navigator.language || "" };
+  const dados: DadosVisitante = {
+    visitorId,
+    sessionId,
+    entrada,
+    atribuicao,
+    language: navigator.language || "",
+  };
   memoria = dados;
   return dados;
 }

@@ -6,13 +6,17 @@ export const Route = createFileRoute("/api/admin/mercadolivre/callback")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const voltar = (q: string) => new Response(null, { status: 302, headers: { Location: `/admin/pesquisa-precos?${q}` } });
+        const voltar = (q: string) =>
+          new Response(null, { status: 302, headers: { Location: `/admin/pesquisa-precos?${q}` } });
         const { requireAdmin } = await import("@/lib/auth.server");
         const negado = await requireAdmin(request);
         if (negado) return negado;
         const url = new URL(request.url);
         const code = url.searchParams.get("code");
-        if (!code) return voltar(`ml=erro&msg=${encodeURIComponent(url.searchParams.get("error_description") || "sem código")}`);
+        if (!code)
+          return voltar(
+            `ml=erro&msg=${encodeURIComponent(url.searchParams.get("error_description") || "sem código")}`,
+          );
         try {
           const { trocarCodigoML } = await import("@/lib/pesquisa-precos.server");
           const { origemPublica } = await import("@/lib/google-oauth.server");

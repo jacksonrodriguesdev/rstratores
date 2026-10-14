@@ -30,7 +30,10 @@ export const Route = createFileRoute("/repuestos-agricolas/$local")({
         { property: "og:title", content: titulo },
         { property: "og:description", content: desc },
       ],
-      scripts: ldLocal(local, url, dados, idioma).map((ld) => ({ type: "application/ld+json", children: JSON.stringify(ld) })),
+      scripts: ldLocal(local, url, dados, idioma).map((ld) => ({
+        type: "application/ld+json",
+        children: JSON.stringify(ld),
+      })),
     };
   },
   component: () => {

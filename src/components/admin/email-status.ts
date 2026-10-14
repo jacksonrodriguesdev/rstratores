@@ -5,4 +5,9 @@ export const COR_STATUS: Record<string, string> = {
   ENVIADA: "bg-emerald-100 text-emerald-800",
   ERRO: "bg-red-100 text-red-700",
 };
-export const ROTULO_STATUS: Record<string, string> = { RASCUNHO: "Rascunho", ENVIANDO: "Enviando…", ENVIADA: "Enviada", ERRO: "Erro" };
+export const ROTULO_STATUS: Record<string, string> = {
+  RASCUNHO: "Rascunho",
+  ENVIANDO: "Enviando…",
+  ENVIADA: "Enviada",
+  ERRO: "Erro",
+};

@@ -56,7 +56,9 @@ export function MobileTabBar() {
               de compra logo acima; lá o botão fica plano para não cobrir "Consultar precio". */}
           {barraPropria ? (
             <a
-              href={whatsappContactUrl(t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."))}
+              href={whatsappContactUrl(
+                t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."),
+              )}
               target="_blank"
               rel="noreferrer noopener"
               className={cn(tab, "text-[#128C4B]")}
@@ -66,7 +68,9 @@ export function MobileTabBar() {
             </a>
           ) : (
             <a
-              href={whatsappContactUrl(t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."))}
+              href={whatsappContactUrl(
+                t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."),
+              )}
               target="_blank"
               rel="noreferrer noopener"
               className="flex flex-1 flex-col items-center justify-start text-[11px] font-semibold text-[#128C4B] active:scale-95"
@@ -90,7 +94,10 @@ export function MobileTabBar() {
             {t("Carrito", "Carrinho")}
           </button>
           {user ? (
-            <button onClick={() => setSheet("conta")} className={cn(tab, sheet === "conta" && ativo)}>
+            <button
+              onClick={() => setSheet("conta")}
+              className={cn(tab, sheet === "conta" && ativo)}
+            >
               <User className="h-6 w-6" />
               {t("Cuenta", "Conta")}
             </button>
@@ -127,7 +134,9 @@ export function MobileTabBar() {
             ))}
           </div>
 
-          <h3 className="mt-6 px-4 text-sm font-semibold text-zinc-900">{t("Marcas de tractor", "Marcas de trator")}</h3>
+          <h3 className="mt-6 px-4 text-sm font-semibold text-zinc-900">
+            {t("Marcas de tractor", "Marcas de trator")}
+          </h3>
           <div className="scrollbar-none mt-2 flex gap-2 overflow-x-auto px-4">
             {MONTADORAS.map((m) => (
               <Link
@@ -158,14 +167,25 @@ export function MobileTabBar() {
         <SheetContent side="bottom" className="rounded-t-3xl pb-safe">
           <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-zinc-200" />
           <SheetHeader>
-            <SheetTitle>{t("Hola", "Olá")}{user?.nome.trim() ? `, ${user.nome.trim().split(" ")[0]}` : ""}</SheetTitle>
+            <SheetTitle>
+              {t("Hola", "Olá")}
+              {user?.nome.trim() ? `, ${user.nome.trim().split(" ")[0]}` : ""}
+            </SheetTitle>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </SheetHeader>
           <div className="flex flex-col gap-2 px-4 pb-4">
-            <Link to="/cuenta" onClick={() => setSheet(null)} className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium">
+            <Link
+              to="/cuenta"
+              onClick={() => setSheet(null)}
+              className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium"
+            >
               {t("Mi perfil y datos", "Meu perfil e dados")}
             </Link>
-            <Link to="/catalogos" onClick={() => setSheet(null)} className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium">
+            <Link
+              to="/catalogos"
+              onClick={() => setSheet(null)}
+              className="rounded-xl border border-zinc-200 px-4 py-3 text-sm font-medium"
+            >
               {t("Catálogos para mecánicos (PDF)", "Catálogos para mecânicos (PDF)")}
             </Link>
             {user?.role === "ADMIN" && (

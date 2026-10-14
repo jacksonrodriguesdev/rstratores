@@ -6,7 +6,25 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  {
+    // Só código: pastas de dados/imagens ficam de fora (uploads tem gigas de fotos) e o arquivo gerado
+    ignores: [
+      "dist",
+      ".output",
+      ".vinxi",
+      ".tanstack",
+      ".wrangler",
+      "uploads",
+      "public",
+      "marketing",
+      "dados",
+      "lote1_imagens",
+      "geoip-agroparts",
+      "PRODUCTS",
+      "agrotrator_extracao",
+      "src/routeTree.gen.ts",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

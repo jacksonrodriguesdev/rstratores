@@ -26,13 +26,23 @@ async function main() {
   assert.equal(hoje.visitas, 1, "hoje: 1 página vista");
 
   // Migração: nenhum "/_evento/" sobrou em site_visits
-  assert.equal(await prisma.site_visits.count({ where: { path: { startsWith: "/_evento/" } } }), 0, "eventos antigos migrados");
+  assert.equal(
+    await prisma.site_visits.count({ where: { path: { startsWith: "/_evento/" } } }),
+    0,
+    "eventos antigos migrados",
+  );
   assert.equal(await prisma.site_eventos.count(), 3, "3 eventos em site_eventos");
 
   // Dia fechado foi salvo; hoje não
   const salvos = await prisma.analise_dia.findMany({ where: { versao: VERSAO } });
-  assert.ok(salvos.some((s) => s.dia === ontem.dia), "resumo de ontem salvo em analise_dia");
-  assert.ok(!salvos.some((s) => s.dia === hoje.dia), "o dia de hoje não é salvo (ainda está aberto)");
+  assert.ok(
+    salvos.some((s) => s.dia === ontem.dia),
+    "resumo de ontem salvo em analise_dia",
+  );
+  assert.ok(
+    !salvos.some((s) => s.dia === hoje.dia),
+    "o dia de hoje não é salvo (ainda está aberto)",
+  );
 
   // Ferramentas somando os resumos
   const r = await resumo(7);
@@ -41,7 +51,11 @@ async function main() {
   assert.equal(r.visitantes, 3, "visitantes únicos contados no MySQL");
   assert.equal(r.whatsapp, 1);
   const f = await funil(7);
-  assert.deepEqual(f.total, [3, 1, 1, 1, 0], "funil: sessões, viram peça, carrinho, WhatsApp, cadastro");
+  assert.deepEqual(
+    f.total,
+    [3, 1, 1, 1, 0],
+    "funil: sessões, viram peça, carrinho, WhatsApp, cadastro",
+  );
   const p = await produtos(7);
   assert.equal(p.lista[0]?.sku, "CI-001", "peça mais vista com pedido em primeiro");
 

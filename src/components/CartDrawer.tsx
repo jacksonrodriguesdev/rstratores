@@ -8,11 +8,13 @@ import { eventoDoLinkWhatsapp } from "@/lib/eventos";
 import { useT } from "@/lib/idioma";
 
 export function CartDrawer() {
-  const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart, marcarEnviado } = useCart();
+  const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart, marcarEnviado } =
+    useCart();
   const { t, idioma } = useT();
 
   if (!isCartOpen) return null;
-  const nome = (i: { name: string; nameEs?: string | null }) => (idioma === "pt" ? i.name : i.nameEs || nomeEs(i.name));
+  const nome = (i: { name: string; nameEs?: string | null }) =>
+    idioma === "pt" ? i.name : i.nameEs || nomeEs(i.name);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -58,9 +60,14 @@ export function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
               <ShoppingCart className="h-16 w-16 opacity-20" />
-              <p className="text-lg font-medium">{t("Todavía no agregaste repuestos", "Você ainda não adicionou peças")}</p>
+              <p className="text-lg font-medium">
+                {t("Todavía no agregaste repuestos", "Você ainda não adicionou peças")}
+              </p>
               <p className="max-w-xs text-center text-sm">
-                {t("Sumá las piezas que necesitás y mandanos todo junto por WhatsApp para recibir el precio.", "Adicione as peças que você precisa e mande tudo junto pelo WhatsApp para receber o preço.")}
+                {t(
+                  "Sumá las piezas que necesitás y mandanos todo junto por WhatsApp para recibir el precio.",
+                  "Adicione as peças que você precisa e mande tudo junto pelo WhatsApp para receber o preço.",
+                )}
               </p>
               <Button onClick={() => setIsCartOpen(false)} variant="outline" className="mt-4">
                 {t("Seguir buscando", "Continuar buscando")}
@@ -125,7 +132,9 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t p-6 bg-zinc-50 space-y-4">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-zinc-600 font-medium">{t("Total de repuestos", "Total de peças")}</span>
+              <span className="text-zinc-600 font-medium">
+                {t("Total de repuestos", "Total de peças")}
+              </span>
               <span className="font-bold text-zinc-900">
                 {totalItems} {totalItems === 1 ? t("unidad", "unidade") : t("unidades", "unidades")}
               </span>
@@ -140,7 +149,12 @@ export function CartDrawer() {
                 {t("Pedir precio por WhatsApp", "Pedir preço pelo WhatsApp")}
               </Button>
             </div>
-            <p className="text-center text-xs text-zinc-500">{t("Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.", "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Rio Grande do Sul.")}</p>
+            <p className="text-center text-xs text-zinc-500">
+              {t(
+                "Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.",
+                "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Rio Grande do Sul.",
+              )}
+            </p>
 
             <button
               onClick={clearCart}

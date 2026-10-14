@@ -13,7 +13,10 @@ function redirecionarAlias(request: Request): Response | null {
     .replace(/:\d+$/, "");
   if (!DOMINIOS_ALIAS.includes(host)) return null;
   const u = new URL(request.url);
-  return new Response(null, { status: 301, headers: { Location: `${SITE_URL}${u.pathname}${u.search}` } });
+  return new Response(null, {
+    status: 301,
+    headers: { Location: `${SITE_URL}${u.pathname}${u.search}` },
+  });
 }
 
 type ServerEntry = {
@@ -62,7 +65,9 @@ let agendadorIniciado = false;
 function iniciarAutomacoes() {
   if (agendadorIniciado) return;
   agendadorIniciado = true;
-  import("./lib/automacoes.server").then((m) => m.iniciarAgendador()).catch((e) => console.error("automações", e));
+  import("./lib/automacoes.server")
+    .then((m) => m.iniciarAgendador())
+    .catch((e) => console.error("automações", e));
 }
 
 export default {

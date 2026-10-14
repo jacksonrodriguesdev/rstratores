@@ -97,18 +97,43 @@ export function migrarEventosAntigos() {
     await garantirTabelas();
     let movidos = 0;
     for (let lote = 0; lote < 500; lote++) {
-      const rows = await prisma.site_visits.findMany({ where: { path: { startsWith: PREFIXO_ANTIGO } }, orderBy: { id: "asc" }, take: 2000 });
+      const rows = await prisma.site_visits.findMany({
+        where: { path: { startsWith: PREFIXO_ANTIGO } },
+        orderBy: { id: "asc" },
+        take: 2000,
+      });
       if (!rows.length) break;
       const dados = rows.flatMap((r) => {
         const ev = lerCaminhoEvento(r.path);
         if (!ev) return [];
-        return [{
-          created_at: r.created_at, tipo: ev.tipo, dado: ev.dado, pagina: r.referrer?.slice(0, 512) ?? null,
-          visitor_id: r.visitor_id, session_id: r.session_id, ip_hash: r.ip_hash, user_id: r.user_id,
-          city: r.city?.slice(0, 191) ?? null, region: r.region?.slice(0, 191) ?? null, country: r.country?.slice(0, 191) ?? null, country_code: r.country_code?.slice(0, 8) ?? null,
-          latitude: r.latitude, longitude: r.longitude, fonte: r.fonte, meio: r.meio, utm_source: r.utm_source, utm_medium: r.utm_medium,
-          utm_campaign: r.utm_campaign, referrer_host: r.referrer_host, device: r.device, browser: r.browser, os: r.os, language: r.language,
-        }];
+        return [
+          {
+            created_at: r.created_at,
+            tipo: ev.tipo,
+            dado: ev.dado,
+            pagina: r.referrer?.slice(0, 512) ?? null,
+            visitor_id: r.visitor_id,
+            session_id: r.session_id,
+            ip_hash: r.ip_hash,
+            user_id: r.user_id,
+            city: r.city?.slice(0, 191) ?? null,
+            region: r.region?.slice(0, 191) ?? null,
+            country: r.country?.slice(0, 191) ?? null,
+            country_code: r.country_code?.slice(0, 8) ?? null,
+            latitude: r.latitude,
+            longitude: r.longitude,
+            fonte: r.fonte,
+            meio: r.meio,
+            utm_source: r.utm_source,
+            utm_medium: r.utm_medium,
+            utm_campaign: r.utm_campaign,
+            referrer_host: r.referrer_host,
+            device: r.device,
+            browser: r.browser,
+            os: r.os,
+            language: r.language,
+          },
+        ];
       });
       await prisma.$transaction([
         prisma.site_eventos.createMany({ data: dados }),
@@ -116,7 +141,8 @@ export function migrarEventosAntigos() {
       ]);
       movidos += rows.length;
     }
-    if (movidos) console.log(`[eventos] ${movidos} eventos antigos movidos de site_visits para site_eventos`);
+    if (movidos)
+      console.log(`[eventos] ${movidos} eventos antigos movidos de site_visits para site_eventos`);
     return movidos;
   })().catch((e) => {
     migracao = null;
@@ -134,4 +160,5 @@ export async function eventosProntos() {
 
 // Evento no formato antigo (path "/_evento/<tipo>/<dado>"), para as telas que montam a linha do
 // tempo juntando páginas e eventos (Jornada, Visitantes)
-export const caminhoDoEvento = (e: { tipo: string; dado: string }) => `${PREFIXO_ANTIGO}${e.tipo}/${encodeURIComponent(e.dado)}`;
+export const caminhoDoEvento = (e: { tipo: string; dado: string }) =>
+  `${PREFIXO_ANTIGO}${e.tipo}/${encodeURIComponent(e.dado)}`;

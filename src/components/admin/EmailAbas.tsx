@@ -11,8 +11,16 @@ export function EmailAbas({ atual }: { atual: "campanhas" | "automacoes" }) {
   return (
     <div className="inline-flex rounded-xl border bg-muted/40 p-1">
       {abas.map((a) => (
-        <Link key={a.k} to={a.to}
-          className={cn("flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition", atual === a.k ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground")}>
+        <Link
+          key={a.k}
+          to={a.to}
+          className={cn(
+            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition",
+            atual === a.k
+              ? "bg-background text-primary shadow"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
           <a.icone className="h-4 w-4" /> {a.rotulo}
         </Link>
       ))}

@@ -7,8 +7,24 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Tags, Pencil, Trash2, Upload, ExternalLink, AlertTriangle, Package, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Plus,
+  Tags,
+  Pencil,
+  Trash2,
+  Upload,
+  ExternalLink,
+  AlertTriangle,
+  Package,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -33,8 +49,10 @@ export const Route = createFileRoute("/admin/categorias")({
 
 const urlImagem = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
 const iconeDe = (nome: string) => CATEGORIAS.find((c) => c.nome === nome)?.icon ?? Tags;
-const pecasDiretas = (c: CategoryWithChildren) => ((c as any)._count?.agricolas ?? 0) + ((c as any)._count?.products ?? 0);
-const pecasTotal = (c: CategoryWithChildren) => ((c as any).totalProducts as number) ?? pecasDiretas(c);
+const pecasDiretas = (c: CategoryWithChildren) =>
+  ((c as any)._count?.agricolas ?? 0) + ((c as any)._count?.products ?? 0);
+const pecasTotal = (c: CategoryWithChildren) =>
+  ((c as any).totalProducts as number) ?? pecasDiretas(c);
 
 type Form = {
   nome: string;
@@ -59,7 +77,8 @@ function AdminCategorias() {
   const raiz = q.data ?? [];
   const todas = useMemo(() => {
     const out: CategoryWithChildren[] = [];
-    const visitar = (l: CategoryWithChildren[]) => l.forEach((c) => (out.push(c), visitar(c.children ?? [])));
+    const visitar = (l: CategoryWithChildren[]) =>
+      l.forEach((c) => (out.push(c), visitar(c.children ?? [])));
     visitar(raiz);
     return out;
   }, [raiz]);
@@ -83,7 +102,8 @@ function AdminCategorias() {
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
             Categorias são por <strong>tipo de peça</strong> (Filtros, Vedações…). A marca do trator
             (Massey, Valtra…) é o campo <strong>Marca</strong> de cada produto e aparece em
-            "Montadoras" na loja. O que você muda aqui aparece no site na hora (menu, home e filtros).
+            "Montadoras" na loja. O que você muda aqui aparece no site na hora (menu, home e
+            filtros).
           </p>
         </div>
         <Button onClick={() => setEditando("nova")}>
@@ -103,21 +123,29 @@ function AdminCategorias() {
       {/* Resumo */}
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="p-4">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categorias</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Categorias
+          </div>
           <div className="mt-1 text-2xl font-black">{q.isLoading ? "…" : todas.length}</div>
         </Card>
         <Card className="p-4">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Peças categorizadas
           </div>
-          <div className="mt-1 text-2xl font-black">{q.isLoading ? "…" : totalPecas.toLocaleString("pt-BR")}</div>
+          <div className="mt-1 text-2xl font-black">
+            {q.isLoading ? "…" : totalPecas.toLocaleString("pt-BR")}
+          </div>
         </Card>
         <Card className="p-4">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sem categoria</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Sem categoria
+          </div>
           <div className="mt-1 text-2xl font-black">
             {stats.isLoading ? "…" : (stats.data?.semCategoria ?? 0).toLocaleString("pt-BR")}
           </div>
-          <p className="text-[11px] text-muted-foreground">Não aparecem ao navegar na loja (só na busca).</p>
+          <p className="text-[11px] text-muted-foreground">
+            Não aparecem ao navegar na loja (só na busca).
+          </p>
         </Card>
       </div>
 
@@ -135,12 +163,7 @@ function AdminCategorias() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {raiz.map((c) => (
-            <CartaoCategoria
-              key={c.id}
-              cat={c}
-              onEditar={setEditando}
-              onExcluir={setExcluindo}
-            />
+            <CartaoCategoria key={c.id} cat={c} onEditar={setEditando} onExcluir={setExcluindo} />
           ))}
         </div>
       )}
@@ -185,7 +208,11 @@ function CartaoCategoria({
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold">{cat.nome}</h3>
-          <p className={total ? "text-sm text-muted-foreground" : "text-sm font-medium text-amber-600"}>
+          <p
+            className={
+              total ? "text-sm text-muted-foreground" : "text-sm font-medium text-amber-600"
+            }
+          >
             {total ? `${total.toLocaleString("pt-BR")} peças` : "Vazia — não aparece no site"}
           </p>
           {(cat.children?.length ?? 0) > 0 && (
@@ -201,7 +228,11 @@ function CartaoCategoria({
         </Button>
         {total > 0 && (
           <Button size="sm" variant="ghost" asChild>
-            <a href={`/loja?categoria=${encodeURIComponent(cat.nome)}`} target="_blank" rel="noreferrer">
+            <a
+              href={`/loja?categoria=${encodeURIComponent(cat.nome)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
               <ExternalLink className="mr-1.5 h-4 w-4" /> Ver na loja
             </a>
           </Button>
@@ -233,7 +264,13 @@ function DialogoCategoria({
   onSalvo: () => void;
 }) {
   const editando = alvo && alvo !== "nova" ? alvo : null;
-  const [form, setForm] = useState<Form>({ nome: "", parent_id: null, image_path: null, imageFile: null, linha });
+  const [form, setForm] = useState<Form>({
+    nome: "",
+    parent_id: null,
+    image_path: null,
+    imageFile: null,
+    linha,
+  });
 
   useEffect(() => {
     if (!alvo) return;
@@ -273,7 +310,12 @@ function DialogoCategoria({
     mutationFn: async () => {
       let image_path = form.image_path;
       if (form.imageFile) image_path = await uploadCategoryImage(form.imageFile);
-      const dados = { nome: form.nome.trim(), parent_id: form.parent_id, image_path, linha: form.linha };
+      const dados = {
+        nome: form.nome.trim(),
+        parent_id: form.parent_id,
+        image_path,
+        linha: form.linha,
+      };
       if (editando) await updateCategory(editando.id, dados);
       else await createCategory(dados);
     },
@@ -305,7 +347,8 @@ function DialogoCategoria({
             />
             {renomeando && pecas > 0 && (
               <p className="text-xs text-muted-foreground">
-                O nome também será atualizado nas {pecas.toLocaleString("pt-BR")} peças desta categoria.
+                O nome também será atualizado nas {pecas.toLocaleString("pt-BR")} peças desta
+                categoria.
               </p>
             )}
           </div>
@@ -315,7 +358,12 @@ function DialogoCategoria({
             <select
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={form.parent_id ?? ""}
-              onChange={(e) => setForm((p) => ({ ...p, parent_id: e.target.value ? Number(e.target.value) : null }))}
+              onChange={(e) =>
+                setForm((p) => ({
+                  ...p,
+                  parent_id: e.target.value ? Number(e.target.value) : null,
+                }))
+              }
             >
               <option value="">Nenhuma (categoria principal)</option>
               {todas
@@ -359,7 +407,9 @@ function DialogoCategoria({
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     className="hidden"
-                    onChange={(e) => setForm((p) => ({ ...p, imageFile: e.target.files?.[0] || null }))}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, imageFile: e.target.files?.[0] || null }))
+                    }
                   />
                 </label>
                 {previa && (
@@ -454,10 +504,14 @@ function DialogoExcluir({
               </div>
             </>
           ) : (
-            <p className="text-muted-foreground">A categoria está vazia; nenhuma peça será afetada.</p>
+            <p className="text-muted-foreground">
+              A categoria está vazia; nenhuma peça será afetada.
+            </p>
           )}
           {subcats > 0 && (
-            <p className="text-muted-foreground">Suas {subcats} subcategorias viram categorias principais.</p>
+            <p className="text-muted-foreground">
+              Suas {subcats} subcategorias viram categorias principais.
+            </p>
           )}
         </div>
         <DialogFooter>

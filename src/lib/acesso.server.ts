@@ -13,12 +13,21 @@ export const POPUP_PADRAO = {
   popup_titulo: "¡Entrá y llevate {{descuento}}% OFF en tu primera compra!",
   popup_subtitulo: "Creá tu cuenta gratis en segundos y accedé a todos los catálogos de tractores.",
 };
-export type ConfigPopup = { ativo: boolean; segundos: number; desconto: number; titulo: string; subtitulo: string };
+export type ConfigPopup = {
+  ativo: boolean;
+  segundos: number;
+  desconto: number;
+  titulo: string;
+  subtitulo: string;
+};
 
 export async function configPopup(): Promise<ConfigPopup> {
   const { prisma } = await import("./prisma");
   const rows = await prisma.configuracoes.findMany({ where: { chave: { startsWith: "popup_" } } });
-  const v: Record<string, string> = { ...POPUP_PADRAO, ...Object.fromEntries(rows.map((r) => [r.chave, r.valor])) };
+  const v: Record<string, string> = {
+    ...POPUP_PADRAO,
+    ...Object.fromEntries(rows.map((r) => [r.chave, r.valor])),
+  };
   return {
     ativo: v.popup_ativo === "1",
     segundos: Math.min(120, Math.max(1, Number(v.popup_segundos) || 8)),
@@ -38,7 +47,11 @@ export async function salvarConfigPopup(c: ConfigPopup) {
     popup_subtitulo: String(c.subtitulo || POPUP_PADRAO.popup_subtitulo).slice(0, 300),
   };
   for (const [chave, valor] of Object.entries(valores)) {
-    await prisma.configuracoes.upsert({ where: { chave }, create: { chave, valor }, update: { valor } });
+    await prisma.configuracoes.upsert({
+      where: { chave },
+      create: { chave, valor },
+      update: { valor },
+    });
   }
 }
 
@@ -51,7 +64,8 @@ export async function garantirCupom(userId: number): Promise<string | null> {
   if (!u) return null;
   if (u.cupom) return u.cupom;
   for (let i = 0; i < 6; i++) {
-    const codigo = "AGRO-" + Array.from({ length: 4 }, () => ALFABETO[randomInt(ALFABETO.length)]).join("");
+    const codigo =
+      "AGRO-" + Array.from({ length: 4 }, () => ALFABETO[randomInt(ALFABETO.length)]).join("");
     try {
       await prisma.users.update({ where: { id: userId }, data: { cupom: codigo } });
       return codigo;
@@ -68,7 +82,8 @@ const segredo = () => {
   if (!s || s.length < 32) throw new Error("JWT_SECRET ausente");
   return s;
 };
-const hashCodigo = (email: string, codigo: string) => createHash("sha256").update(`${email}|${codigo}|${segredo()}`).digest("hex");
+const hashCodigo = (email: string, codigo: string) =>
+  createHash("sha256").update(`${email}|${codigo}|${segredo()}`).digest("hex");
 
 // Limite por IP (além do limite por e-mail no banco)
 const porIp = new Map<string, number[]>();
@@ -83,17 +98,32 @@ function ipLiberado(ip: string | null) {
   return true;
 }
 
-export async function criarCodigo(email: string, ip: string | null): Promise<{ codigo: string } | { erro: string }> {
+export async function criarCodigo(
+  email: string,
+  ip: string | null,
+): Promise<{ codigo: string } | { erro: string }> {
   const { prisma } = await import("./prisma");
-  const recentes = await prisma.login_codigos.count({ where: { email, created_at: { gte: new Date(Date.now() - 15 * MINUTO) } } });
-  if (recentes >= 3 || !ipLiberado(ip)) return { erro: "Pediste varios códigos. Esperá unos minutos y probá de nuevo." };
+  const recentes = await prisma.login_codigos.count({
+    where: { email, created_at: { gte: new Date(Date.now() - 15 * MINUTO) } },
+  });
+  if (recentes >= 3 || !ipLiberado(ip))
+    return { erro: "Pediste varios códigos. Esperá unos minutos y probá de nuevo." };
   const codigo = String(randomInt(0, 1_000_000)).padStart(6, "0");
   // Pedir de novo não invalida o anterior: se o primeiro e-mail chegar depois, ele ainda vale
-  await prisma.login_codigos.create({ data: { email, codigo_hash: hashCodigo(email, codigo), expira_em: new Date(Date.now() + 10 * MINUTO) } });
+  await prisma.login_codigos.create({
+    data: {
+      email,
+      codigo_hash: hashCodigo(email, codigo),
+      expira_em: new Date(Date.now() + 10 * MINUTO),
+    },
+  });
   return { codigo };
 }
 
-export async function conferirCodigo(email: string, codigo: string): Promise<{ ok: true } | { erro: string }> {
+export async function conferirCodigo(
+  email: string,
+  codigo: string,
+): Promise<{ ok: true } | { erro: string }> {
   const { prisma } = await import("./prisma");
   // Vale qualquer um dos códigos ainda válidos deste e-mail (no máximo os 3 últimos)
   const validos = await prisma.login_codigos.findMany({
@@ -107,7 +137,10 @@ export async function conferirCodigo(email: string, codigo: string): Promise<{ o
   const ids = validos.map((c) => c.id);
   if (!validos.some((c) => c.codigo_hash === hash)) {
     // Erro conta para todos (evita tentar de novo em outro código)
-    await prisma.login_codigos.updateMany({ where: { id: { in: ids } }, data: { tentativas: { increment: 1 } } });
+    await prisma.login_codigos.updateMany({
+      where: { id: { in: ids } },
+      data: { tentativas: { increment: 1 } },
+    });
     return { erro: "Código incorrecto. Revisalo y probá de nuevo." };
   }
   await prisma.login_codigos.updateMany({ where: { id: { in: ids } }, data: { usado: true } });
@@ -115,7 +148,12 @@ export async function conferirCodigo(email: string, codigo: string): Promise<{ o
 }
 
 // E-mail com o código (transacional: sem link de descadastro)
-export async function enviarEmailCodigo(email: string, codigo: string, origem: string, idioma: "es" | "pt" = "es") {
+export async function enviarEmailCodigo(
+  email: string,
+  codigo: string,
+  origem: string,
+  idioma: "es" | "pt" = "es",
+) {
   const { enviarUm, montarMensagem } = await import("./email.server");
   const pt = idioma === "pt";
   const m = montarMensagem(
@@ -125,7 +163,11 @@ export async function enviarEmailCodigo(email: string, codigo: string, origem: s
       texto: pt
         ? "Digite o código na janela do site. Se não foi você que pediu, ignore este e-mail."
         : "Escribí el código en la ventana del sitio. Si no lo pediste vos, ignorá este e-mail.",
-      cupom: { codigo: `${codigo.slice(0, 3)} ${codigo.slice(3)}`, texto: pt ? "Código de acesso" : "Código de acceso", validade: "por 10 minutos" },
+      cupom: {
+        codigo: `${codigo.slice(0, 3)} ${codigo.slice(3)}`,
+        texto: pt ? "Código de acesso" : "Código de acceso",
+        validade: "por 10 minutos",
+      },
       produtos: [],
       whatsapp: false,
       cor: "#0b7a3b",
@@ -149,12 +191,16 @@ export async function tokenEmailConfirmado(email: string) {
 export async function lerTokenEmail(token: string): Promise<string | null> {
   try {
     const { payload } = await jwtVerify(token, new TextEncoder().encode(segredo()));
-    return payload.uso === "cadastro_rapido" && typeof payload.email === "string" ? payload.email : null;
+    return payload.uso === "cadastro_rapido" && typeof payload.email === "string"
+      ? payload.email
+      : null;
   } catch {
     return null;
   }
 }
 
 // Conta criada sem senha (Google ou código): pode criar uma senha depois em Mi cuenta
-export const senhaAleatoria = (prefixo: "google" | "codigo") => `${prefixo}:${randomBytes(24).toString("hex")}`;
-export const contaSemSenha = (hash: string) => hash.startsWith("google:") || hash.startsWith("codigo:");
+export const senhaAleatoria = (prefixo: "google" | "codigo") =>
+  `${prefixo}:${randomBytes(24).toString("hex")}`;
+export const contaSemSenha = (hash: string) =>
+  hash.startsWith("google:") || hash.startsWith("codigo:");

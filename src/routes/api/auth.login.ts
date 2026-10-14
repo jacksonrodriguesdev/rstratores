@@ -8,7 +8,9 @@ export const Route = createFileRoute("/api/auth/login")({
       POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json();
-          const email = String(body.email ?? "").trim().toLowerCase();
+          const email = String(body.email ?? "")
+            .trim()
+            .toLowerCase();
           const senha = String(body.senha ?? "");
 
           if (!email || !senha) {
@@ -17,8 +19,13 @@ export const Route = createFileRoute("/api/auth/login")({
 
           const { prisma } = await import("@/lib/prisma");
           const bcrypt = (await import("bcryptjs")).default;
-          const { abrirSessao, destinoSeguro, loginBloqueado, registrarFalhaLogin, limparFalhasLogin } =
-            await import("@/lib/auth.server");
+          const {
+            abrirSessao,
+            destinoSeguro,
+            loginBloqueado,
+            registrarFalhaLogin,
+            limparFalhasLogin,
+          } = await import("@/lib/auth.server");
 
           if (loginBloqueado(request, email)) {
             return Response.json(
@@ -30,10 +37,16 @@ export const Route = createFileRoute("/api/auth/login")({
           const user = await prisma.users.findUnique({ where: { email } });
           const valid = user ? await bcrypt.compare(senha, user.senha_hash) : false;
           if (user && !valid && user.senha_hash.startsWith("codigo:")) {
-            return Response.json({ error: "Esta cuenta entra con un código por e-mail. Tocá «Recibir código»." }, { status: 401 });
+            return Response.json(
+              { error: "Esta cuenta entra con un código por e-mail. Tocá «Recibir código»." },
+              { status: 401 },
+            );
           }
           if (user && user.google_id && !valid && user.senha_hash.startsWith("google:")) {
-            return Response.json({ error: "Esta cuenta se creó con Google. Tocá «Continuar con Google»." }, { status: 401 });
+            return Response.json(
+              { error: "Esta cuenta se creó con Google. Tocá «Continuar con Google»." },
+              { status: 401 },
+            );
           }
           if (!user || !valid) {
             registrarFalhaLogin(request, email);
@@ -44,10 +57,16 @@ export const Route = createFileRoute("/api/auth/login")({
           const cookie = await abrirSessao(request, user);
           // Admin vai para o painel; cliente, para onde estava (ou o perfil)
           const destino = user.role === "ADMIN" ? "/admin" : destinoSeguro(body.redirect);
-          return Response.json({ success: true, role: user.role, destino }, { headers: { "Set-Cookie": cookie } });
+          return Response.json(
+            { success: true, role: user.role, destino },
+            { headers: { "Set-Cookie": cookie } },
+          );
         } catch (err) {
           console.error("Erro no login:", err);
-          return Response.json({ error: "No pudimos iniciar sesión. Probá de nuevo." }, { status: 500 });
+          return Response.json(
+            { error: "No pudimos iniciar sesión. Probá de nuevo." },
+            { status: 500 },
+          );
         }
       }),
     },

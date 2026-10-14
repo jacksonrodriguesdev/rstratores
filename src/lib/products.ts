@@ -80,7 +80,6 @@ export type ListParams = {
 
 import { createServerFn } from "@tanstack/react-start";
 
-
 export async function resolveImageUrl(ref: string | null | undefined): Promise<string | null> {
   if (!ref) return null;
   if (ref.startsWith("http://") || ref.startsWith("https://")) return ref;
@@ -105,7 +104,10 @@ export async function resolveImageUrls(
 
 const listProductsFn = createServerFn({ method: "GET" })
   // Rota pública: limita o tamanho da página para ninguém pedir o catálogo inteiro de uma vez
-  .validator((d: ListParams) => ({ ...d, pageSize: Math.min(Math.max(Number(d.pageSize) || 36, 1), 100) }))
+  .validator((d: ListParams) => ({
+    ...d,
+    pageSize: Math.min(Math.max(Number(d.pageSize) || 36, 1), 100),
+  }))
   .handler(async ({ data }) => {
     const server = await import("./products.server");
     return server.listProducts(data);
@@ -161,10 +163,17 @@ const acharPorCodigosFn = createServerFn({ method: "POST" })
     const achados = await acharPorCodigos(data);
     const skus = [...new Set(achados.map((a) => a.sku).filter(Boolean))] as string[];
     const { prisma } = await import("./prisma");
-    const rows = skus.length ? await prisma.agricolas.findMany({ where: { sku: { in: skus } } }) : [];
+    const rows = skus.length
+      ? await prisma.agricolas.findMany({ where: { sku: { in: skus } } })
+      : [];
     const porSku = new Map(rows.map((r) => [r.sku, r]));
     const { semCusto } = await import("./precos.server");
-    return achados.map((a) => ({ codigo: a.codigo, produto: (a.sku && porSku.get(a.sku) ? semCusto(porSku.get(a.sku) as any) : null) as Product | null }));
+    return achados.map((a) => ({
+      codigo: a.codigo,
+      produto: (a.sku && porSku.get(a.sku)
+        ? semCusto(porSku.get(a.sku) as any)
+        : null) as Product | null,
+    }));
   });
 
 export async function acharPorCodigos(codigos: string[]) {
@@ -177,10 +186,15 @@ const getProductsBySkusFn = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     if (!data.length) return [];
     const { prisma } = await import("./prisma");
-    const rows = await prisma.agricolas.findMany({ where: { sku: { in: data }, duplicado_de: null } });
+    const rows = await prisma.agricolas.findMany({
+      where: { sku: { in: data }, duplicado_de: null },
+    });
     const porSku = new Map(rows.map((r) => [r.sku, r]));
     const { semCusto } = await import("./precos.server");
-    return data.map((s) => porSku.get(s)).filter(Boolean).map((r) => semCusto(r as any)) as unknown as Product[];
+    return data
+      .map((s) => porSku.get(s))
+      .filter(Boolean)
+      .map((r) => semCusto(r as any)) as unknown as Product[];
   });
 
 export async function getProductsBySkus(skus: string[]) {

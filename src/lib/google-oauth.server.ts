@@ -5,7 +5,8 @@
 import crypto from "crypto";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
-export const googleConfigurado = () => !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+export const googleConfigurado = () =>
+  !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
 const COOKIE = "ap_google_oauth";
 const JWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
@@ -13,7 +14,8 @@ const JWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/ce
 // Origem pública do site (atrás do proxy da Hostinger a requisição chega por http)
 export function origemPublica(request: Request): string {
   const u = new URL(request.url);
-  const proto = request.headers.get("x-forwarded-proto")?.split(",")[0].trim() || u.protocol.replace(":", "");
+  const proto =
+    request.headers.get("x-forwarded-proto")?.split(",")[0].trim() || u.protocol.replace(":", "");
   const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || u.host;
   return `${proto}://${host}`;
 }
@@ -55,7 +57,9 @@ export function iniciarGoogle(request: Request, destino: string): Response {
 export type PerfilGoogle = { sub: string; email: string; nome: string; foto: string | null };
 
 // 2) Volta do Google: confere state, troca o code pelo id_token e valida a assinatura
-export async function concluirGoogle(request: Request): Promise<{ perfil: PerfilGoogle; destino: string }> {
+export async function concluirGoogle(
+  request: Request,
+): Promise<{ perfil: PerfilGoogle; destino: string }> {
   const u = new URL(request.url);
   const salvo = (() => {
     try {
@@ -65,7 +69,8 @@ export async function concluirGoogle(request: Request): Promise<{ perfil: Perfil
     }
   })();
   if (u.searchParams.get("error")) throw new Error("cancelado");
-  if (!salvo || !u.searchParams.get("state") || u.searchParams.get("state") !== salvo.state) throw new Error("state inválido");
+  if (!salvo || !u.searchParams.get("state") || u.searchParams.get("state") !== salvo.state)
+    throw new Error("state inválido");
 
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -86,7 +91,8 @@ export async function concluirGoogle(request: Request): Promise<{ perfil: Perfil
     audience: process.env.GOOGLE_CLIENT_ID!,
   });
   if (payload.nonce !== salvo.nonce) throw new Error("nonce inválido");
-  if (!payload.email || payload.email_verified !== true) throw new Error("e-mail do Google não verificado");
+  if (!payload.email || payload.email_verified !== true)
+    throw new Error("e-mail do Google não verificado");
   return {
     perfil: {
       sub: String(payload.sub),

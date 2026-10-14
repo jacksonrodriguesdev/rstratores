@@ -56,10 +56,17 @@ export async function salvarConfigMarketing(valores: Partial<Record<ChaveMkt, st
   const { prisma } = await import("./prisma");
   for (const [chave, bruto] of Object.entries(valores)) {
     if (!(chave in CAMPOS)) continue;
-    const valor = String(bruto ?? "").trim().slice(0, 2000);
+    const valor = String(bruto ?? "")
+      .trim()
+      .slice(0, 2000);
     // Segredo mascarado ("••••1234") volta do formulário sem mudança: mantém o salvo
     if (CAMPOS[chave as ChaveMkt].segredo && valor.startsWith("••••")) continue;
-    if (valor) await prisma.configuracoes.upsert({ where: { chave }, create: { chave, valor }, update: { valor } });
+    if (valor)
+      await prisma.configuracoes.upsert({
+        where: { chave },
+        create: { chave, valor },
+        update: { valor },
+      });
     else await prisma.configuracoes.deleteMany({ where: { chave } });
   }
   limparCacheMarketing();

@@ -3,7 +3,17 @@ import { SITE_URL } from "@/lib/site";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
-import { Search, Package, X, SlidersHorizontal, Loader2, Filter, MessageCircle, Camera, Bell } from "lucide-react";
+import {
+  Search,
+  Package,
+  X,
+  SlidersHorizontal,
+  Loader2,
+  Filter,
+  MessageCircle,
+  Camera,
+  Bell,
+} from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Input } from "@/components/ui/input";
@@ -12,8 +22,19 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useDebounce } from "@/hooks/use-debounce";
 import { listProducts, getFacets, type ListParams, type Product } from "@/lib/products";
 import { categoriaEs, categoriaFraseEs } from "@/lib/pecas-es";
@@ -48,7 +69,10 @@ export const Route = createFileRoute("/loja")({
     if (deps.q) return { inicial: null, chave: "" };
     const params = paramsIniciais(deps.categoria, deps.marca);
     try {
-      return { inicial: await listProducts({ ...params, contar: true }), chave: JSON.stringify(params) };
+      return {
+        inicial: await listProducts({ ...params, contar: true }),
+        chave: JSON.stringify(params),
+      };
     } catch {
       return { inicial: null, chave: "" };
     }
@@ -58,7 +82,10 @@ export const Route = createFileRoute("/loja")({
     const t = (es: string, pt: string) => tr(idioma, es, pt);
     const { categoria, marca, q } = (match.search ?? {}) as z.infer<typeof searchSchema>;
     // Título conforme o filtro: "Filtros para Massey Ferguson" rende melhor no Google que "Loja"
-    const alvo = [categoria ? categoriaNo(categoria, idioma) : t("Repuestos agrícolas", "Peças agrícolas"), marca && `para ${marca}`]
+    const alvo = [
+      categoria ? categoriaNo(categoria, idioma) : t("Repuestos agrícolas", "Peças agrícolas"),
+      marca && `para ${marca}`,
+    ]
       .filter(Boolean)
       .join(" ");
     const titulo = q ? `${t("Resultados para", "Resultados para")} "${q}"` : alvo;
@@ -146,11 +173,14 @@ function LojaPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ["loja", queryParams],
     // Conta o total só na primeira página (mostra "1.234 repuestos" no topo)
-    queryFn: ({ pageParam }) => listProducts({ ...queryParams, cursor: pageParam, contar: !pageParam }),
+    queryFn: ({ pageParam }) =>
+      listProducts({ ...queryParams, cursor: pageParam, contar: !pageParam }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.nextCursor : undefined),
     initialData:
-      inicial && JSON.stringify(queryParams) === chave ? { pages: [inicial], pageParams: [undefined] } : undefined,
+      inicial && JSON.stringify(queryParams) === chave
+        ? { pages: [inicial], pageParams: [undefined] }
+        : undefined,
     staleTime: 60_000,
   });
 
@@ -159,7 +189,10 @@ function LojaPage() {
     queryFn: () => getFacets(segment),
   });
 
-  const rows = useMemo(() => (data ? data.pages.flatMap((page) => page.rows as Product[]) : []), [data]);
+  const rows = useMemo(
+    () => (data ? data.pages.flatMap((page) => page.rows as Product[]) : []),
+    [data],
+  );
   const total = data?.pages[0]?.total ?? -1;
   const filtroFoto = soComFoto && !busca;
 
@@ -231,7 +264,9 @@ function LojaPage() {
               onCheckedChange={() => toggle(opt.name, selecionados, setter)}
               className="rounded-[4px] border-zinc-300 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
             />
-            <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">{rotulo(opt.name)}</span>
+            <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900">
+              {rotulo(opt.name)}
+            </span>
           </div>
           <span className="rounded-full border border-zinc-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-zinc-400">
             {opt.count.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")}
@@ -280,15 +315,21 @@ function LojaPage() {
       <Accordion type="multiple" defaultValue={["categorias", "marcas"]} className="w-full">
         <AccordionItem value="categorias" className="border-b-0">
           <AccordionTrigger className="rounded-md px-1 py-3 hover:bg-muted/50 hover:no-underline">
-            <span className="text-sm font-semibold uppercase tracking-wider text-zinc-800">{t("Categoría", "Categoria")}</span>
+            <span className="text-sm font-semibold uppercase tracking-wider text-zinc-800">
+              {t("Categoría", "Categoria")}
+            </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-1 px-1 pb-4 pt-1">
-            {listaFiltro(facets?.categorias, categorias, setCategorias, (n) => categoriaNo(n, idioma))}
+            {listaFiltro(facets?.categorias, categorias, setCategorias, (n) =>
+              categoriaNo(n, idioma),
+            )}
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="marcas" className="border-b-0">
           <AccordionTrigger className="rounded-md px-1 py-3 hover:bg-muted/50 hover:no-underline">
-            <span className="text-sm font-semibold uppercase tracking-wider text-zinc-800">{t("Marca del tractor", "Marca do trator")}</span>
+            <span className="text-sm font-semibold uppercase tracking-wider text-zinc-800">
+              {t("Marca del tractor", "Marca do trator")}
+            </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-1 px-1 pb-4 pt-1">
             {listaFiltro((facets as any)?.marcas, marcas, setMarcas, (n) => n)}
@@ -304,7 +345,9 @@ function LojaPage() {
       <main className="mx-auto max-w-[1600px] px-3 py-4 sm:px-6 md:py-8 lg:px-8">
         <div className="mb-5 flex flex-col justify-between gap-3 md:mb-8 md:flex-row md:items-end md:gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 md:text-3xl">{titulo}</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 md:text-3xl">
+              {titulo}
+            </h1>
             {categorias.length === 1 && categoriaFraseEs(categorias[0]) && !busca && (
               <p className="mt-1 max-w-2xl text-sm text-zinc-600">
                 {idioma === "pt"
@@ -315,7 +358,8 @@ function LojaPage() {
             <p className="mt-2 text-sm font-medium text-zinc-500">
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-3 w-3 animate-spin" /> {t("Buscando repuestos…", "Buscando peças…")}
+                  <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                  {t("Buscando repuestos…", "Buscando peças…")}
                 </span>
               ) : total >= 0 ? (
                 `${total.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")} ${total === 1 ? t("repuesto encontrado", "peça encontrada") : t("repuestos encontrados", "peças encontradas")}${busca ? ` para "${busca}"` : ""}`
@@ -334,7 +378,12 @@ function LojaPage() {
                 )}
               >
                 <Camera className="h-3.5 w-3.5" />
-                {soComFoto ? t("Mostrando solo repuestos con foto · Ver todos", "Mostrando só peças com foto · Ver todas") : t("Ver solo repuestos con foto", "Ver só peças com foto")}
+                {soComFoto
+                  ? t(
+                      "Mostrando solo repuestos con foto · Ver todos",
+                      "Mostrando só peças com foto · Ver todas",
+                    )
+                  : t("Ver solo repuestos con foto", "Ver só peças com foto")}
               </button>
             )}
             {/* Filtros ativos, removíveis com um toque */}
@@ -386,7 +435,9 @@ function LojaPage() {
                 <SelectContent>
                   <SelectItem value="nome-asc">{t("Nombre (A-Z)", "Nome (A-Z)")}</SelectItem>
                   <SelectItem value="nome-desc">{t("Nombre (Z-A)", "Nome (Z-A)")}</SelectItem>
-                  <SelectItem value="created-desc">{t("Más recientes", "Mais recentes")}</SelectItem>
+                  <SelectItem value="created-desc">
+                    {t("Más recientes", "Mais recentes")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -417,17 +468,28 @@ function LojaPage() {
 
             {!hasNextPage && rows.length > 0 && !isLoading && (
               <div className="flex flex-col items-center gap-3 rounded-2xl bg-white p-6 text-center shadow-sm">
-                <p className="font-semibold text-zinc-800">{t("¿No encontraste lo que buscabas?", "Não encontrou o que procurava?")}</p>
+                <p className="font-semibold text-zinc-800">
+                  {t("¿No encontraste lo que buscabas?", "Não encontrou o que procurava?")}
+                </p>
                 <p className="max-w-md text-sm text-zinc-500">
-                  {t("Tenemos muchas piezas que todavía no están publicadas. Mandanos el código o una foto y te la conseguimos.", "Temos muitas peças que ainda não estão publicadas. Mande o código ou uma foto e conseguimos para você.")}
+                  {t(
+                    "Tenemos muchas piezas que todavía no están publicadas. Mandanos el código o una foto y te la conseguimos.",
+                    "Temos muitas peças que ainda não estão publicadas. Mande o código ou uma foto e conseguimos para você.",
+                  )}
                 </p>
                 <a
-                  href={whatsappContactUrl(t(`¡Hola! Busco un repuesto${busca ? `: ${busca}` : ""}.`, `Olá! Procuro uma peça${busca ? `: ${busca}` : ""}.`))}
+                  href={whatsappContactUrl(
+                    t(
+                      `¡Hola! Busco un repuesto${busca ? `: ${busca}` : ""}.`,
+                      `Olá! Procuro uma peça${busca ? `: ${busca}` : ""}.`,
+                    ),
+                  )}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#1EBE57]"
                 >
-                  <MessageCircle className="h-4 w-4" /> {t("Pedir por WhatsApp", "Pedir pelo WhatsApp")}
+                  <MessageCircle className="h-4 w-4" />{" "}
+                  {t("Pedir por WhatsApp", "Pedir pelo WhatsApp")}
                 </a>
               </div>
             )}
@@ -462,7 +524,9 @@ function LojaPage() {
           />
           <div className="w-[85%] max-w-sm overflow-y-auto bg-[#f8f9fc] p-5 shadow-2xl animate-in slide-in-from-right-full duration-300">
             <div className="mb-5 flex items-center justify-between">
-              <div className="text-lg font-bold text-zinc-900">{t("Filtrar repuestos", "Filtrar peças")}</div>
+              <div className="text-lg font-bold text-zinc-900">
+                {t("Filtrar repuestos", "Filtrar peças")}
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
@@ -475,8 +539,13 @@ function LojaPage() {
             </div>
             {sidebar}
             <div className="sticky bottom-4 mt-6">
-              <Button className="h-12 w-full text-base font-bold shadow-lg" onClick={() => setMobileOpen(false)}>
-                {t("Ver", "Ver")} {total >= 0 ? `${total.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")} ` : ""}{t("resultados", "resultados")}
+              <Button
+                className="h-12 w-full text-base font-bold shadow-lg"
+                onClick={() => setMobileOpen(false)}
+              >
+                {t("Ver", "Ver")}{" "}
+                {total >= 0 ? `${total.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")} ` : ""}
+                {t("resultados", "resultados")}
               </Button>
             </div>
           </div>
@@ -509,13 +578,24 @@ function EmptyState({ busca }: { busca: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-300 bg-white/50 px-4 py-8 text-center md:py-24">
       <Package className="mb-3 h-12 w-12 text-zinc-300 md:mb-4 md:h-16 md:w-16" />
-      <h3 className="text-xl font-bold text-zinc-900">{t("No encontramos repuestos", "Não encontramos peças")}{busca ? ` para "${busca}"` : ""}</h3>
+      <h3 className="text-xl font-bold text-zinc-900">
+        {t("No encontramos repuestos", "Não encontramos peças")}
+        {busca ? ` para "${busca}"` : ""}
+      </h3>
       <p className="mt-2 max-w-sm text-sm font-medium text-zinc-500">
-        {t("Probá con el código original, otra palabra o quitá algún filtro. Si no aparece, te lo conseguimos.", "Tente o código original, outra palavra ou tire algum filtro. Se não aparecer, conseguimos para você.")}
+        {t(
+          "Probá con el código original, otra palabra o quitá algún filtro. Si no aparece, te lo conseguimos.",
+          "Tente o código original, outra palavra ou tire algum filtro. Se não aparecer, conseguimos para você.",
+        )}
       </p>
       {busca.trim().length >= 3 && <AvisoChegada busca={busca.trim()} />}
       <a
-        href={whatsappContactUrl(t(`¡Hola! Busco un repuesto${busca ? `: ${busca}` : ""}.`, `Olá! Procuro uma peça${busca ? `: ${busca}` : ""}.`))}
+        href={whatsappContactUrl(
+          t(
+            `¡Hola! Busco un repuesto${busca ? `: ${busca}` : ""}.`,
+            `Olá! Procuro uma peça${busca ? `: ${busca}` : ""}.`,
+          ),
+        )}
         target="_blank"
         rel="noreferrer noopener"
         className="mt-5 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#1EBE57]"
@@ -535,7 +615,8 @@ function AvisoChegada({ busca }: { busca: string }) {
   if (sessao) {
     return (
       <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
-        <Bell className="h-4 w-4" /> {t("Te avisamos por e-mail", "Avisamos por e-mail")}{sessao?.email ? ` (${sessao.email})` : ""} {t("apenas llegue.", "assim que chegar.")}
+        <Bell className="h-4 w-4" /> {t("Te avisamos por e-mail", "Avisamos por e-mail")}
+        {sessao?.email ? ` (${sessao.email})` : ""} {t("apenas llegue.", "assim que chegar.")}
       </p>
     );
   }
@@ -547,12 +628,31 @@ function AvisoChegada({ busca }: { busca: string }) {
       }}
       className="mt-5 w-full max-w-md rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5"
     >
-      <p className="flex items-center gap-2 text-sm font-bold text-zinc-900"><Bell className="h-4 w-4 text-primary" /> {t("Avisame cuando llegue", "Me avise quando chegar")}</p>
+      <p className="flex items-center gap-2 text-sm font-bold text-zinc-900">
+        <Bell className="h-4 w-4 text-primary" />{" "}
+        {t("Avisame cuando llegue", "Me avise quando chegar")}
+      </p>
       <div className="mt-2 flex gap-2">
-        <Input type="email" required autoComplete="email" inputMode="email" placeholder={t("tu@email.com", "seu@email.com")} value={email} onChange={(e) => setEmail(e.target.value)} className="h-11" />
-        <Button type="submit" className="h-11 shrink-0 font-bold">{t("Avisarme", "Me avise")}</Button>
+        <Input
+          type="email"
+          required
+          autoComplete="email"
+          inputMode="email"
+          placeholder={t("tu@email.com", "seu@email.com")}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="h-11"
+        />
+        <Button type="submit" className="h-11 shrink-0 font-bold">
+          {t("Avisarme", "Me avise")}
+        </Button>
       </div>
-      <p className="mt-1.5 text-xs text-zinc-500">{t("Y te llevás un cupón de descuento para tu primera compra.", "E ganhe um cupom de desconto na primeira compra.")}</p>
+      <p className="mt-1.5 text-xs text-zinc-500">
+        {t(
+          "Y te llevás un cupón de descuento para tu primera compra.",
+          "E ganhe um cupom de desconto na primeira compra.",
+        )}
+      </p>
     </form>
   );
 }

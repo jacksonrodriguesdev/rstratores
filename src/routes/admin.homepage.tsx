@@ -474,7 +474,8 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-4 border-t pt-4">
-                    <strong>Nota:</strong> As imagens deste slider agora são gerenciadas exclusivamente na página <strong>Admin {">"} Banners</strong>.
+                    <strong>Nota:</strong> As imagens deste slider agora são gerenciadas
+                    exclusivamente na página <strong>Admin {">"} Banners</strong>.
                   </p>
                 </>
               )}
@@ -490,7 +491,9 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                     >
                       <option value="AMBOS">Todos os Produtos (Ambos)</option>
                       <option value="AGRICOLA">Linha Agrícola</option>
-                      {AUTOMOTIVA_ATIVA && <option value="AUTOMOTIVA">Linha Pesada & Automotiva</option>}
+                      {AUTOMOTIVA_ATIVA && (
+                        <option value="AUTOMOTIVA">Linha Pesada & Automotiva</option>
+                      )}
                     </select>
                   </div>
                   <div className="space-y-2 mt-4">
@@ -556,8 +559,8 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                 <>
                   <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
                     Com <strong>GOOGLE_PLACES_API_KEY</strong> e <strong>GOOGLE_PLACE_ID</strong> no
-                    .env, as avaliações vêm automaticamente do Google e os dados abaixo são ignorados.
-                    Sem isso, copie aqui avaliações reais do perfil da loja no Google.
+                    .env, as avaliações vêm automaticamente do Google e os dados abaixo são
+                    ignorados. Sem isso, copie aqui avaliações reais do perfil da loja no Google.
                   </p>
                   <div className="space-y-2">
                     <Label>Link do perfil no Google (para "Avaliar no Google")</Label>
@@ -576,7 +579,9 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                         min="1"
                         max="5"
                         value={nota}
-                        onChange={(e) => setNota(e.target.value === "" ? "" : Number(e.target.value))}
+                        onChange={(e) =>
+                          setNota(e.target.value === "" ? "" : Number(e.target.value))
+                        }
                         placeholder="4.9"
                       />
                     </div>
@@ -586,7 +591,9 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                         type="number"
                         min="0"
                         value={total}
-                        onChange={(e) => setTotal(e.target.value === "" ? "" : Number(e.target.value))}
+                        onChange={(e) =>
+                          setTotal(e.target.value === "" ? "" : Number(e.target.value))
+                        }
                         placeholder="120"
                       />
                     </div>
@@ -637,7 +644,9 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setAvaliacoes((l) => [...l, { autor: "", nota: 5, texto: "" }])}
+                      onClick={() =>
+                        setAvaliacoes((l) => [...l, { autor: "", nota: 5, texto: "" }])
+                      }
                     >
                       Adicionar avaliação
                     </Button>
@@ -648,7 +657,10 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
               {(block.type === "PROMO_STRIP" || block.type === "PROMO_BANNERS_DUPLOS") && (
                 <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
                   As imagens deste bloco são gerenciadas em <strong>Admin {">"} Banners</strong>
-                  {block.type === "PROMO_STRIP" ? " (aba Faixa promocional)" : " (aba Banners promocionais)"}.
+                  {block.type === "PROMO_STRIP"
+                    ? " (aba Faixa promocional)"
+                    : " (aba Banners promocionais)"}
+                  .
                   {block.type === "PROMO_STRIP" &&
                     " A imagem abaixo só é usada se não houver nenhuma faixa ativa lá."}
                 </p>

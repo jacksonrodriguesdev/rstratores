@@ -9,7 +9,10 @@ export const Route = createFileRoute("/sitemaps/$arquivo")({
         const xml = await sitemapParte(params.arquivo);
         if (!xml) return new Response("Not found", { status: 404 });
         return new Response(xml, {
-          headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=3600" },
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": "public, max-age=3600",
+          },
         });
       },
     },

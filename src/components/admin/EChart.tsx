@@ -3,7 +3,14 @@ import { useEffect, useRef } from "react";
 // Gráfico ECharts. Carrega a biblioteca só no navegador (o painel também é renderizado
 // no servidor) e redimensiona junto com o contêiner.
 // gl: gráficos 3D (echarts-gl), carregado só quando usado
-type Props = { option: any; height?: number | string; className?: string; mapa?: boolean; gl?: boolean; aoClicar?: (p: any) => void };
+type Props = {
+  option: any;
+  height?: number | string;
+  className?: string;
+  mapa?: boolean;
+  gl?: boolean;
+  aoClicar?: (p: any) => void;
+};
 
 let mapaRegistrado: Promise<void> | null = null;
 async function registrarMapa(echarts: any) {

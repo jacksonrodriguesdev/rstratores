@@ -9,3 +9,8 @@ package-lock.json
 *.cjs
 *.rar
 *.zip
+src/routeTree.gen.ts
+uploads/
+public/
+marketing/
+dados/

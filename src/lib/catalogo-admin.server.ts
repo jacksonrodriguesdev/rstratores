@@ -55,4 +55,3 @@ export function delegates(tx: any, linha?: string | null) {
   const t = tabelasCatalogo(linha);
   return { produtos: tx[t.produtos], imagens: tx[t.imagens], agricola: t.agricola };
 }
-

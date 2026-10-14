@@ -36,14 +36,20 @@ export const produtosFn = createServerFn({ method: "GET" })
   });
 
 export const produtoRegiaoFn = createServerFn({ method: "GET" })
-  .validator((d: { dias: number; sku?: string }) => ({ dias: diasOk(d?.dias), sku: d?.sku ? String(d.sku).slice(0, 100) : undefined }))
+  .validator((d: { dias: number; sku?: string }) => ({
+    dias: diasOk(d?.dias),
+    sku: d?.sku ? String(d.sku).slice(0, 100) : undefined,
+  }))
   .handler(async ({ data }) => {
     await admin();
     return (await import("./analises.server")).produtoRegiao(data.dias, data.sku);
   });
 
 export const cliquesFn = createServerFn({ method: "GET" })
-  .validator((d: { dias: number; pagina?: string }) => ({ dias: diasOk(d?.dias), pagina: d?.pagina ? String(d.pagina).slice(0, 200) : undefined }))
+  .validator((d: { dias: number; pagina?: string }) => ({
+    dias: diasOk(d?.dias),
+    pagina: d?.pagina ? String(d.pagina).slice(0, 200) : undefined,
+  }))
   .handler(async ({ data }) => {
     await admin();
     return (await import("./analises.server")).cliques(data.dias, data.pagina);

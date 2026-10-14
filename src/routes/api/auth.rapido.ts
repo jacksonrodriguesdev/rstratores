@@ -12,17 +12,28 @@ export const Route = createFileRoute("/api/auth/rapido")({
       POST: comIdioma(async ({ request }) => {
         try {
           const body = await request.json().catch(() => ({}));
-          const { lerTokenEmail, garantirCupom, senhaAleatoria } = await import("@/lib/acesso.server");
+          const { lerTokenEmail, garantirCupom, senhaAleatoria } =
+            await import("@/lib/acesso.server");
           const email = await lerTokenEmail(String(body.token ?? ""));
-          if (!email) return Response.json({ error: "La verificación venció. Pedí un código nuevo." }, { status: 400 });
+          if (!email)
+            return Response.json(
+              { error: "La verificación venció. Pedí un código nuevo." },
+              { status: 400 },
+            );
 
           const { normalizarCelularUY, DEPARTAMENTOS_UY } = await import("@/lib/validacao-conta");
           const nome_completo = texto(body.nome, 120);
-          const departamento = DEPARTAMENTOS_UY.includes(body.departamento) ? body.departamento : null;
+          const departamento = DEPARTAMENTOS_UY.includes(body.departamento)
+            ? body.departamento
+            : null;
           const telBruto = texto(body.telefone, 30);
           const telefone = telBruto ? normalizarCelularUY(telBruto) : null;
           // Só o e-mail é obrigatório: nome e departamento podem vir depois (pop-up ou Mi cuenta)
-          if (telBruto && !telefone) return Response.json({ error: "El celular debe ser uruguayo: 09X XXX XXX." }, { status: 400 });
+          if (telBruto && !telefone)
+            return Response.json(
+              { error: "El celular debe ser uruguayo: 09X XXX XXX." },
+              { status: 400 },
+            );
 
           const { prisma } = await import("@/lib/prisma");
           const { abrirSessao } = await import("@/lib/auth.server");
@@ -31,7 +42,14 @@ export const Route = createFileRoute("/api/auth/rapido")({
           const user =
             existente ??
             (await prisma.users.create({
-              data: { nome_completo, email, senha_hash: senhaAleatoria("codigo"), telefone, departamento, pais: idiomaDaRequisicao(request) === "pt" ? "Brasil" : "Uruguai" },
+              data: {
+                nome_completo,
+                email,
+                senha_hash: senhaAleatoria("codigo"),
+                telefone,
+                departamento,
+                pais: idiomaDaRequisicao(request) === "pt" ? "Brasil" : "Uruguai",
+              },
             }));
           if (!existente) {
             const { registrarCadastro } = await import("@/lib/conversoes.server");
@@ -39,10 +57,16 @@ export const Route = createFileRoute("/api/auth/rapido")({
           }
           const cupom = await garantirCupom(user.id);
           const cookie = await abrirSessao(request, user);
-          return Response.json({ ok: true, id: user.id, nome: user.nome_completo, cupom }, { headers: { "Set-Cookie": cookie } });
+          return Response.json(
+            { ok: true, id: user.id, nome: user.nome_completo, cupom },
+            { headers: { "Set-Cookie": cookie } },
+          );
         } catch (err) {
           console.error("Erro no cadastro rápido:", err);
-          return Response.json({ error: "No pudimos crear la cuenta. Probá de nuevo." }, { status: 500 });
+          return Response.json(
+            { error: "No pudimos crear la cuenta. Probá de nuevo." },
+            { status: 500 },
+          );
         }
       }),
     },

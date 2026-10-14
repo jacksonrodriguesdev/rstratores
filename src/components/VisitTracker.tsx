@@ -10,17 +10,37 @@ const MAX_CLIQUES = 25; // por página vista
 const enviar = (corpo: object) => {
   const dados = JSON.stringify(corpo);
   // sendBeacon sobrevive à troca de página/fechamento da aba
-  if (navigator.sendBeacon?.("/api/public/track", new Blob([dados], { type: "application/json" }))) return;
-  fetch("/api/public/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: dados, keepalive: true }).catch(() => {});
+  if (navigator.sendBeacon?.("/api/public/track", new Blob([dados], { type: "application/json" })))
+    return;
+  fetch("/api/public/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: dados,
+    keepalive: true,
+  }).catch(() => {});
 };
 const evento = (tipo: "clique" | "rolagem", dado: string, pagina: string) =>
-  enviar({ path: `${PREFIXO_EVENTO}${tipo}/${encodeURIComponent(dado).slice(0, 170)}`, pagina, ...visitanteAtual(), entrada: false });
+  enviar({
+    path: `${PREFIXO_EVENTO}${tipo}/${encodeURIComponent(dado).slice(0, 170)}`,
+    pagina,
+    ...visitanteAtual(),
+    entrada: false,
+  });
 
 // Rótulo curto do que foi clicado: "a:Ver catálogo", "button:Comprar pelo WhatsApp"
 function rotulo(alvo: HTMLElement | null) {
-  const el = alvo?.closest?.("a,button,[role=button],input,select,textarea,summary,label") as HTMLElement | null;
+  const el = alvo?.closest?.(
+    "a,button,[role=button],input,select,textarea,summary,label",
+  ) as HTMLElement | null;
   if (!el) return alvo?.tagName?.toLowerCase() ?? "?";
-  const texto = (el.getAttribute("aria-label") || el.innerText || (el as HTMLInputElement).placeholder || "").replace(/\s+/g, " ").trim();
+  const texto = (
+    el.getAttribute("aria-label") ||
+    el.innerText ||
+    (el as HTMLInputElement).placeholder ||
+    ""
+  )
+    .replace(/\s+/g, " ")
+    .trim();
   return `${el.tagName.toLowerCase()}:${texto.slice(0, 28)}`;
 }
 
@@ -45,7 +65,11 @@ export function VisitTracker() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // language: "es:es-UY" / "pt:pt-BR" = idioma do site + idioma do navegador (Admin → Análises)
-      body: JSON.stringify({ path: pathname, ...v, language: `${idioma}:${v.language}`.slice(0, 20) }),
+      body: JSON.stringify({
+        path: pathname,
+        ...v,
+        language: `${idioma}:${v.language}`.slice(0, 20),
+      }),
       keepalive: true,
     }).catch(() => {});
 
@@ -101,7 +125,9 @@ export function VisitTracker() {
       if (cliques.current >= MAX_CLIQUES) return;
       cliques.current++;
       const x = Math.round((e.clientX / Math.max(1, window.innerWidth)) * 100);
-      const y = Math.round(((e.clientY + window.scrollY) / Math.max(1, document.documentElement.scrollHeight)) * 100);
+      const y = Math.round(
+        ((e.clientY + window.scrollY) / Math.max(1, document.documentElement.scrollHeight)) * 100,
+      );
       const tela = window.innerWidth < 768 ? "m" : "d"; // celular ou computador
       evento("clique", `${p}|${x}|${y}|${tela}|${rotulo(e.target as HTMLElement)}`, p);
     };

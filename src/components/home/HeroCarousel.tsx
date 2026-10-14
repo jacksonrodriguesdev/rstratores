@@ -82,7 +82,8 @@ export function HeroCarousel({
                 {b.image_path_mobile && (
                   <source media="(max-width: 767px)" srcSet={urlImagem(b.image_path_mobile)} />
                 )}
-                <img decoding="async"
+                <img
+                  decoding="async"
                   src={urlImagem(b.image_path)}
                   alt={b.titulo ?? ""}
                   loading={i === 0 && variante === "hero" ? "eager" : "lazy"}
@@ -114,7 +115,9 @@ export function HeroCarousel({
                   {tag}
                 </span>
               )}
-              {titulo && <h2 className="text-xl font-extrabold leading-tight md:text-4xl">{titulo}</h2>}
+              {titulo && (
+                <h2 className="text-xl font-extrabold leading-tight md:text-4xl">{titulo}</h2>
+              )}
               {subtitulo && <p className="mt-1 text-sm text-white/90 md:text-base">{subtitulo}</p>}
             </div>
           </div>

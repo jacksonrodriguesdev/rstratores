@@ -78,12 +78,22 @@ function useProdutosDoBloco(config: string | null, limitePadrao: number) {
     produtos: (query.data?.rows ?? []).slice(0, limite),
     carregando: query.isLoading,
     // Parâmetros do "Ver todos" na loja
-    busca: { linha, ...(filtros.categoria && { categoria: filtros.categoria }), ...(filtros.marca && { marca: filtros.marca }) },
+    busca: {
+      linha,
+      ...(filtros.categoria && { categoria: filtros.categoria }),
+      ...(filtros.marca && { marca: filtros.marca }),
+    },
   };
 }
 
 // BANNER PRINCIPAL + ATALHOS (os cartões se sobrepõem ao banner no desktop, como no Mercado Livre)
-export function HeroSliderBlock({ config, title }: { config: string | null; title: string | null }) {
+export function HeroSliderBlock({
+  config,
+  title,
+}: {
+  config: string | null;
+  title: string | null;
+}) {
   const { segment } = useSegment();
   const { t, idioma } = useT();
   const c = lerConfig(config);
@@ -100,15 +110,28 @@ export function HeroSliderBlock({ config, title }: { config: string | null; titl
           <div className="h-[170px] animate-pulse rounded-2xl bg-zinc-200 sm:h-[240px] md:h-[400px] md:rounded-none" />
         </div>
       ) : banners.length > 0 ? (
-        <HeroCarousel banners={banners} titulo={title} subtitulo={idioma === "pt" ? null : c.subtitle} tag={idioma === "pt" ? null : c.tag} />
+        <HeroCarousel
+          banners={banners}
+          titulo={title}
+          subtitulo={idioma === "pt" ? null : c.subtitle}
+          tag={idioma === "pt" ? null : c.tag}
+        />
       ) : (
         <div className="mx-3 mt-3 rounded-2xl bg-gradient-to-br from-primary to-emerald-900 px-6 py-10 text-white md:mx-0 md:mt-0 md:rounded-none md:px-0 md:pb-36 md:pt-16">
           <div className="mx-auto max-w-7xl md:px-8">
             <h2 className="max-w-xl text-2xl font-extrabold leading-tight md:text-5xl">
-              {title || t("Repuestos para tractores con cotización rápida", "Peças para tratores com orçamento rápido")}
+              {title ||
+                t(
+                  "Repuestos para tractores con cotización rápida",
+                  "Peças para tratores com orçamento rápido",
+                )}
             </h2>
             <p className="mt-2 max-w-lg text-white/85 md:text-lg">
-              {(idioma === "es" && c.subtitle) || t("Buscá por el código original y recibí tu cotización por WhatsApp.", "Busque pelo código original e receba seu orçamento pelo WhatsApp.")}
+              {(idioma === "es" && c.subtitle) ||
+                t(
+                  "Buscá por el código original y recibí tu cotización por WhatsApp.",
+                  "Busque pelo código original e receba seu orçamento pelo WhatsApp.",
+                )}
             </p>
           </div>
         </div>
@@ -128,7 +151,10 @@ function Atalhos() {
   const itens = [
     {
       titulo: t("Buscar por código", "Buscar por código"),
-      texto: t("Encontrá la pieza exacta por el código original", "Encontre a peça exata pelo código original"),
+      texto: t(
+        "Encontrá la pieza exacta por el código original",
+        "Encontre a peça exata pelo código original",
+      ),
       icon: Search,
       cor: "bg-primary/10 text-primary",
       to: "/loja",
@@ -152,18 +178,26 @@ function Atalhos() {
       texto: t("Hablá directo con nuestro equipo", "Fale direto com a nossa equipe"),
       icon: MessageCircle,
       cor: "bg-[#25D366]/15 text-[#128C4B]",
-      externo: whatsappContactUrl(t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças.")),
+      externo: whatsappContactUrl(
+        t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."),
+      ),
     },
     {
       titulo: t("Mejoramos tu precio", "Cobrimos seu orçamento"),
-      texto: t("Mandanos el presupuesto de otro proveedor", "Mande o orçamento de outro fornecedor"),
+      texto: t(
+        "Mandanos el presupuesto de otro proveedor",
+        "Mande o orçamento de outro fornecedor",
+      ),
       icon: Calculator,
       cor: "bg-violet-100 text-violet-700",
       acao: () => setCotarAberto(true),
     },
     {
       titulo: t("Pedido rápido", "Pedido rápido"),
-      texto: t("Pegá tu lista de códigos y cotizá todo junto", "Cole sua lista de códigos e peça orçamento de tudo junto"),
+      texto: t(
+        "Pegá tu lista de códigos y cotizá todo junto",
+        "Cole sua lista de códigos e peça orçamento de tudo junto",
+      ),
       icon: ListChecks,
       cor: "bg-zinc-100 text-zinc-700",
       to: "/pedido-rapido",
@@ -198,7 +232,11 @@ function Atalhos() {
               );
             if (it.acao)
               return (
-                <button key={it.titulo} onClick={it.acao} className={`${largura} ${card} text-left`}>
+                <button
+                  key={it.titulo}
+                  onClick={it.acao}
+                  className={`${largura} ${card} text-left`}
+                >
                   {conteudo}
                 </button>
               );
@@ -221,13 +259,23 @@ function Atalhos() {
 }
 
 // CATEGORIAS (círculos com ícone; rolagem horizontal no celular)
-export function CategoryGridBlock({ config, title }: { config: string | null; title?: string | null }) {
+export function CategoryGridBlock({
+  config,
+  title,
+}: {
+  config: string | null;
+  title?: string | null;
+}) {
   // Categorias do banco: o que for criado/renomeado/excluído no admin aparece aqui
   const categorias = useCategoriasLoja();
   const { t, idioma } = useT();
 
   return (
-    <Section id="categorias" title={title || t("Categorías", "Categorias")} verTodos={{ label: t("Ver catálogo", "Ver catálogo") }}>
+    <Section
+      id="categorias"
+      title={title || t("Categorías", "Categorias")}
+      verTodos={{ label: t("Ver catálogo", "Ver catálogo") }}
+    >
       <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:px-0">
         {categorias.map((c) => (
           <Link
@@ -239,7 +287,13 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
             <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white md:h-12 md:w-12">
               {/* Imagem enviada em Admin > Categorias; sem imagem, o ícone */}
               {c.imagem ? (
-                <img decoding="async" src={c.imagem} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  decoding="async"
+                  src={c.imagem}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <c.icon className="h-7 w-7 md:h-6 md:w-6" />
               )}
@@ -251,7 +305,8 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
               </span>
               {c.total ? (
                 <span className="hidden text-xs text-zinc-500 md:block">
-                  {c.total.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")} {t("repuestos", "peças")}
+                  {c.total.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY")}{" "}
+                  {t("repuestos", "peças")}
                 </span>
               ) : null}
             </span>
@@ -263,7 +318,13 @@ export function CategoryGridBlock({ config, title }: { config: string | null; ti
 }
 
 // CARROSSEL DE PRODUTOS
-export function ProductsCarouselBlock({ title, config }: { title: string | null; config: string | null }) {
+export function ProductsCarouselBlock({
+  title,
+  config,
+}: {
+  title: string | null;
+  config: string | null;
+}) {
   const { produtos, carregando, busca } = useProdutosDoBloco(config, 12);
   const { t } = useT();
   if (!carregando && produtos.length === 0) return null;
@@ -275,7 +336,13 @@ export function ProductsCarouselBlock({ title, config }: { title: string | null;
 }
 
 // GRADE DE PRODUTOS
-export function ProductsGridBlock({ title, config }: { title: string | null; config: string | null }) {
+export function ProductsGridBlock({
+  title,
+  config,
+}: {
+  title: string | null;
+  config: string | null;
+}) {
   const { produtos, carregando, busca } = useProdutosDoBloco(config, 10);
   const { t } = useT();
   if (!carregando && produtos.length === 0) return null;
@@ -295,7 +362,13 @@ export function ProductsGridBlock({ title, config }: { title: string | null; con
 }
 
 // FAIXA PROMOCIONAL: banners do tipo "Faixa promocional" em Admin > Banners
-export function PromoStripBlock({ title, config }: { title: string | null; config: string | null }) {
+export function PromoStripBlock({
+  title,
+  config,
+}: {
+  title: string | null;
+  config: string | null;
+}) {
   const c = lerConfig(config);
   const { data: faixas = [] } = useQuery({
     queryKey: ["home_banners", "strip"],
@@ -334,9 +407,21 @@ export function PromoStripBlock({ title, config }: { title: string | null; confi
 export function FeaturesStripBlock({ config }: { config: string | null }) {
   const { t } = useT();
   const itens = [
-    { icon: Truck, titulo: t("Envíos a todo Uruguay", "Envio para todo o RS"), texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio") },
-    { icon: ShieldCheck, titulo: t("Cotización sin compromiso", "Orçamento sem compromisso"), texto: t("Rápida y segura por WhatsApp", "Rápido e seguro pelo WhatsApp") },
-    { icon: Headset, titulo: t("Atención especializada", "Atendimento especializado"), texto: t("Te ayudamos a encontrar la pieza exacta", "Ajudamos a encontrar a peça exata") },
+    {
+      icon: Truck,
+      titulo: t("Envíos a todo Uruguay", "Envio para todo o RS"),
+      texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio"),
+    },
+    {
+      icon: ShieldCheck,
+      titulo: t("Cotización sin compromiso", "Orçamento sem compromisso"),
+      texto: t("Rápida y segura por WhatsApp", "Rápido e seguro pelo WhatsApp"),
+    },
+    {
+      icon: Headset,
+      titulo: t("Atención especializada", "Atendimento especializado"),
+      texto: t("Te ayudamos a encontrar la pieza exacta", "Ajudamos a encontrar a peça exata"),
+    },
   ];
   return (
     <Reveal>
@@ -350,7 +435,9 @@ export function FeaturesStripBlock({ config }: { config: string | null }) {
               <it.icon className="h-5 w-5 md:h-6 md:w-6" />
             </span>
             <div>
-              <h4 className="text-[11px] font-bold leading-tight text-zinc-800 md:text-sm">{it.titulo}</h4>
+              <h4 className="text-[11px] font-bold leading-tight text-zinc-800 md:text-sm">
+                {it.titulo}
+              </h4>
               <p className="hidden text-xs text-zinc-500 md:block">{it.texto}</p>
             </div>
           </div>
@@ -362,7 +449,18 @@ export function FeaturesStripBlock({ config }: { config: string | null }) {
 
 // MARCAS (faixa com rolagem contínua)
 export function BrandsCarouselBlock({ config }: { config: string | null }) {
-  const marcas = ["Massey Ferguson", "Valtra", "Valmet", "John Deere", "New Holland", "Case IH", "Ford", "Agrale", "MWM", "Perkins"];
+  const marcas = [
+    "Massey Ferguson",
+    "Valtra",
+    "Valmet",
+    "John Deere",
+    "New Holland",
+    "Case IH",
+    "Ford",
+    "Agrale",
+    "MWM",
+    "Perkins",
+  ];
   const { t } = useT();
   return (
     <Reveal>
@@ -373,7 +471,10 @@ export function BrandsCarouselBlock({ config }: { config: string | null }) {
         <div className="relative [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
           <div className="animate-marquee flex w-max gap-10">
             {[...marcas, ...marcas].map((m, i) => (
-              <span key={i} className="whitespace-nowrap text-lg font-extrabold uppercase tracking-wide text-zinc-300">
+              <span
+                key={i}
+                className="whitespace-nowrap text-lg font-extrabold uppercase tracking-wide text-zinc-300"
+              >
                 {m}
               </span>
             ))}
@@ -395,9 +496,14 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
         <Search className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 text-white/5" />
         <div className="relative mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center md:gap-10">
           <div className="md:flex-1">
-            <h2 className="text-xl font-extrabold md:text-3xl">{t("¿Sabés el código de la pieza?", "Sabe o código da peça?")}</h2>
+            <h2 className="text-xl font-extrabold md:text-3xl">
+              {t("¿Sabés el código de la pieza?", "Sabe o código da peça?")}
+            </h2>
             <p className="mt-1 text-sm text-white/80 md:text-base">
-              {t("Escribí el código original o del fabricante y encontrá la pieza exacta.", "Digite o código original ou do fabricante e encontre a peça exata.")}
+              {t(
+                "Escribí el código original o del fabricante y encontrá la pieza exacta.",
+                "Digite o código original ou do fabricante e encontre a peça exata.",
+              )}
             </p>
           </div>
           <form
@@ -427,7 +533,10 @@ export function BuscaCodigoBlock({ config }: { config: string | null }) {
 const PROMO_BANNERS = [
   {
     titulo: ["Engranajes y Transmisión", "Engrenagens e Transmissão"],
-    texto: ["Repuestos para caja, diferencial y tracción de tu tractor.", "Peças para câmbio, diferencial e tração do seu trator."],
+    texto: [
+      "Repuestos para caja, diferencial y tracción de tu tractor.",
+      "Peças para câmbio, diferencial e tração do seu trator.",
+    ],
     categoria: "Engrenagens e Transmissão",
     cta: ["Ver repuestos", "Ver peças"],
     icon: Settings,
@@ -435,7 +544,10 @@ const PROMO_BANNERS = [
   },
   {
     titulo: ["Filtros", "Filtros"],
-    texto: ["Filtros de aceite, combustible y aire para el service de tu tractor.", "Filtros de óleo, combustível e ar para a revisão do seu trator."],
+    texto: [
+      "Filtros de aceite, combustible y aire para el service de tu tractor.",
+      "Filtros de óleo, combustível e ar para a revisão do seu trator.",
+    ],
     categoria: "Filtros",
     cta: ["Comprar ahora", "Comprar agora"],
     icon: Droplet,
@@ -456,13 +568,15 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
       <Reveal>
         <div className="grid gap-3 md:grid-cols-2 md:gap-4">
           {duplos.slice(0, 4).map((b) => {
-            const url = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
+            const url = (p: string) =>
+              p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`;
             const img = (
               <picture>
                 {b.image_path_mobile && (
                   <source media="(max-width: 767px)" srcSet={url(b.image_path_mobile)} />
                 )}
-                <img decoding="async"
+                <img
+                  decoding="async"
                   src={url(b.image_path)}
                   alt={b.titulo ?? ""}
                   loading="lazy"
@@ -471,7 +585,11 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
               </picture>
             );
             return b.link_url ? (
-              <a key={b.id} href={b.link_url} className="block transition hover:opacity-95 active:scale-[0.98]">
+              <a
+                key={b.id}
+                href={b.link_url}
+                className="block transition hover:opacity-95 active:scale-[0.98]"
+              >
                 {img}
               </a>
             ) : (
@@ -496,7 +614,9 @@ export function PromoBannersDuplosBlock({ config }: { config: string | null }) {
           >
             <b.icon className="absolute -bottom-8 -right-8 h-44 w-44 text-white/10 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110 md:h-56 md:w-56" />
             <div className="relative flex flex-col justify-center p-5 md:p-8">
-              <h3 className="text-xl font-extrabold text-white md:text-3xl">{t(b.titulo[0], b.titulo[1])}</h3>
+              <h3 className="text-xl font-extrabold text-white md:text-3xl">
+                {t(b.titulo[0], b.titulo[1])}
+              </h3>
               <p className="mt-1 max-w-xs text-sm text-white/85">{t(b.texto[0], b.texto[1])}</p>
               <span className="mt-3 inline-flex w-max items-center gap-1 rounded-full bg-white px-4 py-1.5 text-sm font-bold text-zinc-900 shadow">
                 {t(b.cta[0], b.cta[1])} <ChevronRight className="h-4 w-4" />
@@ -538,7 +658,13 @@ export function CarouselMontadorasBlock({ config }: { config: string | null }) {
 }
 
 // AVALIAÇÕES DO GOOGLE (antigo "Depoimentos", que tinha textos fictícios)
-export function DepoimentosBlock({ config, title }: { config: string | null; title?: string | null }) {
+export function DepoimentosBlock({
+  config,
+  title,
+}: {
+  config: string | null;
+  title?: string | null;
+}) {
   return <GoogleReviews config={lerConfig(config)} titulo={title} />;
 }
 
@@ -549,15 +675,27 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
     <Reveal>
       <div className={`grid gap-3 md:gap-4 ${INSTAGRAM_URL ? "md:grid-cols-2" : ""}`}>
         <a
-          href={whatsappContactUrl(t("¡Hola! Quiero recibir ofertas de repuestos por WhatsApp.", "Olá! Quero receber ofertas de peças pelo WhatsApp."))}
+          href={whatsappContactUrl(
+            t(
+              "¡Hola! Quiero recibir ofertas de repuestos por WhatsApp.",
+              "Olá! Quero receber ofertas de peças pelo WhatsApp.",
+            ),
+          )}
           target="_blank"
           rel="noreferrer noopener"
           className="flex items-center gap-4 rounded-2xl bg-[#25D366] p-5 text-white shadow-sm transition active:scale-[0.98] md:p-8"
         >
           <MessageCircle className="h-12 w-12 shrink-0" />
           <div>
-            <h3 className="text-lg font-extrabold md:text-2xl">{t("Ofertas por WhatsApp", "Ofertas pelo WhatsApp")}</h3>
-            <p className="text-sm text-white/90">{t("Recibí novedades y promociones directo en tu celular.", "Receba novidades e promoções direto no seu celular.")}</p>
+            <h3 className="text-lg font-extrabold md:text-2xl">
+              {t("Ofertas por WhatsApp", "Ofertas pelo WhatsApp")}
+            </h3>
+            <p className="text-sm text-white/90">
+              {t(
+                "Recibí novedades y promociones directo en tu celular.",
+                "Receba novidades e promoções direto no seu celular.",
+              )}
+            </p>
           </div>
         </a>
         {INSTAGRAM_URL && (
@@ -569,8 +707,15 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
           >
             <Instagram className="h-12 w-12 shrink-0" />
             <div>
-              <h3 className="text-lg font-extrabold md:text-2xl">{t("Seguinos en Instagram", "Siga no Instagram")}</h3>
-              <p className="text-sm text-white/90">{t("Consejos, novedades y el día a día del taller.", "Dicas, novidades e o dia a dia da oficina.")}</p>
+              <h3 className="text-lg font-extrabold md:text-2xl">
+                {t("Seguinos en Instagram", "Siga no Instagram")}
+              </h3>
+              <p className="text-sm text-white/90">
+                {t(
+                  "Consejos, novedades y el día a día del taller.",
+                  "Dicas, novidades e o dia a dia da oficina.",
+                )}
+              </p>
             </div>
           </a>
         )}
@@ -593,10 +738,26 @@ export function EnvioDacBlock({ config }: { config: string | null }) {
 
 function EnvioBrasilBlock() {
   const vantagens = [
-    { icon: MapPin, titulo: "Todo o Rio Grande do Sul", texto: "Enviamos para qualquer cidade do país." },
-    { icon: Search, titulo: "Código de rastreio", texto: "Você acompanha o pacote do envio até a entrega." },
-    { icon: PackageCheck, titulo: "Embalagem cuidadosa", texto: "Cada peça é embalada para viajar protegida." },
-    { icon: MessageCircle, titulo: "Frete combinado", texto: "Cotamos Correios ou transportadora e você escolhe." },
+    {
+      icon: MapPin,
+      titulo: "Todo o Rio Grande do Sul",
+      texto: "Enviamos para qualquer cidade do país.",
+    },
+    {
+      icon: Search,
+      titulo: "Código de rastreio",
+      texto: "Você acompanha o pacote do envio até a entrega.",
+    },
+    {
+      icon: PackageCheck,
+      titulo: "Embalagem cuidadosa",
+      texto: "Cada peça é embalada para viajar protegida.",
+    },
+    {
+      icon: MessageCircle,
+      titulo: "Frete combinado",
+      texto: "Cotamos Correios ou transportadora e você escolhe.",
+    },
   ];
   return (
     <Reveal>
@@ -608,14 +769,20 @@ function EnvioBrasilBlock() {
         <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
-              <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> Envio para todo o Rio Grande do Sul
+              <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> Envio para todo o Rio Grande do
+              Sul
             </span>
-            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">Receba suas peças em qualquer cidade do Rio Grande do Sul</h2>
+            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">
+              Receba suas peças em qualquer cidade do Rio Grande do Sul
+            </h2>
             <p className="mt-2 text-sm text-white/85 md:text-base">
-              Estamos na fronteira Chuí / Chuy e enviamos por Correios ou transportadora, com código de rastreio.
+              Estamos na fronteira Chuí / Chuy e enviamos por Correios ou transportadora, com código
+              de rastreio.
             </p>
             <a
-              href={whatsappContactUrl("Olá! Quero consultar o frete de peças para o Rio Grande do Sul.")}
+              href={whatsappContactUrl(
+                "Olá! Quero consultar o frete de peças para o Rio Grande do Sul.",
+              )}
               target="_blank"
               rel="noreferrer noopener"
               className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"
@@ -654,9 +821,21 @@ function EnvioDacUruguai({ config }: { config: string | null }) {
     : null;
   const ventajas = [
     { icon: MapPin, titulo: "Todo Uruguay", texto: "Enviamos a los 19 departamentos." },
-    { icon: Search, titulo: "Seguimiento en línea", texto: "Con tu número de envío seguís el paquete en dac.com.uy." },
-    { icon: PackageCheck, titulo: "Embalaje cuidadoso", texto: "Cada pieza se embala para viajar protegida." },
-    { icon: MessageCircle, titulo: "Te acompañamos", texto: "Te confirmamos el despacho y el número de seguimiento por WhatsApp." },
+    {
+      icon: Search,
+      titulo: "Seguimiento en línea",
+      texto: "Con tu número de envío seguís el paquete en dac.com.uy.",
+    },
+    {
+      icon: PackageCheck,
+      titulo: "Embalaje cuidadoso",
+      texto: "Cada pieza se embala para viajar protegida.",
+    },
+    {
+      icon: MessageCircle,
+      titulo: "Te acompañamos",
+      texto: "Te confirmamos el despacho y el número de seguimiento por WhatsApp.",
+    },
   ];
 
   return (
@@ -672,7 +851,8 @@ function EnvioDacUruguai({ config }: { config: string | null }) {
               {fundo.image_path_mobile && (
                 <source media="(max-width: 767px)" srcSet={urlFundo(fundo.image_path_mobile)} />
               )}
-              <img decoding="async"
+              <img
+                decoding="async"
                 src={urlFundo(fundo.image_path)}
                 alt={fundo.titulo ?? ""}
                 loading="lazy"
@@ -694,13 +874,19 @@ function EnvioDacUruguai({ config }: { config: string | null }) {
               Recibí tus repuestos en cualquier punto de Uruguay
             </h2>
             <p className="mt-2 text-sm text-white/85 md:text-base">
-              Despachamos tu pedido por DAC, con seguimiento en línea desde que sale hasta que llega.
+              Despachamos tu pedido por DAC, con seguimiento en línea desde que sale hasta que
+              llega.
             </p>
 
             <div className="mt-5 flex items-center gap-3">
               <div className="flex h-14 min-w-28 items-center justify-center rounded-xl bg-white px-4 shadow-sm">
                 {logo ? (
-                  <img decoding="async" src={logo} alt="DAC" className="max-h-10 w-auto object-contain" />
+                  <img
+                    decoding="async"
+                    src={logo}
+                    alt="DAC"
+                    className="max-h-10 w-auto object-contain"
+                  />
                 ) : (
                   <span className="text-2xl font-black tracking-tight text-blue-900">DAC</span>
                 )}
@@ -718,7 +904,9 @@ function EnvioDacUruguai({ config }: { config: string | null }) {
                 <Search className="h-4 w-4" /> Rastrear mi envío
               </a>
               <a
-                href={whatsappContactUrl("¡Hola! Quiero consultar el envío de repuestos a Uruguay por DAC.")}
+                href={whatsappContactUrl(
+                  "¡Hola! Quiero consultar el envío de repuestos a Uruguay por DAC.",
+                )}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"
