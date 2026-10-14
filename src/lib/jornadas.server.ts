@@ -1,6 +1,8 @@
 // Jornada dos visitantes: cada sessão (visita) com origem, local, aparelho, tempo e o que a
 // pessoa fez (páginas, buscas, carrinho, WhatsApp, pop-up de cadastro), e a linha do tempo de
-// cada uma. Também o funil de cadastro. Lê site_visits (páginas + eventos "/_evento/<tipo>/<dado>").
+// cada uma. Também o funil de cadastro. Páginas em site_visits, eventos em site_eventos.
+// Sessões dos dias fechados vêm prontas de analise_sessao (gravadas com o resumo diário,
+// src/lib/resumo-diario.server.ts); só o dia de hoje é montado na hora.
 import { prisma } from "./prisma";
 
 const EV = "/_evento/";
@@ -13,16 +15,26 @@ export type Sessao = {
   cidade: string | null; regiao: string | null; pais: string | null; aparelho: string | null; sistema: string | null; navegador: string | null;
   visitaN: number; usuario: { id: number; nome: string; email: string } | null; acoes: Acoes;
 };
+// Sessão como fica guardada (analise_sessao): sem número da visita e sem o nome do cliente,
+// com o que a tela Visitantes usa (nome do país, coordenadas, páginas vistas)
+export type SessaoBase = Omit<Sessao, "visitaN" | "usuario"> & {
+  userId: number | null;
+  paisNome: string | null;
+  lat: number | null;
+  lon: number | null;
+  caminhos: Record<string, number>;
+};
 export type Passo = { t: number; quando: string; tipo: "pagina" | "evento"; icone: string; texto: string; detalhe?: string; destaque?: "bom" | "ruim" };
 
-type Linha = {
+export type Linha = {
   id: number; created_at: Date; path: string; visitor_id: string | null; session_id: string | null; ip_hash: string | null;
   fonte: string | null; meio: string | null; utm_campaign: string | null; referrer_host: string | null; city: string | null; region: string | null;
-  country_code: string | null; device: string | null; os: string | null; browser: string | null; user_id: number | null;
+  country: string | null; country_code: string | null; latitude: number | null; longitude: number | null; device: string | null; os: string | null;
+  browser: string | null; user_id: number | null;
 };
-const SELECT = {
-  id: true, created_at: true, path: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true, meio: true, utm_campaign: true,
-  referrer_host: true, city: true, region: true, country_code: true, device: true, os: true, browser: true, user_id: true,
+export const SELECT_LINHA = {
+  id: true, created_at: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true, meio: true, utm_campaign: true,
+  referrer_host: true, city: true, region: true, country: true, country_code: true, latitude: true, longitude: true, device: true, os: true, browser: true, user_id: true,
 } as const;
 
 const visitanteDe = (l: Linha) => l.visitor_id || l.ip_hash || `v${l.id}`;
@@ -33,7 +45,9 @@ const evento = (path: string) => {
   let dado = resto.join("/");
   try {
     dado = decodeURIComponent(dado);
-  } catch {}
+  } catch {
+    /* "%" solto: fica como veio */
+  }
   return { tipo, dado };
 };
 
@@ -44,12 +58,12 @@ async function lerLinhas(filtro: any): Promise<Linha[]> {
   await eventosProntos();
   const where = { ...filtro, NOT: { path: { startsWith: EV } } };
   const [paginas, eventos] = await Promise.all([
-    prisma.site_visits.findMany({ where, orderBy: { created_at: "asc" }, take: 150000, select: SELECT }) as Promise<Linha[]>,
+    prisma.site_visits.findMany({ where, orderBy: { created_at: "asc" }, take: 150000, select: { ...SELECT_LINHA, path: true } }) as Promise<Linha[]>,
     prisma.site_eventos.findMany({
       where: { ...filtro, tipo: { notIn: ["clique", "rolagem"] } },
       orderBy: { created_at: "asc" },
       take: 50000,
-      select: { id: true, created_at: true, tipo: true, dado: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true, meio: true, utm_campaign: true, referrer_host: true, city: true, region: true, country_code: true, device: true, os: true, browser: true, user_id: true },
+      select: { ...SELECT_LINHA, tipo: true, dado: true },
     }),
   ]);
   const comoLinha = eventos.map(({ tipo, dado, id, ...e }) => ({ ...e, id: -id, path: caminhoDoEvento({ tipo, dado }) }) as Linha);
@@ -69,10 +83,11 @@ function montarSessoes(linhas: Linha[]) {
   return mapa;
 }
 
-function resumir(id: string, ls: Linha[]): Omit<Sessao, "visitaN" | "usuario"> & { userId: number | null } {
+function resumir(id: string, ls: Linha[]): SessaoBase {
   const a = vazio();
   let paginas = 0;
   let entrada = "", saida = "";
+  const caminhos: Record<string, number> = {};
   for (const l of ls) {
     const e = evento(l.path);
     if (e) {
@@ -94,38 +109,90 @@ function resumir(id: string, ls: Linha[]): Omit<Sessao, "visitaN" | "usuario"> &
       saida = l.path;
       if (l.path.startsWith("/produto/")) a.produtos++;
       if (l.path.startsWith("/catalogos/ver/")) a.catalogos++;
+      // Páginas vistas (no máximo 60 diferentes por sessão)
+      if (caminhos[l.path] || Object.keys(caminhos).length < 60) caminhos[l.path] = (caminhos[l.path] ?? 0) + 1;
     }
   }
-  // Atributos da sessão: a primeira linha que tem cada informação
+  // Atributos da sessão: a primeira linha que tem cada informação; o local vem todo da mesma linha
   const pega = <K extends keyof Linha>(k: K) => ls.find((l) => l[k])?.[k] ?? null;
+  const comLocal = ls.find((l) => l.city) ?? ls.find((l) => l.country_code);
   const ini = ls[0].created_at, fim = ls[ls.length - 1].created_at;
   return {
     id, visitante: visitanteDe(ls[0]), inicio: ini.toISOString(), fim: fim.toISOString(), duracao: Math.round((fim.getTime() - ini.getTime()) / 1000),
     paginas, entrada, saida, fonte: pega("fonte") as string | null, meio: pega("meio") as string | null, campanha: pega("utm_campaign") as string | null,
-    origemSite: pega("referrer_host") as string | null, cidade: pega("city") as string | null, regiao: pega("region") as string | null,
-    pais: pega("country_code") as string | null, aparelho: pega("device") as string | null, sistema: pega("os") as string | null,
-    navegador: pega("browser") as string | null, acoes: a, userId: (pega("user_id") as number | null) ?? null,
+    origemSite: pega("referrer_host") as string | null, cidade: comLocal?.city ?? null, regiao: comLocal?.region ?? null,
+    pais: comLocal?.country_code ?? null, paisNome: comLocal?.country ?? null, lat: comLocal?.latitude ?? null, lon: comLocal?.longitude ?? null,
+    aparelho: pega("device") as string | null, sistema: pega("os") as string | null, navegador: pega("browser") as string | null,
+    acoes: a, userId: (pega("user_id") as number | null) ?? null, caminhos,
   };
+}
+
+// Sessões a partir das linhas (páginas + eventos já como "/_evento/..."): também usado pelo resumo diário
+export function sessoesDeLinhas(linhas: Linha[]): SessaoBase[] {
+  return [...montarSessoes(linhas).entries()].map(([id, s]) => resumir(id, s.linhas)).filter((s) => s.paginas > 0 || s.acoes.whatsapp > 0);
+}
+
+// Uma sessão que passou da meia-noite fica em dois dias: junta as partes
+function juntar(a: SessaoBase, b: SessaoBase): SessaoBase {
+  const [p, q] = a.inicio <= b.inicio ? [a, b] : [b, a];
+  const caminhos = { ...p.caminhos };
+  for (const [k, v] of Object.entries(q.caminhos)) caminhos[k] = (caminhos[k] ?? 0) + v;
+  const acoes = { ...p.acoes };
+  for (const k of Object.keys(acoes) as Array<keyof Acoes>) {
+    const x = q.acoes[k];
+    (acoes as any)[k] = typeof x === "number" ? (acoes[k] as number) + x : acoes[k] || x;
+  }
+  const fim = p.fim > q.fim ? p.fim : q.fim;
+  return {
+    ...p, fim, duracao: Math.round((Date.parse(fim) - Date.parse(p.inicio)) / 1000), paginas: p.paginas + q.paginas,
+    entrada: p.entrada || q.entrada, saida: q.saida || p.saida, caminhos, acoes,
+    cidade: p.cidade ?? q.cidade, regiao: p.regiao ?? q.regiao, pais: p.pais ?? q.pais, paisNome: p.paisNome ?? q.paisNome, lat: p.lat ?? q.lat, lon: p.lon ?? q.lon,
+    userId: p.userId ?? q.userId,
+  };
+}
+
+// Sessões dos últimos `dias` dias (o último é hoje). pais "UY": só as localizadas no Uruguai.
+export async function sessoesDoPeriodo(dias: number, pais: string | null) {
+  const { garantirDias, diasAte, hojeLocal, inicioDia } = await import("./resumo-diario.server");
+  const lista = diasAte(dias);
+  const hoje = hojeLocal();
+  const fechados = lista.filter((d) => d < hoje);
+  await garantirDias(fechados);
+  const salvas = fechados.length
+    ? await prisma.analise_sessao.findMany({ where: { dia: { in: fechados }, ...(pais && { pais }) }, select: { dados: true } })
+    : [];
+  const todas: SessaoBase[] = [];
+  for (const s of salvas) {
+    try {
+      todas.push(JSON.parse(s.dados));
+    } catch {
+      /* linha corrompida: ignora */
+    }
+  }
+  if (lista.includes(hoje)) {
+    const deHoje = sessoesDeLinhas(await lerLinhas({ created_at: { gte: inicioDia(hoje) } }));
+    todas.push(...(pais ? deHoje.filter((s) => s.pais === pais) : deHoje));
+  }
+  const porId = new Map<string, SessaoBase>();
+  for (const s of todas) porId.set(s.id, porId.has(s.id) ? juntar(porId.get(s.id)!, s) : s);
+  return { sessoes: [...porId.values()], desde: inicioDia(lista[0]) };
 }
 
 export type FiltroJornada = "todas" | "com_acao" | "popup" | "cadastro" | "voltaram" | "identificados";
 
 export async function listarJornadas(o: { dias: number; pais: string | null; filtro: FiltroJornada; pagina: number }) {
-  const desde = new Date(Date.now() - o.dias * 86400_000);
-  const linhas = await lerLinhas({ created_at: { gte: desde } });
-  const mapa = montarSessoes(linhas);
+  const { sessoes: base, desde } = await sessoesDoPeriodo(o.dias, o.pais);
 
   // Quantas visitas cada visitante já fez (olhando até 90 dias antes do período)
   const antes = new Date(desde.getTime() - 90 * 86400_000);
-  const visitantes = [...new Set(linhas.map(visitanteDe))].filter((v) => !v.startsWith("v"));
+  const visitantes = [...new Set(base.map((s) => s.visitante))].filter((v) => !v.startsWith("v"));
   const anteriores = visitantes.length
     ? await prisma.site_visits.groupBy({ by: ["visitor_id", "session_id"], where: { visitor_id: { in: visitantes.slice(0, 5000) }, created_at: { gte: antes, lt: desde } } }).catch(() => [])
     : [];
   const visitasAntes = new Map<string, number>();
   for (const r of anteriores) if (r.visitor_id) visitasAntes.set(r.visitor_id, (visitasAntes.get(r.visitor_id) ?? 0) + 1);
 
-  let sessoes = [...mapa.entries()].map(([id, s]) => resumir(id, s.linhas)).filter((s) => s.paginas > 0 || s.acoes.whatsapp > 0);
-  if (o.pais) sessoes = sessoes.filter((s) => s.pais === o.pais);
+  const sessoes = [...base];
   // Número da visita: ordem das sessões do mesmo visitante
   sessoes.sort((a, b) => a.inicio.localeCompare(b.inicio));
   const contagem = new Map<string, number>();
@@ -137,11 +204,11 @@ export async function listarJornadas(o: { dias: number; pais: string | null; fil
 
   // Quem é: usuário logado na sessão, ou o mesmo visitante logado em outra visita
   const userDoVisitante = new Map<string, number>();
-  for (const l of linhas) if (l.user_id && l.visitor_id) userDoVisitante.set(l.visitor_id, l.user_id);
+  for (const s of sessoes) if (s.userId) userDoVisitante.set(s.visitante, s.userId);
   const ids = [...new Set(comN.map((s) => s.userId ?? userDoVisitante.get(s.visitante)).filter(Boolean))] as number[];
   const users = ids.length ? await prisma.users.findMany({ where: { id: { in: ids } }, select: { id: true, nome_completo: true, email: true } }) : [];
   const porId = new Map(users.map((u) => [u.id, { id: u.id, nome: u.nome_completo, email: u.email }]));
-  const todas: Sessao[] = comN.map(({ userId, ...s }) => ({ ...s, usuario: porId.get(userId ?? userDoVisitante.get(s.visitante) ?? -1) ?? null }));
+  const todas: Sessao[] = comN.map(({ userId, paisNome: _p, lat: _la, lon: _lo, caminhos: _c, ...s }) => ({ ...s, usuario: porId.get(userId ?? userDoVisitante.get(s.visitante) ?? -1) ?? null }));
 
   // Funil de cadastro do período
   const novos = await prisma.users.count({ where: { role: { not: "ADMIN" }, created_at: { gte: desde } } });

@@ -1,33 +1,13 @@
-// Painel de visitantes: agrega site_visits (páginas vistas + eventos) por período.
+// Painel de visitantes: agrega as sessões (visitas) do período — as dos dias fechados vêm prontas
+// de analise_sessao (src/lib/jornadas.server.ts → sessoesDoPeriodo), só as de hoje são montadas na hora.
 // Horários no fuso do Uruguai (UTC-3, sem horário de verão).
 import { prisma } from "./prisma";
 import { PREFIXO_EVENTO } from "./eventos";
 import type { Visitantes } from "./visitantes";
+import type { SessaoBase } from "./jornadas.server";
 
 const FUSO = -3 * 3600 * 1000;
 const diaLocal = (d: Date) => new Date(d.getTime() + FUSO).toISOString().slice(0, 10);
-
-type Linha = {
-  id: number;
-  created_at: Date;
-  path: string;
-  country: string | null;
-  country_code: string | null;
-  region: string | null;
-  city: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  visitor_id: string | null;
-  session_id: string | null;
-  ip_hash: string | null;
-  fonte: string | null;
-  meio: string | null;
-  utm_campaign: string | null;
-  device: string | null;
-  browser: string | null;
-  os: string | null;
-  referrer_host: string | null;
-};
 
 function contar<K>(mapa: Map<K, number>, k: K, n = 1) {
   mapa.set(k, (mapa.get(k) ?? 0) + n);
@@ -36,133 +16,89 @@ const ordenar = <T extends Record<string, any>>(a: T[], campo: keyof T) => a.sor
 
 // pais: "UY" = só sessões localizadas no Uruguai (o tráfego pago é segmentado para o Uruguai)
 export async function resumoVisitantes(dias: number, pais: string | null = null): Promise<Visitantes> {
-  const desde = new Date(Date.now() - dias * 24 * 3600 * 1000);
-  // Páginas (site_visits) + eventos de interesse (site_eventos: WhatsApp e buscas), na ordem do tempo
-  const { eventosProntos, caminhoDoEvento } = await import("./eventos-db.server");
-  await eventosProntos();
-  const campos = {
-    id: true, created_at: true, country: true, country_code: true, region: true, city: true,
-    latitude: true, longitude: true, visitor_id: true, session_id: true, ip_hash: true, fonte: true,
-    meio: true, utm_campaign: true, device: true, browser: true, os: true, referrer_host: true,
-  } as const;
-  const [linhasPaginas, eventos] = await Promise.all([
+  const { sessoesDoPeriodo } = await import("./jornadas.server");
+  const { diasAte } = await import("./resumo-diario.server");
+  const [{ sessoes: lista }, recentes] = await Promise.all([
+    sessoesDoPeriodo(dias, pais),
+    // As últimas páginas vistas (linhas brutas: só 60)
     prisma.site_visits.findMany({
-      where: { created_at: { gte: desde }, NOT: { path: { startsWith: PREFIXO_EVENTO } } },
-      orderBy: { created_at: "asc" },
-      take: 250000,
-      select: { ...campos, path: true },
-    }),
-    prisma.site_eventos.findMany({
-      where: { created_at: { gte: desde }, tipo: { in: ["whatsapp", "cotacao", "busca"] } },
-      orderBy: { created_at: "asc" },
-      take: 50000,
-      select: { ...campos, tipo: true, dado: true },
+      where: { NOT: { path: { startsWith: PREFIXO_EVENTO } }, ...(pais && { country_code: pais }) },
+      orderBy: { id: "desc" },
+      take: 60,
+      select: { created_at: true, path: true, city: true, region: true, country_code: true, fonte: true, device: true, browser: true, visitor_id: true, ip_hash: true, id: true },
     }),
   ]);
-  const linhas: Linha[] = [
-    ...(linhasPaginas as Linha[]),
-    ...eventos.map(({ tipo, dado, id, ...e }) => ({ ...e, id: -id, path: caminhoDoEvento({ tipo, dado }) }) as Linha),
-  ].sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
+  const inicioLocal = (s: SessaoBase) => new Date(Date.parse(s.inicio) + FUSO);
 
-  const visitante = (l: Linha) => l.visitor_id || l.ip_hash || `v${l.id}`;
-  const sessaoDe = (l: Linha) => l.session_id || `${visitante(l)}|${diaLocal(l.created_at)}`;
-
-  // Sessões: atributos da primeira linha (origem, local, aparelho) e se houve clique no WhatsApp
-  type Sessao = { primeira: Linha; visitante: string; paginas: number; whatsapp: number; buscas: number; entrada: string };
-  const sessoes = new Map<string, Sessao>();
-  const visitas: Linha[] = [];
-  let cliquesWhatsapp = 0;
-  for (const l of linhas) {
-    const k = sessaoDe(l);
-    let s = sessoes.get(k);
-    const evento = l.path.startsWith(PREFIXO_EVENTO);
-    if (!s) {
-      s = { primeira: l, visitante: visitante(l), paginas: 0, whatsapp: 0, buscas: 0, entrada: evento ? "" : l.path };
-      sessoes.set(k, s);
-    }
-    if (!s.primeira.city && l.city) s.primeira = { ...s.primeira, city: l.city, region: l.region, country: l.country, country_code: l.country_code, latitude: l.latitude, longitude: l.longitude };
-    if (evento) {
-      const tipo = l.path.slice(PREFIXO_EVENTO.length).split("/")[0];
-      if (tipo === "whatsapp" || tipo === "cotacao") { s.whatsapp++; cliquesWhatsapp++; }
-      if (tipo === "busca") s.buscas++;
-    } else {
-      s.paginas++;
-      if (!s.entrada) s.entrada = l.path;
-      visitas.push(l);
-    }
-  }
-  const lista = [...sessoes.values()].filter((s) => (s.paginas > 0 || s.whatsapp > 0) && (!pais || s.primeira.country_code === pais));
-  if (pais) {
-    // Páginas vistas só das sessões que ficaram no filtro
-    const manter = new Set(lista.map((s) => s));
-    const chaves = new Set([...sessoes.entries()].filter(([, s]) => manter.has(s)).map(([k]) => k));
-    for (let i = visitas.length - 1; i >= 0; i--) if (!chaves.has(sessaoDe(visitas[i]))) visitas.splice(i, 1);
-  }
-
-  // Por dia
+  // Por dia (dia em que a sessão começou)
   const porDia = new Map<string, { visitas: number; visitantes: Set<string>; sessoes: number; whatsapp: number }>();
-  for (let d = 0; d < dias; d++) {
-    porDia.set(diaLocal(new Date(Date.now() - (dias - 1 - d) * 24 * 3600 * 1000)), { visitas: 0, visitantes: new Set(), sessoes: 0, whatsapp: 0 });
-  }
-  for (const l of visitas) {
-    const d = porDia.get(diaLocal(l.created_at));
-    if (d) { d.visitas++; d.visitantes.add(visitante(l)); }
-  }
+  for (const d of diasAte(dias)) porDia.set(d, { visitas: 0, visitantes: new Set(), sessoes: 0, whatsapp: 0 });
   for (const s of lista) {
-    const d = porDia.get(diaLocal(s.primeira.created_at));
-    if (d) { d.sessoes++; d.whatsapp += s.whatsapp ? 1 : 0; }
+    const d = porDia.get(diaLocal(new Date(s.inicio)));
+    if (!d) continue;
+    d.visitas += s.paginas;
+    d.visitantes.add(s.visitante);
+    d.sessoes++;
+    if (s.acoes.whatsapp) d.whatsapp++;
   }
 
   // Agrupamentos por sessão
-  const agrupar = (chave: (s: Sessao) => string | null) => {
-    const m = new Map<string, { sessoes: number; visitantes: Set<string>; whatsapp: number; amostra: Sessao }>();
+  const agrupar = (chave: (s: SessaoBase) => string | null) => {
+    const m = new Map<string, { sessoes: number; visitantes: Set<string>; whatsapp: number; amostra: SessaoBase }>();
     for (const s of lista) {
       const k = chave(s);
       if (!k) continue;
       let g = m.get(k);
-      if (!g) { g = { sessoes: 0, visitantes: new Set(), whatsapp: 0, amostra: s }; m.set(k, g); }
+      if (!g) {
+        g = { sessoes: 0, visitantes: new Set(), whatsapp: 0, amostra: s };
+        m.set(k, g);
+      }
       g.sessoes++;
       g.visitantes.add(s.visitante);
-      if (s.whatsapp) g.whatsapp++;
+      if (s.acoes.whatsapp) g.whatsapp++;
     }
     return [...m.entries()].map(([k, g]) => ({ k, sessoes: g.sessoes, visitantes: g.visitantes.size, whatsapp: g.whatsapp, amostra: g.amostra }));
   };
 
-  const paises = ordenar(agrupar((s) => s.primeira.country_code).map((g) => ({ code: g.k, nome: g.amostra.primeira.country ?? g.k, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "visitantes");
-  const regioes = ordenar(agrupar((s) => (s.primeira.region ? `${s.primeira.country_code}|${s.primeira.region}` : null)).map((g) => ({ region: g.amostra.primeira.region!, code: g.amostra.primeira.country_code, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "visitantes").slice(0, 30);
-  const cidades = ordenar(agrupar((s) => (s.primeira.city ? `${s.primeira.country_code}|${s.primeira.region}|${s.primeira.city}` : null)).map((g) => ({
-    city: g.amostra.primeira.city!, region: g.amostra.primeira.region, code: g.amostra.primeira.country_code,
-    lat: g.amostra.primeira.latitude, lon: g.amostra.primeira.longitude, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp,
-  })), "visitantes").slice(0, 150);
-  const fontes = ordenar(agrupar((s) => `${s.primeira.fonte ?? "sem dado"}|${s.primeira.meio ?? ""}`).map((g) => ({ fonte: g.amostra.primeira.fonte ?? "sem dado", meio: g.amostra.primeira.meio ?? "", visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "sessoes");
-  const campanhas = ordenar(agrupar((s) => s.primeira.utm_campaign).map((g) => ({ campanha: g.k, fonte: g.amostra.primeira.fonte ?? "", meio: g.amostra.primeira.meio ?? "", visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "sessoes");
-  const simples = (f: (s: Sessao) => string | null) => ordenar(agrupar(f).map((g) => ({ nome: g.k, sessoes: g.sessoes })), "sessoes");
+  const paises = ordenar(agrupar((s) => s.pais).map((g) => ({ code: g.k, nome: g.amostra.paisNome ?? g.k, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "visitantes");
+  const regioes = ordenar(agrupar((s) => (s.regiao ? `${s.pais}|${s.regiao}` : null)).map((g) => ({ region: g.amostra.regiao!, code: g.amostra.pais, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "visitantes").slice(0, 30);
+  const cidades = ordenar(
+    agrupar((s) => (s.cidade ? `${s.pais}|${s.regiao}|${s.cidade}` : null)).map((g) => ({
+      city: g.amostra.cidade!, region: g.amostra.regiao, code: g.amostra.pais,
+      lat: g.amostra.lat, lon: g.amostra.lon, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp,
+    })),
+    "visitantes",
+  ).slice(0, 150);
+  const fontes = ordenar(agrupar((s) => `${s.fonte ?? "sem dado"}|${s.meio ?? ""}`).map((g) => ({ fonte: g.amostra.fonte ?? "sem dado", meio: g.amostra.meio ?? "", visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "sessoes");
+  const campanhas = ordenar(agrupar((s) => s.campanha).map((g) => ({ campanha: g.k, fonte: g.amostra.fonte ?? "", meio: g.amostra.meio ?? "", visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })), "sessoes");
+  const simples = (f: (s: SessaoBase) => string | null) => ordenar(agrupar(f).map((g) => ({ nome: g.k, sessoes: g.sessoes })), "sessoes");
 
   const paginas = new Map<string, number>();
-  for (const l of visitas) contar(paginas, l.path);
+  for (const s of lista) for (const [p, n] of Object.entries(s.caminhos ?? {})) contar(paginas, p, n);
   const entradas = new Map<string, number>();
   for (const s of lista) if (s.entrada) contar(entradas, s.entrada);
 
   // Mapa de calor: dia da semana x hora (início da sessão, hora do Uruguai)
   const horario = Array.from({ length: 7 }, () => Array(24).fill(0));
   for (const s of lista) {
-    const d = new Date(s.primeira.created_at.getTime() + FUSO);
+    const d = inicioLocal(s);
     horario[d.getUTCDay()][d.getUTCHours()]++;
   }
 
+  const visitas = lista.reduce((t, s) => t + s.paginas, 0);
   const visitantesUnicos = new Set(lista.map((s) => s.visitante)).size;
-  const comWhats = lista.filter((s) => s.whatsapp).length;
-  const uy = lista.filter((s) => s.primeira.country_code === "UY").length;
-  const comLocal = lista.filter((s) => s.primeira.country_code).length;
+  const comWhats = lista.filter((s) => s.acoes.whatsapp).length;
+  const uy = lista.filter((s) => s.pais === "UY").length;
+  const comLocal = lista.filter((s) => s.pais).length;
 
   return {
     dias,
     resumo: {
-      visitas: visitas.length,
+      visitas,
       visitantes: visitantesUnicos,
       sessoes: lista.length,
-      paginasPorSessao: lista.length ? +(visitas.length / lista.length).toFixed(1) : 0,
-      cliquesWhatsapp,
+      paginasPorSessao: lista.length ? +(visitas / lista.length).toFixed(1) : 0,
+      cliquesWhatsapp: lista.reduce((t, s) => t + s.acoes.whatsapp, 0),
       sessoesComWhatsapp: comWhats,
       conversao: lista.length ? +((comWhats / lista.length) * 100).toFixed(1) : 0,
       pctUruguay: comLocal ? Math.round((uy / comLocal) * 100) : 0,
@@ -173,22 +109,22 @@ export async function resumoVisitantes(dias: number, pais: string | null = null)
     regioes,
     // Tráfego pago (anúncios) por departamento: onde o dinheiro dos anúncios está rendendo
     pagoPorRegiao: ordenar(
-      agrupar((s) => (s.primeira.meio === "pago" ? s.primeira.region ?? "(sem local)" : null)).map((g) => ({ region: g.k, code: g.amostra.primeira.country_code, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })),
+      agrupar((s) => (s.meio === "pago" ? s.regiao ?? "(sem local)" : null)).map((g) => ({ region: g.k, code: g.amostra.pais, visitantes: g.visitantes, sessoes: g.sessoes, whatsapp: g.whatsapp })),
       "sessoes",
     ),
-    pagoForaDoPais: pais ? 0 : lista.filter((s) => s.primeira.meio === "pago" && s.primeira.country_code && s.primeira.country_code !== "UY").length,
+    pagoForaDoPais: pais ? 0 : lista.filter((s) => s.meio === "pago" && s.pais && s.pais !== "UY").length,
     cidades,
     fontes,
     campanhas,
-    dispositivos: simples((s) => s.primeira.device),
-    navegadores: simples((s) => s.primeira.browser).slice(0, 8),
-    sistemas: simples((s) => s.primeira.os),
+    dispositivos: simples((s) => s.aparelho),
+    navegadores: simples((s) => s.navegador).slice(0, 8),
+    sistemas: simples((s) => s.sistema),
     paginas: [...paginas.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([path, visitas]) => ({ path, visitas })),
     entradas: [...entradas.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([path, sessoes]) => ({ path, sessoes })),
     horario,
-    recentes: visitas.slice(-60).reverse().map((l) => ({
+    recentes: recentes.map((l) => ({
       quando: l.created_at.toISOString(), path: l.path, city: l.city, region: l.region, code: l.country_code,
-      fonte: l.fonte, device: l.device, browser: l.browser, visitante: visitante(l).slice(0, 8),
+      fonte: l.fonte, device: l.device, browser: l.browser, visitante: (l.visitor_id || l.ip_hash || `v${l.id}`).slice(0, 8),
     })),
   };
 }

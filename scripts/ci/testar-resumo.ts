@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import { prisma } from "../../src/lib/prisma";
 import { resumosDoPeriodo, VERSAO } from "../../src/lib/resumo-diario.server";
 import { resumo, funil, produtos } from "../../src/lib/analises.server";
+import { listarJornadas } from "../../src/lib/jornadas.server";
+import { resumoVisitantes } from "../../src/lib/visitantes.server";
 
 async function main() {
   const banco = (process.env.DATABASE_URL || "").split("/").pop()!.split("?")[0];
@@ -46,6 +48,25 @@ async function main() {
   // Segunda leitura usa o que foi salvo e dá o mesmo resultado
   const r2 = await resumo(7);
   assert.deepEqual(r2, r, "mesmo resultado lendo de analise_dia");
+
+  // Sessões do dia fechado gravadas em analise_sessao (Jornada e Visitantes)
+  const sessoesOntem = await prisma.analise_sessao.findMany({ where: { dia: ontem.dia } });
+  assert.equal(sessoesOntem.length, 2, "ontem: 2 sessões gravadas");
+  const a = JSON.parse(sessoesOntem.find((s) => s.id === "ses-a")!.dados);
+  assert.equal(a.paginas, 3, "sessão A: 3 páginas");
+  assert.equal(a.acoes.whatsapp, 1, "sessão A: 1 WhatsApp");
+  assert.equal(a.acoes.carrinho, 1, "sessão A: 1 carrinho (evento migrado)");
+  assert.equal(sessoesOntem.find((s) => s.id === "ses-b")!.pais, "BR");
+  const j = await listarJornadas({ dias: 7, pais: null, filtro: "todas", pagina: 1 });
+  assert.equal(j.total, 3, "Jornada: 3 sessões (2 de ontem + 1 de hoje)");
+  assert.equal(j.funil.whatsapp, 1);
+  const jUY = await listarJornadas({ dias: 7, pais: "UY", filtro: "todas", pagina: 1 });
+  assert.equal(jUY.total, 2, "Jornada só Uruguai: 2 sessões");
+  const v = await resumoVisitantes(7, null);
+  assert.equal(v.resumo.sessoes, 3);
+  assert.equal(v.resumo.visitas, 5, "Visitantes: 5 páginas vistas");
+  assert.equal(v.resumo.visitantes, 3);
+  assert.equal(v.paginas.find((p) => p.path === "/produto/CI-001")?.visitas, 1);
   console.log("✔ resumo diário e eventos: tudo certo");
 }
 

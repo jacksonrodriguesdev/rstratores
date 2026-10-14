@@ -1,4 +1,5 @@
-// Tabela própria de eventos (site_eventos) e do resumo diário das análises (analise_dia).
+// Tabela própria de eventos (site_eventos) e do resumo diário das análises (analise_dia e
+// analise_sessao).
 // Produção não roda "prisma db push": as tabelas são criadas aqui na primeira vez (mesmo SQL que o
 // Prisma gera) e os eventos antigos, gravados em site_visits como "/_evento/<tipo>/<dado>", são
 // movidos para cá em lotes. Nada para rodar à mão no phpMyAdmin.
@@ -48,12 +49,25 @@ const SQL_RESUMO = `CREATE TABLE IF NOT EXISTS \`analise_dia\` (
   PRIMARY KEY (\`dia\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`;
 
+const SQL_SESSOES = `CREATE TABLE IF NOT EXISTS \`analise_sessao\` (
+  \`dia\` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  \`id\` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  \`visitante\` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  \`inicio\` datetime(3) NOT NULL,
+  \`pais\` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  \`dados\` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (\`dia\`,\`id\`),
+  KEY \`analise_sessao_dia_pais_idx\` (\`dia\`,\`pais\`),
+  KEY \`analise_sessao_visitante_idx\` (\`visitante\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`;
+
 // Cria as tabelas (uma vez por processo; rápido quando já existem)
 let tabelas: Promise<void> | null = null;
 export function garantirTabelas() {
   tabelas ??= (async () => {
     await prisma.$executeRawUnsafe(SQL_EVENTOS);
     await prisma.$executeRawUnsafe(SQL_RESUMO);
+    await prisma.$executeRawUnsafe(SQL_SESSOES);
   })().catch((e) => {
     tabelas = null; // tenta de novo na próxima chamada
     throw e;

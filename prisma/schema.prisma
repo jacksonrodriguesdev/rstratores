@@ -195,6 +195,21 @@ model analise_dia {
   gerado_em DateTime @default(now())
 }
 
+// Uma linha por sessão (visita) dos dias fechados, gravada junto com analise_dia: as telas
+// Jornada e Visitantes leem daqui em vez de remontar as sessões a partir de cada página vista.
+model analise_sessao {
+  dia        String   @db.VarChar(10)
+  id         String   @db.VarChar(191) // id da sessão (o mesmo da Jornada)
+  visitante  String   @db.VarChar(191)
+  inicio     DateTime
+  pais       String?  @db.VarChar(8)
+  dados      String   @db.Text // JSON com o resumo da sessão
+
+  @@id([dia, id])
+  @@index([dia, pais])
+  @@index([visitante])
+}
+
 model quotes {
   id         Int      @id @default(autoincrement())
   nome       String

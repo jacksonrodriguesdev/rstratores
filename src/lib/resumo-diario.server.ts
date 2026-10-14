@@ -5,9 +5,10 @@
 // os dias são recalculados sozinhos na próxima consulta.
 import { prisma } from "./prisma";
 import { localDe } from "./locais-anuncio";
-import { eventosProntos } from "./eventos-db.server";
+import { eventosProntos, caminhoDoEvento } from "./eventos-db.server";
+import { sessoesDeLinhas, SELECT_LINHA, type Linha, type SessaoBase } from "./jornadas.server";
 
-export const VERSAO = 1;
+export const VERSAO = 2; // 2: grava também as sessões do dia (analise_sessao)
 const H = 3600_000;
 const FUSO = -3 * H; // Uruguai (UTC−3, sem horário de verão)
 const EV = "/_evento/";
@@ -63,7 +64,7 @@ const inc = (m: Cont, k: string, v = 1) => {
   m[k] = (m[k] ?? 0) + v;
 };
 export const hojeLocal = () => new Date(Date.now() + FUSO).toISOString().slice(0, 10);
-const inicioDia = (dia: string) => new Date(`${dia}T00:00:00.000-03:00`);
+export const inicioDia = (dia: string) => new Date(`${dia}T00:00:00.000-03:00`);
 // Os últimos n dias (do mais antigo para hoje)
 export function diasAte(n: number) {
   const hoje = inicioDia(hojeLocal()).getTime();
@@ -91,23 +92,24 @@ function vazio(dia: string): ResumoDia {
 }
 
 // ---------------------------------------------------------------- cálculo de um dia
-export async function calcularDia(dia: string): Promise<ResumoDia> {
+// O resumo do dia e as sessões do dia (para a Jornada e Visitantes), com uma leitura só
+export async function calcularDiaCompleto(dia: string): Promise<{ resumo: ResumoDia; sessoes: SessaoBase[] }> {
   const ini = inicioDia(dia);
   const fim = new Date(ini.getTime() + 24 * H);
   const [ps, evs] = await Promise.all([
     prisma.site_visits.findMany({
       where: { created_at: { gte: ini, lt: fim }, NOT: { path: { startsWith: EV } } },
-      select: { created_at: true, path: true, visitor_id: true, session_id: true, city: true, region: true, country: true, country_code: true, latitude: true, longitude: true, fonte: true, device: true, browser: true, os: true, language: true },
+      select: { ...SELECT_LINHA, path: true, language: true },
       orderBy: { created_at: "asc" },
     }),
     prisma.site_eventos.findMany({
       where: { created_at: { gte: ini, lt: fim } },
-      select: { created_at: true, tipo: true, dado: true, visitor_id: true, session_id: true, city: true, region: true, country_code: true },
+      select: { ...SELECT_LINHA, tipo: true, dado: true },
       orderBy: { created_at: "asc" },
     }),
   ]);
   const r = vazio(dia);
-  if (!ps.length && !evs.length) return r;
+  if (!ps.length && !evs.length) return { resumo: r, sessoes: [] };
 
   // Visitantes de hoje que já tinham vindo antes (recorrentes): perfil "oficina"
   const ids = [...new Set(ps.map((p) => p.visitor_id).filter(Boolean) as string[])];
@@ -315,8 +317,16 @@ export async function calcularDia(dia: string): Promise<ResumoDia> {
   for (const [k, u] of uCid) r.cidades[k].u = u.size;
   for (const [k, u] of uSku) r.skus[k].u = u.size;
   for (const [k, u] of uLoc) r.locais[k].u = u.size;
-  return r;
+
+  // Sessões (as mesmas regras da Jornada): páginas + eventos, sem cliques e rolagem
+  const linhas: Linha[] = [
+    ...(ps as Linha[]),
+    ...evs.filter((e) => e.tipo !== "clique" && e.tipo !== "rolagem").map(({ tipo, dado, id, ...e }) => ({ ...e, id: -id, path: caminhoDoEvento({ tipo, dado }) }) as Linha),
+  ].sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
+  return { resumo: r, sessoes: sessoesDeLinhas(linhas) };
 }
+
+export const calcularDia = async (dia: string) => (await calcularDiaCompleto(dia)).resumo;
 
 // ---------------------------------------------------------------- período
 let primeira: { em: number; dia: string | null } | null = null;
@@ -327,6 +337,64 @@ async function primeiroDia() {
   return primeira.dia;
 }
 let cacheHoje: { dia: string; em: number; r: Promise<ResumoDia> } | null = null;
+
+// Calcula e grava um dia fechado: sessões em analise_sessao e o resumo em analise_dia (por último:
+// o resumo salvo é o sinal de que o dia está completo)
+// Gravações uma de cada vez (apagar e regravar sessões de dias diferentes ao mesmo tempo dá
+// deadlock no MySQL); conflito com outro processo: tenta de novo
+let filaGravacao: Promise<unknown> = Promise.resolve();
+function naFila<T>(f: () => Promise<T>): Promise<T> {
+  const r = filaGravacao.then(async () => {
+    for (let tentativa = 1; ; tentativa++) {
+      try {
+        return await f();
+      } catch (e: any) {
+        if (e?.code !== "P2034" || tentativa >= 4) throw e;
+        await new Promise((ok) => setTimeout(ok, 200 * tentativa));
+      }
+    }
+  });
+  filaGravacao = r.catch(() => {});
+  return r;
+}
+
+async function gravarDia(d: string) {
+  const { resumo, sessoes } = await calcularDiaCompleto(d);
+  const dados = JSON.stringify(resumo);
+  await naFila(() => prisma.$transaction([
+    prisma.analise_sessao.deleteMany({ where: { dia: d } }),
+    ...(sessoes.length
+      ? [prisma.analise_sessao.createMany({ data: sessoes.map((x) => ({ dia: d, id: x.id.slice(0, 191), visitante: x.visitante.slice(0, 191), inicio: new Date(x.inicio), pais: x.pais?.slice(0, 8) ?? null, dados: JSON.stringify(x) })), skipDuplicates: true })]
+      : []),
+    prisma.analise_dia.upsert({ where: { dia: d }, create: { dia: d, versao: VERSAO, dados }, update: { versao: VERSAO, dados, gerado_em: new Date() } }),
+  ]));
+  return resumo;
+}
+
+// Garante que os dias fechados pedidos estão calculados e gravados. Devolve os que calculou agora.
+export async function garantirDias(fechados: string[], jaProntos?: Set<string>) {
+  await eventosProntos();
+  const prontos = jaProntos ?? new Set((fechados.length ? await prisma.analise_dia.findMany({ where: { dia: { in: fechados }, versao: VERSAO }, select: { dia: true } }) : []).map((x) => x.dia));
+  const inicio = await primeiroDia();
+  // Antes da primeira visita do site: nada a calcular
+  const calcular = fechados.filter((d) => !prontos.has(d) && inicio && d >= inicio);
+  const novos = new Map<string, ResumoDia>();
+  for (let i = 0; i < calcular.length; i += 4) {
+    await Promise.all(
+      calcular.slice(i, i + 4).map(async (d) => {
+        // Outra tela já calculando o mesmo dia: espera o mesmo resultado
+        let p = emCalculo.get(d);
+        if (!p) {
+          p = gravarDia(d).finally(() => emCalculo.delete(d));
+          emCalculo.set(d, p);
+        }
+        novos.set(d, await p);
+      }),
+    );
+  }
+  return novos;
+}
+const emCalculo = new Map<string, Promise<ResumoDia>>();
 
 // Resumos dos últimos `dias` dias (o último é hoje). Dias fechados que faltam são calculados e salvos.
 export async function resumosDoPeriodo(dias: number): Promise<ResumoDia[]> {
@@ -343,21 +411,7 @@ export async function resumosDoPeriodo(dias: number): Promise<ResumoDia[]> {
       /* JSON corrompido: o dia é recalculado */
     }
   }
-  const inicio = await primeiroDia();
-  const faltam = fechados.filter((d) => !porDia.has(d));
-  // Antes da primeira visita do site: dia vazio, sem consultar
-  for (const d of faltam) if (!inicio || d < inicio) porDia.set(d, vazio(d));
-  const calcular = faltam.filter((d) => !porDia.has(d));
-  for (let i = 0; i < calcular.length; i += 4) {
-    await Promise.all(
-      calcular.slice(i, i + 4).map(async (d) => {
-        const r = await calcularDia(d);
-        porDia.set(d, r);
-        const dados = JSON.stringify(r);
-        await prisma.analise_dia.upsert({ where: { dia: d }, create: { dia: d, versao: VERSAO, dados }, update: { versao: VERSAO, dados, gerado_em: new Date() } }).catch(() => {});
-      }),
-    );
-  }
+  for (const [d, r] of await garantirDias(fechados, new Set(porDia.keys()))) porDia.set(d, r);
   if (lista.includes(hoje)) {
     if (!cacheHoje || cacheHoje.dia !== hoje || Date.now() - cacheHoje.em > 60_000) cacheHoje = { dia: hoje, em: Date.now(), r: calcularDia(hoje) };
     porDia.set(hoje, await cacheHoje.r.catch(() => vazio(hoje)));
