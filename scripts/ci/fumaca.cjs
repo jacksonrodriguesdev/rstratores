@@ -51,6 +51,18 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
     if (erros.length) falhas.push(`${caminho}: ${erros.join("; ")}`);
   }
 
+  // WhatsApp das cotações: todo link do WhatsApp nas páginas principais vai para o número certo
+  // (+55 53 99942-8130). Um dígito a menos e nenhuma cotação chega.
+  const WHATSAPP = "5553999428130";
+  for (const caminho of ["/", "/produto/CI-001", "/repuestos-agricolas/rocha", "/pt"]) {
+    const html = await (await fetch(BASE + caminho)).text();
+    const numeros = [...html.matchAll(/api\.whatsapp\.com\/send\?phone=(\d+)/g)].map((m) => m[1]);
+    const errados = numeros.filter((n) => n !== WHATSAPP);
+    const ok = numeros.length > 0 && !errados.length;
+    console.log(`${ok ? "✔" : "✘"} WhatsApp em ${caminho}: ${numeros.length} link(s)${errados.length ? ` — ERRADO: ${[...new Set(errados)].join(", ")}` : ""}`);
+    if (!ok) falhas.push(`${caminho}: WhatsApp ${numeros.length ? `com número errado (${[...new Set(errados)]})` : "sem link"}`);
+  }
+
   // Admin sem login: o painel não pode vir no HTML (src/routes/admin.tsx só mostra depois de confirmar
   // a sessão; os dados passam por assertAdmin no servidor)
   for (const caminho of ["/admin", "/admin/analises", "/admin/clientes"]) {

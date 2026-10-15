@@ -1,9 +1,11 @@
 import { nomeProduto } from "./pecas-es";
 import { SITE_URL } from "./site";
 
-// Número de contato
-export const PHONE = "553999428130";
-export const PHONE_DISPLAY = "55 39 9942-8130";
+// Número de contato (WhatsApp das cotações): +55 (53) 99942-8130.
+// PHONE vai no link do WhatsApp: código do país + DDD + número, só dígitos (55 53 999428130).
+// A verificação do GitHub (scripts/ci/fumaca.cjs) confere este número no site.
+export const PHONE = "5553999428130";
+export const PHONE_DISPLAY = "+55 (53) 99942-8130";
 
 // Usamos api.whatsapp.com/send diretamente (sem passar por wa.me).
 // O redirect do wa.me pode ser bloqueado dentro de iframes de preview

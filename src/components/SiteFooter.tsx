@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin, Instagram, Facebook, Lock, Truck, MessageCircle } from "lucide-react";
-import { whatsappContactUrl } from "@/lib/whatsapp";
+import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
 import { INSTAGRAM_URL, INSTAGRAM_USUARIO, FACEBOOK_URL } from "@/lib/navegacao";
 import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
 import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
@@ -65,7 +65,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="flex items-center gap-2 transition-colors hover:text-white"
               >
-                <Phone className="h-4 w-4 text-primary" /> WhatsApp (53) 99953-4631
+                <Phone className="h-4 w-4 text-primary" /> WhatsApp {PHONE_DISPLAY}
               </a>
             </li>
             <li>
