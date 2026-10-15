@@ -7,7 +7,7 @@
 // O PopupAcesso (montado na rota raiz) escuta este evento.
 import { eventoDoLinkWhatsapp } from "./eventos";
 
-export type MotivoCadastro = "carrinho" | "busca" | "catalogo" | "whatsapp";
+export type MotivoCadastro = "carrinho" | "busca" | "catalogo" | "whatsapp" | "cotizacao";
 export type PedidoCadastro = {
   motivo: MotivoCadastro;
   termo?: string; // busca sem resultado

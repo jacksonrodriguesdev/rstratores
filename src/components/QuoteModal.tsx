@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getSessionFn } from "@/lib/user-auth";
+import { pedirCadastro } from "@/lib/pedir-cadastro";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,6 +25,7 @@ export function QuoteModal({
   onOpenChange: (open: boolean) => void;
 }) {
   const { t, idioma } = useT();
+  const { data: sessao } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -35,6 +39,12 @@ export function QuoteModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Cotação exige conta: sem login, fecha este formulário e abre o cadastro
+    if (!sessao) {
+      onOpenChange(false);
+      pedirCadastro({ motivo: "cotizacao" });
+      return;
+    }
     if (!formData.nome || !formData.endereco || !formData.whatsapp) {
       toast.error(
         t(

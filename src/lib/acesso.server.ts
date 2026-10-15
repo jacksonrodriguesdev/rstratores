@@ -10,15 +10,20 @@ export const POPUP_PADRAO = {
   popup_ativo: "1",
   popup_segundos: "5",
   popup_desconto: "15",
-  popup_titulo: "Registrate gratis y accedé a todas nuestras herramientas",
-  popup_subtitulo:
-    "Catálogos de piezas, precios por WhatsApp, pedido rápido por lista y {{descuento}}% OFF en tu primera compra.",
+  popup_titulo: "Ingresá para ver precios y cotizar",
+  popup_subtitulo: "Registrate gratis con tu e-mail en segundos.",
 };
 // Valores padrão antigos: quem nunca personalizou no admin passa a ver os novos
-const PADRAO_ANTIGO: Record<string, string> = {
-  popup_segundos: "8",
-  popup_titulo: "¡Entrá y llevate {{descuento}}% OFF en tu primera compra!",
-  popup_subtitulo: "Creá tu cuenta gratis en segundos y accedé a todos los catálogos de tractores.",
+const PADRAO_ANTIGO: Record<string, string[]> = {
+  popup_segundos: ["8"],
+  popup_titulo: [
+    "¡Entrá y llevate {{descuento}}% OFF en tu primera compra!",
+    "Registrate gratis y accedé a todas nuestras herramientas",
+  ],
+  popup_subtitulo: [
+    "Creá tu cuenta gratis en segundos y accedé a todos los catálogos de tractores.",
+    "Catálogos de piezas, precios por WhatsApp, pedido rápido por lista y {{descuento}}% OFF en tu primera compra.",
+  ],
 };
 export type ConfigPopup = {
   ativo: boolean;
@@ -34,7 +39,7 @@ export async function configPopup(): Promise<ConfigPopup> {
   const v: Record<string, string> = {
     ...POPUP_PADRAO,
     ...Object.fromEntries(
-      rows.filter((r) => PADRAO_ANTIGO[r.chave] !== r.valor).map((r) => [r.chave, r.valor]),
+      rows.filter((r) => !PADRAO_ANTIGO[r.chave]?.includes(r.valor)).map((r) => [r.chave, r.valor]),
     ),
   };
   return {

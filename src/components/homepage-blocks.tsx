@@ -715,6 +715,7 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
     <Reveal>
       <div className={`grid gap-3 md:gap-4 ${INSTAGRAM_URL ? "md:grid-cols-2" : ""}`}>
         <a
+          data-livre="1"
           href={whatsappContactUrl(
             t(
               "¡Hola! Quiero recibir ofertas de repuestos por WhatsApp.",
@@ -820,6 +821,7 @@ function EnvioBrasilBlock() {
               de rastreio.
             </p>
             <a
+              data-livre="1"
               href={whatsappContactUrl(
                 "Olá! Quero consultar o frete de peças para o Rio Grande do Sul.",
               )}
@@ -944,6 +946,7 @@ function EnvioDacUruguai({ config }: { config: string | null }) {
                 <Search className="h-4 w-4" /> Rastrear mi envío
               </a>
               <a
+                data-livre="1"
                 href={whatsappContactUrl(
                   "¡Hola! Quiero consultar el envío de repuestos a Uruguay por DAC.",
                 )}

@@ -58,6 +58,7 @@ export function SiteFooter() {
           <ul className="space-y-3 text-sm">
             <li>
               <a
+                data-livre="1"
                 href={whatsappContactUrl(
                   t("¡Hola! Quiero consultar por repuestos.", "Olá! Quero consultar sobre peças."),
                 )}

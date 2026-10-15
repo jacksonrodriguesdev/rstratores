@@ -195,10 +195,11 @@ function PopupAdmin() {
               </Button>
               <p className="text-xs text-muted-foreground">
                 Quem fecha o pop-up vê de novo na próxima visita; quem entra ou se cadastra, nunca
-                mais. Pedir preço pelo WhatsApp (peça, carrinho e pedido rápido) exige cadastro
-                enquanto o pop-up estiver ligado; desligado, o WhatsApp abre direto. Não aparece no
-                admin, no login/cadastro, em Mi cuenta nem dentro do leitor de catálogos. O e-mail
-                de boas-vindas (Automações) leva o mesmo cupom único.
+                mais. Toda cotação (WhatsApp de preço e cotização, carrinho, pedido rápido e
+                formulários) exige cadastro enquanto o pop-up estiver ligado; desligado, o WhatsApp
+                abre direto. O WhatsApp do rodapé e o das dúvidas de envio ficam sempre livres. Não
+                aparece no admin, no login/cadastro, em Mi cuenta nem dentro do leitor de catálogos.
+                O e-mail de boas-vindas (Automações) leva o mesmo cupom único.
               </p>
             </>
           )}

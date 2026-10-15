@@ -23,6 +23,7 @@ import { MONTADORAS } from "@/lib/navegacao";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { registrarEvento } from "@/lib/eventos";
 import { getSessionFn } from "@/lib/user-auth";
+import { pedirCadastro } from "@/lib/pedir-cadastro";
 import { cn } from "@/lib/utils";
 
 // Cotação com a AGRO PARTS (distribuidora de repuestos agrícolas no Uruguai).
@@ -110,6 +111,11 @@ export function CotizacionForm({ compacto = false }: { compacto?: boolean }) {
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro(null);
+    // Cotação exige conta: sem login, abre o cadastro (depois é só enviar de novo)
+    if (!sessao) {
+      pedirCadastro({ motivo: "cotizacao" });
+      return;
+    }
     const tel = pt ? celularBR(f.telefone) : normalizarCelularUY(f.telefone);
     if (nome.trim().length < 3) return setErro(t("Escribí tu nombre.", "Digite seu nome."));
     if (!tel)

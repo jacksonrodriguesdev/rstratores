@@ -20,7 +20,13 @@ import { getSessionFn } from "@/lib/user-auth";
 import { getPopupFn, meuCupomFn, completarPerfilFn } from "@/lib/acesso";
 import { DEPARTAMENTOS_UY, mascararCelularUY } from "@/lib/validacao-conta";
 import { registrarEvento } from "@/lib/eventos";
-import { EVENTO_PEDIR_CADASTRO, abrirWhatsapp, type PedidoCadastro } from "@/lib/pedir-cadastro";
+import {
+  EVENTO_PEDIR_CADASTRO,
+  abrirWhatsapp,
+  pedirPrecoWhatsapp,
+  type PedidoCadastro,
+} from "@/lib/pedir-cadastro";
+import { PHONE } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/idioma";
 
@@ -190,6 +196,23 @@ export function PopupAcesso() {
     };
   }, [cfg, isFetched, sessao]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Cotação exige conta: todo link do WhatsApp para o nosso número (pedir preço, cotizar, "busco
+  // una pieza") passa pelo cadastro. Ficam livres só os de atendimento geral, marcados com
+  // data-livre (rodapé, dúvidas de envio, ofertas). Os botões de preço da peça (data-cadastro)
+  // já fazem isso sozinhos. Logado, o WhatsApp abre na hora.
+  useEffect(() => {
+    const clique = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement | null)?.closest?.("a");
+      if (!a || !a.href.includes(`phone=${PHONE}`)) return;
+      if (a.dataset.livre || a.dataset.cadastro || caminho.current.startsWith("/admin")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pedirPrecoWhatsapp(a.href);
+    };
+    document.addEventListener("click", clique, true);
+    return () => document.removeEventListener("click", clique, true);
+  }, []);
+
   // Momento de interesse: carrinho, busca sem resultado, catálogo
   useEffect(() => {
     const ouvir = (ev: Event) => {
@@ -205,6 +228,11 @@ export function PopupAcesso() {
       // Pop-up desligado no admin: o WhatsApp não exige cadastro
       if (p.motivo === "whatsapp" && p.destino && !c?.ativo) {
         abrirWhatsapp(p.destino, p.aoAbrir);
+        return;
+      }
+      // Formulário de cotação com o pop-up desligado: cadastro pela página
+      if (p.motivo === "cotizacao" && !c?.ativo) {
+        window.location.href = `/cadastro?redirect=${encodeURIComponent(window.location.pathname)}`;
         return;
       }
       if (!c?.ativo) {
@@ -252,48 +280,36 @@ export function PopupAcesso() {
   const motivo = pedido?.motivo;
   const termo = pedido?.termo?.trim().slice(0, 60);
   const comDesconto = (x: string) => x.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
+  // Textos curtos: o pop-up só convida a entrar (ou criar conta) para consultar preços e cotar
   const titulo =
-    motivo === "whatsapp"
-      ? t("Registrate gratis para pedir tu precio", "Cadastre-se grátis para pedir seu preço")
+    motivo === "whatsapp" || motivo === "cotizacao"
+      ? t("Registrate para cotizar", "Cadastre-se para fazer seu orçamento")
       : motivo === "carrinho"
-        ? t(
-            `Guardá tu pedido y llevate ${desconto}% OFF`,
-            `Salve seu pedido e ganhe ${desconto}% OFF`,
-          )
+        ? t("Registrate para cotizar tu pedido", "Cadastre-se para orçar seu pedido")
         : motivo === "busca"
           ? termo
             ? t(`¿No encontraste "${termo}"?`, `Não encontrou "${termo}"?`)
             : t("¿No encontraste la pieza?", "Não encontrou a peça?")
           : motivo === "catalogo"
-            ? t("Abrí el catálogo gratis", "Abra o catálogo grátis")
+            ? t("Ingresá para abrir el catálogo", "Entre para abrir o catálogo")
             : // O texto do admin (Pop-up de cadastro) é o do site em espanhol
               idioma === "pt"
-              ? "Cadastre-se grátis e tenha acesso a todas as nossas ferramentas"
+              ? "Entre para ver preços e fazer orçamentos"
               : comDesconto(cfg.titulo);
   const subtitulo =
-    motivo === "whatsapp"
+    motivo === "busca"
       ? t(
-          `Solo tu e-mail: te respondemos por WhatsApp con precio y envío, y te llevás ${desconto}% OFF en tu primera compra.`,
-          `Só o seu e-mail: respondemos pelo WhatsApp com preço e frete, e você ganha ${desconto}% OFF na primeira compra.`,
+          "Dejá tu e-mail y te avisamos apenas llegue.",
+          "Deixe seu e-mail e avisamos assim que chegar.",
         )
-      : motivo === "carrinho"
-        ? t(
-            `Dejá tu e-mail y te damos un cupón de ${desconto}% para esta primera compra.`,
-            `Deixe seu e-mail e ganhe um cupom de ${desconto}% nesta primeira compra.`,
-          )
-        : motivo === "busca"
-          ? t(
-              `Dejá tu e-mail y te avisamos apenas llegue. Además, ${desconto}% OFF en tu primera compra.`,
-              `Deixe seu e-mail e avisamos assim que chegar. E mais: ${desconto}% OFF na primeira compra.`,
-            )
-          : motivo === "catalogo"
-            ? t(
-                `Solo tu e-mail: accedés a todos los catálogos y te llevás ${desconto}% OFF en tu primera compra.`,
-                `Só o seu e-mail: acesso a todos os catálogos e ${desconto}% OFF na primeira compra.`,
-              )
-            : idioma === "pt"
-              ? `Catálogos de peças, preços pelo WhatsApp, pedido rápido por lista e ${desconto}% OFF na primeira compra.`
-              : comDesconto(cfg.subtitulo);
+      : !motivo
+        ? idioma === "pt"
+          ? "Cadastre-se grátis com seu e-mail em segundos."
+          : comDesconto(cfg.subtitulo)
+        : t(
+            "Es gratis y lleva segundos: solo tu e-mail.",
+            "É grátis e leva segundos: só o seu e-mail.",
+          );
 
   function fechar() {
     if (etapa !== "ok") {
@@ -384,7 +400,7 @@ export function PopupAcesso() {
 
   const primeiroNome = (resultado?.nome ?? "").trim().split(/\s+/)[0] ?? "";
   const IconeMotivo =
-    motivo === "whatsapp"
+    motivo === "whatsapp" || motivo === "cotizacao"
       ? MessageCircle
       : motivo === "carrinho"
         ? ShoppingCart
@@ -405,32 +421,17 @@ export function PopupAcesso() {
         className="absolute inset-0 animate-in fade-in bg-black/60 backdrop-blur-[2px]"
         onClick={fechar}
       />
-      <div className="relative flex max-h-[94vh] w-full animate-in slide-in-from-bottom-8 flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl duration-300 sm:max-w-[860px] sm:flex-row sm:rounded-3xl sm:zoom-in-95">
+      <div className="relative flex max-h-[94vh] w-full animate-in slide-in-from-bottom-8 flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl duration-300 sm:max-w-[420px] sm:rounded-3xl sm:zoom-in-95">
         <button
           onClick={fechar}
           aria-label="Cerrar"
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur hover:bg-black/60 sm:bg-zinc-100 sm:text-zinc-600 sm:hover:bg-zinc-200"
+          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
         >
           <X className="h-5 w-5" />
         </button>
 
-        {/* Imagem: lado esquerdo no computador, faixa no topo no celular */}
-        <div className="relative h-36 shrink-0 overflow-hidden sm:h-auto sm:w-[340px]">
-          <img
-            src="/img/popup-acceso.jpg"
-            alt=""
-            className="h-full w-full object-cover object-top"
-          />
-          <div className="absolute bottom-2 right-14 flex h-24 w-24 rotate-[-10deg] flex-col items-center justify-center rounded-full border-4 border-[#fff3c4] bg-[#f2c94c] text-[#06321b] shadow-xl sm:bottom-auto sm:right-6 sm:top-[46%] sm:h-36 sm:w-36">
-            <span className="text-3xl font-black leading-none sm:text-5xl">{desconto}%</span>
-            <span className="text-xs font-black tracking-widest sm:text-base">OFF</span>
-            <span className="text-[9px] font-extrabold sm:text-[11px]">
-              {t("1ª COMPRA", "1ª COMPRA")}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-7">
+          <img src="/logo.png" alt="AGRO PARTS" className="mb-3 h-11 w-auto" />
           {etapa === "ok" && resultado ? (
             <div className="flex h-full flex-col justify-center text-center">
               <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
@@ -459,6 +460,8 @@ export function PopupAcesso() {
                   </>
                 ) : motivo === "carrinho" ? (
                   t("Tu pedido queda guardado en tu cuenta.", "Seu pedido fica salvo na sua conta.")
+                ) : motivo === "cotizacao" ? (
+                  t("Ya podés enviar tu cotización.", "Agora você já pode enviar seu orçamento.")
                 ) : motivo === "whatsapp" ? (
                   t(
                     "Ya podés pedir tu precio por WhatsApp.",
@@ -658,43 +661,8 @@ export function PopupAcesso() {
                 )}
               </p>
 
-              {etapa === "inicio" && (!motivo || motivo === "whatsapp") && (
-                <ul className="mt-3 grid grid-cols-1 gap-1.5 text-sm text-zinc-700 sm:grid-cols-2">
-                  {[
-                    t("Catálogos de piezas en PDF", "Catálogos de peças em PDF"),
-                    t("Precios por WhatsApp", "Preços pelo WhatsApp"),
-                    t("Pedido rápido por lista de códigos", "Pedido rápido por lista de códigos"),
-                    t("Aviso cuando llega la pieza", "Aviso quando a peça chegar"),
-                  ].map((x) => (
-                    <li key={x} className="flex items-center gap-2">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                        <Check className="h-3.5 w-3.5" />
-                      </span>
-                      {x}
-                    </li>
-                  ))}
-                </ul>
-              )}
               {etapa === "inicio" && (
                 <>
-                  {/* O cupom aparece logo de cara: falta só o e-mail para liberar */}
-                  <div className="mt-4 flex items-center gap-3 rounded-2xl border-2 border-dashed border-[#e0a800] bg-[#fffbeb] px-4 py-3">
-                    <Ticket className="h-8 w-8 shrink-0 text-[#b8860b]" />
-                    <div className="min-w-0">
-                      <p className="font-black leading-tight text-zinc-900">
-                        {t(`Cupón de ${desconto}% OFF`, `Cupom de ${desconto}% OFF`)}
-                      </p>
-                      <p className="text-xs text-zinc-600">
-                        {t(
-                          "Se activa al confirmar tu e-mail · Catálogos gratis incluidos",
-                          "Ativado ao confirmar seu e-mail · Catálogos grátis incluídos",
-                        )}
-                      </p>
-                    </div>
-                    <span className="ml-auto hidden shrink-0 font-mono text-sm font-black tracking-widest text-[#b8860b] sm:inline">
-                      AGRO-····
-                    </span>
-                  </div>
                   <form
                     onSubmit={
                       cfg.codigo
@@ -726,9 +694,7 @@ export function PopupAcesso() {
                       ) : (
                         <Mail className="h-5 w-5" />
                       )}{" "}
-                      {cfg.codigo
-                        ? t("Quiero mi cupón", "Quero meu cupom")
-                        : t("Continuar", "Continuar")}
+                      {t("Continuar", "Continuar")}
                     </button>
                   </form>
                   <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-400">
@@ -809,7 +775,7 @@ export function PopupAcesso() {
                     className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white hover:bg-primary/90 disabled:opacity-60"
                   >
                     {ocupado && <Loader2 className="h-5 w-5 animate-spin" />}{" "}
-                    {t("Ver mi cupón", "Ver meu cupom")}
+                    {t("Entrar", "Entrar")}
                   </button>
                   <p className="text-center text-sm text-zinc-500">
                     {t("¿No llegó? Revisá spam o", "Não chegou? Confira o spam ou")}{" "}
