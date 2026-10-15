@@ -87,6 +87,7 @@ export function HeroCarousel({
                   src={urlImagem(b.image_path)}
                   alt={b.titulo ?? ""}
                   loading={i === 0 && variante === "hero" ? "eager" : "lazy"}
+                  fetchPriority={i === 0 && variante === "hero" ? "high" : "auto"}
                   className={cn("w-full bg-zinc-200 object-cover", estilo.img)}
                 />
               </picture>

@@ -454,8 +454,8 @@ function LojaPage() {
               <EmptyState busca={busca} />
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                {rows.map((p) => (
-                  <CardLoja key={p.sku} p={p} />
+                {rows.map((p, i) => (
+                  <CardLoja key={p.sku} p={p} prioridade={i < 4} />
                 ))}
               </div>
             )}

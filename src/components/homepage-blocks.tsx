@@ -23,7 +23,7 @@ import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
 import { getProductsBySkus, listProducts, type ListParams } from "@/lib/products";
 import { useVistos } from "@/hooks/use-vistos";
-import { listActiveBanners } from "@/lib/banners";
+import { listActiveBanners, type Banner } from "@/lib/banners";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { MONTADORAS, INSTAGRAM_URL } from "@/lib/navegacao";
 import { useCategoriasLoja } from "@/hooks/use-categorias-loja";
@@ -90,9 +90,12 @@ function useProdutosDoBloco(config: string | null, limitePadrao: number) {
 export function HeroSliderBlock({
   config,
   title,
+  iniciais,
 }: {
   config: string | null;
   title: string | null;
+  // Banners já buscados pelo servidor (loader da home): o banner sai no HTML, sem esperar o JS
+  iniciais?: Banner[];
 }) {
   const { segment } = useSegment();
   const { t, idioma } = useT();
@@ -100,6 +103,8 @@ export function HeroSliderBlock({
   const { data: banners = [], isLoading } = useQuery({
     queryKey: ["hero_banners", segment],
     queryFn: () => listActiveBanners("hero", segment),
+    initialData: segment === "AGRICOLA" ? iniciais : undefined,
+    staleTime: 60_000,
   });
 
   return (

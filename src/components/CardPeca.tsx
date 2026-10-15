@@ -11,7 +11,8 @@ import { useT } from "@/lib/idioma";
 import { cn } from "@/lib/utils";
 
 // Cartão de peça da loja e das páginas /repuestos: foto, código, marca, preço e botão de cotação.
-export function CardLoja({ p }: { p: Product }) {
+// prioridade: as primeiras peças da lista (aparecem sem rolar) baixam a foto na frente
+export function CardLoja({ p, prioridade }: { p: Product; prioridade?: boolean }) {
   const { items, addItem } = useCart();
   const naCotacao = items.some((i) => i.sku === p.sku);
   const { t, idioma } = useT();
@@ -29,6 +30,7 @@ export function CardLoja({ p }: { p: Product }) {
           src={p.imagem_principal}
           alt={nome}
           marca={marca}
+          prioridade={prioridade}
           className="object-contain mix-blend-multiply drop-shadow-sm transition-transform duration-700 ease-out group-hover:scale-105"
         />
         <SeloOferta p={p} className="absolute left-2 top-2" />

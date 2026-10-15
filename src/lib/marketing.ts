@@ -9,6 +9,15 @@ export type { MarketingPublico };
 // Só letras, números, hífen e sublinhado: o valor vai dentro de um <script>
 const seguro = (s: string) => /^[A-Za-z0-9_-]+$/.test(s);
 
+// Velocidade: os scripts do Google e do Meta são pesados (o do Google tem ~180 KB e trava o
+// celular por quase 1 s). As filas (dataLayer, gtag, fbq, clarity) são criadas na hora, então
+// nenhum evento se perde; os arquivos só baixam na 1ª interação (rolar, tocar, teclar, mover o
+// mouse) ou 4 s depois que a página carregou, sem disputar com o conteúdo.
+const carregar = (src: string) =>
+  `var s=document.createElement("script");s.async=true;s.src=${JSON.stringify(src)};document.head.appendChild(s);`;
+const depois = (corpo: string) =>
+  `(function(){var ok=0;function go(){if(ok)return;ok=1;${corpo}}["scroll","pointerdown","keydown","touchstart","mousemove"].forEach(function(e){addEventListener(e,go,{once:true,passive:true})});addEventListener("load",function(){setTimeout(go,4000)});})();`;
+
 export function scriptsMarketing(cfg?: MarketingPublico | null) {
   const scripts: Array<{ src?: string; async?: boolean; children?: string }> = [];
   if (!cfg) return scripts;
@@ -17,9 +26,9 @@ export function scriptsMarketing(cfg?: MarketingPublico | null) {
   scripts.push({
     children: `window.__mkt=${JSON.stringify({ gads: cfg.gads, gadsLead: cfg.gadsLead, gadsCadastro: cfg.gadsCadastro })};`,
   });
+  const aCarregar: string[] = [];
   const gtagId = cfg.ga4 || cfg.gads;
   if (gtagId && seguro(gtagId)) {
-    scripts.push({ src: `https://www.googletagmanager.com/gtag/js?id=${gtagId}`, async: true });
     const configs = [cfg.ga4, cfg.gads]
       .filter((x) => x && seguro(x))
       .map((x) => `gtag('config','${x}');`)
@@ -27,23 +36,28 @@ export function scriptsMarketing(cfg?: MarketingPublico | null) {
     scripts.push({
       children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());if(${fora}){${configs}}`,
     });
+    aCarregar.push(carregar(`https://www.googletagmanager.com/gtag/js?id=${gtagId}`));
   }
   if (cfg.gtm && seguro(cfg.gtm)) {
-    scripts.push({
-      children: `if(${fora}){(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${cfg.gtm}');}`,
-    });
+    aCarregar.push(
+      `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${cfg.gtm}');`,
+    );
   }
   // Microsoft Clarity: grava as visitas (sem o que é digitado) e mostra mapas de calor
   if (cfg.clarity && seguro(cfg.clarity)) {
     scripts.push({
-      children: `if(${fora}){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${cfg.clarity}");}`,
+      children: `if(${fora}){window.clarity=window.clarity||function(){(window.clarity.q=window.clarity.q||[]).push(arguments)};}`,
     });
+    aCarregar.push(carregar(`https://www.clarity.ms/tag/${cfg.clarity}`));
   }
   if (cfg.pixel && seguro(cfg.pixel)) {
+    // Fila do Pixel na hora (o PageView entra nela); o fbevents.js baixa depois
     scripts.push({
-      children: `if(${fora}){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${cfg.pixel}');fbq('track','PageView');}`,
+      children: `if(${fora}){!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];}(window);fbq('init','${cfg.pixel}');fbq('track','PageView');}`,
     });
+    aCarregar.push(carregar("https://connect.facebook.net/en_US/fbevents.js"));
   }
+  if (aCarregar.length) scripts.push({ children: `if(${fora}){${depois(aCarregar.join(""))}}` });
   return scripts;
 }
 

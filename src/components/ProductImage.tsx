@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { resolveImageUrl } from "@/lib/products";
 import { Tractor, Car } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { cn } from "@/lib/utils";
@@ -10,9 +9,15 @@ type Props = {
   className?: string;
   // Exibida no placeholder quando o produto não tem foto.
   marca?: string | null;
+  // Imagem principal da página (primeira dobra): baixa logo e com prioridade (melhora o LCP)
+  prioridade?: boolean;
 };
 
-export function ProductImage({ src, alt, className, marca }: Props) {
+// Endereço público da foto (mesma regra de resolveImageUrl, mas sem esperar: sai no HTML do servidor)
+const urlDaFoto = (src: string) =>
+  src.startsWith("http") || src.startsWith("/") ? src : `/uploads/${src}`;
+
+export function ProductImage({ src, alt, className, marca, prioridade }: Props) {
   let currentSegment = "AGRICOLA";
   try {
     const segmentCtx = useSegment();
@@ -21,25 +26,12 @@ export function ProductImage({ src, alt, className, marca }: Props) {
     // silently fallback to AGRICOLA if used outside provider
   }
 
-  const [url, setUrl] = useState<string | null>(null);
+  const url = src ? urlDaFoto(src) : null;
   const [error, setError] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setError(false);
-    setUrl(null);
-    if (!src) return;
-    resolveImageUrl(src)
-      .then((u) => {
-        if (!cancelled) setUrl(u);
-      })
-      .catch(() => {
-        if (!cancelled) setError(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [src]);
+  useEffect(() => setError(false), [src]);
+  const carregamento = prioridade
+    ? ({ loading: "eager", fetchPriority: "high" } as const)
+    : ({ loading: "lazy" } as const);
 
   const isPlaceholder = src?.toLowerCase().includes("redeparts");
 
@@ -52,13 +44,13 @@ export function ProductImage({ src, alt, className, marca }: Props) {
         decoding="async"
         src="/img/sem-foto.jpg?v=2"
         alt={alt}
-        loading="lazy"
+        {...carregamento}
         className={cn("h-full w-full object-contain", className)}
       />
     );
   }
 
-  if (semFoto || (url === null && src && !src.startsWith("http"))) {
+  if (semFoto || url === null) {
     const Icon = currentSegment === "AUTOMOTIVA" ? Car : Tractor;
     return (
       <div
@@ -85,9 +77,9 @@ export function ProductImage({ src, alt, className, marca }: Props) {
   return (
     <img
       decoding="async"
-      src={url ?? undefined}
+      src={url}
       alt={alt}
-      loading="lazy"
+      {...carregamento}
       className={cn("h-full w-full object-cover", className)}
       onError={() => setError(true)}
     />

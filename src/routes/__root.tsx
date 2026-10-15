@@ -170,11 +170,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
         // O Google mostra o ícone nos resultados (pede múltiplo de 48 px; maior fica mais nítido)
         { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-        { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        // Fonte do próprio site: o arquivo latino já começa a baixar junto com o HTML
         {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
+          rel: "preload",
+          href: "/fonts/plus-jakarta-sans-latin.woff2",
+          as: "font",
+          type: "font/woff2",
+          crossOrigin: "anonymous",
         },
       ],
     };

@@ -219,8 +219,8 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
             </div>
             {dados.produtos.length > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6">
-                {dados.produtos.map((p) => (
-                  <CardLoja key={p.sku} p={p} />
+                {dados.produtos.map((p, i) => (
+                  <CardLoja key={p.sku} p={p} prioridade={i < 2} />
                 ))}
               </div>
             )}

@@ -161,14 +161,33 @@ export function PopupAcesso() {
     if (ler(FEITO)) return;
     // Fechou nesta visita: só volta na próxima
     if (ler(FECHADO, "sessao")) return;
-    // Conta desde a chegada na página (as consultas acima levam um tempo para responder)
+    // Conta desde a chegada na página (as consultas acima levam um tempo para responder) e só
+    // abre depois que a pessoa interagiu (rolou, tocou, digitou): assim o pop-up não vira a
+    // "maior imagem" da página na medição de velocidade do Google (LCP)
     const falta = Math.max(500, cfg.segundos * 1000 - performance.now());
-    const t = setTimeout(() => {
+    let tempoPassou = false;
+    let interagiu = false;
+    const abrir = () => {
+      if (!tempoPassou || !interagiu) return;
       if (!permitido(caminho.current) || estado.current.aberto) return;
       setAberto(true);
       registrarEvento("popup", "visto");
+    };
+    const EVENTOS = ["scroll", "pointerdown", "keydown", "touchstart"] as const;
+    const aoInteragir = () => {
+      interagiu = true;
+      for (const e of EVENTOS) window.removeEventListener(e, aoInteragir);
+      abrir();
+    };
+    for (const e of EVENTOS) window.addEventListener(e, aoInteragir, { passive: true });
+    const t = setTimeout(() => {
+      tempoPassou = true;
+      abrir();
     }, falta);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      for (const e of EVENTOS) window.removeEventListener(e, aoInteragir);
+    };
   }, [cfg, isFetched, sessao]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Momento de interesse: carrinho, busca sem resultado, catálogo

@@ -14,48 +14,52 @@ export const getPaginaRepuestosFn = createServerFn({ method: "GET" })
     categoria: d?.categoria ? String(d.categoria).slice(0, 80) : null,
   }))
   .handler(async ({ data }): Promise<PaginaRepuestos> => {
-    const { buscarSkus } = await import("./busca-catalogo.server");
-    const { listProducts } = await import("./products.server");
-    const { MARCAS_SEO, CATEGORIAS_SEO } = await import("./seo-paginas");
-    const filtro = {
-      marca: data.marca ?? undefined,
-      categoria: data.categoria ?? undefined,
-      vitrine: true,
-    };
-    const [todos, pagina] = await Promise.all([
-      buscarSkus(filtro),
-      listProducts({
-        linha: "AGRICOLA",
-        ...filtro,
-        hasImage: true,
-        sort: "nome-asc",
-        pageSize: 24,
-      }),
-    ]);
-    // Na página da marca: quantas peças em cada categoria (e vice-versa)
-    let facetas: PaginaRepuestos["facetas"] = [];
-    if (data.marca && !data.categoria) {
-      facetas = await Promise.all(
-        CATEGORIAS_SEO.map(async (c) => ({
-          chave: c.categoria,
-          total: (await buscarSkus({ marca: data.marca!, categoria: c.categoria, vitrine: true }))
-            .length,
-        })),
-      );
-    } else if (data.categoria && !data.marca) {
-      facetas = await Promise.all(
-        MARCAS_SEO.map(async (m) => ({
-          chave: m.marca,
-          total: (await buscarSkus({ marca: m.marca, categoria: data.categoria!, vitrine: true }))
-            .length,
-        })),
-      );
-    }
-    return {
-      total: todos.length,
-      produtos: pagina.rows as Product[],
-      facetas: facetas.filter((f) => f.total > 0).sort((a, b) => b.total - a.total),
-    };
+    // Guardado por 10 min: contagens e lista mudam pouco e eram recalculadas a cada visita
+    const { emCache } = await import("./cache.server");
+    return emCache(`repuestos|${data.marca}|${data.categoria}`, 10 * 60_000, async () => {
+      const { buscarSkus } = await import("./busca-catalogo.server");
+      const { listProducts } = await import("./products.server");
+      const { MARCAS_SEO, CATEGORIAS_SEO } = await import("./seo-paginas");
+      const filtro = {
+        marca: data.marca ?? undefined,
+        categoria: data.categoria ?? undefined,
+        vitrine: true,
+      };
+      const [todos, pagina] = await Promise.all([
+        buscarSkus(filtro),
+        listProducts({
+          linha: "AGRICOLA",
+          ...filtro,
+          hasImage: true,
+          sort: "nome-asc",
+          pageSize: 24,
+        }),
+      ]);
+      // Na página da marca: quantas peças em cada categoria (e vice-versa)
+      let facetas: PaginaRepuestos["facetas"] = [];
+      if (data.marca && !data.categoria) {
+        facetas = await Promise.all(
+          CATEGORIAS_SEO.map(async (c) => ({
+            chave: c.categoria,
+            total: (await buscarSkus({ marca: data.marca!, categoria: c.categoria, vitrine: true }))
+              .length,
+          })),
+        );
+      } else if (data.categoria && !data.marca) {
+        facetas = await Promise.all(
+          MARCAS_SEO.map(async (m) => ({
+            chave: m.marca,
+            total: (await buscarSkus({ marca: m.marca, categoria: data.categoria!, vitrine: true }))
+              .length,
+          })),
+        );
+      }
+      return {
+        total: todos.length,
+        produtos: pagina.rows as Product[],
+        facetas: facetas.filter((f) => f.total > 0).sort((a, b) => b.total - a.total),
+      };
+    });
   });
 
 // Páginas por local (/repuestos-agricolas/<local>): total do catálogo + peças da categoria em foco
@@ -64,18 +68,21 @@ export const getPaginaLocalFn = createServerFn({ method: "GET" })
     foco: d?.foco ? String(d.foco).slice(0, 80) : null,
   }))
   .handler(async ({ data }): Promise<{ total: number; produtos: Product[] }> => {
-    const { buscarSkus } = await import("./busca-catalogo.server");
-    const { listProducts } = await import("./products.server");
-    const [todos, pagina] = await Promise.all([
-      buscarSkus({ vitrine: true }),
-      listProducts({
-        linha: "AGRICOLA",
-        vitrine: true,
-        categoria: data.foco ?? undefined,
-        hasImage: true,
-        sort: "nome-asc",
-        pageSize: 18,
-      }),
-    ]);
-    return { total: todos.length, produtos: pagina.rows as Product[] };
+    const { emCache } = await import("./cache.server");
+    return emCache(`local|${data.foco}`, 10 * 60_000, async () => {
+      const { buscarSkus } = await import("./busca-catalogo.server");
+      const { listProducts } = await import("./products.server");
+      const [todos, pagina] = await Promise.all([
+        buscarSkus({ vitrine: true }),
+        listProducts({
+          linha: "AGRICOLA",
+          vitrine: true,
+          categoria: data.foco ?? undefined,
+          hasImage: true,
+          sort: "nome-asc",
+          pageSize: 18,
+        }),
+      ]);
+      return { total: todos.length, produtos: pagina.rows as Product[] };
+    });
   });

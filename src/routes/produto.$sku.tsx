@@ -339,7 +339,13 @@ function ProductDetail() {
           {/* Galeria */}
           <div className="min-w-0">
             <Card className="aspect-square overflow-hidden border-zinc-100 bg-white p-0 shadow-none">
-              <ProductImage src={mainImage} alt={nome} marca={marca} className="object-contain" />
+              <ProductImage
+                src={mainImage}
+                alt={nome}
+                marca={marca}
+                className="object-contain"
+                prioridade
+              />
             </Card>
             {product.imagem_origem && mainImage === product.imagem_principal && (
               <p className="mt-2 text-xs text-muted-foreground">

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import type { Banner } from "@/lib/banners";
 import { useState, useEffect, Fragment } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
@@ -73,8 +74,30 @@ const siteLd = {
 };
 
 export const Route = createFileRoute("/")({
-  head: ({ match }) => {
+  head: ({ match, loaderData }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
+    const b0 = loaderData?.hero?.[0];
+    const u = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
+    const preloadBanner = b0
+      ? b0.image_path_mobile
+        ? [
+            {
+              rel: "preload",
+              as: "image",
+              href: u(b0.image_path_mobile),
+              media: "(max-width: 767px)",
+              fetchPriority: "high" as const,
+            },
+            {
+              rel: "preload",
+              as: "image",
+              href: u(b0.image_path),
+              media: "(min-width: 768px)",
+              fetchPriority: "high" as const,
+            },
+          ]
+        : [{ rel: "preload", as: "image", href: u(b0.image_path), fetchPriority: "high" as const }]
+      : [];
     const t = (es: string, pt: string) => tr(idioma, es, pt);
     const titulo = t(
       "AGRO PARTS — Repuestos para tractores en Uruguay",
@@ -99,7 +122,7 @@ export const Route = createFileRoute("/")({
           ),
         },
       ],
-      links: linksIdioma("/", idioma),
+      links: [...linksIdioma("/", idioma), ...preloadBanner],
       scripts: [
         { type: "application/ld+json", children: JSON.stringify(lojaLd) },
         {
@@ -109,18 +132,27 @@ export const Route = createFileRoute("/")({
       ],
     };
   },
-  loader: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
+  // Blocos e banners do topo vêm do servidor: o banner já sai no HTML (é a maior imagem da página)
+  loader: async () => {
+    const [blocos, hero] = await Promise.all([
+      import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
+      import("@/lib/banners")
+        .then((m) => m.listActiveBanners("hero", "AGRICOLA"))
+        .catch(() => [] as Banner[]),
+    ]);
+    return { blocos, hero };
+  },
   component: HomePage,
 });
 
-function Bloco({ block }: { block: HomepageBlock }) {
+function Bloco({ block, heroInicial }: { block: HomepageBlock; heroInicial?: Banner[] }) {
   const { config } = block;
   const { idioma } = useT();
   // Título do bloco: cadastrado em português no admin; em espanhol é traduzido pelo glossário
   const title = idioma === "pt" ? block.title : tituloEs(block.title);
   switch (block.type) {
     case "HERO_SLIDER":
-      return <HeroSliderBlock config={config} title={title} />;
+      return <HeroSliderBlock config={config} title={title} iniciais={heroInicial} />;
     case "CATEGORY_GRID":
       return <CategoryGridBlock config={config} title={title} />;
     case "PRODUCTS_CAROUSEL":
@@ -165,7 +197,7 @@ function HomePage() {
 
   // Os blocos vêm prontos do servidor (loader): a página já nasce com a estrutura certa,
   // sem os retângulos provisórios que depois "pulavam" ao trocar pelo conteúdo.
-  const iniciais = Route.useLoaderData();
+  const { blocos: iniciais, hero: heroInicial } = Route.useLoaderData();
   const { t } = useT();
   const { data: blocks = [], isLoading } = useQuery({
     queryKey: ["homepage_blocks"],
@@ -205,7 +237,7 @@ function HomePage() {
           )}
         </h1>
         {hero.map((b) => (
-          <Bloco key={b.id} block={b} />
+          <Bloco key={b.id} block={b} heroInicial={heroInicial} />
         ))}
 
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4">
