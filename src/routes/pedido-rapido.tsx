@@ -16,7 +16,7 @@ import { acharPorCodigos, codigoExibicao, type Product } from "@/lib/products";
 import { nomeProduto, nomePeca } from "@/lib/pecas-es";
 import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 import { PHONE } from "@/lib/whatsapp";
-import { eventoDoLinkWhatsapp } from "@/lib/eventos";
+import { pedirPrecoWhatsapp } from "@/lib/pedir-cadastro";
 
 export const Route = createFileRoute("/pedido-rapido")({
   head: ({ match }) => {
@@ -121,8 +121,7 @@ function PedidoRapido() {
     const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(
       `${t("¡Hola! Quiero cotizar esta lista de repuestos:", "Olá! Quero orçamento desta lista de peças (cliente do Brasil):")}\n\n${linhas.join("\n")}`,
     )}`;
-    eventoDoLinkWhatsapp(url);
-    window.open(url, "_blank");
+    pedirPrecoWhatsapp(url);
   };
 
   return (

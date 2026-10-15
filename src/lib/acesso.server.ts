@@ -8,8 +8,15 @@ const MINUTO = 60_000;
 // ---------- Configuração do pop-up (tabela configuracoes, chaves popup_*) ----------
 export const POPUP_PADRAO = {
   popup_ativo: "1",
-  popup_segundos: "8",
+  popup_segundos: "5",
   popup_desconto: "15",
+  popup_titulo: "Registrate gratis y accedé a todas nuestras herramientas",
+  popup_subtitulo:
+    "Catálogos de piezas, precios por WhatsApp, pedido rápido por lista y {{descuento}}% OFF en tu primera compra.",
+};
+// Valores padrão antigos: quem nunca personalizou no admin passa a ver os novos
+const PADRAO_ANTIGO: Record<string, string> = {
+  popup_segundos: "8",
   popup_titulo: "¡Entrá y llevate {{descuento}}% OFF en tu primera compra!",
   popup_subtitulo: "Creá tu cuenta gratis en segundos y accedé a todos los catálogos de tractores.",
 };
@@ -26,7 +33,9 @@ export async function configPopup(): Promise<ConfigPopup> {
   const rows = await prisma.configuracoes.findMany({ where: { chave: { startsWith: "popup_" } } });
   const v: Record<string, string> = {
     ...POPUP_PADRAO,
-    ...Object.fromEntries(rows.map((r) => [r.chave, r.valor])),
+    ...Object.fromEntries(
+      rows.filter((r) => PADRAO_ANTIGO[r.chave] !== r.valor).map((r) => [r.chave, r.valor]),
+    ),
   };
   return {
     ativo: v.popup_ativo === "1",

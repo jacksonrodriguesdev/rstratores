@@ -14,23 +14,25 @@ import {
   Bell,
   ShoppingCart,
   Ticket,
+  MessageCircle,
 } from "lucide-react";
 import { getSessionFn } from "@/lib/user-auth";
 import { getPopupFn, meuCupomFn, completarPerfilFn } from "@/lib/acesso";
 import { DEPARTAMENTOS_UY, mascararCelularUY } from "@/lib/validacao-conta";
 import { registrarEvento } from "@/lib/eventos";
-import { EVENTO_PEDIR_CADASTRO, type PedidoCadastro } from "@/lib/pedir-cadastro";
+import { EVENTO_PEDIR_CADASTRO, abrirWhatsapp, type PedidoCadastro } from "@/lib/pedir-cadastro";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/idioma";
 
-// Pop-up "Entrá y ganá": aparece N segundos depois de abrir o site para quem não está logado,
-// e também num momento de interesse (carrinho, busca sem resultado, catálogo: pedirCadastro()).
+// Pop-up de cadastro ("Registrate gratis y accedé a todas nuestras herramientas"): aparece N
+// segundos depois de abrir o site para quem não está logado — em toda visita, até se cadastrar —
+// e também num momento de interesse (carrinho, busca sem resultado, catálogo, pedir preço pelo
+// WhatsApp: pedirCadastro()). Pedir preço pelo WhatsApp exige conta: o WhatsApp só abre depois.
 // Pede só o e-mail: código de 6 dígitos → conta criada na hora com o cupom único de 15%.
 // Nome, departamento e celular ficam opcionais na tela final.
-const FECHADO = "popup_acceso_fechado"; // quando fechou (não volta pelo tempo por 7 dias)
+const FECHADO = "popup_acceso_fechado"; // fechou nesta visita (sessionStorage: volta na próxima)
 const FEITO = "popup_acceso_ok"; // já entrou/cadastrou por aqui
 const CARRINHO_SESSAO = "popup_acceso_carrinho"; // já abriu pelo carrinho nesta sessão
-const SETE_DIAS = 7 * 86400_000;
 const OCULTAR = [
   /^\/admin/,
   /^\/login/,
@@ -157,8 +159,8 @@ export function PopupAcesso() {
   useEffect(() => {
     if (!cfg?.ativo || !isFetched || sessao) return;
     if (ler(FEITO)) return;
-    const fechado = Number(ler(FECHADO) || 0);
-    if (fechado && Date.now() - fechado < SETE_DIAS) return;
+    // Fechou nesta visita: só volta na próxima
+    if (ler(FECHADO, "sessao")) return;
     // Conta desde a chegada na página (as consultas acima levam um tempo para responder)
     const falta = Math.max(500, cfg.segundos * 1000 - performance.now());
     const t = setTimeout(() => {
@@ -177,7 +179,13 @@ export function PopupAcesso() {
       const { sessao: s, cfg: c, aberto: jaAberto } = estado.current;
       if (s) {
         // Já tem conta: vai direto para onde queria
-        if (p.destino) window.location.href = p.destino;
+        if (p.motivo === "whatsapp" && p.destino) abrirWhatsapp(p.destino, p.aoAbrir);
+        else if (p.destino) window.location.href = p.destino;
+        return;
+      }
+      // Pop-up desligado no admin: o WhatsApp não exige cadastro
+      if (p.motivo === "whatsapp" && p.destino && !c?.ativo) {
+        abrirWhatsapp(p.destino, p.aoAbrir);
         return;
       }
       if (!c?.ativo) {
@@ -224,46 +232,54 @@ export function PopupAcesso() {
   const desconto = cfg.desconto;
   const motivo = pedido?.motivo;
   const termo = pedido?.termo?.trim().slice(0, 60);
+  const comDesconto = (x: string) => x.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
   const titulo =
-    motivo === "carrinho"
-      ? t(
-          `Guardá tu pedido y llevate ${desconto}% OFF`,
-          `Salve seu pedido e ganhe ${desconto}% OFF`,
-        )
-      : motivo === "busca"
-        ? termo
-          ? t(`¿No encontraste "${termo}"?`, `Não encontrou "${termo}"?`)
-          : t("¿No encontraste la pieza?", "Não encontrou a peça?")
-        : motivo === "catalogo"
-          ? t("Abrí el catálogo gratis", "Abra o catálogo grátis")
-          : // O texto do admin (Pop-up de cadastro) é o do site em espanhol
-            idioma === "pt"
-            ? `Entre e ganhe ${desconto}% OFF na sua primeira compra!`
-            : cfg.titulo.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
-  const subtitulo =
-    motivo === "carrinho"
-      ? t(
-          `Dejá tu e-mail y te damos un cupón de ${desconto}% para esta primera compra.`,
-          `Deixe seu e-mail e ganhe um cupom de ${desconto}% nesta primeira compra.`,
-        )
-      : motivo === "busca"
+    motivo === "whatsapp"
+      ? t("Registrate gratis para pedir tu precio", "Cadastre-se grátis para pedir seu preço")
+      : motivo === "carrinho"
         ? t(
-            `Dejá tu e-mail y te avisamos apenas llegue. Además, ${desconto}% OFF en tu primera compra.`,
-            `Deixe seu e-mail e avisamos assim que chegar. E mais: ${desconto}% OFF na primeira compra.`,
+            `Guardá tu pedido y llevate ${desconto}% OFF`,
+            `Salve seu pedido e ganhe ${desconto}% OFF`,
           )
-        : motivo === "catalogo"
+        : motivo === "busca"
+          ? termo
+            ? t(`¿No encontraste "${termo}"?`, `Não encontrou "${termo}"?`)
+            : t("¿No encontraste la pieza?", "Não encontrou a peça?")
+          : motivo === "catalogo"
+            ? t("Abrí el catálogo gratis", "Abra o catálogo grátis")
+            : // O texto do admin (Pop-up de cadastro) é o do site em espanhol
+              idioma === "pt"
+              ? "Cadastre-se grátis e tenha acesso a todas as nossas ferramentas"
+              : comDesconto(cfg.titulo);
+  const subtitulo =
+    motivo === "whatsapp"
+      ? t(
+          `Solo tu e-mail: te respondemos por WhatsApp con precio y envío, y te llevás ${desconto}% OFF en tu primera compra.`,
+          `Só o seu e-mail: respondemos pelo WhatsApp com preço e frete, e você ganha ${desconto}% OFF na primeira compra.`,
+        )
+      : motivo === "carrinho"
+        ? t(
+            `Dejá tu e-mail y te damos un cupón de ${desconto}% para esta primera compra.`,
+            `Deixe seu e-mail e ganhe um cupom de ${desconto}% nesta primeira compra.`,
+          )
+        : motivo === "busca"
           ? t(
-              `Solo tu e-mail: accedés a todos los catálogos y te llevás ${desconto}% OFF en tu primera compra.`,
-              `Só o seu e-mail: acesso a todos os catálogos e ${desconto}% OFF na primeira compra.`,
+              `Dejá tu e-mail y te avisamos apenas llegue. Además, ${desconto}% OFF en tu primera compra.`,
+              `Deixe seu e-mail e avisamos assim que chegar. E mais: ${desconto}% OFF na primeira compra.`,
             )
-          : idioma === "pt"
-            ? "Crie sua conta grátis em segundos e acesse todos os catálogos de tratores."
-            : cfg.subtitulo;
+          : motivo === "catalogo"
+            ? t(
+                `Solo tu e-mail: accedés a todos los catálogos y te llevás ${desconto}% OFF en tu primera compra.`,
+                `Só o seu e-mail: acesso a todos os catálogos e ${desconto}% OFF na primeira compra.`,
+              )
+            : idioma === "pt"
+              ? `Catálogos de peças, preços pelo WhatsApp, pedido rápido por lista e ${desconto}% OFF na primeira compra.`
+              : comDesconto(cfg.subtitulo);
 
   function fechar() {
     if (etapa !== "ok") {
       // Fechar um pedido feito pela pessoa (busca, catálogo) não bloqueia o pop-up do tempo
-      if (!pedido) gravar(FECHADO, String(Date.now()));
+      if (!pedido) gravar(FECHADO, String(Date.now()), "sessao");
       registrarEvento("popup", pedido ? `fechado:${pedido.motivo}` : "fechado");
     }
     setAberto(false);
@@ -324,7 +340,9 @@ export function PopupAcesso() {
   });
 
   const googleUrl = () => {
-    const u = new URL(pedido?.destino ?? window.location.href, window.location.origin);
+    // O destino do WhatsApp é externo: volta para a página atual
+    const destinoInterno = pedido?.destino?.startsWith("/") ? pedido.destino : null;
+    const u = new URL(destinoInterno ?? window.location.href, window.location.origin);
     u.searchParams.set("bienvenida", "1");
     return `/api/auth/google?redirect=${encodeURIComponent(u.pathname + u.search)}`;
   };
@@ -339,19 +357,23 @@ export function PopupAcesso() {
 
   const continuar = () => {
     setAberto(false);
-    if (pedido?.destino) window.location.href = pedido.destino;
+    if (pedido?.motivo === "whatsapp" && pedido.destino)
+      abrirWhatsapp(pedido.destino, pedido.aoAbrir);
+    else if (pedido?.destino) window.location.href = pedido.destino;
     setPedido(null);
   };
 
   const primeiroNome = (resultado?.nome ?? "").trim().split(/\s+/)[0] ?? "";
   const IconeMotivo =
-    motivo === "carrinho"
-      ? ShoppingCart
-      : motivo === "busca"
-        ? Bell
-        : motivo === "catalogo"
-          ? BookOpen
-          : null;
+    motivo === "whatsapp"
+      ? MessageCircle
+      : motivo === "carrinho"
+        ? ShoppingCart
+        : motivo === "busca"
+          ? Bell
+          : motivo === "catalogo"
+            ? BookOpen
+            : null;
 
   return (
     <div
@@ -418,10 +440,15 @@ export function PopupAcesso() {
                   </>
                 ) : motivo === "carrinho" ? (
                   t("Tu pedido queda guardado en tu cuenta.", "Seu pedido fica salvo na sua conta.")
+                ) : motivo === "whatsapp" ? (
+                  t(
+                    "Ya podés pedir tu precio por WhatsApp.",
+                    "Agora você já pode pedir seu preço pelo WhatsApp.",
+                  )
                 ) : (
                   t(
-                    "Ya tenés acceso a todos los catálogos.",
-                    "Agora você tem acesso a todos os catálogos.",
+                    "Ya tenés acceso a todas nuestras herramientas.",
+                    "Agora você tem acesso a todas as nossas ferramentas.",
                   )
                 )}
               </p>
@@ -531,7 +558,15 @@ export function PopupAcesso() {
               )}
 
               <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                {motivo === "catalogo" ? (
+                {motivo === "whatsapp" ? (
+                  <button
+                    onClick={continuar}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] font-bold text-white hover:bg-[#1EBE57] sm:col-span-2"
+                  >
+                    <MessageCircle className="h-5 w-5" />{" "}
+                    {t("Pedir precio por WhatsApp", "Pedir preço pelo WhatsApp")}
+                  </button>
+                ) : motivo === "catalogo" ? (
                   <button
                     onClick={continuar}
                     className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-white hover:bg-primary/90 sm:col-span-2"
@@ -604,6 +639,23 @@ export function PopupAcesso() {
                 )}
               </p>
 
+              {etapa === "inicio" && (!motivo || motivo === "whatsapp") && (
+                <ul className="mt-3 grid grid-cols-1 gap-1.5 text-sm text-zinc-700 sm:grid-cols-2">
+                  {[
+                    t("Catálogos de piezas en PDF", "Catálogos de peças em PDF"),
+                    t("Precios por WhatsApp", "Preços pelo WhatsApp"),
+                    t("Pedido rápido por lista de códigos", "Pedido rápido por lista de códigos"),
+                    t("Aviso cuando llega la pieza", "Aviso quando a peça chegar"),
+                  ].map((x) => (
+                    <li key={x} className="flex items-center gap-2">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
+                      {x}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {etapa === "inicio" && (
                 <>
                   {/* O cupom aparece logo de cara: falta só o e-mail para liberar */}

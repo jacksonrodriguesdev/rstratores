@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ProductImage";
 import { PHONE } from "@/lib/whatsapp";
 import { nomeEs } from "@/lib/pecas-es";
-import { eventoDoLinkWhatsapp } from "@/lib/eventos";
+import { pedirPrecoWhatsapp } from "@/lib/pedir-cadastro";
 import { useT } from "@/lib/idioma";
 
 export function CartDrawer() {
@@ -18,7 +18,7 @@ export function CartDrawer() {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // A cotação vai direto para o WhatsApp, sem exigir cadastro (cada passo a mais perde cliente).
+  // A cotação vai para o WhatsApp depois do cadastro (sem conta, o pop-up pede o e-mail antes).
   // O nome em português vai entre parênteses para a equipe identificar a peça.
   const handleSendQuote = () => {
     const lines = items.map((i) => {
@@ -27,11 +27,12 @@ export function CartDrawer() {
     });
     const message = `${t("¡Hola! Quiero cotizar estos repuestos:", "Olá! Quero orçamento destas peças (cliente do Brasil):")}\n\n${lines.join("\n")}`;
     const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`;
-    eventoDoLinkWhatsapp(url);
-    window.open(url, "_blank");
-    marcarEnviado();
-    clearCart();
+    // O carrinho só é esvaziado quando o WhatsApp abre de fato
     setIsCartOpen(false);
+    pedirPrecoWhatsapp(url, () => {
+      marcarEnviado();
+      clearCart();
+    });
   };
 
   return (

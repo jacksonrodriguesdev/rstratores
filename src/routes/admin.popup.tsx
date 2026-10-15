@@ -194,9 +194,11 @@ function PopupAdmin() {
                 Salvar
               </Button>
               <p className="text-xs text-muted-foreground">
-                Quem fecha o pop-up não vê de novo por 7 dias; quem entra ou se cadastra, nunca
-                mais. Não aparece no admin, no login/cadastro, em Mi cuenta nem dentro do leitor de
-                catálogos. O e-mail de boas-vindas (Automações) leva o mesmo cupom único.
+                Quem fecha o pop-up vê de novo na próxima visita; quem entra ou se cadastra, nunca
+                mais. Pedir preço pelo WhatsApp (peça, carrinho e pedido rápido) exige cadastro
+                enquanto o pop-up estiver ligado; desligado, o WhatsApp abre direto. Não aparece no
+                admin, no login/cadastro, em Mi cuenta nem dentro do leitor de catálogos. O e-mail
+                de boas-vindas (Automações) leva o mesmo cupom único.
               </p>
             </>
           )}

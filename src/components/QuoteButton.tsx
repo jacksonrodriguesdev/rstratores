@@ -1,6 +1,7 @@
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
+import { pedirPrecoWhatsapp } from "@/lib/pedir-cadastro";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/idioma";
 
@@ -20,11 +21,17 @@ export function QuoteButton({ product, size = "sm", className, fullWidth, label 
       size={size}
       className={cn("bg-[#25D366] text-white hover:bg-[#1EBE57]", fullWidth && "w-full", className)}
     >
+      {/* O link fica para quem está sem JavaScript; o clique passa pelo cadastro (pedir-cadastro.ts) */}
       <a
         href={whatsappQuoteUrl(product, idioma)}
         target="_blank"
         rel="noreferrer noopener"
-        onClick={(e) => e.stopPropagation()}
+        data-cadastro="whatsapp"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          pedirPrecoWhatsapp(whatsappQuoteUrl(product, idioma));
+        }}
       >
         <MessageCircle className="mr-2 h-4 w-4" />
         {label ?? t("Consultar precio", "Consultar preço")}

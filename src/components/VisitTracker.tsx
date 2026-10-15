@@ -121,7 +121,8 @@ export function VisitTracker() {
       const a = (e.target as HTMLElement | null)?.closest?.("a");
       const p = caminho.current;
       if (p.startsWith("/admin") || p.startsWith("/login")) return;
-      if (a?.href.includes("api.whatsapp.com")) eventoDoLinkWhatsapp(a.href);
+      // Botões que exigem cadastro (data-cadastro) registram o pedido só quando o WhatsApp abre
+      if (a?.href.includes("api.whatsapp.com") && !a.dataset.cadastro) eventoDoLinkWhatsapp(a.href);
       if (cliques.current >= MAX_CLIQUES) return;
       cliques.current++;
       const x = Math.round((e.clientX / Math.max(1, window.innerWidth)) * 100);
