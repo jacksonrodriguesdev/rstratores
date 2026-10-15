@@ -12,11 +12,11 @@ const seguro = (s: string) => /^[A-Za-z0-9_-]+$/.test(s);
 // Velocidade: os scripts do Google e do Meta são pesados (o do Google tem ~180 KB e trava o
 // celular por quase 1 s). As filas (dataLayer, gtag, fbq, clarity) são criadas na hora, então
 // nenhum evento se perde; os arquivos só baixam na 1ª interação (rolar, tocar, teclar, mover o
-// mouse) ou 4 s depois que a página carregou, sem disputar com o conteúdo.
+// mouse) ou 7 s depois que a página carregou, sem disputar com o conteúdo.
 const carregar = (src: string) =>
   `var s=document.createElement("script");s.async=true;s.src=${JSON.stringify(src)};document.head.appendChild(s);`;
 const depois = (corpo: string) =>
-  `(function(){var ok=0;function go(){if(ok)return;ok=1;${corpo}}["scroll","pointerdown","keydown","touchstart","mousemove"].forEach(function(e){addEventListener(e,go,{once:true,passive:true})});addEventListener("load",function(){setTimeout(go,4000)});})();`;
+  `(function(){var ok=0;function go(){if(ok)return;ok=1;${corpo}}["scroll","pointerdown","keydown","touchstart","mousemove"].forEach(function(e){addEventListener(e,go,{once:true,passive:true})});addEventListener("load",function(){setTimeout(go,7000)});})();`;
 
 export function scriptsMarketing(cfg?: MarketingPublico | null) {
   const scripts: Array<{ src?: string; async?: boolean; children?: string }> = [];

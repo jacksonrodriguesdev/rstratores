@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -55,7 +55,35 @@ function lerConfig(config: string | null): Record<string, any> {
 }
 
 // Busca de produtos comum aos blocos de carrossel e grade.
-function useProdutosDoBloco(config: string | null, limitePadrao: number) {
+// Velocidade: a vitrine só busca e desenha as peças quando está chegando perto da tela
+// (a ~600 px). Antes, as 6 vitrines da home carregavam juntas ao abrir a página e travavam o
+// celular. Até lá fica o esqueleto (mesma altura: a página não "pula").
+function usePertoDaTela<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [perto, setPerto] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || perto) return;
+    if (!("IntersectionObserver" in window)) {
+      setPerto(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setPerto(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [perto]);
+  return [ref, perto] as const;
+}
+
+function useProdutosDoBloco(config: string | null, limitePadrao: number, perto = true) {
   const { segment } = useSegment();
   const c = lerConfig(config);
   const segmento = c.segment || "AMBOS";
@@ -73,10 +101,11 @@ function useProdutosDoBloco(config: string | null, limitePadrao: number) {
   const query = useQuery({
     queryKey: ["home-produtos", filtros, limite, onlyWithImages],
     queryFn: () => listVitrine({ page: 1, pageSize: limite, ...filtros }, onlyWithImages),
+    enabled: perto,
   });
   return {
     produtos: (query.data?.rows ?? []).slice(0, limite),
-    carregando: query.isLoading,
+    carregando: !perto || query.isLoading,
     // Parâmetros do "Ver todos" na loja
     busca: {
       linha,
@@ -330,13 +359,16 @@ export function ProductsCarouselBlock({
   title: string | null;
   config: string | null;
 }) {
-  const { produtos, carregando, busca } = useProdutosDoBloco(config, 12);
+  const [ref, perto] = usePertoDaTela<HTMLDivElement>();
+  const { produtos, carregando, busca } = useProdutosDoBloco(config, 12, perto);
   const { t } = useT();
   if (!carregando && produtos.length === 0) return null;
   return (
-    <Section title={title || t("Destacados", "Destaques")} verTodos={{ search: busca }}>
-      <ProductRail products={produtos} loading={carregando} />
-    </Section>
+    <div ref={ref}>
+      <Section title={title || t("Destacados", "Destaques")} verTodos={{ search: busca }}>
+        <ProductRail products={produtos} loading={carregando} />
+      </Section>
+    </div>
   );
 }
 
@@ -348,21 +380,24 @@ export function ProductsGridBlock({
   title: string | null;
   config: string | null;
 }) {
-  const { produtos, carregando, busca } = useProdutosDoBloco(config, 10);
+  const [ref, perto] = usePertoDaTela<HTMLDivElement>();
+  const { produtos, carregando, busca } = useProdutosDoBloco(config, 10, perto);
   const { t } = useT();
   if (!carregando && produtos.length === 0) return null;
   return (
-    <Section title={title || t("Productos", "Produtos")} verTodos={{ search: busca }}>
-      {carregando ? (
-        <ProductRail products={[]} loading />
-      ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {produtos.map((p: any) => (
-            <RailCard key={p.sku} p={p} />
-          ))}
-        </div>
-      )}
-    </Section>
+    <div ref={ref}>
+      <Section title={title || t("Productos", "Produtos")} verTodos={{ search: busca }}>
+        {carregando ? (
+          <ProductRail products={[]} loading />
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {produtos.map((p: any) => (
+              <RailCard key={p.sku} p={p} />
+            ))}
+          </div>
+        )}
+      </Section>
+    </div>
   );
 }
 
