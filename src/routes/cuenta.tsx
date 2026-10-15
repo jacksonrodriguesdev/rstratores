@@ -17,7 +17,9 @@ import {
   ChevronRight,
   Eye,
   Sparkles,
+  ShoppingBag,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Campo, CampoCelular, CampoSenha, ForcaSenha, inputCls } from "@/components/auth/AuthShell";
 import { getPerfilFn, salvarPerfilFn, trocarSenhaFn, type Perfil } from "@/lib/conta";
@@ -25,6 +27,8 @@ import { DEPARTAMENTOS_UY, mascararCelularUY, formatarCelularUY } from "@/lib/va
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { tr, useT, type Idioma } from "@/lib/idioma";
+import { minhasComprasFn } from "@/lib/pagamentos";
+import { STATUS_LINK, fmtValor } from "@/lib/pagamentos-comum";
 
 export const Route = createFileRoute("/cuenta")({
   validateSearch: z.object({
@@ -53,6 +57,7 @@ export const Route = createFileRoute("/cuenta")({
 
 const ABAS = [
   { id: "datos", rotulo: ["Mis datos", "Meus dados"], icone: User },
+  { id: "compras", rotulo: ["Mis compras", "Minhas compras"], icone: ShoppingBag },
   { id: "seguridad", rotulo: ["Seguridad", "Segurança"], icone: Lock },
   { id: "catalogos", rotulo: ["Mis catálogos", "Meus catálogos"], icone: BookOpen },
 ] as const;
@@ -228,6 +233,7 @@ function CuentaPage() {
           </nav>
           <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-8">
             {aba === "datos" && <Dados perfil={perfil} destino={completar ? destino : undefined} />}
+            {aba === "compras" && <MinhasCompras />}
             {aba === "seguridad" && <Seguranca perfil={perfil} />}
             {aba === "catalogos" && <MeusCatalogos perfil={perfil} />}
           </div>
@@ -605,6 +611,75 @@ function MeusCatalogos({ perfil }: { perfil: Perfil }) {
           ? ` · ${perfil.telefone.startsWith("+55") ? perfil.telefone : formatarCelularUY(perfil.telefone)}`
           : ""}
       </p>
+    </div>
+  );
+}
+
+// Compras pagas pelo link de pagamento (e links esperando pagamento)
+function MinhasCompras() {
+  const { t, idioma, href } = useT();
+  const local = idioma === "pt" ? "pt-BR" : "es-UY";
+  const { data, isLoading } = useQuery({
+    queryKey: ["minhas-compras"],
+    queryFn: () => minhasComprasFn(),
+  });
+  return (
+    <div>
+      <h2 className="text-xl font-extrabold text-zinc-900">{t("Mis compras", "Minhas compras")}</h2>
+      <p className="text-sm text-zinc-500">
+        {t("Los pedidos que pagaste en el sitio.", "Os pedidos que você pagou pelo site.")}
+      </p>
+      {isLoading ? (
+        <p className="mt-4 flex items-center gap-2 text-sm text-zinc-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("Cargando…", "Carregando…")}
+        </p>
+      ) : !data?.length ? (
+        <p className="mt-4 rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-600 ring-1 ring-black/5">
+          {t(
+            "Todavía no tenés compras. Cuando confirmemos tu pedido por WhatsApp, te enviamos un link para pagar y la compra aparece acá.",
+            "Você ainda não tem compras. Quando confirmarmos seu pedido pelo WhatsApp, enviamos um link para pagar e a compra aparece aqui.",
+          )}
+        </p>
+      ) : (
+        <ul className="mt-4 space-y-3">
+          {data.map((c) => (
+            <li key={c.codigo} className="rounded-2xl p-4 ring-1 ring-black/5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-bold text-zinc-900">
+                  {t("Pedido", "Pedido")} #{c.id}
+                  <span className="ml-2 text-xs font-normal text-zinc-500">
+                    {new Date(c.pago_em ?? c.created_at).toLocaleDateString(local)}
+                  </span>
+                </p>
+                <span
+                  className={cn(
+                    "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                    c.status === "PAGO"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-amber-100 text-amber-800",
+                  )}
+                >
+                  {(STATUS_LINK[c.status] ?? [c.status, c.status])[idioma === "pt" ? 1 : 0]}
+                </span>
+              </div>
+              <p className="mt-1 line-clamp-2 text-sm text-zinc-600">
+                {c.itens.map((i) => `${i.quantidade}× ${i.nome}`).join(" · ")}
+              </p>
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-lg font-black text-primary">{fmtValor(c.total, c.moeda)}</p>
+                <a
+                  href={href(`/pagar/${c.codigo}`)}
+                  className="text-sm font-bold text-primary hover:underline"
+                >
+                  {c.status === "PAGO"
+                    ? t("Ver detalle", "Ver detalhes")
+                    : t("Pagar ahora →", "Pagar agora →")}
+                </a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

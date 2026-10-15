@@ -26,6 +26,8 @@ const PAGINAS = [
   ["/sitemaps/pecas-1.xml", 200, ["CI-001"]],
   ["/robots.txt", 200, ["Sitemap"]],
   ["/feeds/google-merchant.xml", 200, ["<?xml"]],
+  ["/pagar/link-que-nao-existe", 200, ["Link no encontrado"]],
+  ["/pt/pagar/link-que-nao-existe", 200, ["Link não encontrado"]],
   ["/pagina-que-nao-existe-ci", 404, []],
 ];
 // Sinais de página quebrada (tela de erro do React/TanStack)
@@ -49,6 +51,18 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
     if (status === 200) for (const re of QUEBRADA) if (re.test(html)) erros.push(`tela de erro (${re})`);
     console.log(`${erros.length ? "✘" : "✔"} ${String(res.status).padEnd(3)} ${String(Date.now() - t0).padStart(5)}ms ${caminho}${erros.length ? "  ← " + erros.join("; ") : ""}`);
     if (erros.length) falhas.push(`${caminho}: ${erros.join("; ")}`);
+  }
+
+  // Aviso da dLocal sem assinatura válida: recusado (ninguém marca um pagamento como pago de fora)
+  {
+    const r = await fetch(BASE + "/api/public/dlocal/pagamentos", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: "V2-HMAC-SHA256, Signature: falsa", "x-date": new Date().toISOString() },
+      body: JSON.stringify({ id: "D-falso", status: "PAID" }),
+    });
+    const ok = r.status === 401;
+    console.log(`${ok ? "✔" : "✘"} aviso da dLocal sem assinatura → ${r.status}`);
+    if (!ok) falhas.push(`webhook dLocal aceitou aviso falso (${r.status})`);
   }
 
   // WhatsApp das cotações: todo link do WhatsApp nas páginas principais vai para o número certo

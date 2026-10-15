@@ -35,6 +35,7 @@ import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminJornadasRouteImport } from './routes/admin.jornadas'
 import { Route as AdminMarketingRouteImport } from './routes/admin.marketing'
+import { Route as AdminPagamentosRouteImport } from './routes/admin.pagamentos'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminPesquisaPrecosRouteImport } from './routes/admin.pesquisa-precos'
 import { Route as AdminPopupRouteImport } from './routes/admin.popup'
@@ -46,6 +47,7 @@ import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as CatalogosSlugRouteImport } from './routes/catalogos.$slug'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
+import { Route as PagarCodigoRouteImport } from './routes/pagar.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
 import { Route as RepuestosAgricolasLocalRouteImport } from './routes/repuestos-agricolas.$local'
@@ -91,6 +93,7 @@ import { Route as ApiAdminProductsUploadRouteImport } from './routes/api/admin/p
 import { Route as ApiAdminQuotesIdRouteImport } from './routes/api/admin/quotes.$id'
 import { Route as ApiAuthCodigoVerificarRouteImport } from './routes/api/auth.codigo.verificar'
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
+import { Route as ApiPublicDlocalPagamentosRouteImport } from './routes/api/public/dlocal.pagamentos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -222,6 +225,11 @@ const AdminMarketingRoute = AdminMarketingRouteImport.update({
   path: '/marketing',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPagamentosRoute = AdminPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPellegrinoRoute = AdminPellegrinoRouteImport.update({
   id: '/pellegrino',
   path: '/pellegrino',
@@ -275,6 +283,11 @@ const CatalogosSlugRoute = CatalogosSlugRouteImport.update({
 const FeedsArquivoRoute = FeedsArquivoRouteImport.update({
   id: '/feeds/$arquivo',
   path: '/feeds/$arquivo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagarCodigoRoute = PagarCodigoRouteImport.update({
+  id: '/pagar/$codigo',
+  path: '/pagar/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
@@ -504,6 +517,12 @@ const ApiAuthGoogleCallbackRoute = ApiAuthGoogleCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => ApiAuthGoogleRoute,
 } as any)
+const ApiPublicDlocalPagamentosRoute =
+  ApiPublicDlocalPagamentosRouteImport.update({
+    id: '/api/public/dlocal/pagamentos',
+    path: '/api/public/dlocal/pagamentos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -531,6 +550,7 @@ export interface FileRoutesByFullPath {
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
+  '/admin/pagamentos': typeof AdminPagamentosRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
@@ -541,6 +561,7 @@ export interface FileRoutesByFullPath {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
+  '/pagar/$codigo': typeof PagarCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
@@ -588,6 +609,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -614,6 +636,7 @@ export interface FileRoutesByTo {
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
+  '/admin/pagamentos': typeof AdminPagamentosRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
@@ -624,6 +647,7 @@ export interface FileRoutesByTo {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
+  '/pagar/$codigo': typeof PagarCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
@@ -671,6 +695,7 @@ export interface FileRoutesByTo {
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -699,6 +724,7 @@ export interface FileRoutesById {
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
+  '/admin/pagamentos': typeof AdminPagamentosRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
@@ -709,6 +735,7 @@ export interface FileRoutesById {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
+  '/pagar/$codigo': typeof PagarCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
@@ -756,6 +783,7 @@ export interface FileRoutesById {
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -785,6 +813,7 @@ export interface FileRouteTypes {
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
+    | '/admin/pagamentos'
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
     | '/admin/popup'
@@ -795,6 +824,7 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/catalogos/$slug'
     | '/feeds/$arquivo'
+    | '/pagar/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
@@ -842,6 +872,7 @@ export interface FileRouteTypes {
     | '/api/admin/quotes/$id'
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
+    | '/api/public/dlocal/pagamentos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -868,6 +899,7 @@ export interface FileRouteTypes {
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
+    | '/admin/pagamentos'
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
     | '/admin/popup'
@@ -878,6 +910,7 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/catalogos/$slug'
     | '/feeds/$arquivo'
+    | '/pagar/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
@@ -925,6 +958,7 @@ export interface FileRouteTypes {
     | '/api/admin/quotes/$id'
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
+    | '/api/public/dlocal/pagamentos'
   id:
     | '__root__'
     | '/'
@@ -952,6 +986,7 @@ export interface FileRouteTypes {
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
+    | '/admin/pagamentos'
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
     | '/admin/popup'
@@ -962,6 +997,7 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/catalogos/$slug'
     | '/feeds/$arquivo'
+    | '/pagar/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
@@ -1009,6 +1045,7 @@ export interface FileRouteTypes {
     | '/api/admin/quotes/$id'
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
+    | '/api/public/dlocal/pagamentos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1026,6 +1063,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CatalogosSlugRoute: typeof CatalogosSlugRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
+  PagarCodigoRoute: typeof PagarCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
@@ -1057,6 +1095,7 @@ export interface RootRouteChildren {
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
   ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
+  ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1243,6 +1282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMarketingRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/pagamentos': {
+      id: '/admin/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/admin/pagamentos'
+      preLoaderRoute: typeof AdminPagamentosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/pellegrino': {
       id: '/admin/pellegrino'
       path: '/pellegrino'
@@ -1318,6 +1364,13 @@ declare module '@tanstack/react-router' {
       path: '/feeds/$arquivo'
       fullPath: '/feeds/$arquivo'
       preLoaderRoute: typeof FeedsArquivoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagar/$codigo': {
+      id: '/pagar/$codigo'
+      path: '/pagar/$codigo'
+      fullPath: '/pagar/$codigo'
+      preLoaderRoute: typeof PagarCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produto/$sku': {
@@ -1635,6 +1688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthGoogleCallbackRouteImport
       parentRoute: typeof ApiAuthGoogleRoute
     }
+    '/api/public/dlocal/pagamentos': {
+      id: '/api/public/dlocal/pagamentos'
+      path: '/api/public/dlocal/pagamentos'
+      fullPath: '/api/public/dlocal/pagamentos'
+      preLoaderRoute: typeof ApiPublicDlocalPagamentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1652,6 +1712,7 @@ interface AdminRouteChildren {
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminJornadasRoute: typeof AdminJornadasRoute
   AdminMarketingRoute: typeof AdminMarketingRoute
+  AdminPagamentosRoute: typeof AdminPagamentosRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
   AdminPesquisaPrecosRoute: typeof AdminPesquisaPrecosRoute
   AdminPopupRoute: typeof AdminPopupRoute
@@ -1681,6 +1742,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminInteresseRoute: AdminInteresseRoute,
   AdminJornadasRoute: AdminJornadasRoute,
   AdminMarketingRoute: AdminMarketingRoute,
+  AdminPagamentosRoute: AdminPagamentosRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
   AdminPesquisaPrecosRoute: AdminPesquisaPrecosRoute,
   AdminPopupRoute: AdminPopupRoute,
@@ -1793,6 +1855,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CatalogosSlugRoute: CatalogosSlugRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
+  PagarCodigoRoute: PagarCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,
@@ -1824,6 +1887,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
   ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
+  ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

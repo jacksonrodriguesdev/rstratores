@@ -15,6 +15,7 @@ import {
   BookOpen,
   Users,
   ShoppingCart,
+  CreditCard,
   Mail,
   Zap,
   Images,
@@ -70,6 +71,7 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
       { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
+      { to: "/admin/pagamentos", label: "Pagamentos (links)", icon: CreditCard },
     ],
   },
   {

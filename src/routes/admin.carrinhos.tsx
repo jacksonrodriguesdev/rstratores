@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ import {
   ChevronUp,
   StickyNote,
   Flame,
+  CreditCard,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -472,6 +473,12 @@ function Linha({
           >
             <MessageCircle className="mr-1.5 h-4 w-4" /> WhatsApp
           </Button>
+          {/* Link de pagamento com os itens e o cliente deste carrinho */}
+          <Link to="/admin/pagamentos" search={{ carrinho: c.id }} className="flex-1 md:flex-none">
+            <Button variant="outline" className="w-full border-primary/30 text-primary">
+              <CreditCard className="mr-1.5 h-4 w-4" /> Cobrar (link)
+            </Button>
+          </Link>
           <div className="flex flex-1 gap-2 md:flex-none">
             <Button
               variant="outline"

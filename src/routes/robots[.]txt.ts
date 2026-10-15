@@ -17,6 +17,8 @@ export const Route = createFileRoute("/robots.txt")({
             "Disallow: /cadastro",
             "Disallow: /cuenta",
             "Disallow: /baja",
+            "Disallow: /pagar/",
+            "Disallow: /pt/pagar/",
             "Disallow: /catalogos/ver/",
             "Disallow: /catalogos/archivo/",
             "Disallow: /loja?q=",

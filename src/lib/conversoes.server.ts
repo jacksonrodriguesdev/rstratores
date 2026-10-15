@@ -9,6 +9,8 @@ import { createHash, randomUUID } from "crypto";
 const VERSAO = "v21.0";
 // META_GRAPH_URL só serve para testes locais (servidor falso); em produção fica o padrão
 const GRAPH = (process.env.META_GRAPH_URL || "https://graph.facebook.com").replace(/\/+$/, "");
+// GA4_MP_URL: idem, só para testes locais
+const GA4_MP = (process.env.GA4_MP_URL || "https://www.google-analytics.com").replace(/\/+$/, "");
 const sha = (v: string) => createHash("sha256").update(v).digest("hex");
 
 export type Pessoa = {
@@ -156,7 +158,7 @@ export async function enviarEventoGA4(o: {
     return { ok: false, detalhe: "GA4 Measurement Protocol não configurado" };
   try {
     const r = await fetch(
-      `https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(c.mkt_ga4_id)}&api_secret=${encodeURIComponent(c.mkt_ga4_api_secret)}`,
+      `${GA4_MP}/mp/collect?measurement_id=${encodeURIComponent(c.mkt_ga4_id)}&api_secret=${encodeURIComponent(c.mkt_ga4_api_secret)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

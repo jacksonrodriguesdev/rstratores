@@ -353,6 +353,7 @@ model users {
 
   downloads     catalogos_downloads[]
   carrinhos     carrinhos[]
+  links_pagamento links_pagamento[]
 }
 
 // Catálogos e manuais em PDF para mecânicos (página /catalogos). Arquivos em <uploads>/catalogos.
@@ -584,4 +585,99 @@ model precos_resumo {
   erro          String?  @db.Text
   pesquisado_em DateTime @default(now())
   aplicado_em   DateTime?
+}
+
+// Links de pagamento (Admin → Pagamentos). A equipe fecha peças, preço e frete no WhatsApp, gera o
+// link e o cliente paga logado pela dLocal (Uruguai: tarjeta, Abitab, Redpagos; Brasil: cartão e
+// PIX). A compra fica na conta do cliente. Valores em centavos.
+model links_pagamento {
+  id            Int       @id @default(autoincrement())
+  codigo        String    @unique @db.VarChar(32)
+  pais          String    @db.VarChar(2) // UY, BR
+  moeda         String    @db.VarChar(3) // UYU, BRL
+  itens         String    @db.Text // JSON: [{sku, codigo, nome, quantidade, preco}] (preço em centavos)
+  subtotal      Int
+  frete         Int       @default(0)
+  desconto      Int       @default(0)
+  total         Int
+  metodos       String    @db.VarChar(60) // CARTAO,PIX,ABITAB,REDPAGOS
+  descricao     String?   @db.VarChar(200)
+  nota_cliente  String?   @db.Text
+  nota_interna  String?   @db.Text
+  status        String    @default("ABERTO") @db.VarChar(20) // ABERTO, PAGO, CANCELADO
+  email_cliente String?   @db.VarChar(191) // preenchido: só essa conta pode pagar
+  user_id       Int? // o cliente indicado ou quem pagou
+  carrinho_id   Int?
+  expira_em     DateTime?
+  pago_em       DateTime?
+  criado_por    Int?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  user       users?       @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  pagamentos pagamentos[]
+
+  @@index([status, created_at])
+  @@index([user_id])
+  @@index([carrinho_id])
+}
+
+// Cada tentativa de pagamento de um link. O documento (CI/RUT/CPF) nunca é guardado inteiro.
+model pagamentos {
+  id             Int       @id @default(autoincrement())
+  link_id        Int
+  user_id        Int?
+  metodo         String    @db.VarChar(20) // CARTAO, PIX, ABITAB, REDPAGOS
+  order_id       String    @unique @db.VarChar(64)
+  dlocal_id      String?   @unique @db.VarChar(64)
+  status         String    @default("CRIANDO") @db.VarChar(20) // CRIANDO, PENDENTE, PAGO, AUTORIZADO, RECUSADO, CANCELADO, ERRO
+  status_code    String?   @db.VarChar(8)
+  status_detalhe String?   @db.VarChar(300)
+  valor          Int
+  moeda          String    @db.VarChar(3)
+  documento      String?   @db.VarChar(24) // mascarado
+  ticket         String?   @db.Text // JSON: código PIX / número Abitab-Redpagos, imagem, vencimento
+  redirect_url   String?   @db.Text // 3D Secure
+  bandeira       String?   @db.VarChar(30)
+  final_cartao   String?   @db.VarChar(4)
+  payload        String?   @db.LongText // respostas e avisos da dLocal, sem documento
+  duplicado      Boolean   @default(false) // pago com o link já pago: reembolsar
+  pago_em        DateTime?
+  expira_em      DateTime?
+  conferido_em   DateTime?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  link links_pagamento @relation(fields: [link_id], references: [id], onDelete: Cascade)
+
+  @@index([link_id])
+  @@index([status, updated_at])
+  @@index([user_id])
+}
+
+// Linha do tempo de cada link (criado, tentativa, aviso da dLocal, pago, cancelado…)
+model pagamento_eventos {
+  id           Int      @id @default(autoincrement())
+  link_id      Int
+  pagamento_id Int?
+  tipo         String   @db.VarChar(30)
+  detalhe      String?  @db.Text
+  created_at   DateTime @default(now())
+
+  @@index([link_id])
+}
+
+// Cada aviso (webhook) recebido da dLocal, sem dados pessoais
+model dlocal_avisos {
+  id            Int      @id @default(autoincrement())
+  tipo          String   @db.VarChar(20) // pagamento, reembolso, contestacao
+  dlocal_id     String?  @db.VarChar(64)
+  status        String?  @db.VarChar(20)
+  assinatura_ok Boolean  @default(false)
+  processado    Boolean  @default(false)
+  erro          String?  @db.Text
+  created_at    DateTime @default(now())
+
+  @@index([created_at])
+  @@index([dlocal_id])
 }

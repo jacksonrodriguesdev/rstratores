@@ -817,6 +817,14 @@ export function iniciarAgendador() {
     import("./indexnow.server")
       .then((m) => m.indexNowPendentes())
       .catch((e) => console.error("indexnow", e));
+    // Pagamentos em aberto (PIX, Abitab/Redpagos, 3D Secure): confere direto na dLocal, caso
+    // algum aviso tenha se perdido. Uma vez por dia, limpa os avisos antigos.
+    import("./pagamentos.server")
+      .then(async (m) => {
+        await m.conferirPendentes();
+        if (new Date().getHours() === 3) await m.limparAvisosAntigos();
+      })
+      .catch((e) => console.error("pagamentos", e));
   };
   setTimeout(rodar, 60_000);
   setInterval(rodar, 10 * 60_000);

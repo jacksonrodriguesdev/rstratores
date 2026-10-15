@@ -60,6 +60,9 @@ jobs:
       - name: Resumo diário e eventos
         run: npx tsx scripts/ci/testar-resumo.ts
 
+      - name: Links de pagamento (dLocal falsa)
+        run: npx tsx scripts/ci/testar-pagamentos.ts
+
       - name: Build (o mesmo da Hostinger)
         run: npm run build
 

@@ -46,6 +46,7 @@ const OCULTAR = [
   /^\/cuenta/,
   /^\/baja/,
   /^\/catalogos\/ver/,
+  /^\/pagar\//, // a página do link de pagamento já pede o login
 ];
 
 const ler = (k: string, store: "local" | "sessao" = "local") => {
