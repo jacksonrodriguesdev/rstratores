@@ -31,6 +31,7 @@ import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
+import { Route as AdminGoogleRouteImport } from './routes/admin.google'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminJornadasRouteImport } from './routes/admin.jornadas'
@@ -84,6 +85,8 @@ import { Route as ApiAdminCatalogosUploadRouteImport } from './routes/api/admin/
 import { Route as ApiAdminCategoriesIdRouteImport } from './routes/api/admin/categories.$id'
 import { Route as ApiAdminCategoriesUploadRouteImport } from './routes/api/admin/categories.upload'
 import { Route as ApiAdminEmailsUploadRouteImport } from './routes/api/admin/emails.upload'
+import { Route as ApiAdminGoogleCallbackRouteImport } from './routes/api/admin/google.callback'
+import { Route as ApiAdminGoogleConectarRouteImport } from './routes/api/admin/google.conectar'
 import { Route as ApiAdminImagesImportRouteImport } from './routes/api/admin/images.import'
 import { Route as ApiAdminMercadolivreCallbackRouteImport } from './routes/api/admin/mercadolivre.callback'
 import { Route as ApiAdminProductsSkuRouteImport } from './routes/api/admin/products.$sku'
@@ -203,6 +206,11 @@ const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
 const AdminFotosLoteRoute = AdminFotosLoteRouteImport.update({
   id: '/fotos-lote',
   path: '/fotos-lote',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGoogleRoute = AdminGoogleRouteImport.update({
+  id: '/google',
+  path: '/google',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminHomepageRoute = AdminHomepageRouteImport.update({
@@ -471,6 +479,16 @@ const ApiAdminEmailsUploadRoute = ApiAdminEmailsUploadRouteImport.update({
   path: '/api/admin/emails/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminGoogleCallbackRoute = ApiAdminGoogleCallbackRouteImport.update({
+  id: '/api/admin/google/callback',
+  path: '/api/admin/google/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminGoogleConectarRoute = ApiAdminGoogleConectarRouteImport.update({
+  id: '/api/admin/google/conectar',
+  path: '/api/admin/google/conectar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminImagesImportRoute = ApiAdminImagesImportRouteImport.update({
   id: '/api/admin/images/import',
   path: '/api/admin/images/import',
@@ -546,6 +564,7 @@ export interface FileRoutesByFullPath {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
+  '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
@@ -600,6 +619,8 @@ export interface FileRoutesByFullPath {
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
+  '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
+  '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
   '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
@@ -632,6 +653,7 @@ export interface FileRoutesByTo {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
+  '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
@@ -686,6 +708,8 @@ export interface FileRoutesByTo {
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
+  '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
+  '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
   '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
@@ -720,6 +744,7 @@ export interface FileRoutesById {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
+  '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
@@ -774,6 +799,8 @@ export interface FileRoutesById {
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
+  '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
+  '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
   '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
@@ -809,6 +836,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/cotacoes'
     | '/admin/fotos-lote'
+    | '/admin/google'
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/jornadas'
@@ -863,6 +891,8 @@ export interface FileRouteTypes {
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
+    | '/api/admin/google/callback'
+    | '/api/admin/google/conectar'
     | '/api/admin/images/import'
     | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
@@ -895,6 +925,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/cotacoes'
     | '/admin/fotos-lote'
+    | '/admin/google'
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/jornadas'
@@ -949,6 +980,8 @@ export interface FileRouteTypes {
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
+    | '/api/admin/google/callback'
+    | '/api/admin/google/conectar'
     | '/api/admin/images/import'
     | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
@@ -982,6 +1015,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/cotacoes'
     | '/admin/fotos-lote'
+    | '/admin/google'
     | '/admin/homepage'
     | '/admin/interesse'
     | '/admin/jornadas'
@@ -1036,6 +1070,8 @@ export interface FileRouteTypes {
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
+    | '/api/admin/google/callback'
+    | '/api/admin/google/conectar'
     | '/api/admin/images/import'
     | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
@@ -1093,6 +1129,8 @@ export interface RootRouteChildren {
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
+  ApiAdminGoogleCallbackRoute: typeof ApiAdminGoogleCallbackRoute
+  ApiAdminGoogleConectarRoute: typeof ApiAdminGoogleConectarRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
   ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
   ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
@@ -1252,6 +1290,13 @@ declare module '@tanstack/react-router' {
       path: '/fotos-lote'
       fullPath: '/admin/fotos-lote'
       preLoaderRoute: typeof AdminFotosLoteRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/google': {
+      id: '/admin/google'
+      path: '/google'
+      fullPath: '/admin/google'
+      preLoaderRoute: typeof AdminGoogleRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/homepage': {
@@ -1625,6 +1670,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminEmailsUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/google/callback': {
+      id: '/api/admin/google/callback'
+      path: '/api/admin/google/callback'
+      fullPath: '/api/admin/google/callback'
+      preLoaderRoute: typeof ApiAdminGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/google/conectar': {
+      id: '/api/admin/google/conectar'
+      path: '/api/admin/google/conectar'
+      fullPath: '/api/admin/google/conectar'
+      preLoaderRoute: typeof ApiAdminGoogleConectarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/images/import': {
       id: '/api/admin/images/import'
       path: '/api/admin/images/import'
@@ -1708,6 +1767,7 @@ interface AdminRouteChildren {
   AdminClientesRoute: typeof AdminClientesRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
+  AdminGoogleRoute: typeof AdminGoogleRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminJornadasRoute: typeof AdminJornadasRoute
@@ -1738,6 +1798,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClientesRoute: AdminClientesRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
   AdminFotosLoteRoute: AdminFotosLoteRoute,
+  AdminGoogleRoute: AdminGoogleRoute,
   AdminHomepageRoute: AdminHomepageRoute,
   AdminInteresseRoute: AdminInteresseRoute,
   AdminJornadasRoute: AdminJornadasRoute,
@@ -1885,6 +1946,8 @@ const rootRouteChildren: RootRouteChildren = {
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
+  ApiAdminGoogleCallbackRoute: ApiAdminGoogleCallbackRoute,
+  ApiAdminGoogleConectarRoute: ApiAdminGoogleConectarRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
   ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
   ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,

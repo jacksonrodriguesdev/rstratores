@@ -682,3 +682,39 @@ model dlocal_avisos {
   @@index([created_at])
   @@index([dlocal_id])
 }
+
+// Search Console (Admin → Posições no Google): histórico diário importado pela API (só leitura).
+// pais = código do Google (ury, bra…) ou "*" para o total. Posição média = pos_soma / impressoes.
+model gsc_dia {
+  dia        String @db.VarChar(10)
+  pais       String @db.VarChar(3)
+  cliques    Int    @default(0)
+  impressoes Int    @default(0)
+  pos_soma   Float  @default(0)
+
+  @@id([dia, pais])
+}
+
+model gsc_consulta {
+  id         Int    @id @default(autoincrement())
+  dia        String @db.VarChar(10)
+  pais       String @db.VarChar(3)
+  consulta   String @db.VarChar(400)
+  cliques    Int    @default(0)
+  impressoes Int    @default(0)
+  pos_soma   Float  @default(0)
+
+  @@index([dia])
+}
+
+model gsc_pagina {
+  id         Int    @id @default(autoincrement())
+  dia        String @db.VarChar(10)
+  pais       String @db.VarChar(3)
+  pagina     String @db.VarChar(600)
+  cliques    Int    @default(0)
+  impressoes Int    @default(0)
+  pos_soma   Float  @default(0)
+
+  @@index([dia])
+}

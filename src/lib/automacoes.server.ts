@@ -825,6 +825,10 @@ export function iniciarAgendador() {
         if (new Date().getHours() === 3) await m.limparAvisosAntigos();
       })
       .catch((e) => console.error("pagamentos", e));
+    // Search Console: importa posições, buscas e páginas a cada 12 h (se conectado)
+    import("./search-console.server")
+      .then((m) => m.sincronizarSeVencido())
+      .catch((e) => console.error("search console", e?.message ?? e));
   };
   setTimeout(rodar, 60_000);
   setInterval(rodar, 10 * 60_000);

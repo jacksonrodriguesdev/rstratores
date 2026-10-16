@@ -11,6 +11,7 @@ import {
   Calculator,
   Image,
   Flame,
+  TrendingUp,
   Globe2,
   BookOpen,
   Users,
@@ -63,6 +64,7 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/jornadas", label: "Jornada dos visitantes", icon: RouteIcon },
       { to: "/admin/analises", label: "Análises (10 ferramentas)", icon: BarChart3 },
       { to: "/admin/interesse", label: "Interesse dos clientes", icon: Flame },
+      { to: "/admin/google", label: "Posições no Google", icon: TrendingUp },
     ],
   },
   {
