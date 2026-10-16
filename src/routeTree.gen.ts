@@ -22,6 +22,7 @@ import { Route as PedidoRapidoRouteImport } from './routes/pedido-rapido'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as AdminAnalisesRouteImport } from './routes/admin.analises'
 import { Route as AdminAnunciosRouteImport } from './routes/admin.anuncios'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
@@ -161,6 +162,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdsRoute = AdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAnalisesRoute = AdminAnalisesRouteImport.update({
@@ -555,6 +561,7 @@ export interface FileRoutesByFullPath {
   '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -644,6 +651,7 @@ export interface FileRoutesByTo {
   '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -735,6 +743,7 @@ export interface FileRoutesById {
   '/pedido-rapido': typeof PedidoRapidoRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -827,6 +836,7 @@ export interface FileRouteTypes {
     | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/ads'
     | '/admin/analises'
     | '/admin/anuncios'
     | '/admin/banners'
@@ -916,6 +926,7 @@ export interface FileRouteTypes {
     | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/ads'
     | '/admin/analises'
     | '/admin/anuncios'
     | '/admin/banners'
@@ -1006,6 +1017,7 @@ export interface FileRouteTypes {
     | '/pedido-rapido'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/admin/ads'
     | '/admin/analises'
     | '/admin/anuncios'
     | '/admin/banners'
@@ -1227,6 +1239,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/ads': {
+      id: '/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/analises': {
@@ -1758,6 +1777,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAdsRoute: typeof AdminAdsRoute
   AdminAnalisesRoute: typeof AdminAnalisesRoute
   AdminAnunciosRoute: typeof AdminAnunciosRoute
   AdminBannersRoute: typeof AdminBannersRoute
@@ -1789,6 +1809,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdsRoute: AdminAdsRoute,
   AdminAnalisesRoute: AdminAnalisesRoute,
   AdminAnunciosRoute: AdminAnunciosRoute,
   AdminBannersRoute: AdminBannersRoute,

@@ -20,6 +20,10 @@ export const CAMPOS = {
   mkt_gads_label_lead: { segredo: false },
   mkt_gads_label_cadastro: { segredo: false },
   mkt_gads_label_compra: { segredo: false },
+  // Central de Anúncios (API do Google Ads): conta, conta de gerente (MCC) e token de desenvolvedor
+  mkt_gads_customer_id: { segredo: false }, // 123-456-7890
+  mkt_gads_login_customer_id: { segredo: false }, // MCC, se a conta é gerenciada por uma
+  mkt_gads_dev_token: { segredo: true },
   mkt_google_verificacao: { segredo: false }, // google-site-verification (Search Console/Merchant)
   mkt_merchant_id: { segredo: false },
   mkt_clarity_id: { segredo: false }, // Microsoft Clarity: gravações de sessão e mapas de calor

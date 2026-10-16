@@ -829,6 +829,10 @@ export function iniciarAgendador() {
     import("./search-console.server")
       .then((m) => m.sincronizarSeVencido())
       .catch((e) => console.error("search console", e?.message ?? e));
+    // Central de Anúncios: campanhas e números do Google Ads e do Meta a cada 3 h
+    import("./ads.server")
+      .then((m) => m.sincronizarAdsSeVencido())
+      .catch((e) => console.error("ads", e?.message ?? e));
   };
   setTimeout(rodar, 60_000);
   setInterval(rodar, 10 * 60_000);

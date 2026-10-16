@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/admin/google/callback")({
         if (negado) return negado;
         const url = new URL(request.url);
         const cookie = (request.headers.get("cookie") || "").match(
-          /(?:^|;\s*)ap_gsc_state=([a-f0-9]+)/,
+          /(?:^|;\s*)ap_gsc_state=([a-f0-9]+(?:-ads)?)/,
         )?.[1];
         if (!cookie || cookie !== url.searchParams.get("state"))
           return voltar(
@@ -30,6 +30,29 @@ export const Route = createFileRoute("/api/admin/google/callback")({
             "gsc=erro&msg=" +
               encodeURIComponent(url.searchParams.get("error") || "sem autorização"),
           );
+        // Central de Anúncios: conexão do Google Ads (state termina em "-ads")
+        if (cookie.endsWith("-ads")) {
+          const ir = (q: string) =>
+            new Response(null, {
+              status: 302,
+              headers: {
+                Location: `/admin/ads?${q}`,
+                "Set-Cookie": "ap_gsc_state=; Path=/api/admin/google; Max-Age=0",
+              },
+            });
+          try {
+            const { origemPublica } = await import("@/lib/google-oauth.server");
+            const g = await import("@/lib/ads-google.server");
+            await g.concluirConexaoAds(code, `${origemPublica(request)}/api/admin/google/callback`);
+            const ads = await import("@/lib/ads.server");
+            ads
+              .sincronizarPlataforma("GOOGLE")
+              .catch((e) => console.error("Google Ads:", e?.message ?? e));
+            return ir("gads=ok");
+          } catch (e: any) {
+            return ir("gads=erro&msg=" + encodeURIComponent(String(e?.message ?? e)));
+          }
+        }
         try {
           const { origemPublica } = await import("@/lib/google-oauth.server");
           const sc = await import("@/lib/search-console.server");

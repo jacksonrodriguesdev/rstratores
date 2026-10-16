@@ -718,3 +718,52 @@ model gsc_pagina {
 
   @@index([dia])
 }
+
+// Central de Anúncios (Admin → Central de Anúncios): campanhas do Google Ads e do Meta, números
+// por dia (importados pela API) e o registro de cada alteração feita pelo painel.
+model ads_campanha {
+  plataforma       String   @db.VarChar(10) // GOOGLE, META
+  id_externo       String   @db.VarChar(40)
+  nome             String   @db.VarChar(300)
+  status           String   @db.VarChar(20) // ATIVA, PAUSADA, REMOVIDA, OUTRO
+  status_origem    String?  @db.VarChar(40)
+  orcamento_diario Float? // na moeda da conta; null = orçamento nos conjuntos (Meta) ou vitalício
+  orcamento_ref    String?  @db.VarChar(200) // Google: resource do orçamento
+  orcamento_compartilhado Boolean @default(false)
+  objetivo         String?  @db.VarChar(60)
+  moeda            String   @db.VarChar(3)
+  atualizado_em    DateTime @updatedAt
+
+  @@id([plataforma, id_externo])
+}
+
+model ads_dia {
+  plataforma String @db.VarChar(10)
+  id_externo String @db.VarChar(40)
+  dia        String @db.VarChar(10)
+  gasto      Float  @default(0) // moeda da conta
+  impressoes Int    @default(0)
+  cliques    Int    @default(0)
+  conversoes Float  @default(0) // compras contadas pela plataforma
+  valor_conv Float  @default(0)
+  leads      Float  @default(0) // leads / conversas iniciadas contados pela plataforma
+
+  @@id([plataforma, id_externo, dia])
+  @@index([dia])
+}
+
+model ads_acao {
+  id         Int      @id @default(autoincrement())
+  plataforma String   @db.VarChar(10)
+  id_externo String   @db.VarChar(40)
+  nome       String   @db.VarChar(300)
+  acao       String   @db.VarChar(20) // PAUSAR, ATIVAR, ORCAMENTO
+  de         String?  @db.VarChar(60)
+  para       String?  @db.VarChar(60)
+  admin_id   Int?
+  ok         Boolean  @default(false)
+  erro       String?  @db.Text
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+}

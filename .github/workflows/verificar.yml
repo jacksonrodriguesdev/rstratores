@@ -66,6 +66,9 @@ jobs:
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 
+      - name: Central de Anúncios (Meta e Google Ads falsos)
+        run: npx tsx scripts/ci/testar-ads.ts
+
       - name: Build (o mesmo da Hostinger)
         run: npm run build
 
