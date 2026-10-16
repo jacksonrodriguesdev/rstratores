@@ -598,6 +598,7 @@ model links_pagamento {
   itens         String    @db.Text // JSON: [{sku, codigo, nome, quantidade, preco}] (preço em centavos)
   subtotal      Int
   frete         Int       @default(0)
+  frete_modo    String    @default("COBRADO") @db.VarChar(20) // COBRADO (no total), GRATIS, NA_CHEGADA (comprador paga ao receber)
   desconto      Int       @default(0)
   total         Int
   metodos       String    @db.VarChar(60) // CARTAO,PIX,ABITAB,REDPAGOS

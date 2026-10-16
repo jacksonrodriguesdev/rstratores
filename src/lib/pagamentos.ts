@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { ItemLink, Metodo, Pais } from "./pagamentos-comum";
+import type { FreteModo, ItemLink, Metodo, Pais } from "./pagamentos-comum";
 
 // Links de pagamento: funções do admin (criar, listar, cancelar), da página /pagar/<código> e da
 // conta do cliente ("Mis compras"). A lógica fica em pagamentos.server.ts.
@@ -191,6 +191,7 @@ export const detalheLinkFn = createServerFn({ method: "GET" })
       itens: lerItens(l.itens),
       subtotal: l.subtotal,
       frete: l.frete,
+      frete_modo: l.frete_modo as FreteModo,
       desconto: l.desconto,
       total: l.total,
       metodos: l.metodos.split(","),
@@ -243,6 +244,7 @@ export type DadosNovoLink = {
   pais: Pais;
   itens: ItemLink[];
   frete: number;
+  frete_modo: FreteModo;
   desconto: number;
   metodos: Metodo[];
   descricao?: string;
@@ -473,6 +475,7 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
       itens: sv.lerItens(l.itens),
       subtotal: l.subtotal,
       frete: l.frete,
+      frete_modo: l.frete_modo as FreteModo,
       desconto: l.desconto,
       total: l.total,
       metodos: l.metodos.split(",") as Metodo[],

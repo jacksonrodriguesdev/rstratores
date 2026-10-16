@@ -33,7 +33,8 @@ import {
   codigoExibicao,
   marcaExibicao,
 } from "@/lib/products";
-import { categoriaEs, descricaoEs, nomeEs, nomeProduto, nomePeca } from "@/lib/pecas-es";
+import { categoriaEs, nomeEs, nomeProduto, nomePeca } from "@/lib/pecas-es";
+import { descricaoPeca, metaDescricaoPeca, tituloPeca, type PecaTexto } from "@/lib/descricao-peca";
 import { linksIdioma, comPrefixo, tr, useT, type Idioma } from "@/lib/idioma";
 import { principalDe } from "@/components/PrecoTag";
 import { urlRepuestos } from "@/lib/seo-paginas";
@@ -53,10 +54,7 @@ const urlImagem = (p: string) =>
 // Versão em português (/pt): categoria e descrição como estão no cadastro (em português)
 const categoriaNo = (c: string | null | undefined, idioma: Idioma) =>
   idioma === "pt" ? (c ?? "") : categoriaEs(c);
-const descricaoNo = (
-  p: Parameters<typeof descricaoEs>[0] & { descricao?: string | null },
-  idioma: Idioma,
-) => (idioma === "pt" ? p.descricao?.trim() || p.nome : descricaoEs(p));
+const descricaoNo = (p: PecaTexto, idioma: Idioma) => descricaoPeca(p, idioma);
 
 export const Route = createFileRoute("/produto/$sku")({
   loader: async ({ params }) => {
@@ -85,16 +83,17 @@ export const Route = createFileRoute("/produto/$sku")({
     const nome = nomePeca(p, idioma);
     const marca = marcaExibicao(p);
     const codigo = codigoExibicao(p);
-    // "RODAMIENTO 6205 Massey Ferguson — Cód. 6205 | AGRO PARTS": nome, marca e código são o que se busca
-    const title = `${nome}${marca ? ` ${marca}` : ""} — Cód. ${codigo} | AGRO PARTS`;
-    const desc = `${nome.charAt(0)}${nome.slice(1).toLowerCase()}, código ${codigo}${
-      marca ? `, para ${marca}` : ""
-    }. ${t("Envío a todo Uruguay por DAC. Consultá precio y disponibilidad por WhatsApp.", "Envio para todo o Rio Grande do Sul. Consulte preço e disponibilidade pelo WhatsApp.")}`;
+    // "Retén New Holland 420462 | AGRO PARTS": nome, marca e código (o que se busca), até ~60 caracteres
+    const title = tituloPeca(p, idioma);
+    const desc = metaDescricaoPeca(p, idioma);
     const caminho = `/produto/${encodeURIComponent(p.sku)}`;
     const url = `${SITE}${comPrefixo(caminho, idioma)}`;
     // "redeparts" é o logo do fornecedor usado como foto provisória: não serve como imagem da peça
     const temFoto = !!p.imagem_principal && !p.imagem_principal.includes("redeparts");
-    const imagem = temFoto ? urlImagem(p.imagem_principal!) : `${SITE}/icon-512.png`;
+    const imagem = temFoto ? urlImagem(p.imagem_principal!) : null;
+    // Ao compartilhar (WhatsApp, Facebook) a peça sem foto mostra a marca da loja
+    const imagemCompartilhar = imagem ?? `${SITE}/icon-512.png`;
+    const preco = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
     // Dados estruturados: o Google entende nome, código e marca da peça (resultado mais completo)
     const produtoLd = {
       "@context": "https://schema.org",
@@ -102,13 +101,13 @@ export const Route = createFileRoute("/produto/$sku")({
       name: nome,
       sku: p.sku,
       mpn: codigo,
-      image: [imagem],
+      ...(imagem && { image: [imagem] }),
       description: descricaoNo(p, idioma),
       category: categoriaNo(p.categoria, idioma) || undefined,
       ...(marca && { brand: { "@type": "Brand", name: marca } }),
       url,
       ...(() => {
-        const pr = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
+        const pr = preco;
         if (!pr) return {};
         // Em português o preço vai em reais (cliente do Brasil); em espanhol, em pesos uruguaios
         const emReais = idioma === "pt" ? !!pr.brl : !pr.uyu;
@@ -166,12 +165,13 @@ export const Route = createFileRoute("/produto/$sku")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:url", content: url },
-        { property: "og:image", content: imagem },
-        { name: "twitter:image", content: imagem },
+        { property: "og:image", content: imagemCompartilhar },
+        { name: "twitter:image", content: imagemCompartilhar },
       ],
       links: linksIdioma(caminho, idioma),
       scripts: [
-        { type: "application/ld+json", children: JSON.stringify(produtoLd) },
+        // O Google só aceita "Product" com preço (ou avaliações); sem preço, fica só a trilha
+        ...(preco ? [{ type: "application/ld+json", children: JSON.stringify(produtoLd) }] : []),
         { type: "application/ld+json", children: JSON.stringify(trilhaLd) },
       ],
     };

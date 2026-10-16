@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { ProdutoEditor } from "@/components/admin/ProdutoEditor";
 import { proximaSemPrecoFn, opcoesFiltroFn } from "@/lib/produtos-admin";
 
-// Fila de precificação: uma peça por vez (as com foto primeiro). "Salvar e próxima" ou "Pular".
+// Fila de precificação: uma peça por vez (as em estoque primeiro). "Salvar e próxima" ou "Pular".
 export const Route = createFileRoute("/admin/precificar")({
   component: Fila,
 });

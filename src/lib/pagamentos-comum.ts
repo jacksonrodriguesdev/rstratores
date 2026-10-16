@@ -24,6 +24,18 @@ export const ROTULO_METODO: Record<Metodo, [string, string]> = {
   REDPAGOS: ["Redpagos (efectivo)", "Redpagos (dinheiro)"],
 };
 
+// Frete: no total do link, grátis, ou por conta do comprador (paga ao receber: DAC / transportadora)
+export type FreteModo = "COBRADO" | "GRATIS" | "NA_CHEGADA";
+export const FRETE_MODOS: FreteModo[] = ["COBRADO", "GRATIS", "NA_CHEGADA"];
+export const ROTULO_FRETE: Record<FreteModo, [string, string]> = {
+  COBRADO: ["Envío incluido en el total", "Frete incluído no total"],
+  GRATIS: ["Envío sin costo", "Frete grátis"],
+  NA_CHEGADA: [
+    "Envío a cargo del comprador (se paga al recibir)",
+    "Frete por conta do comprador (pago na chegada)",
+  ],
+};
+
 export type ItemLink = {
   sku?: string | null;
   codigo: string;

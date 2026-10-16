@@ -26,6 +26,8 @@ import {
   fmtValor,
   mascararDocumento,
   somenteDigitos,
+  FRETE_MODOS,
+  type FreteModo,
   type ItemLink,
   type Metodo,
   type Pais,
@@ -41,6 +43,7 @@ const SQL = [
     \`itens\` TEXT NOT NULL,
     \`subtotal\` INTEGER NOT NULL,
     \`frete\` INTEGER NOT NULL DEFAULT 0,
+    \`frete_modo\` VARCHAR(20) NOT NULL DEFAULT 'COBRADO',
     \`desconto\` INTEGER NOT NULL DEFAULT 0,
     \`total\` INTEGER NOT NULL,
     \`metodos\` VARCHAR(60) NOT NULL,
@@ -124,6 +127,14 @@ let tabelas: Promise<void> | null = null;
 export function garantirTabelasPagamento() {
   tabelas ??= (async () => {
     for (const s of SQL) await prisma.$executeRawUnsafe(s);
+    // Colunas novas em tabelas já criadas
+    const colunas = await prisma.$queryRaw<Array<{ c: string }>>`
+      SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'links_pagamento'`;
+    if (!colunas.some((x) => x.c === "frete_modo"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `links_pagamento` ADD COLUMN `frete_modo` VARCHAR(20) NOT NULL DEFAULT 'COBRADO' AFTER `frete`",
+      );
   })().catch((e) => {
     tabelas = null;
     throw e;
@@ -154,7 +165,8 @@ export const statusDoLink = (l: { status: string; expira_em: Date | null }) =>
 export type NovoLink = {
   pais: Pais;
   itens: ItemLink[];
-  frete: number; // centavos
+  frete: number; // centavos (só quando frete_modo = COBRADO)
+  frete_modo?: FreteModo;
   desconto: number; // centavos
   metodos: Metodo[];
   descricao?: string | null;
@@ -181,11 +193,22 @@ export async function criarLink(d: NovoLink, adminId: number) {
       quantidade: Math.max(1, Math.min(9999, Math.round(Number(i.quantidade) || 1))),
       preco: Math.max(0, Math.round(Number(i.preco) || 0)),
     }))
-    .filter((i) => i.nome && i.preco > 0);
+    .filter((i) => i.nome || i.preco);
+  const incompleto = itens.find((i) => !i.nome || i.preco <= 0);
+  if (incompleto)
+    throw new Error(
+      incompleto.nome
+        ? `Falta o preço de "${incompleto.nome}".`
+        : "Há um item com preço e sem descrição.",
+    );
   if (!itens.length) throw new Error("Adicione ao menos um item com nome e preço.");
   if (itens.length > 60) throw new Error("No máximo 60 itens por link.");
   const subtotal = itens.reduce((t, i) => t + i.preco * i.quantidade, 0);
-  const frete = Math.max(0, Math.round(Number(d.frete) || 0));
+  const freteModo: FreteModo = FRETE_MODOS.includes(d.frete_modo as FreteModo)
+    ? (d.frete_modo as FreteModo)
+    : "COBRADO";
+  // Grátis ou pago na chegada: nada de frete no valor cobrado
+  const frete = freteModo === "COBRADO" ? Math.max(0, Math.round(Number(d.frete) || 0)) : 0;
   const desconto = Math.max(0, Math.round(Number(d.desconto) || 0));
   const total = subtotal + frete - desconto;
   if (total < 100) throw new Error("O total precisa ser maior que 1,00.");
@@ -221,6 +244,7 @@ export async function criarLink(d: NovoLink, adminId: number) {
       itens: JSON.stringify(itens),
       subtotal,
       frete,
+      frete_modo: freteModo,
       desconto,
       total,
       metodos: metodos.join(","),
@@ -234,7 +258,11 @@ export async function criarLink(d: NovoLink, adminId: number) {
       criado_por: adminId,
     },
   });
-  await evento(link.id, "criado", `${fmtValor(total, link.moeda)} · ${metodos.join(", ")}`);
+  await evento(
+    link.id,
+    "criado",
+    `${fmtValor(total, link.moeda)} · ${metodos.join(", ")} · frete ${freteModo}`,
+  );
   if (carrinhoId)
     await prisma.carrinhos
       .update({ where: { id: carrinhoId }, data: { etapa: "NEGOCIANDO" } })
@@ -331,6 +359,22 @@ export async function iniciarPagamento(
     });
     if (aberto) return { ok: true, status: "PENDENTE" };
   }
+  // Cartão aprovado parcialmente ou em análise na dLocal (sem 3D Secure pendente): espera o resultado
+  const emAnalise = await prisma.pagamentos.findFirst({
+    where: {
+      link_id: link.id,
+      metodo: "CARTAO",
+      OR: [{ status: "AUTORIZADO" }, { status: "PENDENTE", redirect_url: null }],
+    },
+  });
+  if (emAnalise)
+    return {
+      ok: false,
+      erro: t(
+        "Tu pago con tarjeta está en análisis. Te avisamos apenas se confirme.",
+        "Seu pagamento com cartão está em análise. Avisamos assim que for confirmado.",
+      ),
+    };
   // Freio: no máximo 8 tentativas por hora no mesmo link
   const recentes = await prisma.pagamentos.count({
     where: { link_id: link.id, created_at: { gt: new Date(Date.now() - 3600_000) } },
@@ -675,8 +719,8 @@ async function emailsDaVenda(linkId: number) {
           `Obrigado, {{nombre}}! Recebemos seu pagamento`,
         ),
         texto: t(
-          `Confirmamos el pago de **${valor}** del pedido #${link.id}. Ya estamos preparando tus repuestos y te avisamos por WhatsApp cuando salgan.\n\nPodés ver esta compra en tu cuenta.`,
-          `Confirmamos o pagamento de **${valor}** do pedido #${link.id}. Já estamos separando suas peças e avisamos pelo WhatsApp quando forem enviadas.\n\nVocê pode ver esta compra na sua conta.`,
+          `Confirmamos el pago de **${valor}** del pedido #${link.id}. Ya estamos preparando tus repuestos y te avisamos por WhatsApp cuando salgan.\n\n${link.frete_modo === "NA_CHEGADA" ? "\n\n**Envío:** a cargo del comprador, se paga al recibir." : ""}\n\nPodés ver esta compra en tu cuenta.`,
+          `Confirmamos o pagamento de **${valor}** do pedido #${link.id}. Já estamos separando suas peças e avisamos pelo WhatsApp quando forem enviadas.\n\n${link.frete_modo === "NA_CHEGADA" ? "\n\n**Frete:** por conta do comprador, pago na chegada." : ""}\n\nVocê pode ver esta compra na sua conta.`,
         ),
         produtosTitulo: t("Tu pedido", "Seu pedido"),
         produtos,
@@ -702,7 +746,7 @@ async function emailsDaVenda(linkId: number) {
       {
         destaque: "VENDA PAGA",
         titulo: `Link #${link.id} pago: ${valor}`,
-        texto: `Cliente: **${link.user?.nome_completo ?? "-"}** (${link.user?.email ?? "-"}, ${link.user?.telefone ?? "sem celular"})\n\nForma: ${pg?.metodo ?? "-"}${pg?.final_cartao ? ` final ${pg.final_cartao}` : ""} · ${link.pais === "BR" ? "Brasil" : "Uruguai"}\n\nSeparar e enviar as peças.`,
+        texto: `Cliente: **${link.user?.nome_completo ?? "-"}** (${link.user?.email ?? "-"}, ${link.user?.telefone ?? "sem celular"})\n\nForma: ${pg?.metodo ?? "-"}${pg?.final_cartao ? ` final ${pg.final_cartao}` : ""} · ${link.pais === "BR" ? "Brasil" : "Uruguai"}\n\nFrete: ${link.frete_modo === "NA_CHEGADA" ? "POR CONTA DO COMPRADOR (pago na chegada)" : link.frete_modo === "GRATIS" ? "grátis" : fmtValor(link.frete, link.moeda)}\n\nSeparar e enviar as peças.`,
         produtosTitulo: "Itens",
         produtos,
         botaoTexto: "Abrir no painel",

@@ -83,6 +83,8 @@ const servidor = http.createServer(async (req, res) => {
       };
     else if (b.card?.token === "CV-teste-recusa")
       p = { ...base, status: "REJECTED", status_code: "302", status_detail: "Insufficient amount" };
+    else if (b.card?.token === "CV-teste-analise")
+      p = { ...base, status: "PENDING", status_code: "100", status_detail: "In review" };
     else if (b.card?.token === "CV-teste-3ds")
       p = {
         ...base,
@@ -404,6 +406,83 @@ async function main() {
       null,
       "link sem cliente só ganha dono quando pago",
     );
+
+    // 3b. Frete por conta do comprador: não entra no total, mesmo se vier um valor
+    const chegada = await sv.criarLink(
+      {
+        pais: "UY",
+        itens: [{ ...item, quantidade: 1 }],
+        frete: 99900,
+        frete_modo: "NA_CHEGADA",
+        desconto: 0,
+        metodos: ["CARTAO"],
+        email_cliente: email,
+        dias_validade: 2,
+      },
+      1,
+    );
+    links.push(chegada.id);
+    assert.equal(chegada.frete, 0, "frete na chegada: zero no link");
+    assert.equal(chegada.total, item.preco, "frete na chegada: fora do total");
+    assert.equal(chegada.frete_modo, "NA_CHEGADA");
+    const gratis = await sv.criarLink(
+      {
+        pais: "BR",
+        itens: [item],
+        frete: 5000,
+        frete_modo: "GRATIS",
+        desconto: 0,
+        metodos: ["PIX"],
+        dias_validade: 1,
+      },
+      1,
+    );
+    links.push(gratis.id);
+    assert.equal(gratis.frete, 0, "frete grátis: zero");
+    await assert.rejects(
+      sv.criarLink(
+        {
+          pais: "UY",
+          itens: [item, { codigo: "X", nome: "Sem preço", quantidade: 1, preco: 0 }],
+          frete: 0,
+          desconto: 0,
+          metodos: ["CARTAO"],
+          dias_validade: 1,
+        },
+        1,
+      ),
+      /Falta o preço de "Sem preço"/,
+      "item sem preço é erro (não some calado)",
+    );
+
+    // 3c. Cartão em análise na dLocal: não deixa pagar de novo até sair o resultado
+    const an = await sv.iniciarPagamento(
+      {
+        codigo: chegada.codigo,
+        metodo: "CARTAO",
+        token: "CV-teste-analise",
+        documento: "1.234.567-2",
+        nome: "Cliente Teste",
+        idioma: "es",
+      },
+      s,
+      ctx,
+    );
+    assert.deepEqual(an, { ok: true, status: "PENDENTE", redirect: null });
+    const de_novo = await sv.iniciarPagamento(
+      {
+        codigo: chegada.codigo,
+        metodo: "CARTAO",
+        token: "CV-teste-aprovado",
+        documento: "1.234.567-2",
+        nome: "Cliente Teste",
+        idioma: "es",
+      },
+      s,
+      ctx,
+    );
+    assert.equal(de_novo.ok, false, "cartão em análise bloqueia nova tentativa");
+    assert.match((de_novo as any).erro, /análisis/);
 
     // 4. Link vencido não aceita pagamento
     await prisma.links_pagamento.update({

@@ -40,9 +40,11 @@ import {
   type PecaLink,
 } from "@/lib/pagamentos";
 import {
+  FRETE_MODOS,
   METODOS,
   ROTULO_METODO,
   fmtValor,
+  type FreteModo,
   type ItemLink,
   type Metodo,
   type Pais,
@@ -98,11 +100,28 @@ const copiar = async (texto: string, msg = "Copiado") => {
   await navigator.clipboard.writeText(texto).catch(() => {});
   toast.success(msg);
 };
-function mensagemWhats(pais: string, total: string, url: string, nome?: string | null) {
+function mensagemWhats(
+  pais: string,
+  total: string,
+  url: string,
+  nome?: string | null,
+  freteModo?: string,
+) {
   const p = (nome ?? "").trim().split(/\s+/)[0];
-  return pais === "BR"
-    ? `Olá${p ? " " + p : ""}! Aqui é da *AGRO PARTS* 🚜\n\nSeu pedido está pronto para pagamento: *${total}*.\nPague com PIX ou cartão neste link (entre ou crie sua conta):\n${url}\n\nQualquer dúvida, é só responder aqui.`
-    : `¡Hola${p ? " " + p : ""}! Te escribe *AGRO PARTS* 🚜\n\nTu pedido está listo para pagar: *${total}*.\nPagá con tarjeta, Abitab o Redpagos en este link (ingresá o creá tu cuenta):\n${url}\n\nCualquier duda, respondé este mensaje.`;
+  const br = pais === "BR";
+  const frete =
+    freteModo === "NA_CHEGADA"
+      ? br
+        ? "\n🚚 Frete por conta do comprador: pago na chegada."
+        : "\n🚚 Envío a cargo del comprador: se paga al recibir."
+      : freteModo === "GRATIS"
+        ? br
+          ? "\n🚚 Frete grátis."
+          : "\n🚚 Envío sin costo."
+        : "";
+  return br
+    ? `Olá${p ? " " + p : ""}! Aqui é da *AGRO PARTS* 🚜\n\nSeu pedido está pronto para pagamento: *${total}*.${frete}\nPague com PIX ou cartão neste link (entre ou crie sua conta):\n${url}\n\nQualquer dúvida, é só responder aqui.`
+    : `¡Hola${p ? " " + p : ""}! Te escribe *AGRO PARTS* 🚜\n\nTu pedido está listo para pagar: *${total}*.${frete}\nPagá con tarjeta, Abitab o Redpagos en este link (ingresá o creá tu cuenta):\n${url}\n\nCualquier duda, respondé este mensaje.`;
 }
 const waUrl = (texto: string, tel?: string | null) =>
   `https://api.whatsapp.com/send?${tel ? `phone=${tel.replace(/\D/g, "")}&` : ""}text=${encodeURIComponent(texto)}`;
@@ -363,6 +382,7 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
   const [metodos, setMetodos] = useState<Metodo[]>(METODOS.UY);
   const [itens, setItens] = useState<Linha[]>([]);
   const [frete, setFrete] = useState("");
+  const [freteModo, setFreteModo] = useState<FreteModo>("COBRADO");
   const [desconto, setDesconto] = useState("");
   const [email, setEmail] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -450,7 +470,7 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
 
   const moeda = pais === "BR" ? "BRL" : "UYU";
   const subtotal = itens.reduce((t, i) => t + i.preco * i.quantidade, 0);
-  const total = subtotal + centavos(frete) - centavos(desconto);
+  const total = subtotal + (freteModo === "COBRADO" ? centavos(frete) : 0) - centavos(desconto);
 
   const criar = async () => {
     setSalvando(true);
@@ -459,7 +479,8 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
         data: {
           pais,
           itens: itens.map(({ _id, precoTxt, ...i }) => i),
-          frete: centavos(frete),
+          frete: freteModo === "COBRADO" ? centavos(frete) : 0,
+          frete_modo: freteModo,
           desconto: centavos(desconto),
           metodos,
           descricao,
@@ -645,17 +666,54 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
             </div>
           </div>
 
+          <div>
+            <p className="mb-1 text-xs font-bold uppercase text-zinc-500">Frete</p>
+            <div className="flex flex-wrap gap-2">
+              {FRETE_MODOS.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setFreteModo(m)}
+                  className={cn(
+                    "rounded-xl px-3 py-2 text-sm font-semibold ring-1",
+                    freteModo === m
+                      ? "bg-primary text-white ring-primary"
+                      : "ring-zinc-200 hover:bg-zinc-50",
+                  )}
+                >
+                  {m === "COBRADO"
+                    ? "Cobrar no link"
+                    : m === "GRATIS"
+                      ? "Frete grátis"
+                      : "Por conta do comprador (paga na chegada)"}
+                </button>
+              ))}
+            </div>
+            {freteModo === "NA_CHEGADA" && (
+              <p className="mt-1 text-xs text-zinc-500">
+                O frete não entra no valor do link. O cliente vê o aviso “paga ao receber (DAC /
+                transportadora)” na página e no e-mail.
+              </p>
+            )}
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-3">
-            <label className="text-sm font-semibold">
-              Frete ({moeda})
-              <Input
-                value={frete}
-                onChange={(e) => setFrete(e.target.value)}
-                inputMode="decimal"
-                placeholder="0"
-                className="mt-1"
-              />
-            </label>
+            {freteModo === "COBRADO" ? (
+              <label className="text-sm font-semibold">
+                Valor do frete ({moeda})
+                <Input
+                  value={frete}
+                  onChange={(e) => setFrete(e.target.value)}
+                  inputMode="decimal"
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </label>
+            ) : (
+              <div className="rounded-xl bg-zinc-50 p-3 text-sm text-zinc-600">
+                {freteModo === "GRATIS" ? "Frete grátis" : "Frete pago pelo comprador na chegada"}
+              </div>
+            )}
             <label className="text-sm font-semibold">
               Desconto ({moeda})
               <Input
@@ -773,7 +831,10 @@ function Detalhe({
   const [ocupado, setOcupado] = useState<string | null>(null);
   const url = l ? urlLink(l.codigo, l.pais) : "";
   const msg = useMemo(
-    () => (l ? mensagemWhats(l.pais, fmtValor(l.total, l.moeda), url, l.cliente?.nome) : ""),
+    () =>
+      l
+        ? mensagemWhats(l.pais, fmtValor(l.total, l.moeda), url, l.cliente?.nome, l.frete_modo)
+        : "",
     [l, url],
   );
   const atualizar = () => {
@@ -892,9 +953,18 @@ function Detalhe({
                       <b>{fmtValor(i.preco * i.quantidade, l.moeda)}</b>
                     </li>
                   ))}
-                  {l.frete > 0 && (
+                  {(l.frete > 0 || l.frete_modo !== "COBRADO") && (
                     <li className="flex justify-between px-3 py-2 text-zinc-600">
-                      <span>Frete</span> <span>{fmtValor(l.frete, l.moeda)}</span>
+                      <span>Frete</span>{" "}
+                      <span
+                        className={cn(l.frete_modo === "NA_CHEGADA" && "font-bold text-amber-700")}
+                      >
+                        {l.frete_modo === "NA_CHEGADA"
+                          ? "Por conta do comprador (na chegada)"
+                          : l.frete_modo === "GRATIS"
+                            ? "Grátis"
+                            : fmtValor(l.frete, l.moeda)}
+                      </span>
                     </li>
                   )}
                   {l.desconto > 0 && (

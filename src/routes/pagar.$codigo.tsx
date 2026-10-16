@@ -14,6 +14,7 @@ import {
   XCircle,
   AlertTriangle,
   LogIn,
+  Truck,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ProductImage } from "@/components/ProductImage";
@@ -143,8 +144,15 @@ function PagarPage() {
 
           <dl className="mt-2 space-y-1.5 border-t pt-4 text-sm">
             <Linha rotulo={t("Subtotal", "Subtotal")} valor={fmtValor(d.subtotal, d.moeda)} />
-            {d.frete > 0 && (
+            {d.frete_modo === "COBRADO" && d.frete > 0 && (
               <Linha rotulo={t("Envío", "Frete")} valor={fmtValor(d.frete, d.moeda)} />
+            )}
+            {d.frete_modo === "GRATIS" && (
+              <Linha
+                rotulo={t("Envío", "Frete")}
+                valor={t("Sin costo", "Grátis")}
+                cls="text-emerald-700"
+              />
             )}
             {d.desconto > 0 && (
               <Linha
@@ -158,6 +166,18 @@ function PagarPage() {
               <dd className="text-2xl font-black text-primary">{fmtValor(d.total, d.moeda)}</dd>
             </div>
           </dl>
+          {d.frete_modo === "NA_CHEGADA" && (
+            <p className="mt-3 flex gap-2 rounded-2xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+              <Truck className="h-5 w-5 shrink-0" />
+              <span>
+                <b>{t("Envío a cargo del comprador.", "Frete por conta do comprador.")}</b>{" "}
+                {t(
+                  "No está incluido en este total: lo pagás al recibir (DAC o transportadora).",
+                  "Não está incluído neste total: você paga na chegada (Correios ou transportadora).",
+                )}
+              </span>
+            </p>
+          )}
 
           {d.nota_cliente && (
             <p className="mt-4 whitespace-pre-line rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-700">
@@ -242,7 +262,11 @@ function PagarPage() {
           ) : (
             <>
               <Pendentes d={d} />
-              <Formulario d={d} />
+              {!d.pagamentos.some(
+                (p) =>
+                  p.metodo === "CARTAO" &&
+                  (p.status === "AUTORIZADO" || (p.status === "PENDENTE" && !p.redirect)),
+              ) && <Formulario d={d} />}
             </>
           )}
 
@@ -377,6 +401,11 @@ function Pendentes({ d }: { d: Dados }) {
   const comTicket = d.pagamentos.filter((p) => p.status === "PENDENTE" && p.ticket);
   const recusado = d.pagamentos[0]?.status === "RECUSADO" ? d.pagamentos[0] : null;
   const tresDs = d.pagamentos.find((p) => p.status === "PENDENTE" && p.redirect);
+  const analise = d.pagamentos.find(
+    (p) =>
+      p.metodo === "CARTAO" &&
+      (p.status === "AUTORIZADO" || (p.status === "PENDENTE" && !p.redirect)),
+  );
   return (
     <>
       {recusado && (
@@ -384,6 +413,23 @@ function Pendentes({ d }: { d: Dados }) {
           <XCircle className="h-5 w-5 shrink-0 text-red-600" />
           <p>
             <b>{t("Pago no aprobado.", "Pagamento não aprovado.")}</b> {recusado.motivo}
+          </p>
+        </div>
+      )}
+      {analise && (
+        <div className="flex gap-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
+          <Clock className="h-5 w-5 shrink-0 text-amber-600" />
+          <p>
+            <b>
+              {t(
+                "Tu pago con tarjeta está en análisis.",
+                "Seu pagamento com cartão está em análise.",
+              )}
+            </b>{" "}
+            {t(
+              "Puede tardar unos minutos. Esta página se actualiza sola y te avisamos por e-mail.",
+              "Pode levar alguns minutos. Esta página atualiza sozinha e avisamos por e-mail.",
+            )}
           </p>
         </div>
       )}

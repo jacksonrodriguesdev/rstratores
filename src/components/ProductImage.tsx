@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Tractor, Car } from "lucide-react";
+import { Tractor, Car, ImageOff } from "lucide-react";
+import { useLocation } from "@tanstack/react-router";
+import { useIdioma } from "@/lib/idioma";
 import { useSegment } from "@/components/SegmentContext";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +28,8 @@ export function ProductImage({ src, alt, className, marca, prioridade }: Props) 
     // silently fallback to AGRICOLA if used outside provider
   }
 
+  const idioma = useIdioma();
+  const caminho = useLocation({ select: (l) => l.pathname });
   const url = src ? urlDaFoto(src) : null;
   const [error, setError] = useState(false);
   useEffect(() => setError(false), [src]);
@@ -36,17 +40,35 @@ export function ProductImage({ src, alt, className, marca, prioridade }: Props) 
   const isPlaceholder = src?.toLowerCase().includes("redeparts");
 
   const semFoto = !src || error || isPlaceholder;
-  // Peça agrícola sem foto: imagem com a logo da AGRO PARTS (public/img/sem-foto.jpg, 500×500,
-  // gerada por marketing/sem-foto/gerar.cjs). Não vai para o banco: o Google Shopping recusa logo como foto.
+  // Peça agrícola sem foto: aviso "este item ainda não possui imagem" (HTML, não imagem: nada de
+  // logo como foto da peça). Em miniaturas pequenas fica só o ícone.
   if (semFoto && currentSegment !== "AUTOMOTIVA") {
+    const pt = idioma === "pt" || caminho.startsWith("/admin");
     return (
-      <img
-        decoding="async"
-        src="/img/sem-foto.jpg?v=2"
-        alt={alt}
-        {...carregamento}
-        className={cn("h-full w-full object-contain", className)}
-      />
+      <div
+        role="img"
+        aria-label={`${alt} — ${pt ? "item ainda sem imagem" : "artículo aún sin imagen"}`}
+        className={cn(
+          "@container flex h-full w-full flex-col items-center justify-center gap-[6%] bg-[repeating-linear-gradient(-45deg,#f4f6f2_0_10px,#eef1ea_10px_20px)] p-[8%] text-center",
+          className,
+        )}
+      >
+        <span className="flex aspect-square w-[34%] max-w-20 items-center justify-center rounded-full bg-white text-zinc-400 shadow-sm ring-1 ring-black/5">
+          <ImageOff className="h-1/2 w-1/2" strokeWidth={1.6} />
+        </span>
+        {/* Cartões: versão curta; página da peça: a frase inteira */}
+        <span className="hidden text-[10px] font-bold uppercase leading-tight tracking-wide text-zinc-500 @[80px]:block @[220px]:hidden">
+          {pt ? "Sem imagem" : "Sin imagen"}
+        </span>
+        <span className="hidden text-xs font-bold uppercase leading-tight tracking-wide text-zinc-500 @[220px]:block @[300px]:text-sm">
+          {pt ? "Este item ainda não possui imagem" : "Este artículo aún no tiene imagen"}
+        </span>
+        {marca && (
+          <span className="hidden text-[10px] font-semibold uppercase tracking-widest text-primary/70 @[200px]:block @[260px]:text-xs">
+            {marca}
+          </span>
+        )}
+      </div>
     );
   }
 

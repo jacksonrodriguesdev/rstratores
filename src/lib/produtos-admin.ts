@@ -361,7 +361,12 @@ export const proximaSemPrecoFn = createServerFn({ method: "GET" })
     };
     if (data.categoria) where.AND.push({ category_id: Number(data.categoria) });
     const [p, restantes] = await Promise.all([
-      prisma.agricolas.findFirst({ where, orderBy: [{ nome: "asc" }], select: { sku: true } }),
+      // Primeiro as que estão em estoque (dá para vender já), depois por nome
+      prisma.agricolas.findFirst({
+        where,
+        orderBy: [{ estoque: "desc" }, { nome: "asc" }],
+        select: { sku: true },
+      }),
       prisma.agricolas.count({ where }),
     ]);
     return { sku: p?.sku ?? null, restantes };
