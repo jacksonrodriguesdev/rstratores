@@ -14,6 +14,8 @@ export const Route = createFileRoute("/api/public/track")({
           const ua = (request.headers.get("user-agent") ?? "").slice(0, 512);
           const r = await import("@/lib/rastreio.server");
           if (!ua || r.ehRobo(ua)) return ok();
+          // Sem o id do aparelho não veio do nosso script (robô ou chamada direta): não conta
+          if (!texto(body.visitorId, 64)) return ok();
 
           // Visitas do próprio admin não entram nas estatísticas
           const { getSessionFromRequest } = await import("@/lib/auth.server");

@@ -1,96 +1,72 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
+// Números do Dashboard do admin. Vêm dos resumos diários (src/lib/resumo-diario.server.ts), os
+// mesmos de Visitantes e Análises: dia no horário do Uruguai, sem robôs e sem limite de linhas.
+//   visitantes = pessoas (aparelhos) diferentes · visitas = sessões (30 min sem navegar = nova)
+//   páginas = páginas vistas
 export const Route = createFileRoute("/api/public/analytics")({
   server: {
     handlers: {
-      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async ({ request }) => {
         const { requireAdmin } = await import("@/lib/auth.server");
         const denied = await requireAdmin(request);
         if (denied) return denied;
         try {
+          const rd = await import("@/lib/resumo-diario.server");
           const { prisma } = await import("@/lib/prisma");
-
-          const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-          // Eventos (cliques no WhatsApp, buscas) ficam na mesma tabela e não são visitas
-          const soVisitas = { NOT: { path: { startsWith: "/_evento/" } } };
-          const [total, last30, rows] = await Promise.all([
-            prisma.site_visits.count({ where: soVisitas }),
-            prisma.site_visits.count({ where: { ...soVisitas, created_at: { gte: since30 } } }),
-            prisma.site_visits.findMany({
-              select: { country: true, city: true, created_at: true, path: true, user_agent: true },
-              where: { ...soVisitas, created_at: { gte: since30 } },
-              take: 20000,
+          const { whereHumano } = await import("@/lib/rastreio.server");
+          const [dias, unicos, total] = await Promise.all([
+            rd.resumosDoPeriodo(30),
+            rd.visitantesDoPeriodo(30),
+            prisma.site_visits.count({
+              where: { NOT: { path: { startsWith: "/_evento/" } }, ...whereHumano },
             }),
           ]);
 
-          const byCountry = new Map<string, number>();
-          const byCity = new Map<string, number>();
-          const byDay = new Map<string, number>();
-          const byPath = new Map<string, number>();
-          const byDevice = new Map<string, number>();
-          const topProductsMap = new Map<string, number>();
-
-          for (const r of rows ?? []) {
-            const country = r.country || "Desconhecido";
-            byCountry.set(country, (byCountry.get(country) ?? 0) + 1);
-            const cityKey = `${r.city || "Desconhecida"} — ${country}`;
-            byCity.set(cityKey, (byCity.get(cityKey) ?? 0) + 1);
-            const day = new Date(r.created_at as unknown as string).toISOString().slice(0, 10);
-            byDay.set(day, (byDay.get(day) ?? 0) + 1);
-            byPath.set(r.path, (byPath.get(r.path) ?? 0) + 1);
-
-            const ua = (r.user_agent || "").toLowerCase();
-            let device = "Desktop";
-            if (/mobile|android|iphone|ipad|ipod|windows phone/i.test(ua)) {
-              device = "Mobile";
-            }
-            byDevice.set(device, (byDevice.get(device) ?? 0) + 1);
-
-            if (r.path?.startsWith("/produto/")) {
-              const sku = r.path.split("/produto/")[1]?.split("?")[0];
-              if (sku) {
-                topProductsMap.set(sku, (topProductsMap.get(sku) ?? 0) + 1);
-              }
-            }
+          const soma = (m: Map<string, number>, k: string, v: number) => m.set(k, (m.get(k) ?? 0) + v);
+          const paises = new Map<string, number>();
+          const cidades = new Map<string, number>();
+          const paginas = new Map<string, number>();
+          const aparelhos = new Map<string, number>();
+          const pecas = new Map<string, number>();
+          for (const d of dias) {
+            for (const [k, v] of Object.entries(d.paises)) soma(paises, k, v);
+            for (const c of Object.values(d.cidades)) soma(cidades, `${c.cidade} — ${c.pais}`, c.v);
+            for (const [k, v] of Object.entries(d.paginas)) soma(paginas, k, v);
+            for (const [k, v] of Object.entries(d.aparelhos)) soma(aparelhos, k, v);
+            for (const [k, s] of Object.entries(d.skus)) soma(pecas, k, s.v);
           }
+          const lista = (m: Map<string, number>) =>
+            [...m].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+          const hoje = dias[dias.length - 1];
 
-          const toArr = (m: Map<string, number>) =>
-            Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-
-          // day series ascending
-          const days: Array<{ name: string; value: number }> = [];
-          for (let i = 29; i >= 0; i--) {
-            const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-            days.push({ name: d, value: byDay.get(d) ?? 0 });
-          }
-
-          return new Response(
-            JSON.stringify({
-              total: total ?? 0,
-              last30: last30 ?? 0,
-              countries: toArr(byCountry).slice(0, 10),
-              cities: toArr(byCity).slice(0, 10),
-              paths: toArr(byPath).slice(0, 10),
-              days,
-              devices: toArr(byDevice),
-              topProducts: toArr(topProductsMap).slice(0, 10),
-            }),
-            { status: 200, headers: { "Content-Type": "application/json", ...CORS } },
-          );
+          return Response.json({
+            total, // páginas vistas desde o início
+            last30: dias.reduce((t, d) => t + d.visitas, 0), // páginas vistas em 30 dias
+            visitantes30: Number(unicos.total ?? 0),
+            sessoes30: dias.reduce((t, d) => t + d.sessoes, 0),
+            hoje: {
+              dia: hoje?.dia,
+              visitantes: hoje?.visitantes ?? 0,
+              sessoes: hoje?.sessoes ?? 0,
+              paginas: hoje?.visitas ?? 0,
+            },
+            countries: lista(paises).slice(0, 10),
+            cities: lista(cidades).slice(0, 10),
+            paths: lista(paginas).slice(0, 10),
+            // value = páginas vistas (o gráfico antigo); visitantes e sessões por dia ao lado
+            days: dias.map((d) => ({
+              name: d.dia,
+              value: d.visitas,
+              visitantes: d.visitantes,
+              sessoes: d.sessoes,
+            })),
+            devices: lista(aparelhos),
+            topProducts: lista(pecas).slice(0, 10),
+          });
         } catch (err) {
           console.error("analytics error", err);
-          return new Response(JSON.stringify({ error: "failed" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json", ...CORS },
-          });
+          return Response.json({ error: "failed" }, { status: 500 });
         }
       },
     },

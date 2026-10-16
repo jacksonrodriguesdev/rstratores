@@ -5,6 +5,15 @@ import { dadosVisitante, visitanteAtual } from "@/lib/visitante";
 import { paginaVista } from "@/lib/marketing";
 import { useIdioma } from "@/lib/idioma";
 
+// Aparelho da equipe (já abriu o admin): não entra nas estatísticas
+const daEquipe = () => {
+  try {
+    return localStorage.getItem("ap_equipe") === "1";
+  } catch {
+    return false;
+  }
+};
+
 // Mapa de cliques e rolagem (Admin → Análises): poucos dados, sem nada pessoal
 const MAX_CLIQUES = 25; // por página vista
 const enviar = (corpo: object) => {
@@ -55,6 +64,7 @@ export function VisitTracker() {
     if (typeof window === "undefined") return;
     // Skip admin & login pages from analytics
     if (pathname.startsWith("/admin") || pathname.startsWith("/login")) return;
+    if (daEquipe()) return;
 
     // A primeira página já conta no próprio Pixel; as seguintes (sem recarregar), aqui
     if (primeira.current) primeira.current = false;
@@ -120,7 +130,7 @@ export function VisitTracker() {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement | null)?.closest?.("a");
       const p = caminho.current;
-      if (p.startsWith("/admin") || p.startsWith("/login")) return;
+      if (p.startsWith("/admin") || p.startsWith("/login") || daEquipe()) return;
       // Só os links livres (atendimento geral, data-livre) contam aqui
       // (os demais registram o pedido só quando o WhatsApp abre de fato: pedir-cadastro.ts)
       if (a?.href.includes("api.whatsapp.com") && a.dataset.livre) eventoDoLinkWhatsapp(a.href);

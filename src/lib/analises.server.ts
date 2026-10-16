@@ -72,6 +72,7 @@ export async function paginas(desde: Date, ate?: Date): Promise<Pagina[]> {
     where: {
       created_at: { gte: desde, ...(ate && { lt: ate }) },
       NOT: { path: { startsWith: EV } },
+      ...(await import("./rastreio.server")).whereHumano,
     },
     select: {
       created_at: true,

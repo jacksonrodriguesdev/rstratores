@@ -60,6 +60,9 @@ jobs:
       - name: Resumo diário e eventos
         run: npx tsx scripts/ci/testar-resumo.ts
 
+      - name: Contagem diária de visitas (fuso do Uruguai, sem robôs)
+        run: npx tsx scripts/ci/testar-visitas.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 

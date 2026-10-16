@@ -128,7 +128,8 @@ async function lerLinhas(filtro: any): Promise<Linha[]> {
   // (mapa de cliques, Admin → Análises) não entram na linha do tempo.
   const { eventosProntos, caminhoDoEvento } = await import("./eventos-db.server");
   await eventosProntos();
-  const where = { ...filtro, NOT: { path: { startsWith: EV } } };
+  const { whereHumano } = await import("./rastreio.server");
+  const where = { ...filtro, NOT: { path: { startsWith: EV } }, ...whereHumano };
   const [paginas, eventos] = await Promise.all([
     prisma.site_visits.findMany({
       where,

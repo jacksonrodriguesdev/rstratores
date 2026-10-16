@@ -7,6 +7,7 @@
 import { prisma } from "./prisma";
 import * as meta from "./ads-meta.server";
 import * as google from "./ads-google.server";
+import { sqlHumano } from "./rastreio.server";
 import type { CampanhaApi, DiaApi } from "./ads-meta.server";
 
 export type Plataforma = "GOOGLE" | "META";
@@ -504,7 +505,7 @@ export async function relatorioAds(dias: number) {
   const [visitas, leads] = await Promise.all([
     prisma.$queryRawUnsafe<Array<{ utm: string; n: bigint }>>(
       `SELECT utm_campaign utm, COUNT(DISTINCT session_id) n FROM site_visits
-       WHERE created_at >= ? AND utm_campaign IS NOT NULL AND utm_campaign <> '' GROUP BY utm_campaign`,
+       WHERE created_at >= ? AND utm_campaign IS NOT NULL AND utm_campaign <> '' AND ${sqlHumano()} GROUP BY utm_campaign`,
       desde,
     ),
     prisma

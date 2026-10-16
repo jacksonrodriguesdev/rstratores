@@ -26,7 +26,11 @@ export async function resumoVisitantes(
     sessoesDoPeriodo(dias, pais),
     // As últimas páginas vistas (linhas brutas: só 60)
     prisma.site_visits.findMany({
-      where: { NOT: { path: { startsWith: PREFIXO_EVENTO } }, ...(pais && { country_code: pais }) },
+      where: {
+        NOT: { path: { startsWith: PREFIXO_EVENTO } },
+        ...(pais && { country_code: pais }),
+        ...(await import("./rastreio.server")).whereHumano,
+      },
       orderBy: { id: "desc" },
       take: 60,
       select: {

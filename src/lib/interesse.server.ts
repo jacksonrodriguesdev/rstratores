@@ -15,7 +15,11 @@ export async function resumoInteresse(dias: number): Promise<Interesse> {
       take: 100000,
     }),
     prisma.site_visits.count({
-      where: { created_at: { gte: desde }, NOT: { path: { startsWith: PREFIXO_EVENTO } } },
+      where: {
+        created_at: { gte: desde },
+        NOT: { path: { startsWith: PREFIXO_EVENTO } },
+        ...(await import("./rastreio.server")).whereHumano,
+      },
     }),
   ]);
 

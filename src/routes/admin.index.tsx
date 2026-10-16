@@ -12,6 +12,8 @@ import {
   Eye,
   Globe2,
   MapPin,
+  Users,
+  MousePointerClick,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -23,6 +25,7 @@ import {
   CartesianGrid,
   AreaChart,
   Area,
+  Legend,
   PieChart,
   Pie,
   Cell,
@@ -36,10 +39,13 @@ export const Route = createFileRoute("/admin/")({
 type AnalyticsPayload = {
   total: number;
   last30: number;
+  visitantes30: number;
+  sessoes30: number;
+  hoje: { dia: string; visitantes: number; sessoes: number; paginas: number };
   countries: Array<{ name: string; value: number }>;
   cities: Array<{ name: string; value: number }>;
   paths: Array<{ name: string; value: number }>;
-  days: Array<{ name: string; value: number }>;
+  days: Array<{ name: string; value: number; visitantes: number; sessoes: number }>;
   devices: Array<{ name: string; value: number }>;
   topProducts: Array<{ name: string; value: number }>;
 };
@@ -66,15 +72,27 @@ function AdminDashboard() {
       color: "text-accent",
     },
     {
-      label: "Acessos (total)",
-      value: analytics.data?.total,
+      label: "Visitantes hoje",
+      value: analytics.data?.hoje.visitantes,
+      icon: Users,
+      color: "text-primary",
+    },
+    {
+      label: "Visitas hoje (sessões)",
+      value: analytics.data?.hoje.sessoes,
+      icon: MousePointerClick,
+      color: "text-accent",
+    },
+    {
+      label: "Páginas vistas hoje",
+      value: analytics.data?.hoje.paginas,
       icon: Eye,
       color: "text-primary",
     },
     {
-      label: "Acessos (30 dias)",
-      value: analytics.data?.last30,
-      icon: Eye,
+      label: "Visitantes (30 dias)",
+      value: analytics.data?.visitantes30,
+      icon: Users,
       color: "text-accent",
     },
     {
@@ -119,8 +137,11 @@ function AdminDashboard() {
       <Card className="p-6 border shadow-sm">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Acessos nos últimos 30 dias</h2>
-            <p className="text-sm text-muted-foreground font-medium">Visitas por dia na loja</p>
+            <h2 className="text-lg font-bold text-foreground">Visitas por dia (últimos 30 dias)</h2>
+            <p className="text-sm text-muted-foreground font-medium">
+              Horário do Uruguai, sem robôs. Visitantes = pessoas diferentes · Visitas = sessões (30
+              min sem navegar abre outra) · Páginas = páginas vistas.
+            </p>
           </div>
         </div>
         <div className="h-72 w-full">
@@ -158,9 +179,28 @@ function AdminDashboard() {
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                   }}
                 />
+                <Legend />
                 <Area
                   type="monotone"
                   dataKey="value"
+                  name="Páginas vistas"
+                  stroke="#94a3b8"
+                  strokeWidth={2}
+                  fillOpacity={0.15}
+                  fill="#94a3b8"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="sessoes"
+                  name="Visitas (sessões)"
+                  stroke="var(--accent)"
+                  strokeWidth={2}
+                  fillOpacity={0}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="visitantes"
+                  name="Visitantes"
                   stroke="var(--primary)"
                   strokeWidth={3}
                   fillOpacity={1}

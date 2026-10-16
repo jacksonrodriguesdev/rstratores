@@ -3,12 +3,13 @@
 // de anúncios somam os resumos do período em vez de carregar centenas de milhares de linhas.
 // O dia de hoje é calculado na hora (com cache de 1 minuto). Mudou o formato? Suba VERSAO:
 // os dias são recalculados sozinhos na próxima consulta.
+import { whereHumano, sqlHumano } from "./rastreio.server";
 import { prisma } from "./prisma";
 import { localDe } from "./locais-anuncio";
 import { eventosProntos, caminhoDoEvento } from "./eventos-db.server";
 import { sessoesDeLinhas, SELECT_LINHA, type Linha, type SessaoBase } from "./jornadas.server";
 
-export const VERSAO = 2; // 2: grava também as sessões do dia (analise_sessao)
+export const VERSAO = 3; // 2: grava também as sessões do dia (analise_sessao); 3: sem robôs (whereHumano)
 const H = 3600_000;
 const FUSO = -3 * H; // Uruguai (UTC−3, sem horário de verão)
 const EV = "/_evento/";
@@ -198,7 +199,11 @@ export async function calcularDiaCompleto(
   const fim = new Date(ini.getTime() + 24 * H);
   const [ps, evs] = await Promise.all([
     prisma.site_visits.findMany({
-      where: { created_at: { gte: ini, lt: fim }, NOT: { path: { startsWith: EV } } },
+      where: {
+        created_at: { gte: ini, lt: fim },
+        NOT: { path: { startsWith: EV } },
+        ...whereHumano,
+      },
       select: { ...SELECT_LINHA, path: true, language: true },
       orderBy: { created_at: "asc" },
     }),
@@ -684,11 +689,11 @@ export async function visitantesDoPeriodo(dias: number) {
   const desde = inicioDia(diasAte(dias)[0]);
   const [[a], [b]] = await Promise.all([
     prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
-      "SELECT COUNT(DISTINCT visitor_id) AS n FROM site_visits WHERE created_at >= ? AND visitor_id IS NOT NULL",
+      `SELECT COUNT(DISTINCT visitor_id) AS n FROM site_visits WHERE created_at >= ? AND visitor_id IS NOT NULL AND ${sqlHumano()}`,
       desde,
     ),
     prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
-      "SELECT COUNT(DISTINCT v.visitor_id) AS n FROM site_visits v WHERE v.created_at >= ? AND v.visitor_id IS NOT NULL AND EXISTS (SELECT 1 FROM site_visits o WHERE o.visitor_id = v.visitor_id AND o.created_at < ?)",
+      `SELECT COUNT(DISTINCT v.visitor_id) AS n FROM site_visits v WHERE v.created_at >= ? AND v.visitor_id IS NOT NULL AND ${sqlHumano("v.")} AND EXISTS (SELECT 1 FROM site_visits o WHERE o.visitor_id = v.visitor_id AND o.created_at < ?)`,
       desde,
       desde,
     ),
@@ -705,6 +710,7 @@ export async function visitasAntes(dias: number) {
     where: {
       created_at: { gte: new Date(ini.getTime() - dias * 24 * H), lt: ini },
       NOT: { path: { startsWith: EV } },
+      ...whereHumano,
     },
   });
 }

@@ -170,10 +170,52 @@ export function lerAparelho(ua: string) {
   return { device, os, browser };
 }
 
-export const ehRobo = (ua: string) =>
-  /bot|crawler|spider|preview|lighthouse|headless|facebookexternalhit|whatsapp\/|slurp|bingpreview|curl|wget|python|axios|node-fetch/i.test(
-    ua,
-  );
+// Robôs e ferramentas que abrem o site (vários executam JavaScript e chamariam o rastreio).
+// Uma lista só: vale para não gravar (ehRobo) e para não contar o que já foi gravado (whereHumano /
+// sqlHumano), assim os dias antigos também saem limpos quando o resumo é recalculado.
+export const ROBOS = [
+  "bot", // Googlebot, bingbot, AdsBot, Applebot, GPTBot, AhrefsBot, SemrushBot…
+  "crawler",
+  "spider", // Bytespider, TikTokSpider…
+  "preview",
+  "lighthouse", // PageSpeed Insights
+  "headless", // navegadores automatizados
+  "facebookexternalhit",
+  "meta-externalagent", // robô do Meta (executa JavaScript)
+  "meta-externalfetcher",
+  "google-inspectiontool", // teste de URL do Search Console (executa JavaScript)
+  "googleother",
+  "google-read-aloud",
+  "mediapartners-google",
+  "apis-google",
+  "whatsapp/",
+  "slurp",
+  "gtmetrix",
+  "pingdom",
+  "uptime",
+  "prerender",
+  "phantomjs",
+  "selenium",
+  "puppeteer",
+  "playwright",
+  "curl",
+  "wget",
+  "python",
+  "axios",
+  "node-fetch",
+];
+// Só letras, números, "-" e "/": cabe direto numa expressão regular (JS e MySQL) sem escapar
+if (ROBOS.some((r) => !/^[a-z0-9/-]+$/.test(r))) throw new Error("ROBOS: use só a-z, 0-9, - e /");
+const ROBO_RE = new RegExp(ROBOS.join("|"), "i");
+export const ehRobo = (ua: string) => ROBO_RE.test(ua);
+
+// Filtro do Prisma para site_visits: só pessoas (o banco compara sem diferenciar maiúsculas)
+export const whereHumano = {
+  OR: [{ user_agent: null }, { AND: ROBOS.map((r) => ({ NOT: { user_agent: { contains: r } } })) }],
+};
+// Mesmo filtro para SQL puro (alias opcional da tabela)
+export const sqlHumano = (t = "") =>
+  `(${t}user_agent IS NULL OR ${t}user_agent NOT REGEXP '${ROBOS.join("|")}')`;
 
 // ---------- Origem ----------
 export type Atribuicao = {

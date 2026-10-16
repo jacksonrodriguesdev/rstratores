@@ -12,6 +12,12 @@ export function registrarEvento(
   eventIdDado?: string,
 ) {
   if (typeof window === "undefined") return;
+  // Aparelho da equipe (já abriu o admin): testes não viram lead nem estatística
+  try {
+    if (localStorage.getItem("ap_equipe") === "1") return;
+  } catch {
+    /* sem localStorage: segue */
+  }
   // O mesmo event_id vai para o Pixel e para o servidor (API de Conversões): o Meta conta uma vez
   const eventId =
     eventIdDado ?? (tipo === "whatsapp" || tipo === "cotacao" ? novoEventId("lead") : undefined);

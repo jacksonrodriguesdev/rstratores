@@ -159,6 +159,12 @@ function AdminLayout() {
         if (session?.role === "ADMIN") {
           setUsuario({ nome: session.nome, email: session.email });
           setAuthorized(true);
+          // Aparelho da equipe: as visitas dele não entram nas estatísticas (mesmo deslogado)
+          try {
+            localStorage.setItem("ap_equipe", "1");
+          } catch {
+            /* sem localStorage */
+          }
         } else window.location.href = "/login";
       })
       .catch(() => (window.location.href = "/login"));
