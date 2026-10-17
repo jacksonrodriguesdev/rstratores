@@ -8,7 +8,8 @@ Arte: `saida/es/01_correa-de-accionamiento-principal-de-tri_1001877.png`
 🖤 PRE BLACK FRIDAY · Correa de accionamiento principal de trilla para Valtra
 
 Código: 1001877
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/71390188
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/71390188
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -24,7 +25,8 @@ Arte: `saida/es/02_conjunto-engranaje-baja-42-dientes_054182ea.png`
 🖤 PRE BLACK FRIDAY · Conjunto engranaje baja 42 dientes para Massey Ferguson
 
 Código: 054182EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/054182ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/054182ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -40,7 +42,8 @@ Arte: `saida/es/03_engranaje-con-manguito-z44-46_053352ea.png`
 🖤 PRE BLACK FRIDAY · Engranaje con manguito Z44/46 para Massey Ferguson
 
 Código: 053352EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/053352ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/053352ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -56,7 +59,8 @@ Arte: `saida/es/04_turbocompresor_79007.png`
 🖤 PRE BLACK FRIDAY · Turbocompresor para Massey Ferguson
 
 Código: 79007
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/79007
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/79007
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -72,7 +76,8 @@ Arte: `saida/es/05_conjunto-sincronizador_039410ea.png`
 🖤 PRE BLACK FRIDAY · Conjunto sincronizador para Massey Ferguson
 
 Código: 039410EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/039410ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/039410ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -88,7 +93,8 @@ Arte: `saida/es/06_planetaria-18-24-dientes_80005500ea.png`
 🖤 PRE BLACK FRIDAY · Planetaria 18/24 dientes para Valtra
 
 Código: 80005500EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/80005500ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/80005500ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -104,7 +110,8 @@ Arte: `saida/es/07_articulacion-doble-montada_036411dr.png`
 🖤 PRE BLACK FRIDAY · Articulación doble montada para Massey Ferguson
 
 Código: 036411DR
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/036411dr
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/036411dr
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -120,7 +127,8 @@ Arte: `saida/es/08_brazo-del-elevador_85584300.png`
 🖤 PRE BLACK FRIDAY · Brazo del elevador para Valtra
 
 Código: 85584300
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/85584300
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/85584300
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -136,7 +144,8 @@ Arte: `saida/es/09_colector-de-escape_922909300184.png`
 🖤 PRE BLACK FRIDAY · Colector de escape para Massey Ferguson
 
 Código: 922909300184
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/922909300184
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/922909300184
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -152,7 +161,8 @@ Arte: `saida/es/10_horquilla_039404ea.png`
 🖤 PRE BLACK FRIDAY · Horquilla para Massey Ferguson
 
 Código: 039404EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/039404ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/039404ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -168,7 +178,8 @@ Arte: `saida/es/11_barra-de-corte-seccionada-23_84998722vv.png`
 🖤 PRE BLACK FRIDAY · Barra de corte seccionada 23' para Massey Ferguson
 
 Código: 84998722VV
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/84998722vv
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/84998722vv
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -184,7 +195,8 @@ Arte: `saida/es/12_soporte-de-freno-a-disco-lado-derecho_3409713vv.png`
 🖤 PRE BLACK FRIDAY · Soporte de freno a disco (lado derecho) para Massey Ferguson
 
 Código: 3409713VV
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/3409713vv
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/3409713vv
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -200,7 +212,8 @@ Arte: `saida/es/13_rodamiento-21309_81320800ea.png`
 🖤 PRE BLACK FRIDAY · Rodamiento 21309 para Valtra
 
 Código: 81320800EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/81320800ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/81320800ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -216,7 +229,8 @@ Arte: `saida/es/14_rodamiento-42381-584_265150ea.png`
 🖤 PRE BLACK FRIDAY · Rodamiento 42381/584 para Massey Ferguson
 
 Código: 265150EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/265150ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/265150ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -232,7 +246,8 @@ Arte: `saida/es/15_rodamiento-nu309_81321600ea.png`
 🖤 PRE BLACK FRIDAY · Rodamiento NU309 para Valtra
 
 Código: 81321600EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/81321600ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/81321600ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -248,7 +263,8 @@ Arte: `saida/es/16_rodamiento-nj309_la3976.png`
 🖤 PRE BLACK FRIDAY · Rodamiento NJ309 para Valtra
 
 Código: LA3976
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/la3976
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/la3976
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -264,7 +280,8 @@ Arte: `saida/es/17_rodamiento-30208_la5013.png`
 🖤 PRE BLACK FRIDAY · Rodamiento 30208 para Valtra
 
 Código: LA5013
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/la5013
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/la5013
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -280,7 +297,8 @@ Arte: `saida/es/18_rodamiento-de-agujas_223620.png`
 🖤 PRE BLACK FRIDAY · Rodamiento de agujas para Massey Ferguson
 
 Código: 223620
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/223620
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/223620
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -296,7 +314,8 @@ Arte: `saida/es/19_anillo-sincronizador-2-3_023488ea.png`
 🖤 PRE BLACK FRIDAY · Anillo sincronizador 2ª/3ª para Massey Ferguson
 
 Código: 023488EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/023488ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/023488ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -312,7 +331,8 @@ Arte: `saida/es/20_anillo-estriado_1686458ea.png`
 🖤 PRE BLACK FRIDAY · Anillo estriado para Massey Ferguson
 
 Código: 1686458EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/1686458ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/1686458ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -328,7 +348,8 @@ Arte: `saida/es/21_reten-127-159-24_81644000.png`
 🖤 PRE BLACK FRIDAY · Retén 127 × 159 × 24 para Massey Ferguson
 
 Código: 81644000
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/81644000
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/81644000
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -344,7 +365,8 @@ Arte: `saida/es/22_reten-del-semieje-delantero_81237000.png`
 🖤 PRE BLACK FRIDAY · Retén del semieje delantero para Massey Ferguson
 
 Código: 81237000 · Carraro
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/81237000
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/81237000
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -360,7 +382,8 @@ Arte: `saida/es/23_buje-guia-del-embrague_81133600vv.png`
 🖤 PRE BLACK FRIDAY · Buje guía del embrague para Massey Ferguson
 
 Código: 81133600VV
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/81133600vv
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/81133600vv
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -376,7 +399,8 @@ Arte: `saida/es/24_tornillo-de-rueda-trasera_820100.png`
 🖤 PRE BLACK FRIDAY · Tornillo de rueda trasera para Massey Ferguson
 
 Código: 820100
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/820100
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/820100
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -392,7 +416,8 @@ Arte: `saida/es/25_tornillo-con-tuerca_487945.png`
 🖤 PRE BLACK FRIDAY · Tornillo con tuerca para Massey Ferguson
 
 Código: 487945
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/487945
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/487945
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -408,7 +433,8 @@ Arte: `saida/es/26_kit-de-reparacion-del-cilindro-de-direcc_82364800.png`
 🖤 PRE BLACK FRIDAY · Kit de reparación del cilindro de dirección para Massey Ferguson
 
 Código: 82364800
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/82364800
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/82364800
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -424,7 +450,8 @@ Arte: `saida/es/27_bomba-hidraulica-d8nn600lb_f000510714.png`
 🖤 PRE BLACK FRIDAY · Bomba hidráulica D8NN600LB para Massey Ferguson
 
 Código: F000510714
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/f000510714
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/f000510714
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -440,7 +467,8 @@ Arte: `saida/es/28_bomba-hidraulica-d8nn600kb_f000510704.png`
 🖤 PRE BLACK FRIDAY · Bomba hidráulica D8NN600KB para Massey Ferguson
 
 Código: F000510704
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/f000510704
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/f000510704
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -456,7 +484,8 @@ Arte: `saida/es/29_bomba-hidraulica-doble-con-colector_f000510712.png`
 🖤 PRE BLACK FRIDAY · Bomba hidráulica doble con colector para Massey Ferguson
 
 Código: F000510712
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/f000510712
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/f000510712
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -472,7 +501,8 @@ Arte: `saida/es/30_bomba-hidraulica-doble-con-colector_f000510701.png`
 🖤 PRE BLACK FRIDAY · Bomba hidráulica doble con colector para Massey Ferguson
 
 Código: F000510701
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/f000510701
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/f000510701
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -488,7 +518,8 @@ Arte: `saida/es/31_bomba-hidraulica_r979013181.png`
 🖤 PRE BLACK FRIDAY · Bomba hidráulica para John Deere
 
 Código: R979013181
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/r979013181
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/r979013181
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -504,7 +535,8 @@ Arte: `saida/es/32_bomba-hidraulica-doble_f000510600.png`
 🖤 PRE BLACK FRIDAY · Bomba hidráulica doble para Massey Ferguson
 
 Código: F000510600
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/f000510600
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/f000510600
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -520,7 +552,8 @@ Arte: `saida/es/33_filtro-hidraulico_psh211.png`
 🖤 PRE BLACK FRIDAY · Filtro hidráulico para Massey Ferguson
 
 Código: PSH211
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/psh211
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/psh211
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -536,7 +569,8 @@ Arte: `saida/es/34_filtro-de-combustible-de-la-bomba-electr_4224811.png`
 🖤 PRE BLACK FRIDAY · Filtro de combustible de la bomba eléctrica para Massey Ferguson
 
 Código: 4224811
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/4224811
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/4224811
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -552,7 +586,8 @@ Arte: `saida/es/35_filtro-de-aceite-del-motor_re509672.png`
 🖤 PRE BLACK FRIDAY · Filtro de aceite del motor para John Deere
 
 Código: RE509672
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/re509672
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/re509672
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -568,7 +603,8 @@ Arte: `saida/es/36_filtro-de-combustible_psc504.png`
 🖤 PRE BLACK FRIDAY · Filtro de combustible para Massey Ferguson
 
 Código: PSC504
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/psc504
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/psc504
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -584,7 +620,8 @@ Arte: `saida/es/37_filtro-de-combustible_040880.png`
 🖤 PRE BLACK FRIDAY · Filtro de combustible para Massey Ferguson
 
 Código: 040880
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/040880
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/040880
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -600,7 +637,8 @@ Arte: `saida/es/38_filtro-de-aire-primario_48007134.png`
 🖤 PRE BLACK FRIDAY · Filtro de aire primario para New Holland
 
 Código: 48007134
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/48007134CNH
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/48007134CNH
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -616,7 +654,8 @@ Arte: `saida/es/39_prefiltro-de-combustible_6224530m91.png`
 🖤 PRE BLACK FRIDAY · Prefiltro de combustible para Massey Ferguson
 
 Código: 6224530M91
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/6224530M91ORIG
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/6224530M91ORIG
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -632,7 +671,8 @@ Arte: `saida/es/40_sensor-de-temperatura_836640772.png`
 🖤 PRE BLACK FRIDAY · Sensor de temperatura para Massey Ferguson
 
 Código: 836640772
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/836640772
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/836640772
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -648,7 +688,8 @@ Arte: `saida/es/41_llave-de-luces-de-7-terminales_d5nn11654b.png`
 🖤 PRE BLACK FRIDAY · Llave de luces de 7 terminales para Ford
 
 Código: D5NN11654B
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/d5nn11654b
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/d5nn11654b
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -664,7 +705,8 @@ Arte: `saida/es/42_radiador-de-agua_2801211m93.png`
 🖤 PRE BLACK FRIDAY · Radiador de agua para AGCO
 
 Código: 2801211M93
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/2801211M93
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/2801211M93
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -680,7 +722,8 @@ Arte: `saida/es/43_solenoide-del-control-remoto_6238900.png`
 🖤 PRE BLACK FRIDAY · Solenoide del control remoto para Massey Ferguson
 
 Código: 6238900 · Bosch
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/6238900
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/6238900
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -696,7 +739,8 @@ Arte: `saida/es/44_panel-de-instrumentos-4600-a-6610_e7nn10849.png`
 🖤 PRE BLACK FRIDAY · Panel de instrumentos 4600 a 6610 para New Holland
 
 Código: E7NN10849
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/E7NN10849CABLA
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/E7NN10849CABLA
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -712,7 +756,8 @@ Arte: `saida/es/45_kit-de-embrague-plato-disco_83063502.png`
 🖤 PRE BLACK FRIDAY · Kit de embrague plato + disco para Massey Ferguson
 
 Código: 83063502 · LuK
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/83063502
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/83063502
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -728,7 +773,8 @@ Arte: `saida/es/46_kit-de-embrague-plato-disco-ruleman_85026800luk.png`
 🖤 PRE BLACK FRIDAY · Kit de embrague plato + disco + rulemán para Massey Ferguson
 
 Código: 85026800LUK · LuK
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/85026800luk
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/85026800luk
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -744,7 +790,8 @@ Arte: `saida/es/47_disco-de-embrague-ceramico-280-mm_re177574ea.png`
 🖤 PRE BLACK FRIDAY · Disco de embrague cerámico 280 mm para John Deere
 
 Código: RE177574EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/re177574ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/re177574ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -760,7 +807,8 @@ Arte: `saida/es/48_disco-rigido-de-14-pastillas_80797700ea.png`
 🖤 PRE BLACK FRIDAY · Disco rígido de 14 pastillas para Valtra
 
 Código: 80797700EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/80797700ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/80797700ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -776,7 +824,8 @@ Arte: `saida/es/49_disco-de-embrague_204521ea.png`
 🖤 PRE BLACK FRIDAY · Disco de embrague para Valtra
 
 Código: 204521EA
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/204521ea
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/204521ea
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)
@@ -792,7 +841,8 @@ Arte: `saida/es/50_cobertura-del-embrague_887896vv.png`
 🖤 PRE BLACK FRIDAY · Cobertura del embrague para Massey Ferguson
 
 Código: 887896VV
-👉 Mirá el precio de pre Black: agropartsuy.com/produto/887896vv
+🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/887896vv
 
 🚚 Envíos por DAC a todo Uruguay
 💬 Cotizá por WhatsApp (link en la bio)

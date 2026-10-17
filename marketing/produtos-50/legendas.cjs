@@ -2,14 +2,17 @@
 // Uso: node marketing/produtos-50/legendas.cjs  -> marketing/produtos-50/legendas_es.md e legendas_pt.md
 const fs = require("fs");
 const sel = require("./selecao.json");
+// Mesmo desconto de comum.mjs (DESCONTO): mudou lá, mude aqui
 const slug = (s) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 const tagMarca = (m) => (m ? `#${m.replace(/\s+/g, "")}` : "");
 const L = {
   es: (p) =>
-    `🖤 PRE BLACK FRIDAY · ${p.es}${p.marca ? ` para ${p.marca}` : ""}\n\nCódigo: ${p.cod}${p.extra ? ` · ${p.extra}` : ""}\n👉 Mirá el precio de pre Black: agropartsuy.com/produto/${encodeURIComponent(p.sku)}\n\n🚚 Envíos por DAC a todo Uruguay\n💬 Cotizá por WhatsApp (link en la bio)\n\n#PreBlackFriday #RepuestosAgricolas ${tagMarca(p.marca)} #Tractores #AgroUruguay`,
+    `🖤 PRE BLACK FRIDAY · ${p.es}${p.marca ? ` para ${p.marca}` : ""}\n\nCódigo: ${p.cod}${p.extra ? ` · ${p.extra}` : ""}\n🔥 -20% de pre Black en todo el sitio (la Black Friday empieza el 27/11)
+👉 Mirá el precio: agropartsuy.com/produto/${encodeURIComponent(p.sku)}\n\n🚚 Envíos por DAC a todo Uruguay\n💬 Cotizá por WhatsApp (link en la bio)\n\n#PreBlackFriday #RepuestosAgricolas ${tagMarca(p.marca)} #Tractores #AgroUruguay`,
   pt: (p) =>
-    `🖤 PRÉ-BLACK FRIDAY · ${p.pt}${p.marca ? ` para ${p.marca}` : ""}\n\nCódigo: ${p.cod}${p.extra ? ` · ${p.extra}` : ""}\n👉 Veja o preço de pré-Black: agropartsuy.com/pt/produto/${encodeURIComponent(p.sku)}\n\n🚚 Envio para todo o RS\n💬 Peça pelo WhatsApp (link na bio)\n\n#PreBlackFriday #PecasAgricolas ${tagMarca(p.marca)} #Tratores #AgroRS`,
+    `🖤 PRÉ-BLACK FRIDAY · ${p.pt}${p.marca ? ` para ${p.marca}` : ""}\n\nCódigo: ${p.cod}${p.extra ? ` · ${p.extra}` : ""}\n🔥 -20% de pré-Black em todo o site (a Black Friday começa em 27/11)
+👉 Veja o preço: agropartsuy.com/pt/produto/${encodeURIComponent(p.sku)}\n\n🚚 Envio para todo o RS\n💬 Peça pelo WhatsApp (link na bio)\n\n#PreBlackFriday #PecasAgricolas ${tagMarca(p.marca)} #Tratores #AgroRS`,
 };
 for (const idioma of ["es", "pt"]) {
   const md = [`# Legendas — ${idioma === "es" ? "espanhol (Uruguai)" : "português (RS)"}\n`];

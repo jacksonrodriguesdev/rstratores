@@ -29,7 +29,8 @@ const ico = (nome, size = 64, stroke = 1.6, cor = "currentColor") =>
   );
 
 // ---------------------------------------------------------------- datas (Uruguai)
-const PRE = "28 de octubre";
+// Estamos na pré-Black (já no ar, com o desconto abaixo); a Black começa em 27/11
+const DESCONTO = 20;
 const BLACK = "27 al 30 de noviembre";
 
 // ---------------------------------------------------------------- peças (do banco, com preço)
@@ -111,17 +112,17 @@ const S = [1080, 1920];
 
 // ================================================================ CARROSSEL A — Se viene la Black
 const TA = 6;
-add("A1_capa_faltan_30_dias", ...F, `
+add("A1_capa_ya_empezo_pre_black", ...F, `
   <div style="position:absolute;left:72px;top:64px">${marca()}</div>
   <div class="chip chip-borde" style="position:absolute;right:72px;top:78px;padding:12px 22px;font-size:20px">${ico("CalendarDays", 24, 2)} 27—30 NOV</div>
   <div style="position:absolute;left:72px;top:230px">
-    <div class="chip chip-oro" style="padding:12px 26px;font-size:30px">PRE</div>
+    <div class="chip chip-oro" style="padding:12px 26px;font-size:30px">YA EMPEZÓ LA PRE</div>
     <div class="titulo" style="font-size:250px;margin-top:22px">Black<br><span class="contorno">Friday</span></div>
   </div>
-  ${cinta(860, -5, "SE VIENE LA BLACK")}
+  ${cinta(860, -5, "YA EN PRE BLACK")}
   <div style="position:absolute;left:72px;bottom:150px;display:flex;align-items:flex-end;gap:26px">
-    <div class="num oro" style="font-size:300px">30</div>
-    <div style="padding-bottom:36px"><div class="titulo" style="font-size:78px">días</div><div style="font-size:30px;font-weight:700;color:var(--gris);margin-top:10px">para la Black Friday<br>de AGRO PARTS</div></div>
+    <div class="num oro" style="font-size:300px">-${DESCONTO}%</div>
+    <div style="padding-bottom:36px"><div class="titulo" style="font-size:66px">en todo<br>el sitio</div><div style="font-size:28px;font-weight:700;color:var(--gris);margin-top:10px">La Black Friday<br>empieza el 27/11</div></div>
   </div>
   ${pie(...F, 1, TA)}`);
 
@@ -130,7 +131,7 @@ add("A2_como_funciona", ...F, `
   <div class="titulo" style="position:absolute;left:72px;top:200px;font-size:132px">¿Cómo<br><span class="oro">funciona?</span></div>
   <div style="position:absolute;left:72px;right:72px;top:520px;display:grid;gap:26px">
     ${[
-      ["Timer", "Desde el " + PRE, "PRE BLACK", "Cuenta regresiva y las primeras piezas con precio especial en el sitio."],
+      ["Timer", "Ya empezó", "PRE BLACK", `-${DESCONTO}% en todo el sitio y cuenta regresiva para la Black.`],
       ["Flame", BLACK, "BLACK FRIDAY", "Los descuentos de la campaña en repuestos para tractores y cosechadoras."],
       ["Bell", "Para no perderte nada", "AVISOS", "Creá tu cuenta en el sitio y te avisamos por e-mail cuando empiece."],
     ]
@@ -199,7 +200,7 @@ const TB = PECAS.length + 2;
 add("B1_capa_productos", ...F, `
   <div style="position:absolute;left:72px;top:64px">${marca()}</div>
   <div class="chip chip-oro" style="position:absolute;left:72px;top:200px;padding:12px 24px;font-size:24px">PRE BLACK FRIDAY</div>
-  <div class="titulo" style="position:absolute;left:72px;top:280px;font-size:150px">Ya con<br>precio de<br><span class="oro">pre Black</span></div>
+  <div class="titulo" style="position:absolute;left:72px;top:280px;font-size:150px">Ya con<br><span class="oro">-${DESCONTO}%</span> de<br>pre Black</div>
   <div style="position:absolute;left:72px;right:72px;top:820px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
     ${PECAS.map(
       (p) => `<div class="vidro" style="border-radius:24px;padding:20px 18px;height:150px;display:flex;flex-direction:column;justify-content:space-between">
@@ -221,7 +222,7 @@ PECAS.forEach((p, k) =>
     <div class="mono oro" style="font-size:66px;font-weight:800;letter-spacing:2px;margin-top:4px">${p.cod}</div></div>
     <div style="text-align:right;font-size:24px;font-weight:700;color:#d4d4d8;line-height:1.35">${p.extra ? p.extra + "<br>" : ""}Buscalo en<br><b style="color:#fff">${SITE}</b></div>
   </div>
-  <div class="cta" style="position:absolute;left:72px;bottom:140px;background:var(--oro);color:#000;padding:24px 36px;font-size:30px">${ico("Tag", 32, 2.4)} Precio de pre Black en el sitio</div>
+  <div class="cta" style="position:absolute;left:72px;bottom:140px;background:var(--oro);color:#000;padding:24px 36px;font-size:30px">${ico("Tag", 32, 2.4)} -${DESCONTO}% de pre Black en el sitio</div>
   ${pie(...F, k + 2, TB)}`),
 );
 
@@ -292,7 +293,7 @@ PECAS.slice(0, 3).forEach((p, k) =>
     <div style="font-size:20px;font-weight:800;letter-spacing:6px;color:var(--gris)">CÓDIGO</div>
     <div class="mono oro" style="font-size:80px;font-weight:800;letter-spacing:2px">${p.cod}</div>
   </div>
-  <div class="cta" style="position:absolute;left:50%;transform:translateX(-50%);bottom:360px;background:var(--oro);color:#000;padding:26px 44px;font-size:32px;white-space:nowrap">${ico("Tag", 34, 2.4)} Ver precio de pre Black</div>`),
+  <div class="cta" style="position:absolute;left:50%;transform:translateX(-50%);bottom:360px;background:var(--oro);color:#000;padding:26px 44px;font-size:32px;white-space:nowrap">${ico("Tag", 34, 2.4)} -${DESCONTO}% de pre Black</div>`),
 );
 
 // ---------------------------------------------------------------- gera

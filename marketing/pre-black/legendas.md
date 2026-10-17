@@ -1,12 +1,12 @@
 # Pré-Black Friday 2026 — Instagram AGRO PARTS
 
 Artes em `saida/` (gerar de novo: `node marketing/pre-black/gerar.mjs`). Legendas em espanhol do
-Uruguai, prontas para copiar. Datas: **pré-Black a partir de 28/10**, **Black de 27 a 30/11**.
+Uruguai, prontas para copiar. **A pré-Black já está no ar** (-20% em todo o site); a **Black
+Friday vai de 27 a 30/11**.
 
-> Antes de postar: a campanha "Black Friday 2026" precisa estar **ligada** em Admin → Campanhas e
-> cupons (senão o site não mostra os preços de pré-Black que as artes anunciam). O carrossel e o
-> story do **cupom misterioso** só devem sair depois de criar esse cupom (botão "Cupom mistério da
-> Black" no admin).
+> O desconto das artes (-20%) é o que está em Admin → Campanhas e cupons. Mudou lá? Troque
+> `DESCONTO` no gerador e rode de novo. O carrossel e o story do **cupom misterioso** só devem
+> sair depois de criar esse cupom (botão "Cupom mistério da Black" no admin).
 
 ---
 
@@ -14,8 +14,9 @@ Uruguai, prontas para copiar. Datas: **pré-Black a partir de 28/10**, **Black d
 
 | Dia | Feed | Stories |
 |---|---|---|
-| 28/10 | Carrossel **A** (A1→A6) | S5 «Ya empezó» + S1 «Faltan 30» |
-| 30/10 | Carrossel **B** produtos (B1→B8) | S8 filtro |
+| Já (pré no ar) | Carrossel **A** (A1→A6) | S5 «Ya empezó» |
+| +2 dias | Carrossel **B** produtos (B1→B8) | S8 filtro |
+| 28/10 | — | S1 «Faltan 30» |
 | 02/11 | — | S6 enquete (sticker de enquete) |
 | 05/11 | A4 «Armá tu lista» (post solo) | S9 embrague |
 | 09/11 | — | S10 bomba hidráulica |
@@ -33,7 +34,7 @@ Nos stories, ponha o **sticker de link** (agropartsuy.com/black-friday) em cima 
 ```
 🖤 Empezó la PRE BLACK FRIDAY de AGRO PARTS
 
-Faltan 30 días para la Black Friday (27 al 30 de noviembre) y ya hay repuestos con precio de pre Black en el sitio.
+-20% en todo el sitio desde hoy. La Black Friday es del 27 al 30 de noviembre.
 
 👉 Filtros, embragues, hidráulica, rodamientos, transmisión y eléctrica
 👉 Massey Ferguson, Valtra, John Deere, New Holland, Case IH y más
@@ -48,7 +49,7 @@ Guardá este post y armá tu lista para la zafra. Link en la bio 🔗
 ## Carrossel B — produtos (30/10)
 
 ```
-Ya con precio de pre Black 🖤
+Ya con -20% de pre Black 🖤
 
 🔧 Filtro hidráulico Massey Ferguson · PSH211
 🔧 Kit de embrague plato + disco (LuK) · 83063502
