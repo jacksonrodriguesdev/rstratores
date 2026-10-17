@@ -24,6 +24,8 @@ import {
   Eye,
   AlertTriangle,
   X,
+  Sparkles,
+  CalendarClock,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,8 +40,13 @@ import {
   enviosCampanhaFn,
   buscarProdutosEmailFn,
   statusEmailFn,
+  previaProdutosFn,
+  agendarCampanhaFn,
+  codigosCuponsFn,
   type Campanha,
 } from "@/lib/emails";
+import { ConstrutorEmail } from "@/components/admin/EmailConstrutor";
+import { cuponsDosBlocos, paraBlocos, TEMA_PADRAO } from "@/lib/email-blocos";
 import { renderEmail, type ConteudoEmail, type Publico } from "@/lib/email-template";
 import {
   CORES,
@@ -137,6 +144,38 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
     return () => clearTimeout(t);
   }, [nome, assunto, preheader, c, publico]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Blocos "Produtos": busca as peças de hoje só quando muda o que define a escolha
+  const chaveProdutos = JSON.stringify(
+    (c.blocos ?? [])
+      .filter((b) => b.tipo === "PRODUTOS" && !b.oculto)
+      .map((b) => [
+        b.id,
+        b.d.fonte,
+        b.d.alvo,
+        b.d.limite,
+        (b.d.produtos ?? []).map((p: any) => p.sku),
+      ]),
+  );
+  const [chaveAtrasada, setChaveAtrasada] = useState(chaveProdutos);
+  useEffect(() => {
+    const t = setTimeout(() => setChaveAtrasada(chaveProdutos), 500);
+    return () => clearTimeout(t);
+  }, [chaveProdutos]);
+  const { data: produtosBloco } = useQuery({
+    queryKey: ["email-previa-produtos", chaveAtrasada],
+    queryFn: () =>
+      previaProdutosFn({
+        data: { blocos: (c.blocos ?? []).filter((b) => b.tipo === "PRODUTOS") },
+      }),
+    enabled: chaveAtrasada !== "[]",
+    placeholderData: (v) => v,
+  });
+  const { data: cupons } = useQuery({
+    queryKey: ["email-cupons-existentes"],
+    queryFn: () => codigosCuponsFn(),
+    enabled: !!c.blocos?.length,
+  });
+
   const html = useMemo(
     () =>
       renderEmail(c, {
@@ -146,8 +185,13 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
         urlBaixa: "#",
         whatsappUrl: "#",
         campanha: "previa",
+        produtosBloco,
+        vars: { departamento: "Montevideo", mi_cupon: "EJEMPLO10" },
       }),
-    [c, preheader],
+    [c, preheader, produtosBloco],
+  );
+  const cuponsFaltando = cuponsDosBlocos(c.blocos).filter(
+    (k) => cupons && !cupons.includes(k.toUpperCase()),
   );
 
   return (
@@ -225,139 +269,163 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
             </div>
           </Secao>
 
-          <Secao
-            icone={ImageIcon}
-            titulo="Imagem de cabeçalho"
-            dica="1200×600 px, JPG ou PNG, até 3 MB. Os banners prontos de marketing/banners_home servem."
-          >
-            <Cabecalho valor={c.cabecalho} aoMudar={(v) => set("cabecalho", v)} />
-            {c.cabecalho && (
-              <div>
-                <Rotulo>Link ao clicar na imagem (opcional)</Rotulo>
-                <Input
-                  value={c.cabecalhoLink ?? ""}
-                  onChange={(e) => set("cabecalhoLink", e.target.value)}
-                  placeholder="/loja"
-                />
-              </div>
-            )}
-          </Secao>
-
-          <Secao icone={Type} titulo="Conteúdo">
-            <div>
-              <Rotulo>Selo de destaque (opcional)</Rotulo>
-              <Input
-                value={c.destaque ?? ""}
-                onChange={(e) => set("destaque", e.target.value)}
-                placeholder="-15% OFF · SOLO ESTA SEMANA"
-              />
-            </div>
-            <div>
-              <Rotulo>Título</Rotulo>
-              <Input value={c.titulo} onChange={(e) => set("titulo", e.target.value)} />
-            </div>
-            <div>
-              <Rotulo extra="**negrito** · [texto](/loja)">Texto</Rotulo>
-              <textarea
-                value={c.texto}
-                onChange={(e) => set("texto", e.target.value)}
-                rows={6}
-                className={areaCls}
-              />
-            </div>
-            <div>
-              <Rotulo>Cor principal</Rotulo>
-              <div className="flex items-center gap-2">
-                {CORES.map((cor) => (
-                  <button
-                    key={cor}
-                    type="button"
-                    onClick={() => set("cor", cor)}
-                    className={cn(
-                      "h-8 w-8 rounded-full ring-offset-2",
-                      c.cor === cor && "ring-2 ring-primary",
-                    )}
-                    style={{ background: cor }}
-                    aria-label={cor}
-                  />
-                ))}
-                <input
-                  type="color"
-                  value={c.cor}
-                  onChange={(e) => set("cor", e.target.value)}
-                  className="h-8 w-10 cursor-pointer rounded border"
-                  aria-label="Outra cor"
-                />
-              </div>
-            </div>
-          </Secao>
-
-          <Secao
-            icone={Package}
-            titulo="Produtos do site"
-            dica="Até 12. Cada produto vira um card com foto e botão “Cotizar” que abre a página dele."
-          >
-            <div>
-              <Rotulo>Título da seção</Rotulo>
-              <Input
-                value={c.produtosTitulo ?? ""}
-                onChange={(e) => set("produtosTitulo", e.target.value)}
-                placeholder="Destacados del mes"
-              />
-            </div>
-            <label className="flex items-start justify-between gap-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-              <span>
-                <b>Mostrar fotos dos produtos</b>
-                <br />
-                <span className="text-xs">
-                  Desligado: o card mostra o código da peça. Ligue só se as fotos forem próprias ou
-                  autorizadas pelo fornecedor (boa parte veio de outra loja).
-                </span>
-              </span>
-              <Switch checked={!!c.fotos} onCheckedChange={(v) => set("fotos", v)} />
-            </label>
-            <Produtos lista={c.produtos} aoMudar={(p) => set("produtos", p)} />
-          </Secao>
-
-          <Secao icone={MousePointerClick} titulo="Botões">
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div>
-                <Rotulo>Texto do botão</Rotulo>
-                <Input
-                  value={c.botaoTexto ?? ""}
-                  onChange={(e) => set("botaoTexto", e.target.value)}
-                  placeholder="Ver ofertas"
-                />
-              </div>
-              <div>
-                <Rotulo>Link</Rotulo>
-                <Input
-                  value={c.botaoUrl ?? ""}
-                  onChange={(e) => set("botaoUrl", e.target.value)}
-                  placeholder="/loja"
-                />
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {LINKS_RAPIDOS.map((l) => (
-                <button
-                  key={l.url}
+          {c.blocos?.length ? (
+            <ConstrutorEmail c={c} setC={setC} cupons={cupons} />
+          ) : (
+            <>
+              <Card className="flex flex-wrap items-center gap-3 border-primary/30 bg-primary/5 p-4">
+                <Sparkles className="h-6 w-6 text-primary" />
+                <div className="min-w-0 flex-1 text-sm">
+                  <p className="font-semibold">Passe para o construtor por blocos</p>
+                  <p className="text-xs text-muted-foreground">
+                    Temas (inclusive Black Friday), contagem regressiva, produtos automáticos com o
+                    preço do dia, categorias, passo a passo e mais. O conteúdo atual vira blocos.
+                  </p>
+                </div>
+                <Button
                   type="button"
-                  onClick={() => set("botaoUrl", l.url)}
-                  className={cn(
-                    "rounded-full border px-3 py-1 text-xs",
-                    c.botaoUrl === l.url && "border-primary bg-primary/10 text-primary",
-                  )}
+                  onClick={() =>
+                    setC((o) => ({ ...o, tema: { ...TEMA_PADRAO }, blocos: paraBlocos(o) }))
+                  }
                 >
-                  {l.rotulo}
-                </button>
-              ))}
-            </div>
-            <label className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 p-3 text-sm">
-              <span>Botão verde “Cotizar por WhatsApp”</span>
-              <Switch checked={!!c.whatsapp} onCheckedChange={(v) => set("whatsapp", v)} />
-            </label>
-          </Secao>
+                  Converter
+                </Button>
+              </Card>
+              <Secao
+                icone={ImageIcon}
+                titulo="Imagem de cabeçalho"
+                dica="1200×600 px, JPG ou PNG, até 3 MB. Os banners prontos de marketing/banners_home servem."
+              >
+                <Cabecalho valor={c.cabecalho} aoMudar={(v) => set("cabecalho", v)} />
+                {c.cabecalho && (
+                  <div>
+                    <Rotulo>Link ao clicar na imagem (opcional)</Rotulo>
+                    <Input
+                      value={c.cabecalhoLink ?? ""}
+                      onChange={(e) => set("cabecalhoLink", e.target.value)}
+                      placeholder="/loja"
+                    />
+                  </div>
+                )}
+              </Secao>
+
+              <Secao icone={Type} titulo="Conteúdo">
+                <div>
+                  <Rotulo>Selo de destaque (opcional)</Rotulo>
+                  <Input
+                    value={c.destaque ?? ""}
+                    onChange={(e) => set("destaque", e.target.value)}
+                    placeholder="-15% OFF · SOLO ESTA SEMANA"
+                  />
+                </div>
+                <div>
+                  <Rotulo>Título</Rotulo>
+                  <Input value={c.titulo} onChange={(e) => set("titulo", e.target.value)} />
+                </div>
+                <div>
+                  <Rotulo extra="**negrito** · [texto](/loja)">Texto</Rotulo>
+                  <textarea
+                    value={c.texto}
+                    onChange={(e) => set("texto", e.target.value)}
+                    rows={6}
+                    className={areaCls}
+                  />
+                </div>
+                <div>
+                  <Rotulo>Cor principal</Rotulo>
+                  <div className="flex items-center gap-2">
+                    {CORES.map((cor) => (
+                      <button
+                        key={cor}
+                        type="button"
+                        onClick={() => set("cor", cor)}
+                        className={cn(
+                          "h-8 w-8 rounded-full ring-offset-2",
+                          c.cor === cor && "ring-2 ring-primary",
+                        )}
+                        style={{ background: cor }}
+                        aria-label={cor}
+                      />
+                    ))}
+                    <input
+                      type="color"
+                      value={c.cor}
+                      onChange={(e) => set("cor", e.target.value)}
+                      className="h-8 w-10 cursor-pointer rounded border"
+                      aria-label="Outra cor"
+                    />
+                  </div>
+                </div>
+              </Secao>
+
+              <Secao
+                icone={Package}
+                titulo="Produtos do site"
+                dica="Até 12. Cada produto vira um card com foto e botão “Cotizar” que abre a página dele."
+              >
+                <div>
+                  <Rotulo>Título da seção</Rotulo>
+                  <Input
+                    value={c.produtosTitulo ?? ""}
+                    onChange={(e) => set("produtosTitulo", e.target.value)}
+                    placeholder="Destacados del mes"
+                  />
+                </div>
+                <label className="flex items-start justify-between gap-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+                  <span>
+                    <b>Mostrar fotos dos produtos</b>
+                    <br />
+                    <span className="text-xs">
+                      Desligado: o card mostra o código da peça. Ligue só se as fotos forem próprias
+                      ou autorizadas pelo fornecedor (boa parte veio de outra loja).
+                    </span>
+                  </span>
+                  <Switch checked={!!c.fotos} onCheckedChange={(v) => set("fotos", v)} />
+                </label>
+                <Produtos lista={c.produtos} aoMudar={(p) => set("produtos", p)} />
+              </Secao>
+
+              <Secao icone={MousePointerClick} titulo="Botões">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <Rotulo>Texto do botão</Rotulo>
+                    <Input
+                      value={c.botaoTexto ?? ""}
+                      onChange={(e) => set("botaoTexto", e.target.value)}
+                      placeholder="Ver ofertas"
+                    />
+                  </div>
+                  <div>
+                    <Rotulo>Link</Rotulo>
+                    <Input
+                      value={c.botaoUrl ?? ""}
+                      onChange={(e) => set("botaoUrl", e.target.value)}
+                      placeholder="/loja"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {LINKS_RAPIDOS.map((l) => (
+                    <button
+                      key={l.url}
+                      type="button"
+                      onClick={() => set("botaoUrl", l.url)}
+                      className={cn(
+                        "rounded-full border px-3 py-1 text-xs",
+                        c.botaoUrl === l.url && "border-primary bg-primary/10 text-primary",
+                      )}
+                    >
+                      {l.rotulo}
+                    </button>
+                  ))}
+                </div>
+                <label className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 p-3 text-sm">
+                  <span>Botão verde “Cotizar por WhatsApp”</span>
+                  <Switch checked={!!c.whatsapp} onCheckedChange={(v) => set("whatsapp", v)} />
+                </label>
+              </Secao>
+            </>
+          )}
 
           <PublicoSecao publico={publico} aoMudar={setPublico} />
         </fieldset>
@@ -373,6 +441,7 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
             configurado={!!st?.configurado}
             salvo={salvo === "salvo"}
             atualizar={atualizar}
+            cuponsFaltando={cuponsFaltando}
           />
         </div>
       </div>
@@ -389,7 +458,9 @@ function Envio({
   configurado,
   salvo,
   atualizar,
+  cuponsFaltando,
 }: {
+  cuponsFaltando: string[];
   camp: Campanha;
   assunto: string;
   preheader: string;
@@ -432,6 +503,13 @@ function Envio({
         ? `Enviar "${assunto}" para ${total} clientes agora?\n\nDepois de enviado não dá para desfazer.`
         : `Enviar esta campanha para quem ainda não recebeu (clientes novos no público)?\nQuem já recebeu não recebe de novo.`;
     if (!total) return toast.error("Nenhum cliente no público escolhido");
+    if (
+      cuponsFaltando.length &&
+      !window.confirm(
+        `Atenção: o cupom ${cuponsFaltando.join(", ")} não existe em Campanhas e cupons. Enviar mesmo assim?`,
+      )
+    )
+      return;
     if (!window.confirm(msg)) return;
     setDisparando(true);
     try {
@@ -504,6 +582,15 @@ function Envio({
             : "Enviar para os novos do público"}
         </Button>
       )}
+      {(camp.status === "RASCUNHO" || camp.status === "AGENDADA" || camp.status === "ERRO") && (
+        <Agendar camp={camp} configurado={configurado} salvo={salvo} atualizar={atualizar} />
+      )}
+      {cuponsFaltando.length > 0 && (
+        <p className="flex gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-900">
+          <AlertTriangle className="h-4 w-4 shrink-0" /> O e-mail cita o cupom{" "}
+          {cuponsFaltando.join(", ")}, que não existe em Campanhas e cupons. Crie antes de enviar.
+        </p>
+      )}
       {!configurado && (
         <p className="text-xs text-amber-700">Configure o Resend na Hostinger para enviar.</p>
       )}
@@ -557,5 +644,77 @@ function Envio({
         </div>
       )}
     </Card>
+  );
+}
+
+// Envio agendado: o servidor dispara sozinho (confere a cada 10 minutos)
+function Agendar({
+  camp,
+  configurado,
+  salvo,
+  atualizar,
+}: {
+  camp: Campanha;
+  configurado: boolean;
+  salvo: boolean;
+  atualizar: () => void;
+}) {
+  const local = (iso: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const z = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`;
+  };
+  const [quando, setQuando] = useState(local(camp.agendado_para));
+  const [indo, setIndo] = useState(false);
+  const salvar = async (q: string | null) => {
+    setIndo(true);
+    try {
+      await agendarCampanhaFn({
+        data: { id: camp.id, quando: q ? new Date(q).toISOString() : null },
+      });
+      toast.success(q ? "Envio agendado" : "Agendamento cancelado");
+      atualizar();
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao agendar");
+    } finally {
+      setIndo(false);
+    }
+  };
+  if (camp.status === "AGENDADA" && camp.agendado_para)
+    return (
+      <div className="flex flex-wrap items-center gap-2 rounded-lg bg-sky-50 p-3 text-sm text-sky-900">
+        <CalendarClock className="h-5 w-5" />
+        <span className="flex-1">
+          Sai sozinha em{" "}
+          <b>
+            {new Date(camp.agendado_para).toLocaleString("pt-BR", {
+              dateStyle: "full",
+              timeStyle: "short",
+            })}
+          </b>
+          . Pode continuar editando até lá.
+        </span>
+        <Button size="sm" variant="outline" disabled={indo} onClick={() => salvar(null)}>
+          Cancelar
+        </Button>
+      </div>
+    );
+  return (
+    <div>
+      <h2 className="flex items-center gap-2 text-sm font-semibold">
+        <CalendarClock className="h-4 w-4 text-primary" /> Ou agendar o envio
+      </h2>
+      <div className="mt-2 flex gap-2">
+        <Input type="datetime-local" value={quando} onChange={(e) => setQuando(e.target.value)} />
+        <Button
+          variant="outline"
+          disabled={!configurado || !quando || indo || !salvo}
+          onClick={() => salvar(quando)}
+        >
+          Agendar
+        </Button>
+      </div>
+    </div>
   );
 }

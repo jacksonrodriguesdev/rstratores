@@ -2,7 +2,7 @@
 // Fixo no build (e não window.location) para o HTML do servidor e o do navegador serem iguais.
 // Para trocar de domínio, defina VITE_SITE_URL na Hostinger e faça o deploy de novo.
 // É o endereço do canonical, sitemap e robots: precisa ser o domínio que está no ar.
-const configurado = (import.meta.env.VITE_SITE_URL as string | undefined)?.trim();
+const configurado = (import.meta.env?.VITE_SITE_URL as string | undefined)?.trim();
 export const SITE_URL = (configurado || "https://agropartsuy.com").replace(/\/+$/, "");
 
 // Endereços que levam ao mesmo site e devem redirecionar (301) para o SITE_URL,

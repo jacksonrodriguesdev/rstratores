@@ -428,12 +428,14 @@ model email_campanhas {
   preheader  String?   @db.VarChar(200)
   conteudo   String    @db.LongText
   publico    String    @db.Text
-  status     String    @default("RASCUNHO") @db.VarChar(20) // RASCUNHO, ENVIANDO, ENVIADA, ERRO
+  status     String    @default("RASCUNHO") @db.VarChar(20) // RASCUNHO, AGENDADA, ENVIANDO, ENVIADA, ERRO
   total      Int       @default(0)
   enviados   Int       @default(0)
   falhas     Int       @default(0)
   erro       String?   @db.Text
   enviado_em DateTime?
+  // Envio agendado (status AGENDADA): o agendador dispara sozinho nessa hora
+  agendado_para DateTime?
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 

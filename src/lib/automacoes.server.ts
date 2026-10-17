@@ -107,7 +107,7 @@ export async function detectarMudancasPreco() {
 
 // ---------- Produtos com preço atual, prontos para o e-mail ----------
 // antes: preço anterior em R$ (dos eventos), para mostrar "de/por" também quando não é promoção
-async function produtosEmail(
+export async function produtosEmail(
   skus: string[],
   qtd: Map<string, number> = new Map(),
   antes: Map<string, number> = new Map(),
@@ -813,6 +813,10 @@ export function iniciarAgendador() {
   g.__agendadorAutomacoes = true;
   const rodar = () => {
     rodarAutomacoes().catch((e) => console.error("automações", e));
+    // Campanhas de e-mail agendadas
+    import("./email.server")
+      .then((m) => m.dispararAgendadas())
+      .catch((e) => console.error("campanhas agendadas", e?.message ?? e));
     // Peças e catálogos novos/alterados → Bing pela IndexNow
     import("./indexnow.server")
       .then((m) => m.indexNowPendentes())

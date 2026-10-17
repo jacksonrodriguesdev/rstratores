@@ -3,14 +3,60 @@ import {
   CONTEUDO_PADRAO,
   PUBLICO_PADRAO,
   type ConteudoEmail,
+  type ProdutoEmail,
   type Publico,
 } from "./email-template";
+import type { BlocoEmail } from "./email-blocos";
 
 // Painel de e-mails (Admin → E-mails): campanhas, público, teste e envio pelo Resend.
 const admin = async () => {
   const { assertAdmin } = await import("./auth.server");
-  return assertAdmin();
+  const sessao = await assertAdmin();
+  const { garantirColunasEmail } = await import("./email.server");
+  await garantirColunasEmail();
+  return sessao;
 };
+
+// Miniatura do cartão na lista: imagem do topo, a primeira imagem/foto dos blocos ou as cores
+function capa(c: ConteudoEmail) {
+  const blocos = c.blocos ?? [];
+  const img =
+    c.cabecalho ||
+    blocos.find((b) => (b.tipo === "IMAGEM" || b.tipo === "HERO") && b.d.imagem)?.d.imagem ||
+    null;
+  const hero = blocos.find((b) => b.tipo === "HERO" || b.tipo === "TITULO");
+  return {
+    cabecalho: (img as string | null) ?? null,
+    fundo: c.tema?.topo ?? null,
+    destaque: c.tema?.destaque ?? null,
+    chamada: hero
+      ? String(hero.d.titulo ?? hero.d.texto ?? "").replace(/\{\{\s*nombre\s*\}\}[, ]*/gi, "")
+      : null,
+    blocos: blocos.length,
+  };
+}
+
+// Uma vez por ano: deixa a campanha da pré-Black Friday montada como rascunho, pronta para enviar
+async function semearCampanhaPronta() {
+  const { prisma } = await import("./prisma");
+  const { modeloEmail, conteudoDoModelo } = await import("./email-modelos");
+  const { datasBlackFriday } = await import("./campanha-comum");
+  const ano = new Date().getUTCFullYear();
+  const chave = `email_semente_preblack_${ano}`;
+  if (Date.now() > datasBlackFriday(ano).inicio.getTime()) return;
+  if (await prisma.configuracoes.findUnique({ where: { chave } })) return;
+  const m = modeloEmail("pre-black")!;
+  await prisma.configuracoes.create({ data: { chave, valor: new Date().toISOString() } });
+  await prisma.email_campanhas.create({
+    data: {
+      nome: `🖤 Pre Black Friday ${ano} — pronta para enviar`,
+      assunto: m.assunto,
+      preheader: m.preheader,
+      conteudo: JSON.stringify(conteudoDoModelo(m)),
+      publico: JSON.stringify(m.publico),
+    },
+  });
+}
 const origem = async () => {
   const { getRequest } = await import("@tanstack/start-server-core");
   const { origemPublica } = await import("./google-oauth.server");
@@ -28,6 +74,11 @@ export type CampanhaResumo = {
   enviado_em: string | null;
   updated_at: string;
   cabecalho: string | null;
+  fundo: string | null;
+  destaque: string | null;
+  chamada: string | null;
+  blocos: number;
+  agendado_para: string | null;
   abertos: number;
   clicados: number;
   rebotes: number;
@@ -45,6 +96,7 @@ export type Campanha = {
   falhas: number;
   erro: string | null;
   enviado_em: string | null;
+  agendado_para: string | null;
   rodando: boolean;
 };
 
@@ -63,6 +115,7 @@ export const listarCampanhasFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<CampanhaResumo[]> => {
     await admin();
     const { prisma } = await import("./prisma");
+    await semearCampanhaPronta().catch((e) => console.error("semente e-mail", e));
     const rows = await prisma.email_campanhas.findMany({ orderBy: { id: "desc" } });
     const stats = await prisma.email_envios.groupBy({
       by: ["campanha_id", "status"],
@@ -74,11 +127,17 @@ export const listarCampanhasFn = createServerFn({ method: "GET" }).handler(
         .filter((s) => s.campanha_id === id && sts.includes(s.status))
         .reduce((a, s) => a + s._count, 0);
     return rows.map((r) => {
-      let cabecalho: string | null = null;
+      let cp: ReturnType<typeof capa> = {
+        cabecalho: null,
+        fundo: null,
+        destaque: null,
+        chamada: null,
+        blocos: 0,
+      };
       try {
-        cabecalho = (JSON.parse(r.conteudo) as ConteudoEmail).cabecalho || null;
+        cp = capa(JSON.parse(r.conteudo) as ConteudoEmail);
       } catch {
-        /* conteúdo antigo/inválido: sem cabeçalho */
+        /* conteúdo antigo/inválido: sem capa */
       }
       return {
         id: r.id,
@@ -90,7 +149,8 @@ export const listarCampanhasFn = createServerFn({ method: "GET" }).handler(
         falhas: r.falhas,
         enviado_em: r.enviado_em?.toISOString() ?? null,
         updated_at: r.updated_at.toISOString(),
-        cabecalho,
+        ...cp,
+        agendado_para: r.agendado_para?.toISOString() ?? null,
         abertos: conta(r.id, ["ABERTO", "CLICADO"]),
         clicados: conta(r.id, ["CLICADO"]),
         rebotes: conta(r.id, ["REBOTADO", "QUEIXA"]),
@@ -120,15 +180,34 @@ export const obterCampanhaFn = createServerFn({ method: "GET" })
       falhas: r.falhas,
       erro: r.erro,
       enviado_em: r.enviado_em?.toISOString() ?? null,
+      agendado_para: r.agendado_para?.toISOString() ?? null,
       rodando: campanhaRodando(r.id),
     };
   });
 
 export const criarCampanhaFn = createServerFn({ method: "POST" })
-  .validator((d: { copiarDe?: number }) => ({ copiarDe: Number(d?.copiarDe) || 0 }))
+  .validator((d: { copiarDe?: number; modelo?: string }) => ({
+    copiarDe: Number(d?.copiarDe) || 0,
+    modelo: String(d?.modelo ?? "").slice(0, 40),
+  }))
   .handler(async ({ data }) => {
     await admin();
     const { prisma } = await import("./prisma");
+    if (data.modelo) {
+      const { modeloEmail, conteudoDoModelo } = await import("./email-modelos");
+      const m = modeloEmail(data.modelo);
+      if (!m) throw new Error("Modelo não encontrado");
+      const r = await prisma.email_campanhas.create({
+        data: {
+          nome: `${m.emoji} ${m.nome} · ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Montevideo" })}`,
+          assunto: m.assunto,
+          preheader: m.preheader || null,
+          conteudo: JSON.stringify(conteudoDoModelo(m)),
+          publico: JSON.stringify(m.publico),
+        },
+      });
+      return { id: r.id };
+    }
     const orig = data.copiarDe
       ? await prisma.email_campanhas.findUnique({ where: { id: data.copiarDe } })
       : null;
@@ -173,6 +252,7 @@ export const salvarCampanhaFn = createServerFn({ method: "POST" })
     const conteudo: ConteudoEmail = {
       ...data.conteudo,
       produtos: (data.conteudo.produtos ?? []).slice(0, 12),
+      ...(data.conteudo.blocos && { blocos: data.conteudo.blocos.slice(0, 60) }),
     };
     await prisma.email_campanhas.update({
       where: { id: atual.id },
@@ -217,6 +297,7 @@ export const enviarTesteFn = createServerFn({ method: "POST" })
     const para = String(data.para || "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(para)) throw new Error("E-mail de teste inválido");
     const { enviarUm, montarMensagem } = await import("./email.server");
+    const { resolverProdutosBlocos } = await import("./email-blocos.server");
     const m = montarMensagem(
       data.conteudo,
       `[PRUEBA] ${data.assunto}`,
@@ -224,6 +305,13 @@ export const enviarTesteFn = createServerFn({ method: "POST" })
       await origem(),
       { email: para, nome: sessao.nome },
       "teste",
+      {
+        produtosBloco: data.conteudo.blocos?.length
+          ? await resolverProdutosBlocos(data.conteudo.blocos)
+          : undefined,
+        // No teste, o cupom pessoal aparece com um código de exemplo
+        vars: { departamento: "Montevideo", mi_cupon: "EJEMPLO10" },
+      },
     );
     const id = await enviarUm(m);
     const { prisma } = await import("./prisma");
@@ -336,3 +424,58 @@ export const baixaEmailFn = createServerFn({ method: "POST" })
     await prisma.users.updateMany({ where: { id: data.u }, data: { recebe_emails: data.voltar } });
     return { ok: true };
   });
+
+// Prévia do editor: as peças que os blocos "Produtos" vão mostrar hoje
+export const previaProdutosFn = createServerFn({ method: "POST" })
+  .validator((d: { blocos: BlocoEmail[] }) => ({
+    blocos: (Array.isArray(d?.blocos) ? d.blocos : []).slice(0, 60),
+  }))
+  .handler(async ({ data }): Promise<Record<string, ProdutoEmail[]>> => {
+    await admin();
+    const { resolverProdutosBlocos } = await import("./email-blocos.server");
+    return resolverProdutosBlocos(data.blocos);
+  });
+
+// Agendar (ou cancelar o agendamento): o agendador do servidor dispara na hora marcada
+export const agendarCampanhaFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number; quando: string | null }) => ({
+    id: Number(d.id) || 0,
+    quando: d.quando ? String(d.quando) : null,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { prisma } = await import("./prisma");
+    const { resendConfigurado } = await import("./email.server");
+    const c = await prisma.email_campanhas.findUnique({ where: { id: data.id } });
+    if (!c) throw new Error("Campanha não encontrada");
+    if (!["RASCUNHO", "AGENDADA", "ERRO"].includes(c.status))
+      throw new Error("Só dá para agendar campanhas que ainda não foram enviadas.");
+    if (!data.quando) {
+      await prisma.email_campanhas.update({
+        where: { id: c.id },
+        data: { status: "RASCUNHO", agendado_para: null },
+      });
+      return { ok: true };
+    }
+    if (!resendConfigurado())
+      throw new Error("Configure RESEND_API_KEY e EMAIL_REMETENTE na Hostinger antes de agendar.");
+    const quando = new Date(data.quando);
+    if (!Number.isFinite(quando.getTime()) || quando.getTime() < Date.now() + 60_000)
+      throw new Error("Escolha uma data e hora no futuro.");
+    if (!c.assunto.trim()) throw new Error("Escreva o assunto antes de agendar.");
+    await prisma.email_campanhas.update({
+      where: { id: c.id },
+      data: { status: "AGENDADA", agendado_para: quando },
+    });
+    return { ok: true };
+  });
+
+// Códigos de cupom que existem (o editor avisa quando o e-mail cita um que não existe)
+export const codigosCuponsFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const { garantirTabelasCampanha } = await import("./campanha.server");
+  await garantirTabelasCampanha();
+  const { prisma } = await import("./prisma");
+  const rows = await prisma.cupons.findMany({ where: { ativo: true }, select: { codigo: true } });
+  return rows.map((r) => r.codigo.toUpperCase());
+});

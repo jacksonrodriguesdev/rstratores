@@ -31,7 +31,13 @@ export type ConteudoEmail = {
   // Cupom em destaque (caixa tracejada com o código)
   cupom?: { codigo: string; texto?: string; validade?: string } | null;
   cor: string;
+  blocos?: BlocoEmail[];
+  tema?: Partial<TemaEmail>;
 };
+
+// Construtor por blocos (email-blocos.ts): quando há blocos, o e-mail é montado só com eles
+// (o topo com a logo e o rodapé com o "darse de baja" continuam sempre).
+import { renderBlocos, textoBlocos, type BlocoEmail, type TemaEmail } from "./email-blocos";
 
 // Variáveis das automações: {{cupon}}, {{validez}}, {{descuento}}... (o {{nombre}} é por cliente)
 export function trocarVariaveis(s: string, vars: Record<string, string>) {
@@ -51,7 +57,16 @@ export function aplicarVariaveis(c: ConteudoEmail, vars: Record<string, string>)
     cupom: c.cupom
       ? { codigo: t(c.cupom.codigo)!, texto: t(c.cupom.texto), validade: t(c.cupom.validade) }
       : c.cupom,
+    blocos: c.blocos?.map((b) => ({ ...b, d: trocarEmTudo(b.d, (x) => t(x)!) })),
   };
+}
+// Troca as variáveis em todos os textos de um objeto (blocos guardam listas e campos soltos)
+export function trocarEmTudo<T>(v: T, f: (s: string) => string): T {
+  if (typeof v === "string") return f(v) as T;
+  if (Array.isArray(v)) return v.map((x) => trocarEmTudo(x, f)) as T;
+  if (v && typeof v === "object")
+    return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, trocarEmTudo(x, f)])) as T;
+  return v;
 }
 
 export type Publico = {
@@ -95,9 +110,15 @@ export type DadosRender = {
   campanha?: string; // vai no utm_campaign dos links do site
   whatsappUrl?: string;
   enderecoRodape?: string;
+  // Blocos de produtos: peças já com preço do dia, por id do bloco (resolvidas no servidor)
+  produtosBloco?: Record<string, ProdutoEmail[]>;
+  // Variáveis do cliente além do nome ({{departamento}}, {{mi_cupon}})
+  vars?: Record<string, string>;
+  // Hora de referência da contagem regressiva (envio ou prévia)
+  agora?: number;
 };
 
-const esc = (s: string) =>
+export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 export const primeiroNome = (n?: string | null) => (n ?? "").trim().split(/\s+/)[0] ?? "";
@@ -119,7 +140,7 @@ export function urlAbsoluta(u: string | null | undefined, origem: string) {
 }
 
 // Links para o próprio site levam UTM, para a campanha aparecer no painel de Visitantes
-function comUtm(u: string, d: DadosRender) {
+export function comUtm(u: string, d: DadosRender) {
   const abs = urlAbsoluta(u, d.origem);
   if (!abs.startsWith(d.origem) || !d.campanha) return abs;
   const url = new URL(abs);
@@ -129,7 +150,12 @@ function comUtm(u: string, d: DadosRender) {
   return url.toString();
 }
 
-function formatarTexto(t: string, d: DadosRender, cor: string) {
+export function formatarTexto(
+  t: string,
+  d: DadosRender,
+  cor: string,
+  estilo = "font-size:16px;line-height:1.6;color:#3f3f46",
+) {
   return t
     .split(/\n\s*\n/)
     .filter((p) => p.trim())
@@ -142,12 +168,12 @@ function formatarTexto(t: string, d: DadosRender, cor: string) {
           `<a href="${esc(comUtm(href.replace(/&amp;/g, "&"), d))}" style="color:${cor};font-weight:700">${txt}</a>`,
       );
       h = h.replace(/\n/g, "<br>");
-      return `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#3f3f46">${h}</p>`;
+      return `<p style="margin:0 0 16px;${estilo}">${h}</p>`;
     })
     .join("");
 }
 
-const fonte = "font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+export const fonte = "font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 function botao(texto: string, href: string, fundo: string, corTexto = "#ffffff") {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto"><tr><td style="border-radius:12px;background:${fundo}">
@@ -186,6 +212,7 @@ ${
 }
 
 export function renderEmail(c: ConteudoEmail, d: DadosRender): string {
+  if (c.blocos?.length) return renderBlocos(c, d);
   const cor = /^#[0-9a-f]{6}$/i.test(c.cor) ? c.cor : "#0b7a3b";
   const titulo = personalizar(c.titulo || "", d.nome);
   const texto = personalizar(c.texto || "", d.nome);
@@ -254,6 +281,7 @@ ${d.urlBaixa ? `<br><a href="${esc(d.urlBaixa)}" style="color:#71717a;text-decor
 
 // Versão em texto puro (melhora a entrega e aparece em leitores sem HTML)
 export function textoEmail(c: ConteudoEmail, d: DadosRender): string {
+  if (c.blocos?.length) return textoBlocos(c, d);
   const limpo = (s: string) =>
     personalizar(s, d.nome)
       .replace(/\*\*(.+?)\*\*/g, "$1")

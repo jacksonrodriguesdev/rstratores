@@ -160,6 +160,31 @@ export function montarMensagem(
   };
 }
 
+// ---------- Colunas novas (produção: a tabela já existe) ----------
+let colunas: Promise<void> | null = null;
+export function garantirColunasEmail() {
+  colunas ??= (async () => {
+    const { prisma } = await import("./prisma");
+    const tem = await prisma.$queryRaw<Array<{ c: string }>>`
+      SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'email_campanhas'`;
+    if (tem.length && !tem.some((x) => x.c === "agendado_para"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `email_campanhas` ADD COLUMN `agendado_para` DATETIME(3) NULL AFTER `enviado_em`",
+      );
+  })().catch((e) => {
+    colunas = null;
+    throw e;
+  });
+  return colunas;
+}
+
+// Variáveis de cada cliente nos e-mails por blocos
+export const varsCliente = (u: { departamento?: string | null; cupom?: string | null }) => ({
+  departamento: u.departamento ?? "",
+  mi_cupon: u.cupom ?? "",
+});
+
 // ---------- Público das campanhas ----------
 export async function destinatarios(p: Publico) {
   const { prisma } = await import("./prisma");
@@ -175,7 +200,7 @@ export async function destinatarios(p: Publico) {
     where.id = { in: (p.ids ?? []).map(Number).filter(Boolean).slice(0, 20000) };
   const rows = await prisma.users.findMany({
     where,
-    select: { id: true, email: true, nome_completo: true, cupom: true },
+    select: { id: true, email: true, nome_completo: true, cupom: true, departamento: true },
     orderBy: { id: "asc" },
   });
   // Só e-mails com formato válido
@@ -200,9 +225,16 @@ export async function processarCampanha(id: number, origem: string) {
   rodando.add(id);
   const { prisma } = await import("./prisma");
   try {
+    await garantirColunasEmail();
     const c = await prisma.email_campanhas.findUnique({ where: { id } });
     if (!c) return;
     const conteudo = JSON.parse(c.conteudo) as ConteudoEmail;
+    // Blocos de produtos: escolhidos e com preço uma vez só, na hora do envio
+    const { resolverProdutosBlocos } = await import("./email-blocos.server");
+    const produtosBloco = conteudo.blocos?.length
+      ? await resolverProdutosBlocos(conteudo.blocos)
+      : undefined;
+    const agora = Date.now();
     const publico = JSON.parse(c.publico) as Publico;
     const lista = await destinatarios(publico);
     // Quem já recebeu esta campanha não recebe de novo (permite retomar ou mandar aos novos)
@@ -219,6 +251,7 @@ export async function processarCampanha(id: number, origem: string) {
       where: { id },
       data: {
         status: "ENVIANDO",
+        agendado_para: null,
         erro: null,
         total: ja.size + pendentes.length,
         enviados: ja.size,
@@ -236,6 +269,7 @@ export async function processarCampanha(id: number, origem: string) {
           origem,
           { id: u.id, email: u.email, nome: u.nome_completo },
           tag,
+          { produtosBloco, agora, vars: varsCliente(u) },
         ),
       );
       try {
@@ -287,6 +321,19 @@ export async function processarCampanha(id: number, origem: string) {
   } finally {
     rodando.delete(id);
   }
+}
+
+// Campanhas agendadas que chegaram na hora (o agendador chama a cada 10 min)
+export async function dispararAgendadas() {
+  if (!resendConfigurado()) return;
+  await garantirColunasEmail();
+  const { prisma } = await import("./prisma");
+  const { SITE_URL } = await import("./site");
+  const prontas = await prisma.email_campanhas.findMany({
+    where: { status: "AGENDADA", agendado_para: { lte: new Date() } },
+    select: { id: true },
+  });
+  for (const p of prontas) await processarCampanha(p.id, SITE_URL);
 }
 
 // ---------- Webhook do Resend (assinatura Svix) ----------

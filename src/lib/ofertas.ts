@@ -185,6 +185,8 @@ export const enviarOfertaFn = createServerFn({ method: "POST" })
         botaoUrl: `/produto/${encodeURIComponent(p.sku)}`,
         fotos: data.foto && !!p.imagem,
       };
+      const { garantirColunasEmail } = await import("./email.server");
+      await garantirColunasEmail();
       const c = await prisma.email_campanhas.create({
         data: {
           nome: `Oferta ${p.codigo} · ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Montevideo" })}`.slice(

@@ -66,6 +66,9 @@ jobs:
       - name: Campanhas (Black Friday) e cupons
         run: npx tsx scripts/ci/testar-campanha.ts
 
+      - name: E-mail marketing por blocos (Resend falso)
+        run: npx tsx scripts/ci/testar-emails.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 
