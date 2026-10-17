@@ -95,8 +95,8 @@ function PaginaBlack() {
               </h1>
               <p className="mx-auto mt-4 max-w-2xl text-white/80">
                 {t(
-                  "Los mejores precios del año en repuestos para tractores y cosechadoras. Creá tu cuenta y te avisamos apenas empiece.",
-                  "Os melhores preços do ano em peças para tratores e colheitadeiras. Crie sua conta e avisamos assim que começar.",
+                  "Descuentos en repuestos para tractores y cosechadoras. Creá tu cuenta y te avisamos apenas empiece.",
+                  "Descontos em peças para tratores e colheitadeiras. Crie sua conta e avisamos assim que começar.",
                 )}
               </p>
               {proxima && (

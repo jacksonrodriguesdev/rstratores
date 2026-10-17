@@ -74,7 +74,8 @@ export function precoVenda(p: CamposPreco, c: ConfigPrecos | null | undefined): 
     deUyu: cheio.uyu,
     deBrl: cheio.brl,
     desconto: Math.round(pct),
-    selo: c!.campanha!.selo,
+    // Na pré-Black o selo deixa claro que a Black ainda não começou ("PRE BLACK -20%")
+    selo: c!.campanha!.fase === "PRE" ? `PRE ${c!.campanha!.selo}` : c!.campanha!.selo,
   };
 }
 

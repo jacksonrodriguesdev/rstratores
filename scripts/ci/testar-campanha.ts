@@ -101,6 +101,11 @@ async function main() {
     [80, 800, 100, 1000, 20, "BLACK"],
     "-20% com selo BLACK",
   );
+  const naPre = precoVenda(
+    { sku: "X", categoria: "Filtros", preco_brl: 100 },
+    { ...cfg, campanha: { ...cfg.campanha!, fase: "PRE" } },
+  )!;
+  assert.equal(naPre.selo, "PRE BLACK", "na pré-Black o selo diz PRE BLACK");
   const promo = precoVenda(
     { sku: "X", categoria: "Filtros", preco_brl: 100, valor_promocional: 70 },
     cfg,
