@@ -225,3 +225,22 @@
     --barra-inferior: 0px;
   }
 }
+
+/* Construtor da Home: fita rolante (Ticker) e marcas em rolagem infinita. O conteúdo vai duas
+   vezes, por isso anda -50%. Pausa com o mouse em cima; parada para quem pediu menos movimento. */
+.ap-ticker-trilho {
+  animation: marquee var(--ap-dur, 35s) linear infinite;
+  will-change: transform;
+}
+.ap-ticker:hover .ap-ticker-trilho,
+.ap-ticker:focus-within .ap-ticker-trilho {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ap-ticker {
+    overflow-x: auto;
+  }
+  .ap-ticker-trilho {
+    animation: none;
+  }
+}

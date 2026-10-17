@@ -12,6 +12,7 @@ import {
   Image,
   Flame,
   TrendingUp,
+  LayoutTemplate,
   Globe2,
   BookOpen,
   Users,
@@ -133,7 +134,8 @@ const GRUPOS: Grupo[] = [
   {
     titulo: "Site",
     itens: [
-      { to: "/admin/homepage", label: "Página inicial", icon: Home },
+      { to: "/admin/construtor", label: "Construtor da Home", icon: LayoutTemplate },
+      { to: "/admin/homepage", label: "Página inicial (clássico)", icon: Home },
       { to: "/admin/banners", label: "Banners", icon: Image },
     ],
   },

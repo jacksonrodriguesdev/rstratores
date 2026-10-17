@@ -30,6 +30,8 @@ import { tituloEs } from "@/lib/pecas-es";
 import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 import { SITE_URL } from "@/lib/site";
 import { PHONE } from "@/lib/whatsapp";
+import { ehLarguraTotal, temH1, tipoNovo } from "@/lib/blocos-home";
+import { BlocoNovo } from "@/components/home/BlocosNovos";
 
 // Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
 const lojaLd = {
@@ -145,7 +147,15 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-function Bloco({ block, heroInicial }: { block: HomepageBlock; heroInicial?: Banner[] }) {
+function Bloco({
+  block,
+  heroInicial,
+  prioridade,
+}: {
+  block: HomepageBlock;
+  heroInicial?: Banner[];
+  prioridade?: boolean;
+}) {
   const { config } = block;
   const { idioma } = useT();
   // Título do bloco: cadastrado em português no admin; em espanhol é traduzido pelo glossário
@@ -182,7 +192,10 @@ function Bloco({ block, heroInicial }: { block: HomepageBlock; heroInicial?: Ban
     case "COTIZACION":
       return <CotizacionDistribuidorBlock />;
     default:
-      return null;
+      // Componentes do Construtor da Home (src/lib/blocos-home.ts)
+      return tipoNovo(block.type) ? (
+        <BlocoNovo tipo={block.type} config={config} prioridade={prioridade} />
+      ) : null;
   }
 }
 
@@ -206,9 +219,20 @@ function HomePage() {
     staleTime: 60 * 1000,
   });
   const ativos = blocks.filter((b) => b.active);
-  // O banner ocupa a largura toda; os demais blocos ficam no container, sobre fundo cinza.
-  const hero = ativos.filter((b) => b.type === "HERO_SLIDER");
-  const resto = ativos.filter((b) => b.type !== "HERO_SLIDER");
+  // Blocos de largura total (banner, heróis, fitas) ocupam a tela toda; os demais ficam no
+  // container, sobre fundo cinza. A ordem é a do Construtor da Home, e os de largura total
+  // podem ficar entre os outros (a página é dividida em trechos).
+  const resto = ativos.filter((b) => !ehLarguraTotal(b.type));
+  const trechos: Array<{ total: HomepageBlock } | { grupo: HomepageBlock[] }> = [];
+  for (const b of ativos) {
+    if (ehLarguraTotal(b.type)) trechos.push({ total: b });
+    else {
+      const ultimo = trechos[trechos.length - 1];
+      if (ultimo && "grupo" in ultimo) ultimo.grupo.push(b);
+      else trechos.push({ grupo: [b] });
+    }
+  }
+  const primeiroId = ativos[0]?.id;
   // Chamada dos catálogos: se o admin não colocou o bloco no CMS, entra sozinha depois do 2º bloco
   const ctaNoCms = blocks.some((b) => b.type === "CATALOGOS_CTA");
   const posCta = ctaNoCms ? -1 : Math.min(1, resto.length - 1);
@@ -230,46 +254,67 @@ function HomePage() {
       <SiteHeader />
 
       <main>
-        <h1 className="sr-only">
-          {t(
-            "Repuestos para tractores y maquinaria agrícola en Uruguay",
-            "Peças para tratores e máquinas agrícolas com envio para todo o Rio Grande do Sul",
-          )}
-        </h1>
-        {hero.map((b) => (
-          <Bloco key={b.id} block={b} heroInicial={heroInicial} />
-        ))}
+        {/* Um H1 só: o fixo sai quando um hero do Construtor foi marcado como título principal */}
+        {!temH1(blocks) && (
+          <h1 className="sr-only">
+            {t(
+              "Repuestos para tractores y maquinaria agrícola en Uruguay",
+              "Peças para tratores e máquinas agrícolas com envio para todo o Rio Grande do Sul",
+            )}
+          </h1>
+        )}
+        {(isLoading || ativos.length === 0) && (
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4">
+            {isLoading &&
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-56 animate-pulse rounded-2xl bg-white/70" />
+              ))}
 
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4">
-          {isLoading &&
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-56 animate-pulse rounded-2xl bg-white/70" />
-            ))}
+            {!isLoading && ativos.length === 0 && (
+              <div className="rounded-2xl bg-white py-16 text-center">
+                <p className="mb-4 text-muted-foreground">
+                  {t(
+                    "Estamos preparando la página de inicio.",
+                    "Estamos preparando a página inicial.",
+                  )}
+                </p>
+                <Button asChild>
+                  <Link to="/loja">{t("Ver catálogo", "Ver catálogo")}</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
 
-          {!isLoading && ativos.length === 0 && (
-            <div className="rounded-2xl bg-white py-16 text-center">
-              <p className="mb-4 text-muted-foreground">
-                {t(
-                  "Estamos preparando la página de inicio.",
-                  "Estamos preparando a página inicial.",
-                )}
-              </p>
-              <Button asChild>
-                <Link to="/loja">{t("Ver catálogo", "Ver catálogo")}</Link>
-              </Button>
+        {trechos.map((trecho, n) =>
+          "total" in trecho ? (
+            <div key={trecho.total.id} className={n > 0 ? "mt-3 md:mt-5" : undefined}>
+              <Bloco
+                block={trecho.total}
+                heroInicial={heroInicial}
+                prioridade={trecho.total.id === primeiroId}
+              />
             </div>
-          )}
-
-          {resto.map((b, i) => (
-            <Fragment key={b.id}>
-              <Bloco block={b} />
-              {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
-              {i === 0 && <VistosRecientesBlock />}
-              {i === posCta && <CatalogosCtaBlock />}
-              {i === posCotizacao && <CotizacionDistribuidorBlock />}
-            </Fragment>
-          ))}
-        </div>
+          ) : (
+            <div
+              key={`g${trecho.grupo[0].id}`}
+              className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4"
+            >
+              {trecho.grupo.map((b) => {
+                const i = resto.indexOf(b);
+                return (
+                  <Fragment key={b.id}>
+                    <Bloco block={b} prioridade={b.id === primeiroId} />
+                    {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
+                    {i === 0 && <VistosRecientesBlock />}
+                    {i === posCta && <CatalogosCtaBlock />}
+                    {i === posCotizacao && <CotizacionDistribuidorBlock />}
+                  </Fragment>
+                );
+              })}
+            </div>
+          ),
+        )}
       </main>
     </div>
   );
