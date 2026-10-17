@@ -91,11 +91,12 @@ export function PrecoVisual({
           </span>
           <span
             className={cn(
-              "rounded-md bg-red-600 font-extrabold text-white",
+              "rounded-md font-extrabold",
+              preco.selo ? "bg-black text-[#f2c94c]" : "bg-red-600 text-white",
               lg ? "px-2 py-0.5 text-sm" : "px-1.5 py-px text-[10px]",
             )}
           >
-            -{preco.desconto}%
+            {preco.selo ? `${preco.selo} ` : ""}-{preco.desconto}%
           </span>
         </div>
       )}
@@ -123,6 +124,18 @@ export function PrecoVisual({
 export function SeloOferta({ p, className }: { p: CamposPreco; className?: string }) {
   const preco = usePreco(p);
   if (!preco?.desconto) return null;
+  // Desconto da campanha: selo preto e dourado ("BLACK -30%")
+  if (preco.selo)
+    return (
+      <span
+        className={cn(
+          "rounded-lg bg-black px-2 py-1 text-xs font-black tracking-wide text-[#f2c94c] shadow ring-1 ring-[#f2c94c]/40",
+          className,
+        )}
+      >
+        {preco.selo} -{preco.desconto}%
+      </span>
+    );
   return (
     <span
       className={cn(

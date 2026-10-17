@@ -39,6 +39,7 @@ import {
   dadosDoCarrinhoFn,
   type PecaLink,
 } from "@/lib/pagamentos";
+import { validarCupomLinkFn } from "@/lib/campanhas";
 import {
   FRETE_MODOS,
   METODOS,
@@ -384,6 +385,10 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
   const [frete, setFrete] = useState("");
   const [freteModo, setFreteModo] = useState<FreteModo>("COBRADO");
   const [desconto, setDesconto] = useState("");
+  // Cupom (Admin → Campanhas e cupons): confere e preenche o desconto
+  const [cupomTxt, setCupomTxt] = useState("");
+  const [cupom, setCupom] = useState<{ codigo: string; descricao: string } | null>(null);
+  const [conferindo, setConferindo] = useState(false);
   const [email, setEmail] = useState("");
   const [descricao, setDescricao] = useState("");
   const [notaCliente, setNotaCliente] = useState("");
@@ -482,6 +487,7 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
           frete: freteModo === "COBRADO" ? centavos(frete) : 0,
           frete_modo: freteModo,
           desconto: centavos(desconto),
+          cupom: cupom?.codigo,
           metodos,
           descricao,
           nota_cliente: notaCliente,
@@ -714,16 +720,62 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
                 {freteModo === "GRATIS" ? "Frete grátis" : "Frete pago pelo comprador na chegada"}
               </div>
             )}
-            <label className="text-sm font-semibold">
-              Desconto ({moeda})
-              <Input
-                value={desconto}
-                onChange={(e) => setDesconto(e.target.value)}
-                inputMode="decimal"
-                placeholder="0"
-                className="mt-1"
-              />
-            </label>
+            <div>
+              <label className="text-sm font-semibold">
+                Desconto ({moeda})
+                <Input
+                  value={desconto}
+                  onChange={(e) => {
+                    setDesconto(e.target.value);
+                    setCupom(null);
+                  }}
+                  inputMode="decimal"
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </label>
+              <div className="mt-2 flex gap-1">
+                <Input
+                  value={cupomTxt}
+                  onChange={(e) => setCupomTxt(e.target.value.toUpperCase())}
+                  placeholder="Cupom"
+                  className="h-8 font-mono text-xs"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8"
+                  disabled={!cupomTxt || conferindo || !itens.length}
+                  onClick={async () => {
+                    setConferindo(true);
+                    try {
+                      const r = await validarCupomLinkFn({
+                        data: { codigo: cupomTxt, subtotal, moeda, email: email || undefined },
+                      });
+                      if (!r.ok) {
+                        toast.error(r.erro);
+                        setCupom(null);
+                        return;
+                      }
+                      if (r.freteGratis) setFreteModo("GRATIS");
+                      else setDesconto(paraCampo(r.desconto));
+                      setCupom({ codigo: r.codigo, descricao: r.descricao });
+                      toast.success(`Cupom ${r.codigo} aplicado (${r.descricao})`);
+                    } finally {
+                      setConferindo(false);
+                    }
+                  }}
+                >
+                  Aplicar
+                </Button>
+              </div>
+              {cupom && (
+                <p className="mt-1 text-xs font-semibold text-emerald-700">
+                  Cupom {cupom.codigo}: {cupom.descricao}
+                </p>
+              )}
+            </div>
             <div className="rounded-xl bg-primary/5 p-3 text-right">
               <p className="text-xs text-zinc-500">Total</p>
               <p className="text-2xl font-black text-primary">

@@ -63,6 +63,9 @@ jobs:
       - name: Contagem diária de visitas (fuso do Uruguai, sem robôs)
         run: npx tsx scripts/ci/testar-visitas.ts
 
+      - name: Campanhas (Black Friday) e cupons
+        run: npx tsx scripts/ci/testar-campanha.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 

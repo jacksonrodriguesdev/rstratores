@@ -32,6 +32,7 @@ import { SITE_URL } from "@/lib/site";
 import { PHONE } from "@/lib/whatsapp";
 import { ehLarguraTotal, temH1, tipoNovo } from "@/lib/blocos-home";
 import { BlocoNovo } from "@/components/home/BlocosNovos";
+import { HeroCampanhaHome } from "@/components/campanha/Campanha";
 
 // Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
 const lojaLd = {
@@ -263,6 +264,8 @@ function HomePage() {
             )}
           </h1>
         )}
+        {/* Campanha no ar (Black Friday…): hero no topo, se a campanha pediu e não está no Construtor */}
+        {!ativos.some((b) => b.type === "CAMPANHA_CONTAGEM") && <HeroCampanhaHome />}
         {(isLoading || ativos.length === 0) && (
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4">
             {isLoading &&

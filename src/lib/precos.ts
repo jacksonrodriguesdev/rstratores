@@ -1,3 +1,5 @@
+import { descontoPara, type Regra } from "./campanha-comum";
+
 // Preço de venda das peças (código puro: roda no site e no admin).
 // valor_compra = custo em R$ · preco_brl = venda em R$ · $U = venda em R$ × cotação do dia
 // (ou preço fixo em $U quando preco_modo = "FIXO").
@@ -11,10 +13,16 @@ export type ConfigPrecos = {
   ajuste: number; // % somado à cotação (câmbio/taxas)
   margemPadrao: number;
   mostrar: boolean; // mostrar preços no site
+  // Campanha no ar (Black Friday…): descontos da fase atual, aplicados em todo o site
+  campanha?: { id: number; selo: string; fase: "PRE" | "BLACK"; regras: Regra[] } | null;
 };
 
 // valor_promocional = preço promocional de venda em R$ (vale quando é menor que preco_brl)
 export type CamposPreco = {
+  // Para as regras da campanha (categoria, marca ou a própria peça)
+  sku?: string | null;
+  categoria?: string | null;
+  marca?: string | null;
   preco_brl?: number | null;
   preco_modo?: string | null;
   preco_uyu?: number | null;
@@ -36,6 +44,7 @@ export type PrecoFinal = {
   deUyu?: number | null;
   deBrl?: number | null;
   desconto?: number;
+  selo?: string | null; // desconto da campanha ("BLACK"): o selo aparece junto do %
 };
 
 function precoCheio(p: CamposPreco, c: ConfigPrecos | null | undefined) {
@@ -47,6 +56,29 @@ function precoCheio(p: CamposPreco, c: ConfigPrecos | null | undefined) {
 }
 
 export function precoVenda(p: CamposPreco, c: ConfigPrecos | null | undefined): PrecoFinal | null {
+  const normal = precoNormal(p, c);
+  if (!normal) return null;
+  // Campanha: vale o menor preço entre a promoção da peça e o desconto da campanha
+  const pct = c?.campanha ? descontoPara(p, c.campanha.regras) : 0;
+  if (!pct) return normal;
+  const cheio = precoCheio(p, c);
+  const fator = 1 - pct / 100;
+  const brl = cheio.brl ? Math.round(cheio.brl * fator * 100) / 100 : null;
+  const uyu = cheio.uyu ? arredondar(cheio.uyu * fator, c?.arredondar ?? 0) : null;
+  const melhorQueNormal =
+    (brl ?? Infinity) < (normal.brl ?? Infinity) || (uyu ?? Infinity) < (normal.uyu ?? Infinity);
+  if (!melhorQueNormal) return normal;
+  return {
+    uyu,
+    brl,
+    deUyu: cheio.uyu,
+    deBrl: cheio.brl,
+    desconto: Math.round(pct),
+    selo: c!.campanha!.selo,
+  };
+}
+
+function precoNormal(p: CamposPreco, c: ConfigPrecos | null | undefined): PrecoFinal | null {
   const cheio = precoCheio(p, c);
   if (!cheio.uyu && !cheio.brl) return null;
   const promo = p.valor_promocional && p.valor_promocional > 0 ? p.valor_promocional : null;

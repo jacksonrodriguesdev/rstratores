@@ -20,6 +20,7 @@ import {
   Wrench,
   Layers,
   Box,
+  Flame,
   ArrowDown,
   ArrowUp,
   Copy,
@@ -101,6 +102,7 @@ const ICONES: Record<string, typeof Box> = {
   MousePointerClick,
   Wrench,
   Layers,
+  Flame,
 };
 const Icone = ({ nome, className }: { nome: string; className?: string }) => {
   const I = ICONES[nome] ?? Box;

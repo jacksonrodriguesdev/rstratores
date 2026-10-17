@@ -28,6 +28,7 @@ import { whatsappContactUrl } from "@/lib/whatsapp";
 import { BannerImage } from "@/components/BannerImage";
 import { ProductsCarouselBlock } from "@/components/homepage-blocks";
 import { cn } from "@/lib/utils";
+import { HeroCampanha, OfertasCampanha, useCampanha } from "@/components/campanha/Campanha";
 
 type C = Record<string, any>;
 type Props = { c: C; prioridade?: boolean };
@@ -1017,6 +1018,17 @@ export function ModelosTratorBloco({ c }: Props) {
   );
 }
 
+// ---------------------------------------------------------------- campanha (Black Friday…)
+function CampanhaContagemBloco() {
+  const c = useCampanha();
+  if (!c) return null;
+  return <HeroCampanha c={c} />;
+}
+function CampanhaOfertasBloco({ c }: { c: C }) {
+  const { idioma } = useT();
+  return <OfertasCampanha titulo={txt(c, "titulo", idioma) || undefined} />;
+}
+
 // ---------------------------------------------------------------- despacho
 export function BlocoNovo({
   tipo,
@@ -1065,6 +1077,10 @@ export function BlocoNovo({
       return <CtaFaixaBloco {...props} />;
     case "MODELOS_TRATOR":
       return <ModelosTratorBloco {...props} />;
+    case "CAMPANHA_CONTAGEM":
+      return <CampanhaContagemBloco />;
+    case "CAMPANHA_OFERTAS":
+      return <CampanhaOfertasBloco c={c} />;
     default:
       return null;
   }

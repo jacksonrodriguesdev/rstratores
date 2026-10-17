@@ -1,6 +1,7 @@
 import { SITE_URL } from "@/lib/site";
 import { scriptsMarketing, metasVerificacao } from "@/lib/marketing";
 import { getMarketingPublicoFn } from "@/lib/marketing-admin";
+import { campanhaPublicaFn } from "@/lib/campanhas";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -112,7 +113,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
     idioma: idiomaDoCaminho(caminhoDe(location.publicHref)) as Idioma,
   }),
   // IDs das tags de marketing (Marketing → Integrações): lidos uma vez e guardados por 5 min
-  loader: async () => ({ mkt: await getMarketingPublicoFn().catch(() => null) }),
+  // Campanha no ar (Black Friday…): barra de contagem, tema black. ?ver_campanha=pre|black = prévia
+  // (só para o admin)
+  loaderDeps: ({ search }) => ({ ver: (search as Record<string, unknown>).ver_campanha }),
+  loader: async ({ deps }) => {
+    const ver = String(deps.ver ?? "").toUpperCase();
+    const [mkt, campanha] = await Promise.all([
+      getMarketingPublicoFn().catch(() => null),
+      campanhaPublicaFn({
+        data: { previa: ver === "PRE" || ver === "BLACK" ? ver : undefined },
+      }).catch(() => null),
+    ]);
+    return { mkt, campanha };
+  },
   staleTime: 5 * 60_000,
   head: ({ loaderData, match }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
@@ -189,8 +202,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
 
 function RootShell({ children }: { children: ReactNode }) {
   const idioma = useIdioma();
+  // Campanha com tema black: o site inteiro troca as cores (styles.css, html[data-tema="black"])
+  const tema = useRouterState({
+    select: (s): string | undefined =>
+      (s.matches.find((m) => m.routeId === "__root__")?.loaderData as any)?.campanha?.tema,
+  }) as string | undefined;
+  const admin = useRouterState({ select: (s) => s.location.pathname.startsWith("/admin") });
   return (
-    <html lang={HREFLANG[idioma]} translate="no">
+    <html
+      lang={HREFLANG[idioma]}
+      translate="no"
+      data-tema={tema === "black" && !admin ? "black" : undefined}
+    >
       <head>
         <HeadContent />
       </head>

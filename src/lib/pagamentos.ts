@@ -246,6 +246,7 @@ export type DadosNovoLink = {
   frete: number;
   frete_modo: FreteModo;
   desconto: number;
+  cupom?: string;
   metodos: Metodo[];
   descricao?: string;
   nota_cliente?: string;

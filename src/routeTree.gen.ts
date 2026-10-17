@@ -13,9 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as BajaRouteImport } from './routes/baja'
+import { Route as BlackFridayRouteImport } from './routes/black-friday'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as CotizarRouteImport } from './routes/cotizar'
 import { Route as CuentaRouteImport } from './routes/cuenta'
+import { Route as CuponesRouteImport } from './routes/cupones'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as PedidoRapidoRouteImport } from './routes/pedido-rapido'
@@ -26,6 +28,7 @@ import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as AdminAnalisesRouteImport } from './routes/admin.analises'
 import { Route as AdminAnunciosRouteImport } from './routes/admin.anuncios'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
+import { Route as AdminCampanhasRouteImport } from './routes/admin.campanhas'
 import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
 import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
@@ -120,6 +123,11 @@ const BajaRoute = BajaRouteImport.update({
   path: '/baja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlackFridayRoute = BlackFridayRouteImport.update({
+  id: '/black-friday',
+  path: '/black-friday',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CadastroRoute = CadastroRouteImport.update({
   id: '/cadastro',
   path: '/cadastro',
@@ -133,6 +141,11 @@ const CotizarRoute = CotizarRouteImport.update({
 const CuentaRoute = CuentaRouteImport.update({
   id: '/cuenta',
   path: '/cuenta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CuponesRoute = CuponesRouteImport.update({
+  id: '/cupones',
+  path: '/cupones',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -183,6 +196,11 @@ const AdminAnunciosRoute = AdminAnunciosRouteImport.update({
 const AdminBannersRoute = AdminBannersRouteImport.update({
   id: '/banners',
   path: '/banners',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCampanhasRoute = AdminCampanhasRouteImport.update({
+  id: '/campanhas',
+  path: '/campanhas',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCarrinhosRoute = AdminCarrinhosRouteImport.update({
@@ -559,9 +577,11 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
+  '/black-friday': typeof BlackFridayRoute
   '/cadastro': typeof CadastroRoute
   '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
+  '/cupones': typeof CuponesRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
@@ -571,6 +591,7 @@ export interface FileRoutesByFullPath {
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
+  '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -650,9 +671,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
+  '/black-friday': typeof BlackFridayRoute
   '/cadastro': typeof CadastroRoute
   '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
+  '/cupones': typeof CuponesRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
@@ -662,6 +685,7 @@ export interface FileRoutesByTo {
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
+  '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -743,9 +767,11 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
+  '/black-friday': typeof BlackFridayRoute
   '/cadastro': typeof CadastroRoute
   '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
+  '/cupones': typeof CuponesRoute
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
@@ -755,6 +781,7 @@ export interface FileRoutesById {
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
   '/admin/banners': typeof AdminBannersRoute
+  '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -837,9 +864,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ayuda'
     | '/baja'
+    | '/black-friday'
     | '/cadastro'
     | '/cotizar'
     | '/cuenta'
+    | '/cupones'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
@@ -849,6 +878,7 @@ export interface FileRouteTypes {
     | '/admin/analises'
     | '/admin/anuncios'
     | '/admin/banners'
+    | '/admin/campanhas'
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
@@ -928,9 +958,11 @@ export interface FileRouteTypes {
     | '/'
     | '/ayuda'
     | '/baja'
+    | '/black-friday'
     | '/cadastro'
     | '/cotizar'
     | '/cuenta'
+    | '/cupones'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
@@ -940,6 +972,7 @@ export interface FileRouteTypes {
     | '/admin/analises'
     | '/admin/anuncios'
     | '/admin/banners'
+    | '/admin/campanhas'
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
@@ -1020,9 +1053,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ayuda'
     | '/baja'
+    | '/black-friday'
     | '/cadastro'
     | '/cotizar'
     | '/cuenta'
+    | '/cupones'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
@@ -1032,6 +1067,7 @@ export interface FileRouteTypes {
     | '/admin/analises'
     | '/admin/anuncios'
     | '/admin/banners'
+    | '/admin/campanhas'
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
@@ -1113,9 +1149,11 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AyudaRoute: typeof AyudaRoute
   BajaRoute: typeof BajaRoute
+  BlackFridayRoute: typeof BlackFridayRoute
   CadastroRoute: typeof CadastroRoute
   CotizarRoute: typeof CotizarRoute
   CuentaRoute: typeof CuentaRoute
+  CuponesRoute: typeof CuponesRoute
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
   PedidoRapidoRoute: typeof PedidoRapidoRoute
@@ -1190,6 +1228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BajaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/black-friday': {
+      id: '/black-friday'
+      path: '/black-friday'
+      fullPath: '/black-friday'
+      preLoaderRoute: typeof BlackFridayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cadastro': {
       id: '/cadastro'
       path: '/cadastro'
@@ -1209,6 +1254,13 @@ declare module '@tanstack/react-router' {
       path: '/cuenta'
       fullPath: '/cuenta'
       preLoaderRoute: typeof CuentaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cupones': {
+      id: '/cupones'
+      path: '/cupones'
+      fullPath: '/cupones'
+      preLoaderRoute: typeof CuponesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1279,6 +1331,13 @@ declare module '@tanstack/react-router' {
       path: '/banners'
       fullPath: '/admin/banners'
       preLoaderRoute: typeof AdminBannersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/campanhas': {
+      id: '/admin/campanhas'
+      path: '/campanhas'
+      fullPath: '/admin/campanhas'
+      preLoaderRoute: typeof AdminCampanhasRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/carrinhos': {
@@ -1800,6 +1859,7 @@ interface AdminRouteChildren {
   AdminAnalisesRoute: typeof AdminAnalisesRoute
   AdminAnunciosRoute: typeof AdminAnunciosRoute
   AdminBannersRoute: typeof AdminBannersRoute
+  AdminCampanhasRoute: typeof AdminCampanhasRoute
   AdminCarrinhosRoute: typeof AdminCarrinhosRoute
   AdminCatalogosRoute: typeof AdminCatalogosRoute
   AdminCategoriasRoute: typeof AdminCategoriasRoute
@@ -1833,6 +1893,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalisesRoute: AdminAnalisesRoute,
   AdminAnunciosRoute: AdminAnunciosRoute,
   AdminBannersRoute: AdminBannersRoute,
+  AdminCampanhasRoute: AdminCampanhasRoute,
   AdminCarrinhosRoute: AdminCarrinhosRoute,
   AdminCatalogosRoute: AdminCatalogosRoute,
   AdminCategoriasRoute: AdminCategoriasRoute,
@@ -1948,9 +2009,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AyudaRoute: AyudaRoute,
   BajaRoute: BajaRoute,
+  BlackFridayRoute: BlackFridayRoute,
   CadastroRoute: CadastroRoute,
   CotizarRoute: CotizarRoute,
   CuentaRoute: CuentaRoute,
+  CuponesRoute: CuponesRoute,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
   PedidoRapidoRoute: PedidoRapidoRoute,

@@ -45,6 +45,7 @@ const SQL = [
     \`frete\` INTEGER NOT NULL DEFAULT 0,
     \`frete_modo\` VARCHAR(20) NOT NULL DEFAULT 'COBRADO',
     \`desconto\` INTEGER NOT NULL DEFAULT 0,
+    \`cupom\` VARCHAR(40) NULL,
     \`total\` INTEGER NOT NULL,
     \`metodos\` VARCHAR(60) NOT NULL,
     \`descricao\` VARCHAR(200) NULL,
@@ -135,6 +136,10 @@ export function garantirTabelasPagamento() {
       await prisma.$executeRawUnsafe(
         "ALTER TABLE `links_pagamento` ADD COLUMN `frete_modo` VARCHAR(20) NOT NULL DEFAULT 'COBRADO' AFTER `frete`",
       );
+    if (!colunas.some((x) => x.c === "cupom"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `links_pagamento` ADD COLUMN `cupom` VARCHAR(40) NULL AFTER `desconto`",
+      );
   })().catch((e) => {
     tabelas = null;
     throw e;
@@ -167,6 +172,7 @@ export type NovoLink = {
   itens: ItemLink[];
   frete: number; // centavos (só quando frete_modo = COBRADO)
   frete_modo?: FreteModo;
+  cupom?: string | null; // código do cupom aplicado (o desconto já vem em "desconto")
   desconto: number; // centavos
   metodos: Metodo[];
   descricao?: string | null;
@@ -246,6 +252,7 @@ export async function criarLink(d: NovoLink, adminId: number) {
       frete,
       frete_modo: freteModo,
       desconto,
+      cupom: d.cupom ? String(d.cupom).trim().toUpperCase().slice(0, 40) : null,
       total,
       metodos: metodos.join(","),
       descricao: d.descricao?.trim().slice(0, 200) || null,
@@ -686,6 +693,11 @@ async function posVenda(linkId: number) {
   }).catch((e) => console.error("GA4 (compra):", e));
 
   await emailsDaVenda(link.id).catch((e) => console.error("e-mails da venda:", e));
+  // Cupom usado: conta o uso (Admin → Campanhas e cupons)
+  if (link.cupom) {
+    const { contarUsoCupom } = await import("./campanha.server");
+    await contarUsoCupom(link.cupom).catch((e) => console.error("uso do cupom:", e));
+  }
 }
 
 async function emailsDaVenda(linkId: number) {

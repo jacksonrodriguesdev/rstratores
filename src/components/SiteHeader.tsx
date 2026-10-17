@@ -1,3 +1,4 @@
+import { BarraCampanha, useCampanha } from "@/components/campanha/Campanha";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -80,6 +81,9 @@ export function SiteHeader() {
   const { scrolled, hidden } = useScrollDirection();
   const categorias = useCategoriasLoja();
   const { t, idioma, href } = useT();
+  // Campanha com tema black (Black Friday): header preto e dourado + barra de contagem no topo
+  const campanha = useCampanha();
+  const black = campanha?.tema === "black";
 
   const headerRef = useRef<HTMLElement>(null);
   const [alturaTopo, setAlturaTopo] = useState<number | null>(null);
@@ -157,7 +161,9 @@ export function SiteHeader() {
         ref={headerRef}
         className={cn(
           "fixed inset-x-0 top-0 z-50 w-full text-white pt-safe transition-shadow duration-300",
-          "bg-gradient-to-r from-emerald-950 via-[#0b4a2b] to-primary",
+          black
+            ? "bg-gradient-to-r from-black via-zinc-950 to-zinc-900"
+            : "bg-gradient-to-r from-emerald-950 via-[#0b4a2b] to-primary",
           scrolled && "shadow-xl shadow-black/25",
         )}
       >
@@ -166,8 +172,15 @@ export function SiteHeader() {
             sugestões da busca sai dele). */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:28px_28px]" />
-          <div className="absolute -top-24 left-1/3 h-48 w-96 max-w-[60vw] rounded-full bg-emerald-400/20 blur-3xl" />
+          <div
+            className={cn(
+              "absolute -top-24 left-1/3 h-48 w-96 max-w-[60vw] rounded-full blur-3xl",
+              black ? "bg-[#f2c94c]/15" : "bg-emerald-400/20",
+            )}
+          />
         </div>
+
+        <BarraCampanha />
 
         {/* Faixa de avisos */}
         <div

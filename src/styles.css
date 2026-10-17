@@ -244,3 +244,13 @@
     animation: none;
   }
 }
+
+/* Campanha com tema black (Black Friday): o site troca o verde por preto e o amarelo por dourado.
+   O <html> recebe data-tema="black" pelo layout raiz quando a campanha está na pré ou no ar. */
+html[data-tema="black"] {
+  --primary: oklch(0.2 0 0);
+  --primary-foreground: oklch(0.98 0 0);
+  --accent: oklch(0.84 0.13 90); /* dourado #f2c94c */
+  --accent-foreground: oklch(0.15 0 0);
+  --ring: oklch(0.84 0.13 90);
+}

@@ -14,7 +14,8 @@ const PADROES: Record<string, string> = {
   cotacao_manual: "",
 };
 
-let memo: { cfg: ConfigPrecos; em: number } | null = null;
+// ate: a memória vence antes se a campanha muda de fase (pré → Black → fim) nesse meio-tempo
+let memo: { cfg: ConfigPrecos; em: number; ate: number } | null = null;
 export const limparCacheConfig = () => (memo = null);
 
 export async function lerConfiguracoes(): Promise<Record<string, string>> {
@@ -71,7 +72,7 @@ export async function cotacaoGuardada(forcar = false) {
 }
 
 export async function configPrecos(forcarCotacao = false): Promise<ConfigPrecos> {
-  if (!forcarCotacao && memo && Date.now() - memo.em < 10 * 60 * 1000) return memo.cfg;
+  if (!forcarCotacao && memo && Date.now() < memo.ate) return memo.cfg;
   const c = await lerConfiguracoes();
   const manual = Number(String(c.cotacao_manual).replace(",", "."));
   const cot = manual > 0 ? null : await cotacaoGuardada(forcarCotacao).catch(() => null);
@@ -85,7 +86,14 @@ export async function configPrecos(forcarCotacao = false): Promise<ConfigPrecos>
     margemPadrao: Number(c.margem_padrao) || 0,
     mostrar: c.mostrar_precos === "1",
   };
-  memo = { cfg, em: Date.now() };
+  // Descontos da campanha no ar (Black Friday…)
+  const { campanhaParaPrecos } = await import("./campanha.server");
+  const camp = await campanhaParaPrecos().catch(() => ({ campanha: null, proximaMudanca: null }));
+  cfg.campanha = camp.campanha;
+  const agora = Date.now();
+  const limite = agora + 10 * 60 * 1000;
+  const mudanca = camp.proximaMudanca ? camp.proximaMudanca.getTime() : Infinity;
+  memo = { cfg, em: agora, ate: Math.min(limite, mudanca > agora ? mudanca : limite) };
   return cfg;
 }
 

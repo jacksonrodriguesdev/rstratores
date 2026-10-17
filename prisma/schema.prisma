@@ -599,6 +599,7 @@ model links_pagamento {
   subtotal      Int
   frete         Int       @default(0)
   frete_modo    String    @default("COBRADO") @db.VarChar(20) // COBRADO (no total), GRATIS, NA_CHEGADA (comprador paga ao receber)
+  cupom         String?   @db.VarChar(40) // código do cupom usado (o desconto já está em "desconto")
   desconto      Int       @default(0)
   total         Int
   metodos       String    @db.VarChar(60) // CARTAO,PIX,ABITAB,REDPAGOS
@@ -766,4 +767,67 @@ model ads_acao {
   created_at DateTime @default(now())
 
   @@index([created_at])
+}
+
+// Campanhas do e-commerce (Admin → Campanhas): Black Friday e outras. Fases: antes de pre_inicio
+// nada aparece; de pre_inicio a inicio é a PRÉ (contagem regressiva, descontos da pré); de inicio a
+// fim é a campanha (BLACK). Uma campanha ativa por vez.
+model campanhas {
+  id         Int      @id @default(autoincrement())
+  nome       String   @db.VarChar(120)
+  tipo       String   @default("BLACK_FRIDAY") @db.VarChar(20)
+  ativa      Boolean  @default(false)
+  pre_inicio DateTime
+  inicio     DateTime
+  fim        DateTime
+  tema       String   @default("black") @db.VarChar(20) // black (site em preto e dourado) | padrao
+  config     String?  @db.Text // JSON: textos es/pt, selo, frases da barra, opções
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  regras campanha_regras[]
+  cupons cupons[]
+}
+
+// Desconto da campanha: em tudo, numa categoria, numa marca ou numa peça (a peça vale mais)
+model campanha_regras {
+  id          Int     @id @default(autoincrement())
+  campanha_id Int
+  tipo        String  @db.VarChar(12) // TUDO, CATEGORIA, MARCA, ITEM
+  alvo        String  @default("") @db.VarChar(191)
+  pct         Float
+  fase        String  @default("BLACK") @db.VarChar(10) // PRE, BLACK, AMBAS
+  destaque    Boolean @default(false) // vai para a vitrine de ofertas da home e da página da campanha
+
+  campanha campanhas @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
+
+  @@index([campanha_id])
+}
+
+// Cupons (página /cupones e links de pagamento). "revelar_em": antes disso aparece como mistério.
+model cupons {
+  id                 Int       @id @default(autoincrement())
+  codigo             String    @unique @db.VarChar(40)
+  campanha_id        Int?
+  tipo               String    @db.VarChar(12) // PERCENT, FIXO, FRETE
+  valor              Float     @default(0) // % ou valor na moeda
+  moeda              String    @default("UYU") @db.VarChar(3)
+  minimo             Float     @default(0) // compra mínima na moeda
+  descricao          String?   @db.VarChar(300)
+  descricao_pt       String?   @db.VarChar(300)
+  inicio             DateTime?
+  fim                DateTime?
+  revelar_em         DateTime?
+  max_usos           Int       @default(0) // 0 = sem limite
+  usos               Int       @default(0)
+  por_cliente        Int       @default(1) // 0 = sem limite
+  so_primeira_compra Boolean   @default(false)
+  publico            Boolean   @default(true) // aparece na página de cupons
+  ativo              Boolean   @default(true)
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  campanha campanhas? @relation(fields: [campanha_id], references: [id], onDelete: SetNull)
+
+  @@index([campanha_id])
 }

@@ -679,6 +679,24 @@ export const TIPOS_NOVOS: TipoBloco[] = [
       { k: "cor_destaque", rotulo: "Cor", tipo: "cor" },
     ],
   },
+  {
+    id: "CAMPANHA_CONTAGEM",
+    nome: "Campanha: contagem regressiva",
+    desc: "Hero preto e dourado da campanha no ar (Black Friday) com a contagem. Some sozinho fora da campanha.",
+    icone: "Timer",
+    largura: "total",
+    padrao: {},
+    campos: [],
+  },
+  {
+    id: "CAMPANHA_OFERTAS",
+    nome: "Campanha: vitrine de ofertas",
+    desc: "Peças com desconto da campanha (as regras marcadas como destaque). Some fora da campanha.",
+    icone: "Flame",
+    largura: "container",
+    padrao: { titulo: "Ofertas Black Friday", titulo_pt: "Ofertas Black Friday" },
+    campos: [{ k: "titulo", rotulo: "Título", tipo: "texto", bilingue: true }],
+  },
 ];
 
 export const tipoNovo = (id: string) => TIPOS_NOVOS.find((t) => t.id === id) ?? null;
