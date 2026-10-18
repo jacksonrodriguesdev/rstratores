@@ -48,77 +48,90 @@ termine virando para você.
 
 ---
 
-## 2. Na frente do John Deere (30–40 s)
+## 2. Os tratores — mesmo formato para os três
 
-**Imagens:** comece de longe mostrando o trator inteiro → aproxime até você. Se puder, mostre
-um filtro ou disco na mão.
+Em cada trator: **apresente o trator → «no nosso site AGRO PARTS a gente tem a linha de peças
+para [marca]» → cite as partes (embreagem, motor, tração…) → número de peças → chamada.**
+Enquanto fala as partes, **aponte** para elas no trator (motor, embreagem/caixa, eixo dianteiro,
+hidráulico atrás). Fica natural e mostra que você conhece o trator.
 
-**PT**
-> **(gancho)** Quem tem John Deere sabe: o verde não pode parar na safra.
-> Na AGRO PARTS a gente tem quase **sete mil peças para John Deere**: filtro de óleo do motor,
-> disco de embreagem, bomba hidráulica, peças de transmissão, retentores…
-> E o mais prático: você procura pelo **código da peça** no site e já acha.
-> **(chamada)** Entra em agropartsuy.com/pt ou chama no WhatsApp que a gente confirma pra você.
+> Diga «a linha de peças **para** Massey Ferguson», não «toda a linha»: ninguém tem 100% das
+> peças, e o cliente que não achar uma vai cobrar. Se não tiver no site, ofereça buscar pelo
+> WhatsApp.
 
-**ES**
-> **(gancho)** El que tiene John Deere sabe: en la zafra el verde no puede parar.
-> En AGRO PARTS tenemos casi **siete mil repuestos para John Deere**: filtro de aceite del motor,
-> disco de embrague, bomba hidráulica, piezas de transmisión, retenes…
-> Y lo más práctico: buscás por el **código de la pieza** en el sitio y la encontrás.
-> **(chamada)** Entrá a agropartsuy.com o escribinos por WhatsApp y te la confirmamos.
+### 2.1 Massey Ferguson (30–40 s)
 
-*Peças para citar/mostrar (estão no site):* filtro de óleo do motor RE509672 · disco de
-embreagem cerâmico 280 mm RE177574EA · bomba hidráulica R979013181.
-
----
-
-## 3. Na frente do Massey Ferguson (30–40 s)
-
-**Imagens:** ângulo baixo (celular perto do chão) pegando o vermelho inteiro → suba até você.
+**Imagens:** de longe o trator inteiro → você entra no quadro. Aponte: capô (motor) → meio do
+trator (embreagem e caixa) → eixo dianteiro (tração) → engate traseiro (hidráulico).
 
 **PT**
-> **(gancho)** Massey Ferguson: tá em quase toda propriedade aqui da região.
-> E é a marca que a gente mais tem peça: **mais de dezoito mil itens para Massey**.
-> Kit de embreagem com platô e disco, bomba hidráulica dupla, filtro hidráulico, engrenagens,
-> rolamentos… da manutenção do dia a dia até o conserto grande.
-> **(chamada)** Tá precisando? Manda o código ou uma foto da peça no WhatsApp da AGRO PARTS.
+> Esse aqui é o Massey Ferguson, que tá em muita propriedade aqui da região.
+> No nosso site, a AGRO PARTS, a gente tem a linha de peças para Massey Ferguson:
+> **embreagem**, **motor**, **tração e transmissão**, **parte hidráulica**, **filtros** e
+> **parte elétrica**. São **mais de dezoito mil peças** para Massey.
+> Você procura pelo código ou pelo nome da peça no site, e se não achar, chama a gente no
+> WhatsApp que a gente procura pra você.
 
 **ES**
-> **(gancho)** Massey Ferguson: está en casi todos los campos de la zona.
-> Y es la marca de la que más repuestos tenemos: **más de dieciocho mil para Massey**.
-> Kit de embrague con plato y disco, bomba hidráulica doble, filtro hidráulico, engranajes,
-> rodamientos… desde el mantenimiento de todos los días hasta el arreglo grande.
-> **(chamada)** ¿Necesitás algo? Mandá el código o una foto de la pieza al WhatsApp de AGRO PARTS.
+> Este es el Massey Ferguson, que está en muchos campos de la zona.
+> En nuestro sitio, AGRO PARTS, tenemos la línea de repuestos para Massey Ferguson:
+> **embrague**, **motor**, **tracción y transmisión**, **parte hidráulica**, **filtros** y
+> **parte eléctrica**. Son **más de dieciocho mil repuestos** para Massey.
+> Buscás por el código o el nombre de la pieza en el sitio y, si no la encontrás, escribinos
+> por WhatsApp que te la buscamos.
 
-*Peças para citar/mostrar:* kit de embreagem LuK 83063502 · bomba hidráulica dupla F000510701 ·
+*Exemplos se quiser citar:* kit de embreagem LuK 83063502 · bomba hidráulica dupla F000510701 ·
 filtro hidráulico PSH211.
 
----
+### 2.2 John Deere (30–40 s)
 
-## 4. Na frente do Valtra (30–40 s)
-
-**Imagens:** caminhe ao lado do trator (câmera acompanhando) e pare na frente da roda dianteira.
+**Imagens:** ângulo baixo pegando o verde e amarelo → você. Mesmos pontos para apontar.
 
 **PT**
-> **(gancho)** E o Valtra, que é trator de trabalho pesado.
-> Pra Valtra a gente tem **mais de dez mil peças**, e boa parte já com preço no site:
-> rolamentos, correias, engrenagens e peças de transmissão, retentores, hidráulica.
-> É só buscar pelo código que tá na peça ou no catálogo.
-> **(chamada)** agropartsuy.com/pt, com envio pra todo o Rio Grande do Sul.
+> Agora o John Deere, o verde que todo mundo conhece.
+> Pro John Deere a AGRO PARTS também tem a linha de peças:
+> **embreagem**, **motor**, **tração e transmissão**, **hidráulico**, **filtros** e **elétrica**.
+> São **quase sete mil peças** para John Deere no site, com busca pelo código.
+> Precisou? agropartsuy.com/pt ou WhatsApp.
 
 **ES**
-> **(gancho)** Y el Valtra, que es tractor de trabajo pesado.
-> Para Valtra tenemos **más de diez mil repuestos**, y muchos ya con precio en el sitio:
-> rodamientos, correas, engranajes y piezas de transmisión, retenes, hidráulica.
-> Buscás por el código que está en la pieza o en el catálogo.
-> **(chamada)** agropartsuy.com, con envío por DAC a todo Uruguay.
+> Ahora el John Deere, el verde que todos conocen.
+> Para John Deere AGRO PARTS también tiene la línea de repuestos:
+> **embrague**, **motor**, **tracción y transmisión**, **hidráulica**, **filtros** y **eléctrica**.
+> Son **casi siete mil repuestos** para John Deere en el sitio, con búsqueda por código.
+> ¿Necesitás algo? agropartsuy.com o WhatsApp.
 
-*Peças para citar/mostrar:* rolamento 30208 LA5013 · rolamento 21309 · engrenagens e
-planetárias de transmissão.
+*Exemplos:* filtro de óleo do motor RE509672 · disco de embreagem cerâmico 280 mm RE177574EA ·
+bomba hidráulica R979013181.
+
+### 2.3 Valtra (30–40 s)
+
+**Imagens:** caminhe ao lado do trator com a câmera acompanhando e pare na frente.
+
+**PT**
+> E aqui o Valtra, trator de serviço pesado.
+> Pro Valtra a gente tem a linha de peças: **embreagem**, **motor**, **tração e transmissão**,
+> **hidráulico**, **rolamentos**, **filtros** e **elétrica**.
+> São **mais de dez mil peças** para Valtra, e a maioria já com preço no site.
+> agropartsuy.com/pt, com envio para todo o Rio Grande do Sul.
+
+**ES**
+> Y acá el Valtra, tractor de trabajo pesado.
+> Para Valtra tenemos la línea de repuestos: **embrague**, **motor**, **tracción y
+> transmisión**, **hidráulica**, **rodamientos**, **filtros** y **eléctrica**.
+> Son **más de diez mil repuestos** para Valtra, y la mayoría ya con precio en el sitio.
+> agropartsuy.com, con envío por DAC a todo Uruguay.
+
+*Exemplos:* rolamento 30208 LA5013 · rolamento 21309 · engrenagens e planetárias de transmissão.
+
+### Outros tratores da feira (New Holland, Case, Ford…)
+
+Use o mesmo texto trocando a marca e as partes. **Só diga um número se conferir antes no site**
+(busque a marca em agropartsuy.com). Sem conferir, fale «temos peças para [marca]» sem número.
 
 ---
 
-## 5. Encerramento com a pré-Black (15–20 s)
+## 3. Encerramento com a pré-Black (15–20 s)
 
 **Imagens:** você com os três tratores (ou a feira) ao fundo.
 
@@ -136,7 +149,7 @@ planetárias de transmissão.
 
 ---
 
-## 6. Versão curta para Stories ao vivo (10–15 s cada)
+## 4. Versão curta para Stories ao vivo (10–15 s cada)
 
 - **PT:** «Tô aqui na [Expofeira] na frente de um [marca]. Pra esse trator a AGRO PARTS tem
   [número] peças. Link aqui em cima 👆»
@@ -148,7 +161,7 @@ evento em todos.
 
 ---
 
-## 7. Sequência de Stories durante o dia
+## 5. Sequência de Stories durante o dia
 
 1. Chegada: placa/entrada da feira + localização.
 2. Panorama andando (sem fala, música).
@@ -161,7 +174,7 @@ evento em todos.
 
 ---
 
-## 8. Tomadas de apoio (B-roll: 3–5 s cada, sem fala)
+## 6. Tomadas de apoio (B-roll: 3–5 s cada, sem fala)
 
 - Logos das marcas nos tratores (de perto, foco nítido).
 - Rodas e pneus girando/andando, motor ligado, escapamento.
@@ -172,7 +185,7 @@ evento em todos.
 
 ---
 
-## 9. Legendas para os posts
+## 7. Legendas para os posts
 
 **PT:** AGRO PARTS na [Expofeira] 🚜 Peças para John Deere, Massey Ferguson e Valtra: busca
 pelo código no site e orçamento pelo WhatsApp. Pré-Black Friday com -20% em todo o site; a Black
@@ -188,6 +201,6 @@ la Black empieza el 27/11. Envíos por DAC a todo Uruguay. Link en la bio.
 
 ## Ordem para montar o Reel principal (60–90 s)
 
-Abertura (15 s) → John Deere (20 s) → Massey Ferguson (20 s) → Valtra (20 s) → encerramento
+Abertura (15 s) → Massey Ferguson (20 s) → John Deere (20 s) → Valtra (20 s) → encerramento
 (10 s). Entre um trator e outro, 2 s de B-roll (logo da marca de perto). Coloque legenda escrita
 na tela: a maioria assiste sem som.
