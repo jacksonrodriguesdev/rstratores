@@ -600,6 +600,9 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
   const wa = (t: string) =>
     `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(t)}`;
   let ok = 0;
+  // Anúncio por e-mail (rodízio por cliente), se a automação não desligou
+  const mk = await import("./email-marketing.server");
+  const anuncios = base.semAnuncio ? [] : await mk.anunciosAtivos("AUTOMACAO");
   // Boas-vindas com cupom: cada cliente recebe o próprio cupom único (AGRO-XXXX)
   if (a.tipo === "boas_vindas" && base.cupom) {
     const { garantirCupom } = await import("./acesso.server");
@@ -607,7 +610,8 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
   }
   for (let i = 0; i < envios.length; i += 50) {
     const lote = envios.slice(i, i + 50);
-    const msgs = lote.map((e) => {
+    const escolhidos = lote.map((e) => mk.escolherAnuncio(anuncios, e.user.id));
+    const msgs = lote.map((e, k) => {
       // Variáveis do cliente (marca, busca, catálogo, anos...) somadas às da automação
       const pessoal = a.tipo === "boas_vindas" && base.cupom && e.user.cupom ? e.user.cupom : null;
       const v = { ...vars, ...e.vars, ...(pessoal && { cupon: pessoal }) };
@@ -630,7 +634,7 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
         origem,
         { id: e.user.id, email: e.user.email, nome: e.user.nome_completo },
         tag,
-        whats ? { whatsappUrl: wa(whats) } : {},
+        { ...(whats && { whatsappUrl: wa(whats) }), anuncio: escolhidos[k] },
       );
     });
     try {
@@ -646,6 +650,22 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
           resend_id: ids[k] ?? null,
         })),
       });
+      await mk
+        .registrarExibicoes(
+          lote.flatMap((e, k) =>
+            escolhidos[k]
+              ? [
+                  {
+                    anuncio_id: escolhidos[k]!.id,
+                    resend_id: ids[k] ?? null,
+                    user_id: e.user.id,
+                    origem: "AUTOMACAO" as const,
+                  },
+                ]
+              : [],
+          ),
+        )
+        .catch((err) => console.error("exibições do anúncio", err));
       ok += lote.length;
     } catch (err: any) {
       await prisma.email_envios.createMany({
@@ -672,6 +692,35 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
 }
 
 // Roda todas as automações ativas (ou só uma). Não roda duas vezes ao mesmo tempo.
+// Uma vez: automações já criadas sem imagem de topo ganham a imagem nova do tipo
+// (quem já escolheu uma imagem própria fica com ela)
+let imagensAplicadas: Promise<void> | null = null;
+export function aplicarImagensAutomacoes() {
+  imagensAplicadas ??= (async () => {
+    const { prisma } = await import("./prisma");
+    const chave = "email_auto_imagens_v1";
+    if (await prisma.configuracoes.findUnique({ where: { chave } })) return;
+    const { imagemAutomacao } = await import("./automacoes-tipos");
+    const rows = await prisma.email_automacoes.findMany({
+      select: { id: true, tipo: true, conteudo: true },
+    });
+    for (const r of rows) {
+      const c = lerJson<Record<string, unknown>>(r.conteudo, {});
+      if (c.cabecalho) continue;
+      c.cabecalho = imagemAutomacao(r.tipo as any);
+      await prisma.email_automacoes.update({
+        where: { id: r.id },
+        data: { conteudo: JSON.stringify(c) },
+      });
+    }
+    await prisma.configuracoes.create({ data: { chave, valor: new Date().toISOString() } });
+  })().catch((e) => {
+    imagensAplicadas = null;
+    console.error("imagens das automações", e);
+  });
+  return imagensAplicadas;
+}
+
 export async function rodarAutomacoes(apenasId?: number) {
   const g = globalThis as any;
   if (g.__automacoesRodando)
@@ -684,6 +733,7 @@ export async function rodarAutomacoes(apenasId?: number) {
   try {
     const { prisma } = await import("./prisma");
     const { resendConfigurado } = await import("./email.server");
+    await aplicarImagensAutomacoes();
     await detectarMudancasPreco();
     if (!resendConfigurado()) return { ocupado: false, resultados };
     const autos = await prisma.email_automacoes.findMany({

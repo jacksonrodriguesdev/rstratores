@@ -833,3 +833,54 @@ model cupons {
 
   @@index([campanha_id])
 }
+
+// Cada clique num link de e-mail (webhook do Resend): qual link, de qual envio/campanha/automação
+// e, quando o link é de um anúncio, qual anúncio. Base da análise de cliques e do funil.
+model email_cliques {
+  id           Int      @id @default(autoincrement())
+  envio_id     Int
+  campanha_id  Int?
+  automacao_id Int?
+  anuncio_id   Int?
+  url          String   @db.VarChar(1000)
+  dispositivo  String?  @db.VarChar(20)
+  created_at   DateTime @default(now())
+
+  @@index([created_at])
+  @@index([campanha_id])
+  @@index([automacao_id])
+  @@index([anuncio_id])
+  @@index([envio_id])
+}
+
+// Anúncios por e-mail (Admin → E-mail marketing → Anúncios): banner/oferta que entra sozinho no fim
+// das campanhas e/ou automações enquanto estiver ativo e dentro do período. Rodízio por peso.
+model email_anuncios {
+  id         Int       @id @default(autoincrement())
+  nome       String    @db.VarChar(150)
+  titulo     String    @db.VarChar(200)
+  texto      String?   @db.Text
+  imagem     String?   @db.VarChar(500)
+  link       String    @db.VarChar(500)
+  botao      String?   @db.VarChar(80)
+  onde       String    @default("TODOS") @db.VarChar(20) // TODOS, CAMPANHAS, AUTOMACOES
+  peso       Int       @default(1)
+  ativo      Boolean   @default(false)
+  inicio     DateTime?
+  fim        DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+// Cada e-mail que levou um anúncio (exibição). Aberturas do anúncio = e-mails abertos daqui.
+model email_anuncio_exibicoes {
+  id         Int      @id @default(autoincrement())
+  anuncio_id Int
+  resend_id  String?  @db.VarChar(64)
+  user_id    Int?
+  origem     String   @db.VarChar(20) // CAMPANHA, AUTOMACAO
+  created_at DateTime @default(now())
+
+  @@index([anuncio_id, created_at])
+  @@index([resend_id])
+}

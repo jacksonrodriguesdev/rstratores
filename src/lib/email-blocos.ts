@@ -3,6 +3,8 @@
 // servidor usam a mesma função. HTML em tabelas e estilos inline (Gmail, Outlook, celulares).
 import type { Campo } from "./blocos-home";
 import {
+  anuncioHtml,
+  linkAnuncio,
   comUtm,
   esc,
   formatarTexto,
@@ -1095,6 +1097,17 @@ ${tabela(`<tr>
 <td class="sem-cel" align="right" style="${CORPO};font-size:12px;color:${t.topoTexto};opacity:.75">${x.l.lema}</td>
 </tr>`)}</td></tr>
 ${corpo}
+${
+  d.anuncio && !c.semAnuncio
+    ? anuncioHtml(d.anuncio, d, {
+        cor: x.escuro ? t.destaque : cor,
+        fundo: t.suave,
+        titulo: t.titulo,
+        texto: t.texto,
+        rotulo: t.idioma === "pt" ? "Destaque" : "Destacado",
+      })
+    : ""
+}
 <tr><td style="height:26px;font-size:0;line-height:0">&nbsp;</td></tr>
 </table>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px"><tr><td style="padding:18px 20px;${CORPO};font-size:12px;line-height:1.6;color:${x.escuro ? "#a1a1aa" : "#71717a"};text-align:center">
@@ -1212,6 +1225,10 @@ export function textoBlocos(c: ConteudoEmail, d: DadosRender): string {
         break;
     }
   }
+  if (d.anuncio && !c.semAnuncio)
+    partes.push(
+      `${d.anuncio.titulo}${d.anuncio.texto ? `\n${d.anuncio.texto}` : ""}\n${linkAnuncio(d.anuncio, d)}`,
+    );
   partes.push(`AGRO PARTS · ${l.lema}`);
   if (d.urlBaixa) partes.push(`${l.baixa}: ${d.urlBaixa}`);
   return partes.filter((p) => p && String(p).trim()).join("\n\n");

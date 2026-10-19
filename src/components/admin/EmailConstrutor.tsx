@@ -85,7 +85,7 @@ const Icone = ({ nome, className }: { nome: string; className?: string }) => {
 };
 
 // E-mail não mostra WEBP no Outlook: reduz no navegador para JPG (GIF animado passa direto)
-async function enviarImagemEmail(arq: File): Promise<string> {
+export async function enviarImagemEmail(arq: File): Promise<string> {
   let f = arq;
   if (arq.type !== "image/gif") {
     try {

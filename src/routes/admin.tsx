@@ -86,6 +86,9 @@ const GRUPOS: Grupo[] = [
         sub: [
           { to: "/admin/emails", label: "Campanhas" },
           { to: "/admin/automacoes", label: "Automações" },
+          { to: "/admin/emails/analise", label: "Análise" },
+          { to: "/admin/emails/funil", label: "Funil e remarketing" },
+          { to: "/admin/emails/anuncios", label: "Anúncios" },
         ],
       },
       { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
@@ -265,7 +268,10 @@ function AdminLayout() {
                     {aberto && (
                       <ul className="ml-5 mt-0.5 flex flex-col gap-0.5 border-l pl-3">
                         {it.sub.map((s) => {
-                          const on = ativo(path, s.to);
+                          // Só o item mais específico acende (/admin/emails/analise não acende «Campanhas»)
+                          const on =
+                            ativo(path, s.to) &&
+                            !it.sub!.some((o) => o.to.length > s.to.length && ativo(path, o.to));
                           return (
                             <li key={s.label}>
                               <Link

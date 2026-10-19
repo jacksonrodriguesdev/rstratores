@@ -345,6 +345,10 @@ export const TIPOS: DefTipo[] = [
   },
 ];
 
+// Imagem de topo de cada tipo (public/email/automacoes, gerada por marketing/email-automacoes)
+export const imagemAutomacao = (tipo: TipoAutomacao) => `/email/automacoes/${tipo}.jpg`;
+for (const t of TIPOS) t.conteudo.cabecalho ??= imagemAutomacao(t.tipo);
+
 export const defTipo = (t: string) => TIPOS.find((x) => x.tipo === t) ?? TIPOS[0];
 
 export function conteudoPadrao(t: TipoAutomacao): ConteudoEmail {

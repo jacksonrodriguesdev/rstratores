@@ -33,6 +33,18 @@ export type ConteudoEmail = {
   cor: string;
   blocos?: BlocoEmail[];
   tema?: Partial<TemaEmail>;
+  // true: este e-mail não leva o anúncio (Admin → E-mail marketing → Anúncios)
+  semAnuncio?: boolean;
+};
+
+// Anúncio por e-mail escolhido no envio (email-marketing.server.ts → escolherAnuncio)
+export type AnuncioEmail = {
+  id: number;
+  titulo: string;
+  texto?: string | null;
+  imagem?: string | null;
+  link: string;
+  botao?: string | null;
 };
 
 // Construtor por blocos (email-blocos.ts): quando há blocos, o e-mail é montado só com eles
@@ -70,11 +82,27 @@ export function trocarEmTudo<T>(v: T, f: (s: string) => string): T {
 }
 
 export type Publico = {
-  tipo: "todos" | "departamentos" | "carrinho" | "catalogos" | "recentes" | "inativos" | "ids";
+  tipo:
+    | "todos"
+    | "departamentos"
+    | "carrinho"
+    | "catalogos"
+    | "recentes"
+    | "inativos"
+    | "ids"
+    | "remarketing";
   departamentos: string[];
   dias: number;
   ids?: number[]; // tipo "ids": clientes escolhidos na página Clientes
+  // tipo "remarketing": clientes de um e-mail anterior conforme o que fizeram com ele
+  origem?: { campanha?: number | null; automacao?: number | null };
+  etapa?: "nao_abriu" | "abriu_nao_clicou" | "clicou_nao_comprou";
 };
+export const ETAPAS_REMARKETING: Array<[NonNullable<Publico["etapa"]>, string]> = [
+  ["nao_abriu", "Não abriram"],
+  ["abriu_nao_clicou", "Abriram e não clicaram"],
+  ["clicou_nao_comprou", "Clicaram e não compraram"],
+];
 
 export const PUBLICOS: { valor: Publico["tipo"]; rotulo: string; usaDias?: boolean }[] = [
   { valor: "todos", rotulo: "Todos os clientes cadastrados" },
@@ -84,6 +112,10 @@ export const PUBLICOS: { valor: Publico["tipo"]; rotulo: string; usaDias?: boole
   { valor: "recentes", rotulo: "Cadastrados nos últimos N dias", usaDias: true },
   { valor: "inativos", rotulo: "Sem entrar no site há mais de N dias", usaDias: true },
   { valor: "ids", rotulo: "Clientes escolhidos na página Clientes" },
+  {
+    valor: "remarketing",
+    rotulo: "Remarketing: quem não abriu / não clicou / não comprou um e-mail",
+  },
 ];
 
 export const PUBLICO_PADRAO: Publico = { tipo: "todos", departamentos: [], dias: 30 };
@@ -116,7 +148,41 @@ export type DadosRender = {
   vars?: Record<string, string>;
   // Hora de referência da contagem regressiva (envio ou prévia)
   agora?: number;
+  // Anúncio que entra antes do rodapé (some se o conteúdo tiver semAnuncio)
+  anuncio?: AnuncioEmail | null;
 };
+
+// Link do anúncio: UTM da campanha + utm_content=anuncio-<id> (o clique é contado no anúncio)
+export function linkAnuncio(a: AnuncioEmail, d: DadosRender) {
+  const abs = comUtm(a.link, d);
+  try {
+    const u = new URL(abs);
+    u.searchParams.set("utm_content", `anuncio-${a.id}`);
+    return u.toString();
+  } catch {
+    return abs;
+  }
+}
+
+// Bloco do anúncio (tabelas e estilos inline, igual ao resto do e-mail)
+export function anuncioHtml(
+  a: AnuncioEmail,
+  d: DadosRender,
+  o: { cor: string; fundo?: string; titulo?: string; texto?: string; rotulo?: string },
+) {
+  const href = esc(linkAnuncio(a, d));
+  const img = a.imagem ? urlAbsoluta(a.imagem, d.origem) : "";
+  const corBotao = /^#[0-9a-f]{6}$/i.test(o.cor) ? o.cor : "#0b7a3b";
+  return `<tr><td style="padding:10px 24px 4px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${o.fundo ?? "#f4f7f2"};border-radius:16px;overflow:hidden">
+<tr><td style="padding:10px 16px 0;${fonte};font-size:10px;font-weight:800;letter-spacing:2px;color:#a1a1aa;text-transform:uppercase">${esc(o.rotulo ?? "Destacado")}</td></tr>
+${img ? `<tr><td style="padding:8px 16px 0"><a href="${href}"><img src="${esc(img)}" alt="${esc(a.titulo)}" width="568" style="display:block;width:100%;height:auto;border:0;border-radius:12px"></a></td></tr>` : ""}
+<tr><td style="padding:12px 16px 16px;${fonte}">
+<p style="margin:0;font-size:18px;font-weight:800;line-height:1.3;color:${o.titulo ?? "#06321b"}">${esc(a.titulo)}</p>
+${a.texto ? `<p style="margin:6px 0 0;font-size:14px;line-height:1.5;color:${o.texto ?? "#3f3f46"}">${esc(a.texto)}</p>` : ""}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px"><tr><td style="border-radius:10px;background:${corBotao}"><a href="${href}" style="display:inline-block;padding:11px 20px;${fonte};font-size:14px;font-weight:800;color:${corBotao.toLowerCase() === "#f5c518" ? "#111111" : "#ffffff"};text-decoration:none;border-radius:10px">${esc(a.botao || "Ver más")} &rarr;</a></td></tr></table>
+</td></tr></table></td></tr>`;
+}
 
 export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -267,6 +333,7 @@ ${
 }
 ${c.botaoTexto && c.botaoUrl ? `<tr><td align="center" style="padding:22px 30px 6px">${botao(c.botaoTexto, comUtm(c.botaoUrl, d), cor)}</td></tr>` : ""}
 ${c.whatsapp && d.whatsappUrl ? `<tr><td align="center" style="padding:12px 30px 4px">${botao("Cotizar por WhatsApp", d.whatsappUrl, "#25D366")}</td></tr>` : ""}
+${d.anuncio && !c.semAnuncio ? anuncioHtml(d.anuncio, d, { cor }) : ""}
 <tr><td style="padding:26px 30px 30px;${fonte}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f7f2;border-radius:14px"><tr>
 <td style="padding:14px;font-size:13px;color:#3f3f46;text-align:center">🚚 Envíos por DAC a todo Uruguay &nbsp;·&nbsp; 💬 Atención por WhatsApp &nbsp;·&nbsp; 🔒 Sitio seguro</td>
 </tr></table></td></tr>
@@ -311,6 +378,10 @@ export function textoEmail(c: ConteudoEmail, d: DadosRender): string {
   }
   if (c.botaoTexto && c.botaoUrl) partes.push(`${c.botaoTexto}: ${comUtm(c.botaoUrl, d)}`);
   if (c.whatsapp && d.whatsappUrl) partes.push(`Cotizar por WhatsApp: ${d.whatsappUrl}`);
+  if (d.anuncio && !c.semAnuncio)
+    partes.push(
+      `${d.anuncio.titulo}${d.anuncio.texto ? `\n${d.anuncio.texto}` : ""}\n${linkAnuncio(d.anuncio, d)}`,
+    );
   partes.push("AGRO PARTS · Repuestos agrícolas · Envíos a todo Uruguay");
   if (d.urlBaixa) partes.push(`Darme de baja: ${d.urlBaixa}`);
   return partes.filter((p) => p.trim()).join("\n\n");

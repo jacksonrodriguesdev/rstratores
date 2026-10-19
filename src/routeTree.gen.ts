@@ -65,6 +65,9 @@ import { Route as AdminAutomacoesIndexRouteImport } from './routes/admin.automac
 import { Route as AdminAutomacoesIdRouteImport } from './routes/admin.automacoes.$id'
 import { Route as AdminEmailsIndexRouteImport } from './routes/admin.emails.index'
 import { Route as AdminEmailsIdRouteImport } from './routes/admin.emails.$id'
+import { Route as AdminEmailsAnaliseRouteImport } from './routes/admin.emails.analise'
+import { Route as AdminEmailsAnunciosRouteImport } from './routes/admin.emails.anuncios'
+import { Route as AdminEmailsFunilRouteImport } from './routes/admin.emails.funil'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
@@ -383,6 +386,21 @@ const AdminEmailsIdRoute = AdminEmailsIdRouteImport.update({
   path: '/emails/$id',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEmailsAnaliseRoute = AdminEmailsAnaliseRouteImport.update({
+  id: '/emails/analise',
+  path: '/emails/analise',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEmailsAnunciosRoute = AdminEmailsAnunciosRouteImport.update({
+  id: '/emails/anuncios',
+  path: '/emails/anuncios',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEmailsFunilRoute = AdminEmailsFunilRouteImport.update({
+  id: '/emails/funil',
+  path: '/emails/funil',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiAdminBannersRoute = ApiAdminBannersRouteImport.update({
   id: '/api/admin/banners',
   path: '/api/admin/banners',
@@ -627,6 +645,9 @@ export interface FileRoutesByFullPath {
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
+  '/admin/emails/analise': typeof AdminEmailsAnaliseRoute
+  '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
+  '/admin/emails/funil': typeof AdminEmailsFunilRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -721,6 +742,9 @@ export interface FileRoutesByTo {
   '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
+  '/admin/emails/analise': typeof AdminEmailsAnaliseRoute
+  '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
+  '/admin/emails/funil': typeof AdminEmailsFunilRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -817,6 +841,9 @@ export interface FileRoutesById {
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
+  '/admin/emails/analise': typeof AdminEmailsAnaliseRoute
+  '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
+  '/admin/emails/funil': typeof AdminEmailsFunilRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -914,6 +941,9 @@ export interface FileRouteTypes {
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
+    | '/admin/emails/analise'
+    | '/admin/emails/anuncios'
+    | '/admin/emails/funil'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1008,6 +1038,9 @@ export interface FileRouteTypes {
     | '/repuestos'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
+    | '/admin/emails/analise'
+    | '/admin/emails/anuncios'
+    | '/admin/emails/funil'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1103,6 +1136,9 @@ export interface FileRouteTypes {
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
+    | '/admin/emails/analise'
+    | '/admin/emails/anuncios'
+    | '/admin/emails/funil'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1592,6 +1628,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmailsIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/emails/analise': {
+      id: '/admin/emails/analise'
+      path: '/emails/analise'
+      fullPath: '/admin/emails/analise'
+      preLoaderRoute: typeof AdminEmailsAnaliseRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/emails/anuncios': {
+      id: '/admin/emails/anuncios'
+      path: '/emails/anuncios'
+      fullPath: '/admin/emails/anuncios'
+      preLoaderRoute: typeof AdminEmailsAnunciosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/emails/funil': {
+      id: '/admin/emails/funil'
+      path: '/emails/funil'
+      fullPath: '/admin/emails/funil'
+      preLoaderRoute: typeof AdminEmailsFunilRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/admin/banners': {
       id: '/api/admin/banners'
       path: '/api/admin/banners'
@@ -1884,6 +1941,9 @@ interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminAutomacoesIdRoute: typeof AdminAutomacoesIdRoute
   AdminEmailsIdRoute: typeof AdminEmailsIdRoute
+  AdminEmailsAnaliseRoute: typeof AdminEmailsAnaliseRoute
+  AdminEmailsAnunciosRoute: typeof AdminEmailsAnunciosRoute
+  AdminEmailsFunilRoute: typeof AdminEmailsFunilRoute
   AdminAutomacoesIndexRoute: typeof AdminAutomacoesIndexRoute
   AdminEmailsIndexRoute: typeof AdminEmailsIndexRoute
 }
@@ -1918,6 +1978,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminAutomacoesIdRoute: AdminAutomacoesIdRoute,
   AdminEmailsIdRoute: AdminEmailsIdRoute,
+  AdminEmailsAnaliseRoute: AdminEmailsAnaliseRoute,
+  AdminEmailsAnunciosRoute: AdminEmailsAnunciosRoute,
+  AdminEmailsFunilRoute: AdminEmailsFunilRoute,
   AdminAutomacoesIndexRoute: AdminAutomacoesIndexRoute,
   AdminEmailsIndexRoute: AdminEmailsIndexRoute,
 }

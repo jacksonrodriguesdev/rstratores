@@ -40,6 +40,8 @@ export const listarAutomacoesFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<AutomacaoResumo[]> => {
     await admin();
     const { prisma } = await import("./prisma");
+    const { aplicarImagensAutomacoes } = await import("./automacoes.server");
+    await aplicarImagensAutomacoes();
     const rows = await prisma.email_automacoes.findMany({
       orderBy: [{ ativo: "desc" }, { id: "asc" }],
     });

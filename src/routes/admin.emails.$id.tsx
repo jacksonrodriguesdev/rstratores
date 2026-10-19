@@ -58,6 +58,8 @@ import {
   Produtos,
   PublicoSecao,
   PreviaEmail,
+  AnuncioSecao,
+  useAnuncioPrevia,
 } from "@/components/admin/email-editor";
 import { DEPARTAMENTOS_UY } from "@/lib/validacao-conta";
 import { getSessionFn } from "@/lib/user-auth";
@@ -170,6 +172,7 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
     enabled: chaveAtrasada !== "[]",
     placeholderData: (v) => v,
   });
+  const anuncio = useAnuncioPrevia("CAMPANHA");
   const { data: cupons } = useQuery({
     queryKey: ["email-cupons-existentes"],
     queryFn: () => codigosCuponsFn(),
@@ -187,8 +190,9 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
         campanha: "previa",
         produtosBloco,
         vars: { departamento: "Montevideo", mi_cupon: "EJEMPLO10" },
+        anuncio,
       }),
-    [c, preheader, produtosBloco],
+    [c, preheader, produtosBloco, anuncio],
   );
   const cuponsFaltando = cuponsDosBlocos(c.blocos).filter(
     (k) => cupons && !cupons.includes(k.toUpperCase()),
@@ -427,6 +431,11 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
             </>
           )}
 
+          <AnuncioSecao
+            anuncio={anuncio}
+            ligado={!c.semAnuncio}
+            aoMudar={(v) => setC((o) => ({ ...o, semAnuncio: !v }))}
+          />
           <PublicoSecao publico={publico} aoMudar={setPublico} />
         </fieldset>
 

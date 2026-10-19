@@ -16,12 +16,21 @@ import {
   X,
   Smartphone,
   Monitor,
+  Megaphone,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { anuncioPreviaFn, origensFunilFn } from "@/lib/email-marketing";
 import { contarPublicoFn, buscarProdutosEmailFn } from "@/lib/emails";
-import { urlAbsoluta, PUBLICOS, type Publico, type ProdutoEmail } from "@/lib/email-template";
+import {
+  urlAbsoluta,
+  PUBLICOS,
+  ETAPAS_REMARKETING,
+  type Publico,
+  type ProdutoEmail,
+} from "@/lib/email-template";
 import { DEPARTAMENTOS_UY } from "@/lib/validacao-conta";
 import { cn } from "@/lib/utils";
 
@@ -304,6 +313,7 @@ export function PublicoSecao({
           dias
         </div>
       )}
+      {publico.tipo === "remarketing" && <Remarketing publico={publico} aoMudar={aoMudar} />}
       {publico.tipo === "departamentos" && (
         <div className="flex flex-wrap gap-1.5">
           {DEPARTAMENTOS_UY.map((d) => {
@@ -400,5 +410,103 @@ export function PreviaEmail({
         />
       </div>
     </Card>
+  );
+}
+
+// Anúncio por e-mail que entraria hoje (Admin → E-mail marketing → Anúncios)
+export function useAnuncioPrevia(origem: "CAMPANHA" | "AUTOMACAO") {
+  const { data } = useQuery({
+    queryKey: ["email-anuncio-previa", origem],
+    queryFn: () => anuncioPreviaFn({ data: { origem } }),
+    staleTime: 60_000,
+  });
+  return data ?? null;
+}
+export function AnuncioSecao({
+  anuncio,
+  ligado,
+  aoMudar,
+}: {
+  anuncio: { titulo: string } | null;
+  ligado: boolean;
+  aoMudar: (v: boolean) => void;
+}) {
+  return (
+    <Card className="flex items-center justify-between gap-3 p-4">
+      <div className="min-w-0 text-sm">
+        <p className="flex items-center gap-2 font-semibold">
+          <Megaphone className="h-4 w-4 text-primary" /> Incluir o anúncio
+        </p>
+        <p className="truncate text-xs text-muted-foreground">
+          {anuncio
+            ? `No ar hoje: ${anuncio.titulo}`
+            : "Nenhum anúncio no ar (E-mail marketing → Anúncios)."}
+        </p>
+      </div>
+      <Switch checked={ligado} onCheckedChange={aoMudar} />
+    </Card>
+  );
+}
+
+// Público «remarketing»: qual e-mail anterior e qual grupo (não abriu, não clicou, não comprou)
+function Remarketing({ publico, aoMudar }: { publico: Publico; aoMudar: (p: Publico) => void }) {
+  const { data: o } = useQuery({ queryKey: ["email-origens"], queryFn: () => origensFunilFn() });
+  const v = publico.origem?.campanha
+    ? `c${publico.origem.campanha}`
+    : publico.origem?.automacao
+      ? `a${publico.origem.automacao}`
+      : "";
+  return (
+    <div className="grid gap-2 sm:grid-cols-2">
+      <select
+        value={v}
+        onChange={(e) => {
+          const x = e.target.value;
+          aoMudar({
+            ...publico,
+            origem: x.startsWith("c")
+              ? { campanha: Number(x.slice(1)) }
+              : x.startsWith("a")
+                ? { automacao: Number(x.slice(1)) }
+                : {},
+          });
+        }}
+        className="h-10 rounded-md border bg-background px-3 text-sm"
+      >
+        <option value="">E-mail de origem…</option>
+        {!!o?.campanhas.length && (
+          <optgroup label="Campanhas">
+            {o.campanhas.map((c) => (
+              <option key={c.id} value={`c${c.id}`}>
+                {c.nome}
+              </option>
+            ))}
+          </optgroup>
+        )}
+        {!!o?.automacoes.length && (
+          <optgroup label="Automações">
+            {o.automacoes.map((a) => (
+              <option key={a.id} value={`a${a.id}`}>
+                {a.nome}
+              </option>
+            ))}
+          </optgroup>
+        )}
+      </select>
+      <select
+        value={publico.etapa ?? ""}
+        onChange={(e) =>
+          aoMudar({ ...publico, etapa: (e.target.value || undefined) as Publico["etapa"] })
+        }
+        className="h-10 rounded-md border bg-background px-3 text-sm"
+      >
+        <option value="">Quem…</option>
+        {ETAPAS_REMARKETING.map(([k, r]) => (
+          <option key={k} value={k}>
+            {r}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }

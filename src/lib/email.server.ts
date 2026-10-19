@@ -198,6 +198,15 @@ export async function destinatarios(p: Publico) {
   if (p.tipo === "inativos") where.OR = [{ ultimo_login: null }, { ultimo_login: { lt: desde } }];
   if (p.tipo === "ids")
     where.id = { in: (p.ids ?? []).map(Number).filter(Boolean).slice(0, 20000) };
+  if (p.tipo === "remarketing") {
+    const { idsSegmento } = await import("./email-marketing.server");
+    const o = p.origem ?? {};
+    const ids =
+      (o.campanha || o.automacao) && p.etapa
+        ? await idsSegmento({ campanha: o.campanha, automacao: o.automacao }, p.etapa)
+        : [];
+    where.id = { in: ids.length ? ids : [-1] };
+  }
   const rows = await prisma.users.findMany({
     where,
     select: { id: true, email: true, nome_completo: true, cupom: true, departamento: true },
@@ -235,6 +244,9 @@ export async function processarCampanha(id: number, origem: string) {
       ? await resolverProdutosBlocos(conteudo.blocos)
       : undefined;
     const agora = Date.now();
+    // Anúncio por e-mail (rodízio por cliente); a campanha pode desligar em "semAnuncio"
+    const mk = await import("./email-marketing.server");
+    const anuncios = conteudo.semAnuncio ? [] : await mk.anunciosAtivos("CAMPANHA");
     const publico = JSON.parse(c.publico) as Publico;
     const lista = await destinatarios(publico);
     // Quem já recebeu esta campanha não recebe de novo (permite retomar ou mandar aos novos)
@@ -261,7 +273,8 @@ export async function processarCampanha(id: number, origem: string) {
     const tag = slug(c.nome) || `campanha-${id}`;
     for (let i = 0; i < pendentes.length; i += 100) {
       const lote = pendentes.slice(i, i + 100);
-      const msgs = lote.map((u) =>
+      const escolhidos = lote.map((u) => mk.escolherAnuncio(anuncios, u.id));
+      const msgs = lote.map((u, k) =>
         montarMensagem(
           conteudo,
           c.assunto,
@@ -269,7 +282,7 @@ export async function processarCampanha(id: number, origem: string) {
           origem,
           { id: u.id, email: u.email, nome: u.nome_completo },
           tag,
-          { produtosBloco, agora, vars: varsCliente(u) },
+          { produtosBloco, agora, vars: varsCliente(u), anuncio: escolhidos[k] },
         ),
       );
       try {
@@ -284,6 +297,22 @@ export async function processarCampanha(id: number, origem: string) {
             resend_id: ids[k] ?? null,
           })),
         });
+        await mk
+          .registrarExibicoes(
+            lote.flatMap((u, k) =>
+              escolhidos[k]
+                ? [
+                    {
+                      anuncio_id: escolhidos[k]!.id,
+                      resend_id: ids[k] ?? null,
+                      user_id: u.id,
+                      origem: "CAMPANHA" as const,
+                    },
+                  ]
+                : [],
+            ),
+          )
+          .catch((e) => console.error("exibições do anúncio", e));
         await prisma.email_campanhas.update({
           where: { id },
           data: { enviados: { increment: lote.length } },
@@ -370,6 +399,13 @@ export async function registrarEventoWebhook(ev: { type?: string; data?: any }) 
   };
   const st = novo[ev.type];
   if (!st) return;
+  // Cada clique fica gravado com o link e o aparelho (análise, funil e anúncios)
+  if (st === "CLICADO" && ev.data?.click?.link) {
+    const { registrarClique } = await import("./email-marketing.server");
+    await registrarClique(envio, String(ev.data.click.link), ev.data.click.userAgent ?? null).catch(
+      (e) => console.error("clique do e-mail", e),
+    );
+  }
   const data: any = {};
   if (st === "ABERTO" && !envio.aberto_em) data.aberto_em = agora;
   if (st === "CLICADO") {

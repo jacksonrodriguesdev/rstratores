@@ -55,6 +55,8 @@ import {
   Cabecalho,
   PublicoSecao,
   PreviaEmail,
+  AnuncioSecao,
+  useAnuncioPrevia,
 } from "@/components/admin/email-editor";
 import { cn } from "@/lib/utils";
 
@@ -173,6 +175,7 @@ function Formulario({ inicial, atualizar }: { inicial: Automacao; atualizar: () 
   }, [nome, assunto, preheader, c, publico, cfg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const vars = { ...def.variaveis, cupon: c.cupom?.codigo ?? "", validez: c.cupom?.validade ?? "" };
+  const anuncio = useAnuncioPrevia("AUTOMACAO");
   const html = useMemo(
     () =>
       renderEmail(
@@ -184,9 +187,10 @@ function Formulario({ inicial, atualizar }: { inicial: Automacao; atualizar: () 
           urlBaixa: "#",
           whatsappUrl: "#",
           campanha: "previa",
+          anuncio,
         },
       ),
-    [c, preheader], // eslint-disable-line react-hooks/exhaustive-deps
+    [c, preheader, anuncio], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const ligar = async (v: boolean) => {
@@ -477,6 +481,11 @@ function Formulario({ inicial, atualizar }: { inicial: Automacao; atualizar: () 
             </label>
           </Secao>
 
+          <AnuncioSecao
+            anuncio={anuncio}
+            ligado={!c.semAnuncio}
+            aoMudar={(v) => set("semAnuncio", !v)}
+          />
           <PublicoSecao publico={publico} aoMudar={setPublico} />
           <p className="-mt-2 px-1 text-xs text-muted-foreground">
             {inicial.tipo === "boas_vindas"
