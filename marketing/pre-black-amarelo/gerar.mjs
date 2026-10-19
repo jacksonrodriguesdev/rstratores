@@ -323,7 +323,52 @@ function capa(t, w, h) {
 }
 
 // ---------------------------------------------------------------- gera
+// ---------------------------------------------------------------- card em story (9:16)
+// Zona segura: nada importante nos ~250 px de cima (perfil) e ~300 px de baixo (responder).
+function storyCard(t, p, foto, comPreco) {
+  const nome = t.nome(p).toUpperCase();
+  const tn = nome.length > 34 ? 54 : nome.length > 20 ? 62 : 76;
+  const meta = `${t.cod} ${p.cod}${p.marca ? ` · ${t.para} ${p.marca}` : ""}${p.extra ? ` · ${p.extra}` : ""}`;
+  const valorPreco = () => {
+    const v = t.preco(p).replace(/^(R\$|\$U)\s*/, "");
+    const [int, cent] = v.split(",");
+    return `<div style="display:inline-flex;align-items:flex-start;gap:8px;color:#0b0b0b">
+      <span class="anton" style="font-size:40px;margin-top:14px">${t.moeda}</span>
+      <span class="anton" style="font-size:140px;line-height:.92">${int}</span>
+      ${cent ? `<span class="anton" style="font-size:40px;margin-top:86px">,${cent}</span>` : ""}</div>`;
+  };
+  return `<div class="l amarelo" style="width:1080px;height:1920px">
+  ${confete(1080, 760, 34, ["#0b0b0b", "#fff3b0", "#b88400"], p.cod.length, [230, 230, 850, 640])}
+  <div style="position:absolute;left:0;right:0;top:120px">${baloes(1080)}</div>
+  <div style="position:absolute;left:0;right:0;top:250px;display:flex;flex-direction:column;align-items:center;gap:30px">
+    ${moldura(t)}${marca(true, 0.8)}</div>
+  ${pedestal(270, 985, 540)}
+  <div style="position:absolute;left:260px;top:620px;width:560px;height:410px;display:flex;align-items:flex-end;justify-content:center">
+    <img src="${foto}" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 30px 26px rgba(0,0,0,.35))"></div>
+  <div style="position:absolute;left:70px;right:70px;top:1238px;text-align:center">
+    <div class="anton" style="font-size:${tn}px;line-height:1.02;color:#0b0b0b">${nome}</div>
+    <div style="margin-top:12px;font-weight:800;font-size:24px;letter-spacing:1px;color:#2b2100">${meta}</div>
+    ${
+      comPreco
+        ? `<div style="margin-top:18px;display:flex;justify-content:center;align-items:center;gap:16px">
+             ${t.precoDe(p) ? `<span style="font-weight:800;font-size:34px;color:#3a2d00;text-decoration:line-through;text-decoration-thickness:3px">${t.precoDe(p)}</span>` : ""}
+             ${p.preco.desconto ? `<span class="anton" style="background:#0b0b0b;color:#f9c80e;font-size:36px;padding:4px 16px;border-radius:12px">-${p.preco.desconto}%</span>` : ""}</div>
+           <div style="margin-top:4px">${valorPreco()}</div>
+           <div style="margin-top:8px;font-weight:800;font-size:20px;color:#2b2100">${t.nota.replace(/ \(.*\)$/, "")} · ${t.oferta.toLowerCase().replace(/^¡/, "").replace(/!$/, "")}</div>`
+        : `<div style="margin-top:18px;display:inline-flex;align-items:center;gap:22px;background:#0b0b0b;border-radius:26px;padding:10px 32px">
+             <span class="anton" style="font-size:108px;line-height:1;color:#f9c80e">${pct}</span>
+             <span class="anton" style="font-size:34px;line-height:1.1;color:#fff;text-align:left">${t.descLabel.replace(/ (NA|EN LA) /, "<br>$1 ")}</span></div>
+           <div style="margin-top:20px;font-weight:900;font-size:28px;color:#0b0b0b">${t.veja}</div>`
+    }
+  </div>
+  ${fitas(t, 1080, 1920, -70)}
+</div>`;
+}
+
 const amostra = process.argv.includes("--amostra");
+// --stories=pt (ou pt,es): só os cards em formato story, em saida/<idioma>/stories e stories-com-preco
+const argStory = process.argv.find((a) => a.startsWith("--stories="));
+const STORIES = argStory ? argStory.split("=")[1].split(",") : null;
 const b = await chromium.launch();
 const pg = await b.newPage({ viewport: { width: 1080, height: 1350 } });
 await pg.setContent("<body></body>");
@@ -351,6 +396,37 @@ for (const c of COM_PRECO) {
 }
 const nomeCard = (i, p, idioma) =>
   `${String(i + 1).padStart(3, "0")}_${slug(TXT[idioma].nome(p))}_${p.cod.toLowerCase()}.png`;
+if (STORIES) {
+  for (const idioma of STORIES) {
+    const t = TXT[idioma];
+    const dir = path.join(PASTA, "saida", idioma);
+    if (!amostra) for (const d of ["stories", "stories-com-preco"]) fs.rmSync(path.join(dir, d), { recursive: true, force: true });
+    const feitos = [];
+    for (const [i, p] of PECAS.entries()) {
+      if (i >= recortes.length) break;
+      const arq = path.join(dir, "stories", nomeCard(i, p, idioma));
+      await render(storyCard(t, p, recortes[i], false), arq, 1080, 1920);
+      feitos.push(arq);
+      if (COM_PRECO.includes(p.cod)) {
+        const n = COM_PRECO.indexOf(p.cod) + 1;
+        await render(storyCard(t, p, recortes[i], true), path.join(dir, "stories-com-preco", `${String(n).padStart(2, "0")}_${nomeCard(i, p, idioma).slice(4)}`), 1080, 1920);
+      }
+    }
+    if (!amostra) {
+      await pg.setViewportSize({ width: 1600, height: 1000 });
+      // Página no disco (imagens lidas do arquivo): embutir 100 stories inteiros derruba o navegador
+      const html = path.join(dir, "_mosaico.html");
+      fs.writeFileSync(html, `<body style="margin:0;background:#18181b;padding:12px;display:grid;grid-template-columns:repeat(14,1fr);gap:6px">${feitos.map((a) => `<img src="${path.relative(dir, a).replace(/\\/g, "/")}" style="width:100%;border-radius:4px">`).join("")}</body>`);
+      await pg.goto("file:///" + html.replace(/\\/g, "/"), { waitUntil: "load" });
+      fs.rmSync(html);
+      await pg.screenshot({ path: path.join(PASTA, "saida", `mosaico_stories_${idioma}.png`), fullPage: true });
+    }
+    const n2 = fs.existsSync(path.join(dir, "stories-com-preco")) ? fs.readdirSync(path.join(dir, "stories-com-preco")).length : 0;
+    console.log(`✔ stories ${idioma}: ${feitos.length} sem preço + ${n2} com preço`);
+  }
+  await b.close();
+  process.exit(0);
+}
 for (const idioma of amostra ? ["pt", "es"] : ["es", "pt"]) {
   const t = TXT[idioma];
   const dir = path.join(PASTA, "saida", idioma);
