@@ -42,6 +42,6 @@ export const MONTADORAS = [
 ];
 
 // Redes sociais: preencha com os endereços reais. Ícones e botões só aparecem quando preenchidos.
-export const INSTAGRAM_URL = "https://www.instagram.com/agroparts/";
-export const INSTAGRAM_USUARIO = "@agroparts";
+export const INSTAGRAM_URL = "https://www.instagram.com/rsagroparts/";
+export const INSTAGRAM_USUARIO = "@rsagroparts";
 export const FACEBOOK_URL = "";
