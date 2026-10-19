@@ -1,0 +1,1857 @@
+{
+ "data": "19/10/2026",
+ "cotacao": 7.911943,
+ "desconto": 20,
+ "pecas": [
+  {
+   "sku": "71390188",
+   "cod": "1001877",
+   "es": "Correa de accionamiento principal de trilla",
+   "pt": "Correia de acionamento principal da trilha",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "cat_pt": "Transmissão",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/170311-600-600/Foto-4966153-1.jpg",
+   "preco": {
+    "brl": "R$ 2.253,17",
+    "deBrl": "R$ 2.816,46",
+    "uyu": "$U 17.840",
+    "deUyu": "$U 22.290",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "054182ea",
+   "cod": "054182EA",
+   "es": "Conjunto engranaje baja 42 dientes",
+   "pt": "Conjunto engrenagem baixa 42 dentes",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "cat_pt": "Transmissão",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/195858-600-600/Foto-4957964-1.jpg",
+   "preco": {
+    "brl": "R$ 8.242,54",
+    "deBrl": "R$ 10.303,17",
+    "uyu": "$U 65.220",
+    "deUyu": "$U 81.520",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "053352ea",
+   "cod": "053352EA",
+   "es": "Engranaje con manguito Z44/46",
+   "pt": "Engrenagem com luva Z44/46",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "cat_pt": "Transmissão",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163885-600-600/Foto-4957957-1.jpg",
+   "preco": {
+    "brl": "R$ 3.817,49",
+    "deBrl": "R$ 4.771,86",
+    "uyu": "$U 30.210",
+    "deUyu": "$U 37.760",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "79007",
+   "cod": "79007",
+   "es": "Turbocompresor",
+   "pt": "Turbocompressor",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/242747-600-600/79007_01.jpg",
+   "preco": {
+    "brl": "R$ 14.775,62",
+    "deBrl": "R$ 18.469,52",
+    "uyu": "$U 116.910",
+    "deUyu": "$U 146.130",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "039410ea",
+   "cod": "039410EA",
+   "es": "Conjunto sincronizador",
+   "pt": "Conjunto sincronizador",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/179402-600-600/Foto-4957856-1.jpg",
+   "preco": {
+    "brl": "R$ 9.204,59",
+    "deBrl": "R$ 11.505,74",
+    "uyu": "$U 72.840",
+    "deUyu": "$U 91.040",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "80005500ea",
+   "cod": "80005500EA",
+   "es": "Planetaria 18/24 dientes",
+   "pt": "Planetária 18/24 dentes",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/170983-600-600/Foto-4966380-1.jpg",
+   "preco": {
+    "brl": "R$ 3.554,06",
+    "deBrl": "R$ 4.442,58",
+    "uyu": "$U 28.120",
+    "deUyu": "$U 35.150",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "036411dr",
+   "cod": "036411DR",
+   "es": "Articulación doble montada",
+   "pt": "Articulação dupla montada",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/248250-600-600/Foto-5091230-1.jpg",
+   "preco": {
+    "brl": "R$ 2.841,18",
+    "deBrl": "R$ 3.551,48",
+    "uyu": "$U 22.480",
+    "deUyu": "$U 28.100",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "85584300",
+   "cod": "85584300",
+   "es": "Brazo del elevador",
+   "pt": "Braço do elevador",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/190190-600-600/Foto-4969094-1.jpg",
+   "preco": {
+    "brl": "R$ 2.583,51",
+    "deBrl": "R$ 3.229,39",
+    "uyu": "$U 20.450",
+    "deUyu": "$U 25.560",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "922909300184",
+   "cod": "922909300184",
+   "es": "Colector de escape",
+   "pt": "Coletor de escape",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/227666-600-600/Foto-5053255-1.jpg",
+   "preco": {
+    "brl": "R$ 2.246,16",
+    "deBrl": "R$ 2.807,70",
+    "uyu": "$U 17.780",
+    "deUyu": "$U 22.220",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "039404ea",
+   "cod": "039404EA",
+   "es": "Horquilla",
+   "pt": "Garfo",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "cat_pt": "Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163851-600-600/Foto-4957854-1.jpg",
+   "preco": {
+    "brl": "R$ 2.128,54",
+    "deBrl": "R$ 2.660,67",
+    "uyu": "$U 16.850",
+    "deUyu": "$U 21.060",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "84998722vv",
+   "cod": "84998722VV",
+   "es": "Barra de corte seccionada 23'",
+   "pt": "Barra de corte seccionada 23'",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "cat_pt": "Estrutura",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/243931-600-600/84998722_01.jpg",
+   "preco": {
+    "brl": "R$ 2.604,04",
+    "deBrl": "R$ 3.255,05",
+    "uyu": "$U 20.610",
+    "deUyu": "$U 25.760",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "3409713vv",
+   "cod": "3409713VV",
+   "es": "Soporte de freno a disco (lado derecho)",
+   "pt": "Suporte do freio a disco (lado direito)",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "cat_pt": "Estrutura",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/182281-600-600/Foto-4964273-1.jpg",
+   "preco": {
+    "brl": "R$ 588,84",
+    "deBrl": "R$ 736,05",
+    "uyu": "$U 4.670",
+    "deUyu": "$U 5.830",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81320800ea",
+   "cod": "81320800EA",
+   "es": "Rodamiento 21309",
+   "pt": "Rolamento 21309",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "cat_pt": "Rolamentos",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/192431-600-600/Foto-4966010-1.jpg",
+   "preco": {
+    "brl": "R$ 1.051,78",
+    "deBrl": "R$ 1.314,72",
+    "uyu": "$U 8.330",
+    "deUyu": "$U 10.410",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "265150ea",
+   "cod": "265150EA",
+   "es": "Rodamiento 42381/584",
+   "pt": "Rolamento 42381/584",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "cat_pt": "Rolamentos",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/193891-600-600/Foto-4960224-2.jpg",
+   "preco": {
+    "brl": "R$ 805,85",
+    "deBrl": "R$ 1.007,31",
+    "uyu": "$U 6.380",
+    "deUyu": "$U 7.970",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81321600ea",
+   "cod": "81321600EA",
+   "es": "Rodamiento NU309",
+   "pt": "Rolamento NU309",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "cat_pt": "Rolamentos",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/183378-600-600/Foto-4966024-1.jpg",
+   "preco": {
+    "brl": "R$ 565,39",
+    "deBrl": "R$ 706,74",
+    "uyu": "$U 4.480",
+    "deUyu": "$U 5.600",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "la3976",
+   "cod": "LA3976",
+   "es": "Rodamiento NJ309",
+   "pt": "Rolamento NJ309",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "cat_pt": "Rolamentos",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/186141-600-600/Foto-4971831-1.jpg",
+   "preco": {
+    "brl": "R$ 488,08",
+    "deBrl": "R$ 610,10",
+    "uyu": "$U 3.870",
+    "deUyu": "$U 4.830",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "la5013",
+   "cod": "LA5013",
+   "es": "Rodamiento 30208",
+   "pt": "Rolamento 30208",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "cat_pt": "Rolamentos",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/177888-600-600/Foto-4971848-1.jpg",
+   "preco": {
+    "brl": "R$ 196,63",
+    "deBrl": "R$ 245,79",
+    "uyu": "$U 1.560",
+    "deUyu": "$U 1.950",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "223620",
+   "cod": "223620",
+   "es": "Rodamiento de agujas",
+   "pt": "Rolamento de agulhas",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "cat_pt": "Rolamentos",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/167892-600-600/Foto-4963755-1.jpg",
+   "preco": {
+    "brl": "R$ 187,58",
+    "deBrl": "R$ 234,48",
+    "uyu": "$U 1.490",
+    "deUyu": "$U 1.860",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "023488ea",
+   "cod": "023488EA",
+   "es": "Anillo sincronizador 2ª/3ª",
+   "pt": "Anel sincronizador 2ª/3ª",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "cat_pt": "Vedações",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/159381-600-600/Foto-4957804-1.jpg",
+   "preco": {
+    "brl": "R$ 1.275,09",
+    "deBrl": "R$ 1.593,86",
+    "uyu": "$U 10.100",
+    "deUyu": "$U 12.620",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "1686458ea",
+   "cod": "1686458EA",
+   "es": "Anillo estriado",
+   "pt": "Anel estriado",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "cat_pt": "Vedações",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163913-600-600/Foto-4958470-1.jpg",
+   "preco": {
+    "brl": "R$ 773,37",
+    "deBrl": "R$ 966,71",
+    "uyu": "$U 6.120",
+    "deUyu": "$U 7.650",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81644000",
+   "cod": "81644000",
+   "es": "Retén 127 × 159 × 24",
+   "pt": "Retentor 127 × 159 × 24",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "cat_pt": "Vedações",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/170461-600-600/Foto-4966485-1.jpg",
+   "preco": {
+    "brl": "R$ 359,02",
+    "deBrl": "R$ 448,77",
+    "uyu": "$U 2.850",
+    "deUyu": "$U 3.560",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81237000",
+   "cod": "81237000",
+   "es": "Retén del semieje delantero",
+   "pt": "Retentor do semieixo dianteiro",
+   "extra": "Carraro",
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "cat_pt": "Vedações",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/183051-600-600/Foto-4965945-1.jpg",
+   "preco": {
+    "brl": "R$ 190,97",
+    "deBrl": "R$ 238,71",
+    "uyu": "$U 1.520",
+    "deUyu": "$U 1.890",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81133600vv",
+   "cod": "81133600VV",
+   "es": "Buje guía del embrague",
+   "pt": "Bucha guia da embreagem",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Elementos de Fixação",
+   "cat_es": "Tornillería y Fijación",
+   "cat_pt": "Fixação",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/228363-600-600/Foto-5069882-1.jpg",
+   "preco": {
+    "brl": "R$ 318,76",
+    "deBrl": "R$ 398,45",
+    "uyu": "$U 2.530",
+    "deUyu": "$U 3.160",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "820100",
+   "cod": "820100",
+   "es": "Tornillo de rueda trasera",
+   "pt": "Parafuso da roda traseira",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Elementos de Fixação",
+   "cat_es": "Tornillería y Fijación",
+   "cat_pt": "Fixação",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/221503-600-600/Foto-4967715-1.jpg",
+   "preco": {
+    "brl": "R$ 101,27",
+    "deBrl": "R$ 126,59",
+    "uyu": "$U 810",
+    "deUyu": "$U 1.010",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "487945",
+   "cod": "487945",
+   "es": "Tornillo con tuerca",
+   "pt": "Parafuso com porca",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Elementos de Fixação",
+   "cat_es": "Tornillería y Fijación",
+   "cat_pt": "Fixação",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/217411-600-600/Foto-4964963-1.jpg",
+   "preco": {
+    "brl": "R$ 84,42",
+    "deBrl": "R$ 105,53",
+    "uyu": "$U 680",
+    "deUyu": "$U 840",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "82364800",
+   "cod": "82364800",
+   "es": "Kit de reparación del cilindro de dirección",
+   "pt": "Kit de reparo do cilindro de direção",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163330-600-600/Foto-4968182-1.jpg",
+   "preco": {
+    "brl": "R$ 10.342,66",
+    "deBrl": "R$ 12.928,32",
+    "uyu": "$U 81.840",
+    "deUyu": "$U 102.290",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "f000510714",
+   "cod": "F000510714",
+   "es": "Bomba hidráulica D8NN600LB",
+   "pt": "Bomba hidráulica D8NN600LB",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176364-600-600/Foto-4970202-1.jpg",
+   "preco": {
+    "brl": "R$ 7.614,00",
+    "deBrl": "R$ 9.517,50",
+    "uyu": "$U 60.250",
+    "deUyu": "$U 75.310",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "f000510704",
+   "cod": "F000510704",
+   "es": "Bomba hidráulica D8NN600KB",
+   "pt": "Bomba hidráulica D8NN600KB",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176354-600-600/Foto-4970199-1.jpg",
+   "preco": {
+    "brl": "R$ 6.930,00",
+    "deBrl": "R$ 8.662,50",
+    "uyu": "$U 54.840",
+    "deUyu": "$U 68.540",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "f000510712",
+   "cod": "F000510712",
+   "es": "Bomba hidráulica doble con colector",
+   "pt": "Bomba hidráulica dupla com coletor",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176361-600-600/Foto-4970201-1.jpg",
+   "preco": {
+    "brl": "R$ 5.628,31",
+    "deBrl": "R$ 7.035,39",
+    "uyu": "$U 44.540",
+    "deUyu": "$U 55.670",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "f000510701",
+   "cod": "F000510701",
+   "es": "Bomba hidráulica doble con colector",
+   "pt": "Bomba hidráulica dupla com coletor",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176351-600-600/Foto-4970198-1.jpg",
+   "preco": {
+    "brl": "R$ 5.245,55",
+    "deBrl": "R$ 6.556,94",
+    "uyu": "$U 41.510",
+    "deUyu": "$U 51.880",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "r979013181",
+   "cod": "R979013181",
+   "es": "Bomba hidráulica",
+   "pt": "Bomba hidráulica",
+   "extra": null,
+   "marca": "John Deere",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/186198-600-600/Foto-4972130-1.jpg",
+   "preco": {
+    "brl": "R$ 4.388,23",
+    "deBrl": "R$ 5.485,29",
+    "uyu": "$U 34.720",
+    "deUyu": "$U 43.400",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "f000510600",
+   "cod": "F000510600",
+   "es": "Bomba hidráulica doble",
+   "pt": "Bomba hidráulica dupla",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "cat_pt": "Hidráulica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/185600-600-600/Foto-4970192-1.jpg",
+   "preco": {
+    "brl": "R$ 4.124,91",
+    "deBrl": "R$ 5.156,14",
+    "uyu": "$U 32.640",
+    "deUyu": "$U 40.800",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "psh211",
+   "cod": "PSH211",
+   "es": "Filtro hidráulico",
+   "pt": "Filtro hidráulico",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/237580-600-600/PSH211_01.jpg",
+   "preco": {
+    "brl": "R$ 237,00",
+    "deBrl": "R$ 296,25",
+    "uyu": "$U 1.880",
+    "deUyu": "$U 2.350",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "4224811",
+   "cod": "4224811",
+   "es": "Filtro de combustible de la bomba eléctrica",
+   "pt": "Filtro de combustível da bomba elétrica",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/191978-600-600/Foto-4961149-1.jpg",
+   "preco": {
+    "brl": "R$ 175,50",
+    "deBrl": "R$ 219,38",
+    "uyu": "$U 1.400",
+    "deUyu": "$U 1.740",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "re509672",
+   "cod": "RE509672",
+   "es": "Filtro de aceite del motor",
+   "pt": "Filtro de óleo do motor",
+   "extra": null,
+   "marca": "John Deere",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/178258-600-600/Foto-4972190-1.jpg",
+   "preco": {
+    "brl": "R$ 171,46",
+    "deBrl": "R$ 214,33",
+    "uyu": "$U 1.360",
+    "deUyu": "$U 1.700",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "psc504",
+   "cod": "PSC504",
+   "es": "Filtro de combustible",
+   "pt": "Filtro de combustível",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/220123-600-600/Foto-4972067-1.jpg",
+   "preco": {
+    "brl": "R$ 98,23",
+    "deBrl": "R$ 122,79",
+    "uyu": "$U 790",
+    "deUyu": "$U 980",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "040880",
+   "cod": "040880",
+   "es": "Filtro de combustible",
+   "pt": "Filtro de combustível",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/230142-600-600/040880_06.jpg",
+   "preco": {
+    "brl": "R$ 65,22",
+    "deBrl": "R$ 81,53",
+    "uyu": "$U 520",
+    "deUyu": "$U 650",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "48007134CNH",
+   "cod": "48007134",
+   "es": "Filtro de aire primario",
+   "pt": "Filtro de ar primário",
+   "extra": null,
+   "marca": "New Holland",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/188844-600-600/Foto-4964817-1.jpg",
+   "preco": {
+    "brl": "R$ 6.141,24",
+    "deBrl": "R$ 7.676,55",
+    "uyu": "$U 48.600",
+    "deUyu": "$U 60.740",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "6224530M91ORIG",
+   "cod": "6224530M91",
+   "es": "Prefiltro de combustible",
+   "pt": "Pré-filtro de combustível",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "cat_pt": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/182353-600-600/Foto-4964583-1.jpg",
+   "preco": {
+    "brl": "R$ 3.678,31",
+    "deBrl": "R$ 4.597,89",
+    "uyu": "$U 29.110",
+    "deUyu": "$U 36.380",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "836640772",
+   "cod": "836640772",
+   "es": "Sensor de temperatura",
+   "pt": "Sensor de temperatura",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "cat_pt": "Elétrica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/192475-600-600/Foto-4968610-1.jpg",
+   "preco": {
+    "brl": "R$ 954,24",
+    "deBrl": "R$ 1.192,80",
+    "uyu": "$U 7.560",
+    "deUyu": "$U 9.440",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "d5nn11654b",
+   "cod": "D5NN11654B",
+   "es": "Llave de luces de 7 terminales",
+   "pt": "Chave de luz de 7 terminais",
+   "extra": null,
+   "marca": "Ford",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "cat_pt": "Elétrica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/197781-600-600/Foto-5010773-1.jpg",
+   "preco": {
+    "brl": "R$ 103,00",
+    "deBrl": "R$ 128,75",
+    "uyu": "$U 820",
+    "deUyu": "$U 1.020",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "2801211M93",
+   "cod": "2801211M93",
+   "es": "Radiador de agua",
+   "pt": "Radiador de água",
+   "extra": null,
+   "marca": "AGCO",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "cat_pt": "Elétrica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/247710-600-600/2801211_01.png",
+   "preco": {
+    "brl": "R$ 21.060,00",
+    "deBrl": "R$ 26.325,00",
+    "uyu": "$U 166.640",
+    "deUyu": "$U 208.290",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "6238900",
+   "cod": "6238900",
+   "es": "Solenoide del control remoto",
+   "pt": "Solenoide do controle remoto",
+   "extra": "Bosch",
+   "marca": "Massey Ferguson",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "cat_pt": "Elétrica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/167526-600-600/Foto-4962938-1.jpg",
+   "preco": {
+    "brl": "R$ 3.958,18",
+    "deBrl": "R$ 4.947,73",
+    "uyu": "$U 31.320",
+    "deUyu": "$U 39.150",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "E7NN10849CABLA",
+   "cod": "E7NN10849",
+   "es": "Panel de instrumentos 4600 a 6610",
+   "pt": "Painel de instrumentos 4600 a 6610",
+   "extra": null,
+   "marca": "New Holland",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "cat_pt": "Elétrica",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176345-600-600/Foto-4970156-1.jpg",
+   "preco": {
+    "brl": "R$ 2.937,05",
+    "deBrl": "R$ 3.671,31",
+    "uyu": "$U 23.240",
+    "deUyu": "$U 29.050",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "83063502",
+   "cod": "83063502",
+   "es": "Kit de embrague plato + disco",
+   "pt": "Kit de embreagem platô + disco",
+   "extra": "LuK",
+   "marca": "Massey Ferguson",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "cat_pt": "Embreagem e freios",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/171714-600-600/Foto-4968418-1.jpg",
+   "preco": {
+    "brl": "R$ 7.020,00",
+    "deBrl": "R$ 8.775,00",
+    "uyu": "$U 55.550",
+    "deUyu": "$U 69.430",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "85026800luk",
+   "cod": "85026800LUK",
+   "es": "Kit de embrague plato + disco + rulemán",
+   "pt": "Kit de embreagem platô + disco + rolamento",
+   "extra": "LuK",
+   "marca": "Massey Ferguson",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "cat_pt": "Embreagem e freios",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/175375-600-600/Foto-4969036-1.jpg",
+   "preco": {
+    "brl": "R$ 2.939,16",
+    "deBrl": "R$ 3.673,95",
+    "uyu": "$U 23.260",
+    "deUyu": "$U 29.070",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "re177574ea",
+   "cod": "RE177574EA",
+   "es": "Disco de embrague cerámico 280 mm",
+   "pt": "Disco de embreagem cerâmico 280 mm",
+   "extra": null,
+   "marca": "John Deere",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "cat_pt": "Embreagem e freios",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/193508-600-600/Foto-4972139-1.jpg",
+   "preco": {
+    "brl": "R$ 1.818,14",
+    "deBrl": "R$ 2.272,68",
+    "uyu": "$U 14.400",
+    "deUyu": "$U 17.990",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "80797700ea",
+   "cod": "80797700EA",
+   "es": "Disco rígido de 14 pastillas",
+   "pt": "Disco rígido de 14 pastilhas",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "cat_pt": "Embreagem e freios",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/228155-600-600/Foto-5069871-1.jpg",
+   "preco": {
+    "brl": "R$ 1.454,78",
+    "deBrl": "R$ 1.818,47",
+    "uyu": "$U 11.520",
+    "deUyu": "$U 14.390",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "204521ea",
+   "cod": "204521EA",
+   "es": "Disco de embrague",
+   "pt": "Disco de embreagem",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "cat_pt": "Embreagem e freios",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/165552-600-600/Foto-4959931-1.jpg",
+   "preco": {
+    "brl": "R$ 914,17",
+    "deBrl": "R$ 1.142,71",
+    "uyu": "$U 7.240",
+    "deUyu": "$U 9.050",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "887896vv",
+   "cod": "887896VV",
+   "es": "Cobertura del embrague",
+   "pt": "Cobertura da embreagem",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "cat_pt": "Embreagem e freios",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/175787-600-600/Foto-4969948-1.jpg",
+   "preco": {
+    "brl": "R$ 663,64",
+    "deBrl": "R$ 829,55",
+    "uyu": "$U 5.260",
+    "deUyu": "$U 6.570",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "067265tur",
+   "cod": "067265TUR",
+   "es": "Tractómetro",
+   "pt": "Tratômetro",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/164249-600-600/Foto-4958020-1.jpg",
+   "preco": {
+    "brl": "R$ 1.603,60",
+    "deBrl": "R$ 2.004,50",
+    "uyu": "$U 12.690",
+    "deUyu": "$U 15.860",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "827719",
+   "cod": "827719",
+   "es": "Reducida con engranaje 30 mm",
+   "pt": "Reduzida com engrenagem 30 mm",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/222958-600-600/Foto-5007474-1.jpg",
+   "preco": {
+    "brl": "R$ 1.535,33",
+    "deBrl": "R$ 1.919,16",
+    "uyu": "$U 12.160",
+    "deUyu": "$U 15.190",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "039402ea",
+   "cod": "039402EA",
+   "es": "Engranaje de 38 dientes",
+   "pt": "Engrenagem de 38 dentes",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163847-600-600/Foto-4957853-1.jpg",
+   "preco": {
+    "brl": "R$ 1.425,43",
+    "deBrl": "R$ 1.781,79",
+    "uyu": "$U 11.280",
+    "deUyu": "$U 14.100",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "040658dr",
+   "cod": "040658DR",
+   "es": "Articulador doble montado",
+   "pt": "Articulador duplo montado",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Outros Componentes",
+   "cat_es": "Otros Componentes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/242620-600-600/040658DR_01.jpg",
+   "preco": {
+    "brl": "R$ 1.159,74",
+    "deBrl": "R$ 1.449,68",
+    "uyu": "$U 9.180",
+    "deUyu": "$U 11.470",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "3699802",
+   "cod": "3699802",
+   "es": "Retén K7 44,5 × 63,5 × 18",
+   "pt": "Retentor K7 44,5 × 63,5 × 18",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/160482-600-600/Foto-4960988-1.jpg",
+   "preco": {
+    "brl": "R$ 95,13",
+    "deBrl": "R$ 118,91",
+    "uyu": "$U 760",
+    "deUyu": "$U 950",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "kh1160",
+   "cod": "KH1160",
+   "es": "Retén 65 × 100 × 10 de la caja de cambios",
+   "pt": "Retentor 65 × 100 × 10 da caixa de câmbio",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176004-600-600/Foto-4971010-1.jpg",
+   "preco": {
+    "brl": "R$ 81,84",
+    "deBrl": "R$ 102,30",
+    "uyu": "$U 650",
+    "deUyu": "$U 810",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81238600",
+   "cod": "81238600",
+   "es": "Retén del semieje delantero",
+   "pt": "Retentor do semieixo dianteiro",
+   "extra": "Carraro",
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/183055-600-600/Foto-4965948-1.jpg",
+   "preco": {
+    "brl": "R$ 81,48",
+    "deBrl": "R$ 101,85",
+    "uyu": "$U 650",
+    "deUyu": "$U 810",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "242011",
+   "cod": "242011",
+   "es": "Retén 100 × 125 × 15",
+   "pt": "Retentor 100 × 125 × 15",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/181705-600-600/Foto-4963804-1.jpg",
+   "preco": {
+    "brl": "R$ 66,64",
+    "deBrl": "R$ 83,30",
+    "uyu": "$U 530",
+    "deUyu": "$U 660",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "kh0920",
+   "cod": "KH0920",
+   "es": "Retén del eje de la toma de fuerza",
+   "pt": "Retentor do eixo da tomada de força",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Vedações",
+   "cat_es": "Sellos y Juntas",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/219241-600-600/Foto-4970966-1.jpg",
+   "preco": {
+    "brl": "R$ 58,15",
+    "deBrl": "R$ 72,69",
+    "uyu": "$U 470",
+    "deUyu": "$U 580",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "5198480CNH",
+   "cod": "5198480",
+   "es": "Cubo de rueda",
+   "pt": "Cubo de roda",
+   "extra": "CNH",
+   "marca": "New Holland",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/244855-600-600/5198480_01.jpg",
+   "preco": {
+    "brl": "R$ 8.391,31",
+    "deBrl": "R$ 10.489,14",
+    "uyu": "$U 66.400",
+    "deUyu": "$U 82.990",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "80789310",
+   "cod": "80789310",
+   "es": "Cojinete montado",
+   "pt": "Mancal montado",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/170370-600-600/Foto-4967115-1.jpg",
+   "preco": {
+    "brl": "R$ 7.664,79",
+    "deBrl": "R$ 9.580,99",
+    "uyu": "$U 60.650",
+    "deUyu": "$U 75.810",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "AL166862DAN",
+   "cod": "AL166862",
+   "es": "Kit cubo de rueda con tornillos",
+   "pt": "Kit cubo de roda com parafusos",
+   "extra": null,
+   "marca": "John Deere",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/233878-600-600/AL166862DAN_01.jpg",
+   "preco": {
+    "brl": "R$ 6.252,19",
+    "deBrl": "R$ 7.815,24",
+    "uyu": "$U 49.480",
+    "deUyu": "$U 61.840",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "86984600Z",
+   "cod": "86984600",
+   "es": "Cubo AS3065",
+   "pt": "Cubo AS3065",
+   "extra": "ZF",
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/228416-600-600/Foto-5069961-1.jpg",
+   "preco": {
+    "brl": "R$ 3.492,98",
+    "deBrl": "R$ 4.366,23",
+    "uyu": "$U 27.640",
+    "deUyu": "$U 34.550",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "82776400PG",
+   "cod": "82776400",
+   "es": "Cubo de rueda",
+   "pt": "Cubo de roda",
+   "extra": "Panegossi",
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/220612-600-600/Foto-4968358-1.jpg",
+   "preco": {
+    "brl": "R$ 2.302,02",
+    "deBrl": "R$ 2.877,52",
+    "uyu": "$U 18.220",
+    "deUyu": "$U 22.770",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "84104200Z",
+   "cod": "84104200",
+   "es": "Cubo del eje delantero",
+   "pt": "Cubo do eixo dianteiro",
+   "extra": "ZF",
+   "marca": "Valtra",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/186576-600-600/Foto-4972890-1.jpg",
+   "preco": {
+    "brl": "R$ 1.973,70",
+    "deBrl": "R$ 2.467,13",
+    "uyu": "$U 15.620",
+    "deUyu": "$U 19.520",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "033728Z",
+   "cod": "033728",
+   "es": "Cubo de tracción delantera",
+   "pt": "Cubo da tração dianteira",
+   "extra": "ZF",
+   "marca": "Massey Ferguson",
+   "cat": "Rolamentos e Mancais",
+   "cat_es": "Rodamientos y Cojinetes",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/191561-600-600/Foto-4972685-1.jpg",
+   "preco": {
+    "brl": "R$ 1.940,04",
+    "deBrl": "R$ 2.425,05",
+    "uyu": "$U 15.360",
+    "deUyu": "$U 19.190",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "82665410NOR",
+   "cod": "82665410",
+   "es": "Alternador",
+   "pt": "Alternador",
+   "extra": "Mahle",
+   "marca": "Valtra",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/173116-600-600/Foto-4968300-1.jpg",
+   "preco": {
+    "brl": "R$ 2.016,00",
+    "deBrl": "R$ 2.520,00",
+    "uyu": "$U 15.960",
+    "deUyu": "$U 19.940",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "85943100",
+   "cod": "85943100",
+   "es": "Tacómetro del panel",
+   "pt": "Tacômetro do painel",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/173729-600-600/Foto-4969144-1.jpg",
+   "preco": {
+    "brl": "R$ 1.732,38",
+    "deBrl": "R$ 2.165,48",
+    "uyu": "$U 13.720",
+    "deUyu": "$U 17.140",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "6283263",
+   "cod": "6283263",
+   "es": "Conjunto alternador",
+   "pt": "Conjunto alternador",
+   "extra": "Mahle",
+   "marca": "Massey Ferguson",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/223494-600-600/Foto-5003697-1.jpg",
+   "preco": {
+    "brl": "R$ 1.512,00",
+    "deBrl": "R$ 1.890,00",
+    "uyu": "$U 11.970",
+    "deUyu": "$U 14.960",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "83885800TUR",
+   "cod": "83885800",
+   "es": "Tacómetro eléctrico",
+   "pt": "Tacômetro elétrico",
+   "extra": "Turotest",
+   "marca": "Valtra",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/184580-600-600/Foto-4967333-1.jpg",
+   "preco": {
+    "brl": "R$ 1.508,98",
+    "deBrl": "R$ 1.886,22",
+    "uyu": "$U 11.950",
+    "deUyu": "$U 14.930",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "85602600",
+   "cod": "85602600",
+   "es": "Panel de instrumentos",
+   "pt": "Painel de instrumentos",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Elétrica e Sensores",
+   "cat_es": "Eléctrica y Sensores",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/173682-600-600/Foto-4969097-1.jpg",
+   "preco": {
+    "brl": "R$ 1.207,79",
+    "deBrl": "R$ 1.509,74",
+    "uyu": "$U 9.560",
+    "deUyu": "$U 11.950",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "048438atf",
+   "cod": "048438ATF",
+   "es": "Disco de embrague",
+   "pt": "Disco de embreagem",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/218999-600-600/Foto-4963027-1.jpg",
+   "preco": {
+    "brl": "R$ 482,20",
+    "deBrl": "R$ 602,75",
+    "uyu": "$U 3.820",
+    "deUyu": "$U 4.770",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "048438ea",
+   "cod": "048438EA",
+   "es": "Disco de embrague",
+   "pt": "Disco de embreagem",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163868-600-600/Foto-4957923-1.jpg",
+   "preco": {
+    "brl": "R$ 479,40",
+    "deBrl": "R$ 599,25",
+    "uyu": "$U 3.800",
+    "deUyu": "$U 4.750",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "041053uni",
+   "cod": "041053UNI",
+   "es": "Disco intermedio",
+   "pt": "Disco intermediário",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/179655-600-600/Foto-4957903-1.jpg",
+   "preco": {
+    "brl": "R$ 120,17",
+    "deBrl": "R$ 150,21",
+    "uyu": "$U 960",
+    "deUyu": "$U 1.190",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "86518928CNH",
+   "cod": "86518928",
+   "es": "Conjunto de embrague",
+   "pt": "Conjunto de embreagem",
+   "extra": "CNH",
+   "marca": "New Holland",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/190428-600-600/Foto-4969220-1.jpg",
+   "preco": {
+    "brl": "R$ 27.810,00",
+    "deBrl": "R$ 34.762,50",
+    "uyu": "$U 220.040",
+    "deUyu": "$U 275.040",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "231008810",
+   "cod": "231008810",
+   "es": "Plato doble",
+   "pt": "Platô duplo",
+   "extra": "LuK",
+   "marca": "New Holland",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/230126-600-600/Foto-5086047-1.jpg",
+   "preco": {
+    "brl": "R$ 9.166,61",
+    "deBrl": "R$ 11.458,26",
+    "uyu": "$U 72.530",
+    "deUyu": "$U 90.660",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "228015210",
+   "cod": "228015210",
+   "es": "Plato de embrague",
+   "pt": "Platô de embreagem",
+   "extra": "LuK",
+   "marca": "New Holland",
+   "cat": "Freios e Embreagens",
+   "cat_es": "Frenos y Embragues",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/248130-600-600/Foto-5090804-1.jpg",
+   "preco": {
+    "brl": "R$ 7.285,50",
+    "deBrl": "R$ 9.106,88",
+    "uyu": "$U 57.650",
+    "deUyu": "$U 72.060",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "ACP0566280",
+   "cod": "ACP0566280",
+   "es": "Kit filtro de combustible",
+   "pt": "Kit filtro de combustível",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/173946-600-600/Foto-4968926-1.jpg",
+   "preco": {
+    "brl": "R$ 1.960,46",
+    "deBrl": "R$ 2.450,57",
+    "uyu": "$U 15.520",
+    "deUyu": "$U 19.390",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "47801835CNH",
+   "cod": "47801835",
+   "es": "Filtro de combustible",
+   "pt": "Filtro de combustível",
+   "extra": "CNH",
+   "marca": "New Holland",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/186941-600-600/Foto-4958819-1.jpg",
+   "preco": {
+    "brl": "R$ 1.782,14",
+    "deBrl": "R$ 2.227,68",
+    "uyu": "$U 14.110",
+    "deUyu": "$U 17.630",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "837086380",
+   "cod": "837086380",
+   "es": "Filtro sedimentador",
+   "pt": "Filtro sedimentador",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/235654-600-600/Foto-5086068-1.jpg",
+   "preco": {
+    "brl": "R$ 1.498,89",
+    "deBrl": "R$ 1.873,61",
+    "uyu": "$U 11.870",
+    "deUyu": "$U 14.830",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "86491900",
+   "cod": "86491900",
+   "es": "Filtro hidráulico",
+   "pt": "Filtro hidráulico",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/173770-600-600/Foto-4969204-1.jpg",
+   "preco": {
+    "brl": "R$ 1.346,40",
+    "deBrl": "R$ 1.683,00",
+    "uyu": "$U 10.660",
+    "deUyu": "$U 13.320",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "84423586CNH",
+   "cod": "84423586",
+   "es": "Filtro de combustible",
+   "pt": "Filtro de combustível",
+   "extra": "CNH",
+   "marca": "New Holland",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/164678-600-600/Foto-4959318-1.jpg",
+   "preco": {
+    "brl": "R$ 1.266,96",
+    "deBrl": "R$ 1.583,70",
+    "uyu": "$U 10.040",
+    "deUyu": "$U 12.540",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "193990TEC",
+   "cod": "193990",
+   "es": "Filtro de aire 188",
+   "pt": "Filtro de ar 188",
+   "extra": "Tecnoar",
+   "marca": "Valtra",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/180605-600-600/Foto-4959854-1.jpg",
+   "preco": {
+    "brl": "R$ 1.233,48",
+    "deBrl": "R$ 1.541,85",
+    "uyu": "$U 9.760",
+    "deUyu": "$U 12.200",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "84305930CNH",
+   "cod": "84305930",
+   "es": "Filtro de aire",
+   "pt": "Filtro de ar",
+   "extra": "CNH",
+   "marca": "New Holland",
+   "cat": "Filtros",
+   "cat_es": "Filtros",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/172578-600-600/Foto-4967896-1.jpg",
+   "preco": {
+    "brl": "R$ 1.158,33",
+    "deBrl": "R$ 1.447,91",
+    "uyu": "$U 9.170",
+    "deUyu": "$U 11.460",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "9540082528",
+   "cod": "9540082528",
+   "es": "Bomba hidráulica E6NN3K514EA",
+   "pt": "Bomba hidráulica E6NN3K514EA",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/184828-600-600/Foto-4968769-1.jpg",
+   "preco": {
+    "brl": "R$ 3.326,34",
+    "deBrl": "R$ 4.157,92",
+    "uyu": "$U 26.320",
+    "deUyu": "$U 32.900",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "9540082518",
+   "cod": "9540082518",
+   "es": "Bomba hidráulica con depósito",
+   "pt": "Bomba hidráulica com reservatório",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/184810-600-600/Foto-4968764-1.jpg",
+   "preco": {
+    "brl": "R$ 3.104,09",
+    "deBrl": "R$ 3.880,11",
+    "uyu": "$U 24.560",
+    "deUyu": "$U 30.700",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "f000510642",
+   "cod": "F000510642",
+   "es": "Bomba hidráulica doble",
+   "pt": "Bomba hidráulica dupla",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176349-600-600/Foto-4970197-1.jpg",
+   "preco": {
+    "brl": "R$ 2.818,44",
+    "deBrl": "R$ 3.523,05",
+    "uyu": "$U 22.310",
+    "deUyu": "$U 27.880",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "9510080416",
+   "cod": "9510080416",
+   "es": "Bomba hidráulica simple",
+   "pt": "Bomba hidráulica simples",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/227586-600-600/9510080416_01.jpg",
+   "preco": {
+    "brl": "R$ 2.099,54",
+    "deBrl": "R$ 2.624,43",
+    "uyu": "$U 16.620",
+    "deUyu": "$U 20.770",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "9510080500",
+   "cod": "9510080500",
+   "es": "Bomba hidráulica simple",
+   "pt": "Bomba hidráulica simples",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Hidráulica e Pneumática",
+   "cat_es": "Hidráulica y Neumática",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/223026-600-600/Foto-5053269-1.jpg",
+   "preco": {
+    "brl": "R$ 1.993,39",
+    "deBrl": "R$ 2.491,74",
+    "uyu": "$U 15.780",
+    "deUyu": "$U 19.720",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "053355ea",
+   "cod": "053355EA",
+   "es": "Conjunto engranaje de marcha atrás",
+   "pt": "Conjunto engrenagem de ré",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163897-600-600/Foto-4957961-1.jpg",
+   "preco": {
+    "brl": "R$ 3.238,68",
+    "deBrl": "R$ 4.048,35",
+    "uyu": "$U 25.640",
+    "deUyu": "$U 32.040",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "80796700ea",
+   "cod": "80796700EA",
+   "es": "Engranaje de la caja de transmisión",
+   "pt": "Engrenagem da caixa de transmissão",
+   "extra": null,
+   "marca": "Valtra",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/228150-600-600/Foto-5069870-1.jpg",
+   "preco": {
+    "brl": "R$ 3.146,94",
+    "deBrl": "R$ 3.933,68",
+    "uyu": "$U 24.910",
+    "deUyu": "$U 31.130",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "053310ea",
+   "cod": "053310EA",
+   "es": "Engranaje de transmisión",
+   "pt": "Engrenagem de transmissão",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163876-600-600/Foto-4957953-1.jpg",
+   "preco": {
+    "brl": "R$ 2.656,55",
+    "deBrl": "R$ 3.320,69",
+    "uyu": "$U 21.030",
+    "deUyu": "$U 26.280",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "039406ea",
+   "cod": "039406EA",
+   "es": "Engranaje de alta",
+   "pt": "Engrenagem de alta",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/163856-600-600/Foto-4957855-1.jpg",
+   "preco": {
+    "brl": "R$ 2.570,70",
+    "deBrl": "R$ 3.213,38",
+    "uyu": "$U 20.350",
+    "deUyu": "$U 25.430",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "027424ea",
+   "cod": "027424EA",
+   "es": "Piñón caja de cambios Z-20",
+   "pt": "Pinhão caixa de câmbio Z-20",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/197804-600-600/Foto-5003613-1.jpg",
+   "preco": {
+    "brl": "R$ 2.561,28",
+    "deBrl": "R$ 3.201,60",
+    "uyu": "$U 20.280",
+    "deUyu": "$U 25.340",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "049167ea",
+   "cod": "049167EA",
+   "es": "Conjunto de engranajes",
+   "pt": "Conjunto de engrenagens",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Engrenagens e Transmissão",
+   "cat_es": "Engranajes y Transmisión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/159393-600-600/Foto-4957931-1.jpg",
+   "preco": {
+    "brl": "R$ 2.449,07",
+    "deBrl": "R$ 3.061,34",
+    "uyu": "$U 19.390",
+    "deUyu": "$U 24.230",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "c7nn7n598a",
+   "cod": "C7NN7N598A",
+   "es": "Resorte del pedal de embrague",
+   "pt": "Mola do pedal da embreagem",
+   "extra": null,
+   "marca": "Massey Ferguson",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/176851-600-600/Foto-4970562-1.jpg",
+   "preco": {
+    "brl": "R$ 67,18",
+    "deBrl": "R$ 83,97",
+    "uyu": "$U 540",
+    "deUyu": "$U 670",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "ACW3339020",
+   "cod": "ACW3339020",
+   "es": "Volante del motor",
+   "pt": "Volante do motor",
+   "extra": "AGCO",
+   "marca": "Massey Ferguson",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/243750-600-600/027518APX_01.jpg.jpg",
+   "preco": {
+    "brl": "R$ 12.420,00",
+    "deBrl": "R$ 15.525,00",
+    "uyu": "$U 98.280",
+    "deUyu": "$U 122.840",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "ACW3341120",
+   "cod": "ACW3341120",
+   "es": "Volante del motor",
+   "pt": "Volante do motor",
+   "extra": "AGCO",
+   "marca": "Valtra",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/230068-600-600/Foto-5084736-1.jpg",
+   "preco": {
+    "brl": "R$ 7.045,31",
+    "deBrl": "R$ 8.806,64",
+    "uyu": "$U 55.750",
+    "deUyu": "$U 69.680",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "81882400NCG",
+   "cod": "81882400",
+   "es": "Soporte planetario",
+   "pt": "Suporte planetário",
+   "extra": "NCG",
+   "marca": "Valtra",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/228283-600-600/Foto-5069934-1.jpg",
+   "preco": {
+    "brl": "R$ 5.049,00",
+    "deBrl": "R$ 6.311,25",
+    "uyu": "$U 39.960",
+    "deUyu": "$U 49.940",
+    "desconto": 20
+   }
+  },
+  {
+   "sku": "82783600GRA",
+   "cod": "82783600",
+   "es": "Asiento completo",
+   "pt": "Banco completo",
+   "extra": "Grammer",
+   "marca": "Valtra",
+   "cat": "Estrutura e Suspensão",
+   "cat_es": "Estructura y Suspensión",
+   "img": "https://agrotrator2.vteximg.com.br/arquivos/ids/220470-600-600/Foto-4968362-1.jpg",
+   "preco": {
+    "brl": "R$ 3.529,42",
+    "deBrl": "R$ 4.411,77",
+    "uyu": "$U 27.930",
+    "deUyu": "$U 34.910",
+    "desconto": 20
+   }
+  }
+ ]
+}
