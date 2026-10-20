@@ -38,6 +38,7 @@ import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminGoogleRouteImport } from './routes/admin.google'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
+import { Route as AdminInstagramRouteImport } from './routes/admin.instagram'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminJornadasRouteImport } from './routes/admin.jornadas'
 import { Route as AdminMarketingRouteImport } from './routes/admin.marketing'
@@ -96,6 +97,9 @@ import { Route as ApiAdminEmailsUploadRouteImport } from './routes/api/admin/ema
 import { Route as ApiAdminGoogleCallbackRouteImport } from './routes/api/admin/google.callback'
 import { Route as ApiAdminGoogleConectarRouteImport } from './routes/api/admin/google.conectar'
 import { Route as ApiAdminImagesImportRouteImport } from './routes/api/admin/images.import'
+import { Route as ApiAdminInstagramCallbackRouteImport } from './routes/api/admin/instagram.callback'
+import { Route as ApiAdminInstagramConectarRouteImport } from './routes/api/admin/instagram.conectar'
+import { Route as ApiAdminInstagramUploadRouteImport } from './routes/api/admin/instagram.upload'
 import { Route as ApiAdminMercadolivreCallbackRouteImport } from './routes/api/admin/mercadolivre.callback'
 import { Route as ApiAdminProductsSkuRouteImport } from './routes/api/admin/products.$sku'
 import { Route as ApiAdminProductsExportRouteImport } from './routes/api/admin/products.export'
@@ -249,6 +253,11 @@ const AdminGoogleRoute = AdminGoogleRouteImport.update({
 const AdminHomepageRoute = AdminHomepageRouteImport.update({
   id: '/homepage',
   path: '/homepage',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInstagramRoute = AdminInstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminInteresseRoute = AdminInteresseRouteImport.update({
@@ -542,6 +551,23 @@ const ApiAdminImagesImportRoute = ApiAdminImagesImportRouteImport.update({
   path: '/api/admin/images/import',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminInstagramCallbackRoute =
+  ApiAdminInstagramCallbackRouteImport.update({
+    id: '/api/admin/instagram/callback',
+    path: '/api/admin/instagram/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminInstagramConectarRoute =
+  ApiAdminInstagramConectarRouteImport.update({
+    id: '/api/admin/instagram/conectar',
+    path: '/api/admin/instagram/conectar',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminInstagramUploadRoute = ApiAdminInstagramUploadRouteImport.update({
+  id: '/api/admin/instagram/upload',
+  path: '/api/admin/instagram/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminMercadolivreCallbackRoute =
   ApiAdminMercadolivreCallbackRouteImport.update({
     id: '/api/admin/mercadolivre/callback',
@@ -619,6 +645,7 @@ export interface FileRoutesByFullPath {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/instagram': typeof AdminInstagramRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
@@ -678,6 +705,9 @@ export interface FileRoutesByFullPath {
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
   '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
+  '/api/admin/instagram/callback': typeof ApiAdminInstagramCallbackRoute
+  '/api/admin/instagram/conectar': typeof ApiAdminInstagramConectarRoute
+  '/api/admin/instagram/upload': typeof ApiAdminInstagramUploadRoute
   '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
   '/api/admin/products/export': typeof ApiAdminProductsExportRoute
@@ -716,6 +746,7 @@ export interface FileRoutesByTo {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/instagram': typeof AdminInstagramRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
@@ -775,6 +806,9 @@ export interface FileRoutesByTo {
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
   '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
+  '/api/admin/instagram/callback': typeof ApiAdminInstagramCallbackRoute
+  '/api/admin/instagram/conectar': typeof ApiAdminInstagramConectarRoute
+  '/api/admin/instagram/upload': typeof ApiAdminInstagramUploadRoute
   '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
   '/api/admin/products/export': typeof ApiAdminProductsExportRoute
@@ -815,6 +849,7 @@ export interface FileRoutesById {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/instagram': typeof AdminInstagramRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
@@ -874,6 +909,9 @@ export interface FileRoutesById {
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
   '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
+  '/api/admin/instagram/callback': typeof ApiAdminInstagramCallbackRoute
+  '/api/admin/instagram/conectar': typeof ApiAdminInstagramConectarRoute
+  '/api/admin/instagram/upload': typeof ApiAdminInstagramUploadRoute
   '/api/admin/mercadolivre/callback': typeof ApiAdminMercadolivreCallbackRoute
   '/api/admin/products/$sku': typeof ApiAdminProductsSkuRoute
   '/api/admin/products/export': typeof ApiAdminProductsExportRoute
@@ -915,6 +953,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
+    | '/admin/instagram'
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
@@ -974,6 +1013,9 @@ export interface FileRouteTypes {
     | '/api/admin/google/callback'
     | '/api/admin/google/conectar'
     | '/api/admin/images/import'
+    | '/api/admin/instagram/callback'
+    | '/api/admin/instagram/conectar'
+    | '/api/admin/instagram/upload'
     | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
     | '/api/admin/products/export'
@@ -1012,6 +1054,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
+    | '/admin/instagram'
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
@@ -1071,6 +1114,9 @@ export interface FileRouteTypes {
     | '/api/admin/google/callback'
     | '/api/admin/google/conectar'
     | '/api/admin/images/import'
+    | '/api/admin/instagram/callback'
+    | '/api/admin/instagram/conectar'
+    | '/api/admin/instagram/upload'
     | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
     | '/api/admin/products/export'
@@ -1110,6 +1156,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
+    | '/admin/instagram'
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
@@ -1169,6 +1216,9 @@ export interface FileRouteTypes {
     | '/api/admin/google/callback'
     | '/api/admin/google/conectar'
     | '/api/admin/images/import'
+    | '/api/admin/instagram/callback'
+    | '/api/admin/instagram/conectar'
+    | '/api/admin/instagram/upload'
     | '/api/admin/mercadolivre/callback'
     | '/api/admin/products/$sku'
     | '/api/admin/products/export'
@@ -1230,6 +1280,9 @@ export interface RootRouteChildren {
   ApiAdminGoogleCallbackRoute: typeof ApiAdminGoogleCallbackRoute
   ApiAdminGoogleConectarRoute: typeof ApiAdminGoogleConectarRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
+  ApiAdminInstagramCallbackRoute: typeof ApiAdminInstagramCallbackRoute
+  ApiAdminInstagramConectarRoute: typeof ApiAdminInstagramConectarRoute
+  ApiAdminInstagramUploadRoute: typeof ApiAdminInstagramUploadRoute
   ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
   ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
 }
@@ -1437,6 +1490,13 @@ declare module '@tanstack/react-router' {
       path: '/homepage'
       fullPath: '/admin/homepage'
       preLoaderRoute: typeof AdminHomepageRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/instagram': {
+      id: '/admin/instagram'
+      path: '/instagram'
+      fullPath: '/admin/instagram'
+      preLoaderRoute: typeof AdminInstagramRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/interesse': {
@@ -1845,6 +1905,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminImagesImportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/instagram/callback': {
+      id: '/api/admin/instagram/callback'
+      path: '/api/admin/instagram/callback'
+      fullPath: '/api/admin/instagram/callback'
+      preLoaderRoute: typeof ApiAdminInstagramCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/instagram/conectar': {
+      id: '/api/admin/instagram/conectar'
+      path: '/api/admin/instagram/conectar'
+      fullPath: '/api/admin/instagram/conectar'
+      preLoaderRoute: typeof ApiAdminInstagramConectarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/instagram/upload': {
+      id: '/api/admin/instagram/upload'
+      path: '/api/admin/instagram/upload'
+      fullPath: '/api/admin/instagram/upload'
+      preLoaderRoute: typeof ApiAdminInstagramUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/mercadolivre/callback': {
       id: '/api/admin/mercadolivre/callback'
       path: '/api/admin/mercadolivre/callback'
@@ -1926,6 +2007,7 @@ interface AdminRouteChildren {
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminGoogleRoute: typeof AdminGoogleRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
+  AdminInstagramRoute: typeof AdminInstagramRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminJornadasRoute: typeof AdminJornadasRoute
   AdminMarketingRoute: typeof AdminMarketingRoute
@@ -1963,6 +2045,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminGoogleRoute: AdminGoogleRoute,
   AdminHomepageRoute: AdminHomepageRoute,
+  AdminInstagramRoute: AdminInstagramRoute,
   AdminInteresseRoute: AdminInteresseRoute,
   AdminJornadasRoute: AdminJornadasRoute,
   AdminMarketingRoute: AdminMarketingRoute,
@@ -2117,6 +2200,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminGoogleCallbackRoute: ApiAdminGoogleCallbackRoute,
   ApiAdminGoogleConectarRoute: ApiAdminGoogleConectarRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,
+  ApiAdminInstagramCallbackRoute: ApiAdminInstagramCallbackRoute,
+  ApiAdminInstagramConectarRoute: ApiAdminInstagramConectarRoute,
+  ApiAdminInstagramUploadRoute: ApiAdminInstagramUploadRoute,
   ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
   ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,
 }

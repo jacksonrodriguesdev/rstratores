@@ -884,3 +884,25 @@ model email_anuncio_exibicoes {
   @@index([anuncio_id, created_at])
   @@index([resend_id])
 }
+
+// Publicações no Instagram feitas pelo painel (Admin → Instagram): post, carrossel, story ou Reels,
+// publicadas na hora ou agendadas (o agendador publica sozinho). Métricas atualizadas a cada 6 h.
+model instagram_posts {
+  id            Int       @id @default(autoincrement())
+  tipo          String    @db.VarChar(20) // FEED, CARROSSEL, STORY, REELS
+  legenda       String?   @db.Text
+  comentario    String?   @db.Text // primeiro comentário (ex.: hashtags)
+  midias        String    @db.Text // JSON: [{ path, tipo: "IMAGE" | "VIDEO" }]
+  status        String    @default("RASCUNHO") @db.VarChar(20) // RASCUNHO, AGENDADO, PUBLICANDO, PUBLICADO, ERRO
+  agendado_para DateTime?
+  publicado_em  DateTime?
+  ig_media_id   String?   @db.VarChar(64)
+  permalink     String?   @db.VarChar(300)
+  erro          String?   @db.Text
+  metricas      String?   @db.Text // JSON: curtidas, comentarios, alcance, salvos, compartilhamentos, views
+  metricas_em   DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([status, agendado_para])
+}

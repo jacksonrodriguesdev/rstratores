@@ -883,6 +883,10 @@ export function iniciarAgendador() {
     import("./search-console.server")
       .then((m) => m.sincronizarSeVencido())
       .catch((e) => console.error("search console", e?.message ?? e));
+    // Instagram: publicações agendadas (e métricas a cada 6 h)
+    import("./instagram.server")
+      .then((m) => m.tarefasInstagram())
+      .catch((e) => console.error("instagram", e?.message ?? e));
     // Central de Anúncios: campanhas e números do Google Ads e do Meta a cada 3 h
     import("./ads.server")
       .then((m) => m.sincronizarAdsSeVencido())

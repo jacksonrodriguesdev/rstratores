@@ -72,6 +72,9 @@ jobs:
       - name: E-mail marketing (anúncios, cliques, funil e remarketing)
         run: npx tsx scripts/ci/testar-email-marketing.ts
 
+      - name: Instagram (API da Meta falsa)
+        run: npx tsx scripts/ci/testar-instagram.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 
