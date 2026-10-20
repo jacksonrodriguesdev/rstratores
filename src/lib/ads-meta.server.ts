@@ -27,7 +27,7 @@ export type DiaApi = {
   leads: number;
 };
 
-async function cfg() {
+export async function cfg() {
   const { configMarketing } = await import("./marketing-config.server");
   const c = await configMarketing();
   let conta = c.mkt_meta_ad_account.replace(/^act_/i, "").replace(/\D/g, "");
@@ -48,7 +48,7 @@ export async function metaConfigurado() {
   return !!(c.conta && c.token);
 }
 
-async function chamar(
+export async function chamar(
   caminho: string,
   params: Record<string, string> = {},
   metodo: "GET" | "POST" = "GET",
@@ -80,7 +80,7 @@ async function chamar(
 }
 
 // Percorre as páginas ("paging.next") da Graph API
-async function todas(caminho: string, params: Record<string, string>) {
+export async function todas(caminho: string, params: Record<string, string>) {
   const out: any[] = [];
   let j = await chamar(caminho, params);
   for (let i = 0; i < 50; i++) {

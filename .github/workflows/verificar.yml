@@ -78,6 +78,9 @@ jobs:
       - name: Facebook (página e anúncios, API da Meta falsa)
         run: npx tsx scripts/ci/testar-facebook.ts
 
+      - name: Meta Ads (campanhas, leads, criar anúncio; API falsa)
+        run: npx tsx scripts/ci/testar-meta-ads.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 

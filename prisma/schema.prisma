@@ -909,3 +909,30 @@ model instagram_posts {
 
   @@index([status, agendado_para])
 }
+
+// Leads dos anúncios do Meta (Admin → Meta Ads → Leads): formulários de anúncio (Lead Ads) e
+// contatos que chegaram ao site por anúncio (WhatsApp, cotação, cadastro). O admin organiza por
+// etapa (NOVO, CONTATADO, NEGOCIANDO, GANHO, PERDIDO), com anotação e valor.
+model leads {
+  id         Int      @id @default(autoincrement())
+  origem     String   @db.VarChar(20) // FORMULARIO, WHATSAPP, COTACAO, CADASTRO
+  ref        String   @db.VarChar(120)
+  nome       String?  @db.VarChar(191)
+  email      String?  @db.VarChar(191)
+  telefone   String?  @db.VarChar(60)
+  cidade     String?  @db.VarChar(191)
+  detalhe    String?  @db.Text // campos do formulário / peças / página
+  campanha   String?  @db.VarChar(300)
+  anuncio    String?  @db.VarChar(300)
+  user_id    Int?
+  status     String   @default("NOVO") @db.VarChar(20)
+  nota       String?  @db.Text
+  valor      Float?
+  quando     DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([origem, ref])
+  @@index([status, quando])
+  @@index([quando])
+}

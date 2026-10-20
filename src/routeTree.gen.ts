@@ -42,6 +42,7 @@ import { Route as AdminInstagramRouteImport } from './routes/admin.instagram'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminJornadasRouteImport } from './routes/admin.jornadas'
 import { Route as AdminMarketingRouteImport } from './routes/admin.marketing'
+import { Route as AdminMetaAdsRouteImport } from './routes/admin.meta-ads'
 import { Route as AdminPagamentosRouteImport } from './routes/admin.pagamentos'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminPesquisaPrecosRouteImport } from './routes/admin.pesquisa-precos'
@@ -275,6 +276,11 @@ const AdminJornadasRoute = AdminJornadasRouteImport.update({
 const AdminMarketingRoute = AdminMarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMetaAdsRoute = AdminMetaAdsRouteImport.update({
+  id: '/meta-ads',
+  path: '/meta-ads',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPagamentosRoute = AdminPagamentosRouteImport.update({
@@ -663,6 +669,7 @@ export interface FileRoutesByFullPath {
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
+  '/admin/meta-ads': typeof AdminMetaAdsRoute
   '/admin/pagamentos': typeof AdminPagamentosRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
@@ -766,6 +773,7 @@ export interface FileRoutesByTo {
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
+  '/admin/meta-ads': typeof AdminMetaAdsRoute
   '/admin/pagamentos': typeof AdminPagamentosRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
@@ -871,6 +879,7 @@ export interface FileRoutesById {
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
   '/admin/marketing': typeof AdminMarketingRoute
+  '/admin/meta-ads': typeof AdminMetaAdsRoute
   '/admin/pagamentos': typeof AdminPagamentosRoute
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
@@ -977,6 +986,7 @@ export interface FileRouteTypes {
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
+    | '/admin/meta-ads'
     | '/admin/pagamentos'
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
@@ -1080,6 +1090,7 @@ export interface FileRouteTypes {
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
+    | '/admin/meta-ads'
     | '/admin/pagamentos'
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
@@ -1184,6 +1195,7 @@ export interface FileRouteTypes {
     | '/admin/interesse'
     | '/admin/jornadas'
     | '/admin/marketing'
+    | '/admin/meta-ads'
     | '/admin/pagamentos'
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
@@ -1546,6 +1558,13 @@ declare module '@tanstack/react-router' {
       path: '/marketing'
       fullPath: '/admin/marketing'
       preLoaderRoute: typeof AdminMarketingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/meta-ads': {
+      id: '/admin/meta-ads'
+      path: '/meta-ads'
+      fullPath: '/admin/meta-ads'
+      preLoaderRoute: typeof AdminMetaAdsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/pagamentos': {
@@ -2053,6 +2072,7 @@ interface AdminRouteChildren {
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminJornadasRoute: typeof AdminJornadasRoute
   AdminMarketingRoute: typeof AdminMarketingRoute
+  AdminMetaAdsRoute: typeof AdminMetaAdsRoute
   AdminPagamentosRoute: typeof AdminPagamentosRoute
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
   AdminPesquisaPrecosRoute: typeof AdminPesquisaPrecosRoute
@@ -2091,6 +2111,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminInteresseRoute: AdminInteresseRoute,
   AdminJornadasRoute: AdminJornadasRoute,
   AdminMarketingRoute: AdminMarketingRoute,
+  AdminMetaAdsRoute: AdminMetaAdsRoute,
   AdminPagamentosRoute: AdminPagamentosRoute,
   AdminPellegrinoRoute: AdminPellegrinoRoute,
   AdminPesquisaPrecosRoute: AdminPesquisaPrecosRoute,

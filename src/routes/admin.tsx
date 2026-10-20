@@ -96,6 +96,7 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
       { to: "/admin/campanhas", label: "Campanhas e cupons", icon: Flame },
       { to: "/admin/ads", label: "Central de Anúncios", icon: BarChart3 },
+      { to: "/admin/meta-ads", label: "Meta Ads (Facebook/Instagram)", icon: Megaphone },
       { to: "/admin/anuncios", label: "Criador de anúncios", icon: Megaphone },
       { to: "/admin/marketing", label: "Integrações (Meta e Google)", icon: Plug },
     ],

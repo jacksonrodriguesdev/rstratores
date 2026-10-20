@@ -20,6 +20,8 @@ export const ESCOPOS_FB = [
   "ads_read",
   "ads_management",
   "business_management",
+  "leads_retrieval",
+  "pages_manage_ads",
 ];
 
 export const facebookConfigurado = () =>
@@ -131,6 +133,8 @@ export async function concluirFacebook(code: string, origem: string) {
     id: String(p.id),
     nome: String(p.name),
     foto: p.picture?.data?.url ?? null,
+    // Conta do Instagram ligada à página (identidade dos anúncios no Instagram)
+    ig: p.instagram_business_account?.id ? String(p.instagram_business_account.id) : null,
   }));
   const tokensPaginas = Object.fromEntries(
     (paginas.data ?? []).map((p: any) => [String(p.id), String(p.access_token)]),
@@ -218,12 +222,15 @@ export async function anunciosDaConexao(): Promise<{ token: string; conta: strin
   return { token, conta: c.fb_conta_ads };
 }
 
-async function paginaAtual() {
+// Página escolhida (id, token da página e o Instagram ligado a ela): anúncios e leads
+export async function paginaAtual() {
   const c = await ler();
   const tokens = JSON.parse(abrir(c.fb_paginas) || "{}");
   if (!c.fb_pagina_id || !tokens[c.fb_pagina_id])
     throw new Error("Facebook: conecte e escolha a página.");
-  return { id: c.fb_pagina_id, token: String(tokens[c.fb_pagina_id]) };
+  const lista = JSON.parse(c.fb_lista || "{}");
+  const ig = lista.paginas?.find((p: any) => p.id === c.fb_pagina_id)?.ig ?? null;
+  return { id: c.fb_pagina_id, token: String(tokens[c.fb_pagina_id]), ig: ig as string | null };
 }
 
 // ---------------------------------------------------------------- publicar na página
