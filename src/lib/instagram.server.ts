@@ -418,14 +418,17 @@ export async function publicarPost(id: number, origem: string) {
       );
     // Também na página do Facebook (a API do Instagram não compartilha sozinha no Facebook)
     let fbPost: string | null = null;
-    if (p.facebook && tipo !== "STORY") {
+    if (p.facebook) {
       try {
-        const { publicarNaPagina } = await import("./facebook.server");
-        fbPost = await publicarNaPagina(
-          tipo,
-          midias.map((m) => ({ url: urlPublica(m.path, origem), tipo: m.tipo })),
-          [p.legenda ?? "", p.comentario ?? ""].filter((x) => x.trim()).join("\n\n"),
-        );
+        const fb = await import("./facebook.server");
+        fbPost =
+          tipo === "STORY" && midias[0].tipo === "IMAGE"
+            ? await fb.publicarStoryNaPagina(urlPublica(midias[0].path, origem))
+            : await fb.publicarNaPagina(
+                tipo,
+                midias.map((m) => ({ url: urlPublica(m.path, origem), tipo: m.tipo })),
+                [p.legenda ?? "", p.comentario ?? ""].filter((x) => x.trim()).join("\n\n"),
+              );
       } catch (e: any) {
         avisos.push(`Publicado no Instagram, mas o Facebook falhou: ${e?.message ?? e}`);
       }

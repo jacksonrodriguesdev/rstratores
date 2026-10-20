@@ -1,6 +1,6 @@
 // Estúdio: central com todas as ferramentas de criação, textos, imagem, planejamento, links,
 // análise e anúncios. Cada ferramenta abre aqui mesmo; o resultado vai para o compositor.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -47,6 +47,7 @@ import { estudioFn } from "@/lib/estudio";
 import type { PostInstagram } from "@/lib/instagram";
 import { cn } from "@/lib/utils";
 import { Banco } from "./Banco";
+import { Importar } from "./Importar";
 import { ArteTexto, Carrossel } from "./ArtesTexto";
 import { EstudioCtx, type Midia, type TipoPost } from "./comum";
 import { Horarios, Orcamento, PainelRecomendacoes } from "./Estudio";
@@ -62,6 +63,14 @@ type Ferramenta = {
   destaque?: boolean;
 };
 export const FERRAMENTAS: Ferramenta[] = [
+  {
+    id: "importar",
+    nome: "Importar campanha pronta",
+    desc: "ZIP com artes e legendas → agenda tudo (1 post + 1 story por horário)",
+    grupo: "Criar",
+    icone: FileArchive,
+    destaque: true,
+  },
   {
     id: "banco",
     nome: "Banco de posts",
@@ -323,11 +332,15 @@ const GRUPOS: Grupo[] = ["Criar", "Textos", "Imagem", "Planejar", "Links", "Anal
 export function Estudio({
   usarNoPost,
   posts,
+  inicial,
 }: {
   usarNoPost: (midias: Midia[], legenda: string, tipo: TipoPost, comentario?: string) => void;
   posts: PostInstagram[];
+  inicial?: string; // ferramenta aberta pelo menu lateral (?f=banco)
 }) {
-  const [aberta, setAberta] = useState<string | null>(null);
+  const valida = (id?: string) => (FERRAMENTAS.some((x) => x.id === id) ? id! : null);
+  const [aberta, setAberta] = useState<string | null>(valida(inicial));
+  useEffect(() => setAberta(valida(inicial)), [inicial]);
   const [q, setQ] = useState("");
   const { data } = useQuery({
     queryKey: ["estudio", 30],
@@ -445,6 +458,8 @@ export function Estudio({
 
 function Abrir({ id, usarNoPost, data }: { id: string; usarNoPost: any; data: any }) {
   switch (id) {
+    case "importar":
+      return <Importar />;
     case "banco":
       return <Banco />;
     case "fila":

@@ -265,7 +265,7 @@ export function Banco({ modo = "banco" }: { modo?: "banco" | "fila" | "zip" }) {
               legenda: e.formato === "story" ? "" : leg,
               comentario: e.formato === "story" ? "" : tagsDe(e, i),
               midias: [m],
-              facebook: facebook && e.formato !== "story",
+              facebook,
               acao: acao === "agendar" ? "agendar" : "rascunho",
               quando: acao === "agendar" ? slots[n]?.toISOString() : null,
             },
@@ -572,7 +572,7 @@ export function Banco({ modo = "banco" }: { modo?: "banco" | "fila" | "zip" }) {
                 ] as const
               }
             />
-            {acao !== "zip" && e.formato !== "story" && (
+            {acao !== "zip" && (
               <label className="flex items-center gap-1.5 text-xs">
                 <input
                   type="checkbox"

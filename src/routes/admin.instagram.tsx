@@ -60,13 +60,16 @@ import {
 } from "@/lib/instagram";
 import { cn } from "@/lib/utils";
 
-type Busca = { ig?: string; fb?: string; msg?: string; conta?: string };
+type Busca = { ig?: string; fb?: string; msg?: string; conta?: string; tela?: string; f?: string };
+const TELAS = ["estudio", "publicar", "publicacoes", "calendario", "numeros"] as const;
 export const Route = createFileRoute("/admin/instagram")({
   validateSearch: (s: Record<string, unknown>): Busca => ({
     ig: typeof s.ig === "string" ? s.ig : undefined,
     msg: typeof s.msg === "string" ? s.msg : undefined,
     conta: typeof s.conta === "string" ? s.conta : undefined,
     fb: typeof s.fb === "string" ? s.fb : undefined,
+    tela: typeof s.tela === "string" ? s.tela : undefined,
+    f: typeof s.f === "string" ? s.f.slice(0, 30) : undefined,
   }),
   component: PaginaInstagram,
 });
@@ -146,6 +149,11 @@ function PaginaInstagram() {
     "estudio" | "publicar" | "publicacoes" | "calendario" | "numeros"
   >("estudio");
   const [config, setConfig] = useState(false);
+  // Menu lateral: ?tela=calendario abre a aba; ?f=banco abre a ferramenta do Estúdio
+  useEffect(() => {
+    const t = TELAS.find((x) => x === busca.tela);
+    if (t) setTela(t);
+  }, [busca.tela, busca.f]);
   const [aba, setAba] = useState<"AGENDADO" | "PUBLICADO" | "RASCUNHO" | "ERRO">("AGENDADO");
   const { data: st, refetch: refetchSt } = useQuery({
     queryKey: ["ig-status"],
@@ -281,6 +289,7 @@ function PaginaInstagram() {
 
       {tela === "estudio" && (
         <Estudio
+          inicial={busca.f}
           posts={posts ?? []}
           usarNoPost={(midias, legenda, tipo, comentario) => {
             setForm({ ...VAZIO, tipo, midias, legenda, comentario: comentario ?? "" });
@@ -869,7 +878,7 @@ function Compositor({
             />
           </div>
         )}
-        {form.tipo !== "STORY" && (
+        {
           <label
             className={cn(
               "flex items-center justify-between gap-3 rounded-lg p-3 text-sm",
@@ -880,7 +889,8 @@ function Compositor({
               <Facebook className="h-4 w-4 text-blue-600" />
               {paginaFacebook ? (
                 <>
-                  Publicar também na página <b>{paginaFacebook}</b> (legenda + hashtags)
+                  Publicar também na página <b>{paginaFacebook}</b>
+                  {form.tipo === "STORY" ? " (como story)" : " (legenda + hashtags)"}
                 </>
               ) : (
                 "Para publicar também no Facebook, conecte o Facebook acima"
@@ -892,7 +902,7 @@ function Compositor({
               onCheckedChange={(v) => set({ facebook: v })}
             />
           </label>
-        )}
+        }
 
         <div className="flex flex-wrap items-end gap-2 border-t pt-4">
           <Button

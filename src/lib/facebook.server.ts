@@ -270,6 +270,15 @@ export async function publicarNaPagina(
   return String(r.id);
 }
 
+// Story da página: sobe a foto sem publicar e publica como story (uma foto por story)
+export async function publicarStoryNaPagina(url: string): Promise<string> {
+  const p = await paginaAtual();
+  const tk = { access_token: p.token };
+  const foto = await graph(`${p.id}/photos`, { url, published: "false", ...tk }, "POST");
+  const r = await graph(`${p.id}/photo_stories`, { photo_id: String(foto.id), ...tk }, "POST");
+  return String(r.post_id ?? r.id ?? foto.id);
+}
+
 // ---------------------------------------------------------------- desempenho da página
 // A Meta troca nomes de métricas com o tempo: tenta cada uma separada e usa as que existirem
 async function metricaDia(

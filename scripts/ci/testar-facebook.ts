@@ -102,6 +102,10 @@ const servidor = http.createServer(async (req, res) => {
           : { id: `foto${++n}`, post_id: `pg1_post${n}` },
       );
     if (caminho === "/pg1/feed") return json({ id: `pg1_feed${++n}` });
+    if (caminho === "/pg1/photo_stories")
+      return p.photo_id
+        ? json({ success: true, post_id: `pg1_story${++n}` })
+        : json({ error: { message: "sem foto" } }, 400);
     if (caminho === "/pg1/videos") return json({ id: `vid${++n}` });
     if (caminho === "/pg1/insights") {
       const v = { page_impressions_unique: 100, page_post_engagements: 20, page_follows: 3 }[
@@ -252,6 +256,16 @@ async function main() {
       feed.p["attached_media[0]"] && feed.p["attached_media[2]"] && !feed.p["attached_media[3]"],
       "3 fotos anexadas",
     );
+
+    // Story também vai para a página (foto sem publicar + photo_stories)
+    const story = await criar("STORY", [img(9)]);
+    await ig.publicarPost(story, "https://agropartsuy.com");
+    p = (await prisma.instagram_posts.findUnique({ where: { id: story } }))!;
+    assert.equal(p.status, "PUBLICADO", p.erro ?? "");
+    assert.ok(p.fb_post_id?.startsWith("pg1_story"), "story foi para a página");
+    const fs1 = chamadas.filter((c) => c.caminho === "/pg1/photos").at(-1)!;
+    assert.equal(fs1.p.published, "false");
+    assert.equal(fs1.p.url, "https://agropartsuy.com/uploads/instagram/f9.jpg");
 
     // Falha no Facebook não derruba o Instagram
     await fb.escolherFacebook({ pagina: "pg2" });

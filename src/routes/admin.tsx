@@ -92,7 +92,36 @@ const GRUPOS: Grupo[] = [
           { to: "/admin/emails/anuncios", label: "Anúncios" },
         ],
       },
-      { to: "/admin/instagram", label: "Instagram e Facebook", icon: Instagram },
+      {
+        label: "Instagram e Facebook",
+        icon: Instagram,
+        sub: [
+          {
+            to: "/admin/instagram",
+            search: { tela: "estudio" },
+            label: "Estúdio (37 ferramentas)",
+          },
+          {
+            to: "/admin/instagram",
+            search: { tela: "estudio", f: "importar" },
+            label: "Importar campanha",
+          },
+          {
+            to: "/admin/instagram",
+            search: { tela: "estudio", f: "banco" },
+            label: "Banco de posts",
+          },
+          {
+            to: "/admin/instagram",
+            search: { tela: "estudio", f: "fila" },
+            label: "Agendamento automático",
+          },
+          { to: "/admin/instagram", search: { tela: "publicar" }, label: "Publicar" },
+          { to: "/admin/instagram", search: { tela: "publicacoes" }, label: "Publicações" },
+          { to: "/admin/instagram", search: { tela: "calendario" }, label: "Calendário" },
+          { to: "/admin/instagram", search: { tela: "numeros" }, label: "Números" },
+        ],
+      },
       { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
       { to: "/admin/campanhas", label: "Campanhas e cupons", icon: Flame },
       { to: "/admin/ads", label: "Central de Anúncios", icon: BarChart3 },
@@ -272,9 +301,15 @@ function AdminLayout() {
                       <ul className="ml-5 mt-0.5 flex flex-col gap-0.5 border-l pl-3">
                         {it.sub.map((s) => {
                           // Só o item mais específico acende (/admin/emails/analise não acende «Campanhas»)
+                          // Itens da mesma página separados pela busca (?tela=…&f=…): compara as chaves
+                          const busca = (location.search ?? {}) as Record<string, unknown>;
+                          const chaves = [
+                            ...new Set(it.sub!.flatMap((o) => Object.keys(o.search ?? {}))),
+                          ];
                           const on =
                             ativo(path, s.to) &&
-                            !it.sub!.some((o) => o.to.length > s.to.length && ativo(path, o.to));
+                            !it.sub!.some((o) => o.to.length > s.to.length && ativo(path, o.to)) &&
+                            chaves.every((k) => (s.search?.[k] ?? "") === String(busca[k] ?? ""));
                           return (
                             <li key={s.label}>
                               <Link

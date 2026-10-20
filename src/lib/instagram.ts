@@ -115,7 +115,7 @@ export const salvarPostFn = createServerFn({ method: "POST" })
         throw new Error("Essa publicação já saiu: crie outra.");
     }
     const campos = {
-      facebook: p.facebook && p.tipo !== "STORY",
+      facebook: !!p.facebook,
       tipo: p.tipo,
       legenda: p.legenda || null,
       comentario: p.comentario || null,
