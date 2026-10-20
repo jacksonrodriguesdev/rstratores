@@ -31,7 +31,12 @@ import {
   TrendingUp,
   MousePointerClick,
   BarChart3,
+  Settings,
+  Sparkles,
+  CalendarDays,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Estudio } from "@/components/admin/estudio/Estudio";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
@@ -137,6 +142,10 @@ function PaginaInstagram() {
   const busca = Route.useSearch();
   const qc = useQueryClient();
   const [form, setForm] = useState<PostForm>(VAZIO);
+  const [tela, setTela] = useState<
+    "estudio" | "publicar" | "publicacoes" | "calendario" | "numeros"
+  >("estudio");
+  const [config, setConfig] = useState(false);
   const [aba, setAba] = useState<"AGENDADO" | "PUBLICADO" | "RASCUNHO" | "ERRO">("AGENDADO");
   const { data: st, refetch: refetchSt } = useQuery({
     queryKey: ["ig-status"],
@@ -172,6 +181,7 @@ function PaginaInstagram() {
       midias: p.midias,
       facebook: p.facebook,
     });
+    setTela("publicar");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const lista = (posts ?? []).filter((p) =>
@@ -182,76 +192,155 @@ function PaginaInstagram() {
         : p.status === aba,
   );
 
+  const n = (k: string) =>
+    (posts ?? []).filter((p) =>
+      k === "PUBLICADO" ? p.status === "PUBLICADO" || p.status === "PUBLICANDO" : p.status === k,
+    ).length;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-          <Instagram className="h-6 w-6 text-primary" /> Instagram e Facebook
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Publique no Instagram (e, se quiser, na página do Facebook) pelo painel, na hora ou
-          agendado, e acompanhe os números das duas redes. Os anúncios ficam na Central de Anúncios.
-        </p>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <Instagram className="h-6 w-6 text-primary" /> Instagram e Facebook
+          </h1>
+          <div className="mt-2 flex flex-wrap gap-2 text-xs">
+            <Chip ok={!!st?.conectado} icone={Instagram}>
+              {st?.conectado ? `@${st.username}` : "Instagram desconectado"}
+            </Chip>
+            <Chip ok={!!fb?.pagina} icone={Facebook}>
+              {fb?.pagina?.nome ?? "Página do Facebook não escolhida"}
+            </Chip>
+          </div>
+        </div>
+        <Button variant="outline" onClick={() => setConfig(true)}>
+          <Settings className="mr-1.5 h-4 w-4" /> Configurações
+        </Button>
       </div>
 
-      <Conexao st={st} atualizar={() => refetchSt()} />
-      <ConexaoFacebook fb={fb} atualizar={() => refetchFb()} />
+      <Dialog open={config} onOpenChange={setConfig}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" /> Contas conectadas
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Conexao st={st} atualizar={() => refetchSt()} />
+            <ConexaoFacebook fb={fb} atualizar={() => refetchFb()} />
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {st?.conectado && <Desempenho />}
+      {st && !st.conectado && (
+        <Card className="flex flex-wrap items-center gap-3 border-amber-200 bg-amber-50/60 p-4 text-sm">
+          <AlertTriangle className="h-5 w-5 text-amber-700" />
+          <span className="flex-1 text-amber-950">
+            O Instagram não está conectado: dá para criar artes no Estúdio, mas publicar só depois
+            de conectar.
+          </span>
+          <Button size="sm" onClick={() => setConfig(true)}>
+            Conectar
+          </Button>
+        </Card>
+      )}
 
-      {st?.conectado && (
-        <Compositor
-          form={form}
-          setForm={setForm}
-          username={st.username}
-          foto={st.foto}
-          paginaFacebook={fb?.pagina?.nome ?? null}
-          aoSalvar={(p) => {
-            setForm(VAZIO);
-            setAba(
-              p.status === "AGENDADO"
-                ? "AGENDADO"
-                : p.status === "RASCUNHO"
-                  ? "RASCUNHO"
-                  : p.status === "ERRO"
-                    ? "ERRO"
-                    : "PUBLICADO",
-            );
-            atualizar();
-            refetchSt();
+      <div className="flex flex-wrap gap-1 rounded-xl bg-muted p-1">
+        {(
+          [
+            ["estudio", "Estúdio", Sparkles],
+            ["publicar", form.id ? "Editar publicação" : "Publicar", Send],
+            [
+              "publicacoes",
+              `Publicações${n("AGENDADO") ? ` (${n("AGENDADO")} agend.)` : ""}`,
+              Images,
+            ],
+            ["calendario", "Calendário", CalendarDays],
+            ["numeros", "Números", BarChart3],
+          ] as const
+        ).map(([k, r, I]) => (
+          <button
+            key={k}
+            onClick={() => setTela(k)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold",
+              tela === k
+                ? "bg-background shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <I className="h-4 w-4" /> {r}
+            {k === "publicar" && !!form.midias.length && (
+              <span className="rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">
+                {form.midias.length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {tela === "estudio" && (
+        <Estudio
+          usarNoPost={(midias, legenda, tipo) => {
+            setForm({ ...VAZIO, tipo, midias, legenda });
+            setTela("publicar");
+            window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />
       )}
 
-      {!!posts?.length && (
+      {tela === "publicar" &&
+        (st?.conectado ? (
+          <Compositor
+            form={form}
+            setForm={setForm}
+            username={st.username}
+            foto={st.foto}
+            paginaFacebook={fb?.pagina?.nome ?? null}
+            aoSalvar={(p) => {
+              setForm(VAZIO);
+              setAba(
+                p.status === "AGENDADO"
+                  ? "AGENDADO"
+                  : p.status === "RASCUNHO"
+                    ? "RASCUNHO"
+                    : p.status === "ERRO"
+                      ? "ERRO"
+                      : "PUBLICADO",
+              );
+              setTela("publicacoes");
+              atualizar();
+              refetchSt();
+            }}
+          />
+        ) : (
+          <Card className="p-8 text-center text-sm text-muted-foreground">
+            Conecte o Instagram em <b>Configurações</b> para publicar.
+          </Card>
+        ))}
+
+      {tela === "publicacoes" && (
         <Card className="overflow-hidden p-0">
           <div className="flex flex-wrap items-center gap-1 border-b p-2">
-            {(["AGENDADO", "PUBLICADO", "RASCUNHO", "ERRO"] as const).map((k) => {
-              const n = (posts ?? []).filter((p) =>
-                k === "PUBLICADO"
-                  ? p.status === "PUBLICADO" || p.status === "PUBLICANDO"
-                  : p.status === k,
-              ).length;
-              return (
-                <button
-                  key={k}
-                  onClick={() => setAba(k)}
-                  className={cn(
-                    "rounded-lg px-3 py-1.5 text-sm font-semibold",
-                    aba === k ? "bg-primary text-primary-foreground" : "hover:bg-muted",
-                  )}
-                >
-                  {k === "AGENDADO"
-                    ? "Agendados"
-                    : k === "PUBLICADO"
-                      ? "Publicados"
-                      : k === "RASCUNHO"
-                        ? "Rascunhos"
-                        : "Com erro"}{" "}
-                  ({n})
-                </button>
-              );
-            })}
+            {(["AGENDADO", "PUBLICADO", "RASCUNHO", "ERRO"] as const).map((k) => (
+              <button
+                key={k}
+                onClick={() => setAba(k)}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-sm font-semibold",
+                  aba === k ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                )}
+              >
+                {k === "AGENDADO"
+                  ? "Agendados"
+                  : k === "PUBLICADO"
+                    ? "Publicados"
+                    : k === "RASCUNHO"
+                      ? "Rascunhos"
+                      : "Com erro"}{" "}
+                ({n(k)})
+              </button>
+            ))}
             {aba === "PUBLICADO" && (
               <Button
                 size="sm"
@@ -277,7 +366,141 @@ function PaginaInstagram() {
           </ul>
         </Card>
       )}
+
+      {tela === "calendario" && <Calendario posts={posts ?? []} abrir={editar} />}
+
+      {tela === "numeros" &&
+        (st?.conectado ? (
+          <Desempenho />
+        ) : (
+          <Card className="p-8 text-center text-sm text-muted-foreground">
+            Conecte o Instagram em <b>Configurações</b> para ver os números.
+          </Card>
+        ))}
     </div>
+  );
+}
+
+function Chip({ ok, icone: I, children }: { ok: boolean; icone: any; children: React.ReactNode }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold",
+        ok ? "bg-emerald-100 text-emerald-800" : "bg-zinc-100 text-zinc-600",
+      )}
+    >
+      <I className="h-3.5 w-3.5" /> {children}
+      {ok && <CheckCircle2 className="h-3.5 w-3.5" />}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------- calendário
+// Próximas 2 semanas (e a anterior): agendados, publicados e com erro em cada dia
+function Calendario({
+  posts,
+  abrir,
+}: {
+  posts: PostInstagram[];
+  abrir: (p: PostInstagram) => void;
+}) {
+  const [semana, setSemana] = useState(0);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const ini = new Date(hoje);
+  ini.setDate(ini.getDate() - ((ini.getDay() + 6) % 7) + semana * 7); // segunda-feira
+  const dias = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(ini);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+  const doDia = (d: Date) =>
+    posts
+      .filter((p) => {
+        const q = p.publicado_em || p.agendado_para;
+        if (!q) return false;
+        const x = new Date(q);
+        return x.toDateString() === d.toDateString();
+      })
+      .sort((a, b) =>
+        String(a.publicado_em || a.agendado_para).localeCompare(
+          String(b.publicado_em || b.agendado_para),
+        ),
+      );
+  return (
+    <Card className="p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Button size="sm" variant="outline" onClick={() => setSemana((s) => s - 1)}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => setSemana(0)}>
+          Hoje
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => setSemana((s) => s + 1)}>
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+        <p className="ml-2 text-sm font-semibold">
+          {dias[0].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} –{" "}
+          {dias[13].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+        {dias.map((d) => {
+          const ps = doDia(d);
+          const eHoje = d.getTime() === hoje.getTime();
+          return (
+            <div
+              key={d.toISOString()}
+              className={cn(
+                "min-h-28 rounded-lg border p-2",
+                eHoje && "border-primary bg-primary/5",
+                d < hoje && "opacity-70",
+              )}
+            >
+              <p className="text-[11px] font-bold uppercase text-muted-foreground">
+                {d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit" })}
+              </p>
+              <div className="mt-1 space-y-1">
+                {ps.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => abrir(p)}
+                    className={cn(
+                      "flex w-full items-center gap-1.5 rounded p-1 text-left text-[11px]",
+                      COR[p.status],
+                    )}
+                    title={p.legenda.slice(0, 200)}
+                  >
+                    {p.midias[0] && p.midias[0].tipo === "IMAGE" ? (
+                      <img
+                        src={src(p.midias[0].path)}
+                        alt=""
+                        className="h-7 w-7 rounded object-cover"
+                      />
+                    ) : (
+                      <Film className="h-4 w-4" />
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <b>
+                        {new Date(p.publicado_em || p.agendado_para!).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </b>{" "}
+                      <span className="line-clamp-1">{p.legenda || p.tipo}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        Clique numa publicação para abrir no editor. Dica: o Estúdio mostra as horas com mais gente
+        no site.
+      </p>
+    </Card>
   );
 }
 

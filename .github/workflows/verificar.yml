@@ -81,6 +81,9 @@ jobs:
       - name: Meta Ads (campanhas, leads, criar anúncio; API falsa)
         run: npx tsx scripts/ci/testar-meta-ads.ts
 
+      - name: Estúdio de publicações (recomendações, fotos, legendas)
+        run: npx tsx scripts/ci/testar-estudio.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 
