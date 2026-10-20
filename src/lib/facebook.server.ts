@@ -95,6 +95,8 @@ export function urlConectarFacebook(origem: string, state: string) {
     redirect_uri: callbackFacebook(origem),
     state,
     response_type: "code",
+    // Pede de novo as permissões novas ou recusadas (ex.: leads) ao reconectar
+    auth_type: "rerequest",
     ...(config ? { config_id: config } : { scope: ESCOPOS_FB.join(",") }),
   }).toString();
   return u.toString();
