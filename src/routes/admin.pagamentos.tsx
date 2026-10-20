@@ -343,7 +343,7 @@ function Integracao({ d }: { d?: Awaited<ReturnType<typeof statusIntegracaoFn>> 
         </p>
         <p className="mt-1">
           No painel da dLocal, cadastre o endereço de avisos:{" "}
-          <code className="select-all">{d.urlAviso}</code>
+          <code className="select-all break-all">{d.urlAviso}</code>
         </p>
       </div>
     );

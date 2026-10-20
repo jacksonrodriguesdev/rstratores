@@ -256,9 +256,9 @@ function IntegracoesPage() {
         </p>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-6 xl:grid-cols-2 [&>*]:min-w-0">
         <Card className="space-y-4 p-5">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="flex items-center gap-2 font-semibold">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1877F2] text-xs font-black text-white">
                 f
@@ -294,7 +294,7 @@ function IntegracoesPage() {
         </Card>
 
         <Card className="space-y-4 p-5">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="flex items-center gap-2 font-semibold">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-sm font-black ring-1 ring-black/10">
                 <span className="text-[#4285F4]">G</span>
@@ -415,9 +415,9 @@ function Buscadores() {
   };
   const ix = data?.indexnow;
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
+    <div className="grid gap-6 xl:grid-cols-2 [&>*]:min-w-0">
       <Card className="space-y-3 p-5">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="flex items-center gap-2 font-semibold">
             <Search className="h-4 w-4 text-[#008373]" /> Bing, DuckDuckGo e Yahoo (IndexNow)
           </h2>

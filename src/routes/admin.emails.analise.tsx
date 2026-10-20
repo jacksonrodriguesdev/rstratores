@@ -171,7 +171,7 @@ function Analise() {
             <h2 className="font-semibold">
               Por dia (e-mails enviados no dia e o que fizeram com eles)
             </h2>
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
               {(["enviados", "abertos", "clicados"] as const).map((k) => (
                 <span key={k} className="flex items-center gap-1.5 text-muted-foreground">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: COR[k] }} />
