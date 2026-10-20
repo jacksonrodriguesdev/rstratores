@@ -32,3 +32,33 @@ export const buscarPecasEstudioFn = createServerFn({ method: "GET" })
     const lista = await e.buscarPecas(data.q);
     return lista.map((p) => ({ ...p, legendas: e.legendas(p) }));
   });
+
+export const bancoPostsFn = createServerFn({ method: "GET" })
+  .validator((d: import("./estudio.server").FiltroBanco) => ({
+    pagina: Math.max(0, Number(d?.pagina) || 0),
+    marca: d?.marca ? String(d.marca).slice(0, 80) : undefined,
+    categoria: d?.categoria ? String(d.categoria).slice(0, 80) : undefined,
+    q: d?.q ? String(d.q).slice(0, 80) : undefined,
+    ordem:
+      (["estoque", "menor", "maior", "novas", "mistura"] as const).find((o) => o === d?.ordem) ??
+      "estoque",
+    soNovas: !!d?.soNovas,
+    comDesconto: !!d?.comDesconto,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const e = await import("./estudio.server");
+    return e.bancoPosts(data);
+  });
+
+export const filtrosBancoFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const e = await import("./estudio.server");
+  return e.filtrosBanco();
+});
+
+export const cuponsArteFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const e = await import("./estudio.server");
+  return e.cuponsParaArte();
+});

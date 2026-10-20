@@ -53,6 +53,38 @@ import assert from "node:assert/strict";
   assert.ok(l.pt.every((x) => /todo o RS|link na bio/i.test(x)));
   console.log("✔ legendas ES/PT sem promessas sem prova");
 
+  // Textos do Estúdio: 6 tons × 2 idiomas, sem frases proibidas, hashtags e verificador
+  const tx = await import("../../src/lib/estudio-textos");
+  for (const [tom] of tx.TONS)
+    for (const idioma of ["es", "pt"] as const) {
+      const t = tx.legenda({ ...a, categoria: "Filtros" }, idioma, tom, { tags: true });
+      assert.ok(t.includes(a.codigo), `legenda ${tom}/${idioma} tem o código`);
+      const ruins = tx
+        .verificarLegenda(t)
+        .filter((v) => !v.ok && !/caracteres|Primeira linha/.test(v.texto));
+      assert.deepEqual(ruins, [], `legenda ${tom}/${idioma} passa no verificador`);
+    }
+  assert.ok(tx.hashtags({ marca: "Massey Ferguson", categoria: "Filtros" }, "pt").length <= 15);
+  assert.ok(tx.hashtags({ marca: "Massey Ferguson" }, "es").includes("#MasseyFerguson"));
+  const ruim = tx.verificarLegenda("Envio para todo o Brasil com o melhor preço");
+  assert.equal(ruim.filter((v) => !v.ok).length >= 2, true, "verificador pega frases proibidas");
+  assert.match(tx.linkWhatsApp("Hola"), /^https:\/\/wa\.me\/5553999428130\?text=Hola$/);
+  assert.match(
+    tx.linkUtm("/loja", { fonte: "instagram", meio: "bio", campanha: "pre-black" }),
+    /utm_source=instagram&utm_medium=bio&utm_campaign=pre-black/,
+  );
+  for (const d of tx.DICAS) assert.ok(d.es[0] && d.pt[0]);
+  console.log(`✔ textos: ${tx.TONS.length} tons × 2 idiomas, hashtags, links e verificador`);
+
+  // Banco de posts: forma da resposta (no CI as peças não têm foto da agrotrator)
+  const banco = await e.bancoPosts({ pagina: 0, ordem: "novas" });
+  assert.equal(typeof banco.total, "number");
+  assert.ok(banco.itens.every((i) => /^https:\/\/[\w.-]*agrotrator/i.test(i.foto ?? "")));
+  const fb = await e.filtrosBanco();
+  assert.equal(fb.total, banco.total);
+  await e.cuponsParaArte();
+  console.log(`✔ banco de posts: ${banco.total} (filtros e cupons ok)`);
+
   const { prisma } = await import("../../src/lib/prisma");
   await prisma.$disconnect();
   console.log("Estúdio OK");

@@ -433,3 +433,141 @@ export function legendas(p: {
   ];
   return { es, pt };
 }
+
+// ---------------------------------------------------------------- banco de posts
+// Toda peça com foto própria e preço vira um post pronto (arte gerada no navegador + legenda).
+export type FiltroBanco = {
+  pagina: number;
+  marca?: string;
+  categoria?: string;
+  q?: string;
+  ordem?: "estoque" | "menor" | "maior" | "novas" | "mistura";
+  soNovas?: boolean; // só peças que ainda não foram postadas
+  comDesconto?: boolean;
+};
+const ONDE_BANCO = {
+  duplicado_de: null,
+  imagem_principal: { startsWith: "https://agrotrator" },
+  preco_brl: { gt: 0 },
+};
+
+// SKUs que já aparecem em alguma publicação (pelo link da peça na legenda)
+export async function skusPostados() {
+  const { prisma } = await import("./prisma");
+  const rows = await prisma.instagram_posts
+    .findMany({ select: { legenda: true }, where: { legenda: { contains: "/produto/" } } })
+    .catch(() => [] as Array<{ legenda: string | null }>);
+  const s = new Set<string>();
+  for (const r of rows)
+    for (const m of (r.legenda ?? "").matchAll(/\/produto\/([^\s/?#]+)/g))
+      s.add(decodeURIComponent(m[1]).toUpperCase());
+  return s;
+}
+
+export async function bancoPosts(f: FiltroBanco, tamanho = 48) {
+  const { prisma } = await import("./prisma");
+  const { configPrecos } = await import("./precos.server");
+  const { precoVenda, fmtUYU } = await import("./precos");
+  const { nomeProduto } = await import("./pecas-es");
+  const postados = await skusPostados();
+  const termo = (f.q ?? "").trim().slice(0, 80);
+  const where: any = {
+    ...ONDE_BANCO,
+    ...(f.marca && { marca: f.marca === "—" ? null : f.marca }),
+    ...(f.categoria && { categoria: f.categoria }),
+    ...(termo && {
+      OR: [
+        { sku: { contains: termo } },
+        { nome: { contains: termo } },
+        { codigo_fabricante: { contains: termo } },
+      ],
+    }),
+    ...(f.soNovas && postados.size && { NOT: { sku: { in: [...postados] } } }),
+    ...(f.comDesconto && { valor_promocional: { gt: 0 } }),
+  };
+  const orderBy: any =
+    f.ordem === "menor"
+      ? [{ preco_brl: "asc" }]
+      : f.ordem === "maior"
+        ? [{ preco_brl: "desc" }]
+        : f.ordem === "novas"
+          ? [{ created_at: "desc" }]
+          : f.ordem === "mistura"
+            ? [{ codigo_fabricante: "asc" }]
+            : [{ estoque: "desc" }, { sku: "asc" }];
+  const pagina = Math.max(0, Math.floor(f.pagina || 0));
+  const [total, rows, cfg] = await Promise.all([
+    prisma.agricolas.count({ where }),
+    prisma.agricolas.findMany({ where, orderBy, skip: pagina * tamanho, take: tamanho }),
+    configPrecos(),
+  ]);
+  return {
+    total,
+    pagina,
+    tamanho,
+    postados: postados.size,
+    itens: rows.map((r) => {
+      const pr = precoVenda(r as any, cfg);
+      const sku = r.sku.trim();
+      return {
+        sku,
+        codigo: (r.codigo_fabricante || r.sku).trim(),
+        nome: nomeProduto(r as any),
+        nomePt: r.nome.trim(),
+        marca: r.marca,
+        categoria: r.categoria,
+        foto: r.imagem_principal,
+        postado: postados.has(sku.toUpperCase()),
+        preco: pr?.uyu
+          ? {
+              uyu: fmtUYU(pr.uyu),
+              brl: pr.brl
+                ? `R$ ${pr.brl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                : null,
+              deUyu: pr.deUyu ? fmtUYU(pr.deUyu) : null,
+              desconto: pr.desconto ?? 0,
+              valorBrl: pr.brl ?? null,
+            }
+          : null,
+      };
+    }),
+  };
+}
+
+// Marcas e categorias do banco, com quantidade (para os filtros)
+export async function filtrosBanco() {
+  const { prisma } = await import("./prisma");
+  const [marcas, categorias, total] = await Promise.all([
+    prisma.agricolas.groupBy({ by: ["marca"], where: ONDE_BANCO as any, _count: true }),
+    prisma.agricolas.groupBy({ by: ["categoria"], where: ONDE_BANCO as any, _count: true }),
+    prisma.agricolas.count({ where: ONDE_BANCO as any }),
+  ]);
+  const fmt = (l: any[], k: string) =>
+    l
+      .map((x) => ({ nome: (x[k] as string | null) ?? "—", n: x._count as number }))
+      .sort((a, b) => b.n - a.n);
+  return { total, marcas: fmt(marcas, "marca"), categorias: fmt(categorias, "categoria") };
+}
+
+// Cupons ativos ou futuros (para a arte de cupom)
+export async function cuponsParaArte() {
+  const { prisma } = await import("./prisma");
+  const agora = new Date();
+  const rows = await prisma.cupons
+    .findMany({
+      where: { OR: [{ fim: null }, { fim: { gte: agora } }] },
+      orderBy: { id: "desc" },
+      take: 30,
+    })
+    .catch(() => []);
+  return rows.map((c) => ({
+    codigo: c.codigo,
+    tipo: c.tipo,
+    valor: c.valor,
+    moeda: c.moeda,
+    minimo: c.minimo,
+    descricao: c.descricao,
+    descricaoPt: c.descricao_pt,
+    fim: c.fim?.toISOString() ?? null,
+  }));
+}

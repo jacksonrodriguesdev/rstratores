@@ -92,7 +92,7 @@ const base64 = (b: Blob) =>
   });
 const miniatura = (u: string) => `/api/admin/estudio/foto?u=${encodeURIComponent(u)}`;
 
-export function Estudio({
+export function PainelRecomendacoes({
   usarNoPost,
 }: {
   usarNoPost: (midias: Midia[], legenda: string, tipo: "FEED" | "CARROSSEL" | "STORY") => void;
@@ -411,7 +411,7 @@ function Sinal({ icone: I, v, r, forte }: { icone: any; v: number; r: string; fo
   );
 }
 
-function Horarios({
+export function Horarios({
   h,
 }: {
   h?: { horas: number[]; semana: number[]; topHoras: number[]; topDias: string[] };
@@ -481,7 +481,7 @@ function Horarios({
   );
 }
 
-function Orcamento({
+export function Orcamento({
   o,
   recs,
 }: {

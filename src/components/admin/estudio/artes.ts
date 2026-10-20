@@ -729,3 +729,313 @@ export const paraJpg = (c: HTMLCanvasElement) =>
   new Promise<Blob>((ok, erro) =>
     c.toBlob((b) => (b ? ok(b) : erro(new Error("Falha ao gerar a imagem"))), "image/jpeg", 0.92),
   );
+
+// ================================================================ artes de texto
+// Capa de carrossel, slide final, dica, pergunta, contagem regressiva, cupom, código e marca.
+export type Tema = "amarelo" | "escuro" | "verde";
+export type OpcoesTexto = {
+  formato: Formato;
+  idioma: "es" | "pt";
+  tema: Tema;
+  selo?: string; // etiqueta pequena no alto
+  destaque?: string; // número/código grande
+  titulo: string;
+  texto?: string;
+  rodape?: string;
+  foto?: string | null; // foto própria de peça (opcional)
+  espacoInteracao?: boolean; // espaço livre para a figurinha (enquete/pergunta) no story
+};
+const CORES: Record<
+  Tema,
+  {
+    fundo: [string, string, string];
+    texto: string;
+    sub: string;
+    acento: string;
+    pilula: string;
+    pilulaTx: string;
+  }
+> = {
+  amarelo: {
+    fundo: ["#ffe14d", "#f9c80e", "#eeb500"],
+    texto: "#0b0b0b",
+    sub: "#2b2100",
+    acento: "#0b0b0b",
+    pilula: "#0b0b0b",
+    pilulaTx: "#f9c80e",
+  },
+  escuro: {
+    fundo: ["#3a2f05", "#0d0d0d", "#000000"],
+    texto: "#ffffff",
+    sub: "#d4d4d8",
+    acento: "#f5c518",
+    pilula: "#f5c518",
+    pilulaTx: "#111111",
+  },
+  verde: {
+    fundo: ["#1f8a46", "#0a3320", "#04170c"],
+    texto: "#ffffff",
+    sub: "#cde9d6",
+    acento: "#fbbf24",
+    pilula: "#fbbf24",
+    pilulaTx: "#0a3320",
+  },
+};
+function fundoTema(g: Ctx, tema: Tema, W: number, H: number) {
+  const c = CORES[tema];
+  const bg =
+    tema === "amarelo"
+      ? g.createRadialGradient(W / 2, H * 0.4, 50, W / 2, H * 0.4, W * 0.95)
+      : g.createRadialGradient(W * 0.8, H * 0.15, 40, W * 0.5, H * 0.5, H);
+  bg.addColorStop(0, c.fundo[0]);
+  bg.addColorStop(0.5, c.fundo[1]);
+  bg.addColorStop(1, c.fundo[2]);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, W, H);
+  g.save();
+  g.globalAlpha = tema === "amarelo" ? 0.06 : 0.05;
+  g.strokeStyle = tema === "amarelo" ? "#000" : "#fff";
+  g.lineWidth = 2;
+  for (let x = -H; x < W; x += 28) {
+    g.beginPath();
+    g.moveTo(x, H);
+    g.lineTo(x + H, 0);
+    g.stroke();
+  }
+  g.restore();
+}
+function pilula(
+  g: Ctx,
+  texto: string,
+  x: number,
+  y: number,
+  fundo: string,
+  cor: string,
+  tam = 24,
+  centro = false,
+) {
+  g.font = `900 ${tam}px Archivo`;
+  const w = g.measureText(texto).width + tam * 1.8;
+  const h = tam * 2;
+  const x0 = centro ? x - w / 2 : x;
+  g.fillStyle = fundo;
+  retangulo(g, x0, y, w, h, h / 2);
+  g.fill();
+  g.fillStyle = cor;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillText(texto, x0 + w / 2, y + h / 2 + 1);
+  return h;
+}
+
+export async function gerarTexto(o: OpcoesTexto): Promise<HTMLCanvasElement> {
+  await carregarFontes();
+  const [W, H] = TAMANHO[o.formato];
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const g = c.getContext("2d")!;
+  const cor = CORES[o.tema];
+  const story = o.formato === "story";
+  fundoTema(g, o.tema, W, H);
+  if (o.tema === "amarelo") {
+    balao(g, -10, story ? 260 : 60, 90, true);
+    balao(g, W + 10, story ? 300 : 90, 90, false);
+    balao(g, W - 60, H - (story ? 380 : 120), 70, true);
+  }
+  const m = 72;
+  let y = story ? 220 : 72;
+  await logo(g, W / 2, y, 70, cor.texto, cor.acento, o.idioma, true);
+  y += 120;
+  const temFoto = !!o.foto;
+  const reservaFoto = temFoto ? (story ? 640 : o.formato === "quadrado" ? 300 : 420) : 0;
+  // Bloco de texto: medido num canvas de rascunho e, sem foto, centralizado na vertical
+  const conteudo = (gg: Ctx, y0: number) => {
+    let yy = y0;
+    if (o.selo)
+      yy +=
+        pilula(
+          gg,
+          o.selo.toUpperCase(),
+          W / 2,
+          yy,
+          cor.pilula,
+          cor.pilulaTx,
+          story ? 30 : 26,
+          true,
+        ) + 40;
+    if (o.destaque) {
+      yy = bloco(gg, o.destaque.toUpperCase(), W / 2, yy, W - m * 2, {
+        fonte: (s) => `${s}px Anton`,
+        tam: story ? 320 : o.formato === "quadrado" ? 210 : 260,
+        min: 60,
+        linhas: 1,
+        cor: cor.acento,
+        alinhar: "center",
+        altura: 1,
+      });
+      yy += 10;
+    }
+    yy = bloco(gg, o.titulo.toUpperCase(), W / 2, yy, W - m * 2, {
+      fonte: (s) => `${s}px Anton`,
+      tam: story ? 130 : o.formato === "quadrado" ? 90 : 108,
+      min: 40,
+      linhas: 3,
+      cor: cor.texto,
+      alinhar: "center",
+    });
+    if (o.texto) {
+      yy += 28;
+      yy = bloco(gg, o.texto, W / 2, yy, W - m * 2 - 40, {
+        fonte: (s) => `600 ${s}px Archivo`,
+        tam: story ? 52 : o.formato === "quadrado" ? 38 : 44,
+        min: 22,
+        linhas: story ? 6 : 4,
+        cor: cor.sub,
+        alinhar: "center",
+        altura: 1.3,
+      });
+    }
+    yy += 30;
+    if (o.espacoInteracao) {
+      gg.save();
+      gg.setLineDash([14, 12]);
+      gg.strokeStyle = cor.texto;
+      gg.globalAlpha = 0.35;
+      gg.lineWidth = 4;
+      retangulo(gg, m + 60, yy, W - (m + 60) * 2, 320, 36);
+      gg.stroke();
+      gg.restore();
+      yy += 360;
+    }
+    return yy;
+  };
+  if (!temFoto) {
+    const rasc = document.createElement("canvas");
+    rasc.width = W;
+    rasc.height = H;
+    const alt = conteudo(rasc.getContext("2d")!, 0);
+    const fim = H - (story ? 300 : 110);
+    y = Math.max(y, y + (fim - y - alt) / 2);
+  }
+  y = conteudo(g, y);
+  if (temFoto) {
+    const hFoto = Math.min(reservaFoto, H - y - (story ? 260 : 130));
+    if (hFoto > 120) {
+      g.save();
+      g.fillStyle = "#fff";
+      g.shadowColor = "rgba(0,0,0,.3)";
+      g.shadowBlur = 40;
+      retangulo(g, m, y, W - m * 2, hFoto, 40);
+      g.fill();
+      g.restore();
+      try {
+        const f = await fotoRecortada(o.foto!);
+        contem(g, f as any, m + 30, y + 24, W - m * 2 - 60, hFoto - 48);
+      } catch {
+        /* sem foto */
+      }
+    }
+  }
+  const rod =
+    o.rodape ??
+    (o.idioma === "pt"
+      ? "agropartsuy.com/pt · WhatsApp +55 53 99942-8130"
+      : "agropartsuy.com · WhatsApp +55 53 99942-8130");
+  g.font = "800 26px Archivo";
+  g.fillStyle = cor.sub;
+  g.textAlign = "center";
+  g.textBaseline = "alphabetic";
+  g.fillText(rod, W / 2, H - (story ? 230 : 56));
+  return c;
+}
+
+// ================================================================ ferramentas de imagem
+async function arquivoParaImagem(arq: Blob): Promise<HTMLImageElement> {
+  const url = URL.createObjectURL(arq);
+  try {
+    return await imagem(url);
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+}
+// Fundo branco → transparente (PNG), cortado na peça
+export async function removerFundo(arq: Blob) {
+  return recortar(await arquivoParaImagem(arq));
+}
+// Encaixa qualquer foto no formato do Instagram (fundo desfocado da própria foto, branco ou preto)
+export async function ajustarFormato(
+  arq: Blob,
+  formato: Formato,
+  fundo: "desfoque" | "branco" | "preto" = "desfoque",
+) {
+  const im = await arquivoParaImagem(arq);
+  const [W, H] = TAMANHO[formato];
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const g = c.getContext("2d")!;
+  const iw = im.naturalWidth,
+    ih = im.naturalHeight;
+  if (fundo === "desfoque") {
+    const k = Math.max(W / iw, H / ih);
+    g.filter = "blur(40px) brightness(0.8)";
+    g.drawImage(im, (W - iw * k) / 2, (H - ih * k) / 2, iw * k, ih * k);
+    g.filter = "none";
+  } else {
+    g.fillStyle = fundo === "branco" ? "#fff" : "#000";
+    g.fillRect(0, 0, W, H);
+  }
+  const k = Math.min(W / iw, H / ih);
+  g.drawImage(im, (W - iw * k) / 2, (H - ih * k) / 2, iw * k, ih * k);
+  return c;
+}
+// Foto sua (loja, estoque, entrega, trator) com logo, faixa e frase
+export async function moldura(
+  arq: Blob,
+  o: { formato: Formato; idioma: "es" | "pt"; titulo: string; sub?: string; tema: Tema },
+) {
+  await carregarFontes();
+  const im = await arquivoParaImagem(arq);
+  const [W, H] = TAMANHO[o.formato];
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const g = c.getContext("2d")!;
+  const iw = im.naturalWidth,
+    ih = im.naturalHeight;
+  const k = Math.max(W / iw, H / ih);
+  g.drawImage(im, (W - iw * k) / 2, (H - ih * k) / 2, iw * k, ih * k);
+  const cor = CORES[o.tema];
+  const gr = g.createLinearGradient(0, H * 0.45, 0, H);
+  gr.addColorStop(0, "rgba(0,0,0,0)");
+  gr.addColorStop(1, "rgba(0,0,0,.85)");
+  g.fillStyle = gr;
+  g.fillRect(0, 0, W, H);
+  const story = o.formato === "story";
+  await logo(g, 56, story ? 200 : 48, 64, "#fff", cor.pilula, o.idioma);
+  let y = H - (story ? 560 : 330);
+  if (o.titulo)
+    y = bloco(g, o.titulo.toUpperCase(), 64, y, W - 128, {
+      fonte: (s) => `${s}px Anton`,
+      tam: story ? 110 : 88,
+      min: 40,
+      linhas: 2,
+      cor: "#fff",
+    });
+  if (o.sub)
+    bloco(g, o.sub, 64, y + 16, W - 128, {
+      fonte: (s) => `700 ${s}px Archivo`,
+      tam: 34,
+      min: 22,
+      linhas: 2,
+      cor: "#e4e4e7",
+    });
+  g.fillStyle = cor.pilula;
+  g.fillRect(0, H - (story ? 200 : 18), W, story ? 8 : 18);
+  return c;
+}
+export const paraPng = (c: HTMLCanvasElement) =>
+  new Promise<Blob>((ok, erro) =>
+    c.toBlob((b) => (b ? ok(b) : erro(new Error("Falha ao gerar a imagem"))), "image/png"),
+  );

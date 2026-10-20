@@ -36,7 +36,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Estudio } from "@/components/admin/estudio/Estudio";
+import { Estudio } from "@/components/admin/estudio/Hub";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
@@ -281,8 +281,9 @@ function PaginaInstagram() {
 
       {tela === "estudio" && (
         <Estudio
-          usarNoPost={(midias, legenda, tipo) => {
-            setForm({ ...VAZIO, tipo, midias, legenda });
+          posts={posts ?? []}
+          usarNoPost={(midias, legenda, tipo, comentario) => {
+            setForm({ ...VAZIO, tipo, midias, legenda, comentario: comentario ?? "" });
             setTela("publicar");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
