@@ -41,3 +41,37 @@ o contêiner, espera o vídeo processar e publica. Erro → a publicação fica 
 motivo e o botão «Tentar de novo».
 
 Teste: `scripts/ci/testar-instagram.ts` (API da Meta falsa, no CI).
+
+---
+
+# Facebook: página e anúncios (mesma tela, «Conectar Facebook»)
+
+Com o Facebook conectado, o painel:
+
+- **publica também na página** (opção em cada publicação; foto, várias fotos num post, vídeo).
+  Atenção: posts feitos pela API do Instagram **não** vão sozinhos para o Facebook (o
+  compartilhamento automático só vale para o que é postado pelo app), por isso a opção existe;
+- mostra os **números da página** (seguidores, alcance, engajamento, novos seguidores e posts
+  recentes) ao lado dos do Instagram (alcance, visitas ao perfil, interações e posts recentes,
+  inclusive os feitos pelo app);
+- liga a **Central de Anúncios** à conta de anúncios escolhida, sem colar token: gasto,
+  campanhas, pausar/ativar e orçamento ficam em Admin → Central de Anúncios.
+
+## Configurar (uma vez)
+
+1. App **agropartsapp** (o principal, não o «IG»): **Login do Facebook para Empresas →
+   Configurações** → «URIs de redirecionamento do OAuth válidos»:
+   `https://agropartsuy.com/api/admin/facebook/callback`
+2. **Configurações do app → Básico**: **ID do app** e **Chave secreta do app** no hPanel como
+   `META_APP_ID` e `META_APP_SECRET` (a chave só no hPanel). Reinicie o app.
+3. Se o Login para Empresas pedir uma «configuração», crie uma com as permissões
+   `pages_show_list, pages_read_engagement, pages_manage_posts, read_insights, ads_read,
+   ads_management, business_management` e coloque o ID dela em `META_LOGIN_CONFIG_ID`.
+4. Admin → Instagram e Facebook → **Conectar Facebook** → escolha a **página** e a **conta de
+   anúncios**.
+
+Tokens criptografados (`fb_*` em configuracoes). O da página não vence; o usado nos anúncios vale
+60 dias (o painel avisa para reconectar). Um token colado em Integrações (`mkt_meta_ads_token`)
+continua tendo prioridade.
+
+Teste: `scripts/ci/testar-facebook.ts` (API da Meta falsa, no CI).

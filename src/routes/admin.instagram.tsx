@@ -26,7 +26,14 @@ import {
   Share2,
   Smartphone,
   Save,
+  Facebook,
+  Users,
+  TrendingUp,
+  MousePointerClick,
+  BarChart3,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,17 +46,22 @@ import {
   publicarAgoraFn,
   salvarPostFn,
   statusInstagramFn,
+  statusFacebookFn,
+  escolherFacebookFn,
+  desconectarFacebookFn,
+  desempenhoRedesFn,
   type PostForm,
   type PostInstagram,
 } from "@/lib/instagram";
 import { cn } from "@/lib/utils";
 
-type Busca = { ig?: string; msg?: string; conta?: string };
+type Busca = { ig?: string; fb?: string; msg?: string; conta?: string };
 export const Route = createFileRoute("/admin/instagram")({
   validateSearch: (s: Record<string, unknown>): Busca => ({
     ig: typeof s.ig === "string" ? s.ig : undefined,
     msg: typeof s.msg === "string" ? s.msg : undefined,
     conta: typeof s.conta === "string" ? s.conta : undefined,
+    fb: typeof s.fb === "string" ? s.fb : undefined,
   }),
   component: PaginaInstagram,
 });
@@ -137,10 +149,18 @@ function PaginaInstagram() {
   });
   const atualizar = () => qc.invalidateQueries({ queryKey: ["ig-posts"] });
 
+  const { data: fb, refetch: refetchFb } = useQuery({
+    queryKey: ["fb-status"],
+    queryFn: () => statusFacebookFn(),
+  });
+
   useEffect(() => {
     if (busca.ig === "ok")
       toast.success(`Instagram conectado${busca.conta ? `: @${busca.conta}` : ""}`);
     if (busca.ig === "erro") toast.error(busca.msg || "Não foi possível conectar");
+    if (busca.fb === "ok")
+      toast.success("Facebook conectado: escolha a página e a conta de anúncios");
+    if (busca.fb === "erro") toast.error(busca.msg || "Não foi possível conectar o Facebook");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const editar = (p: PostInstagram) => {
@@ -150,6 +170,7 @@ function PaginaInstagram() {
       legenda: p.legenda,
       comentario: p.comentario,
       midias: p.midias,
+      facebook: p.facebook,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -165,15 +186,18 @@ function PaginaInstagram() {
     <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
-          <Instagram className="h-6 w-6 text-primary" /> Instagram
+          <Instagram className="h-6 w-6 text-primary" /> Instagram e Facebook
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Publique posts, carrosséis, stories e Reels no Instagram da loja pelo painel, na hora ou
-          agendados, e acompanhe curtidas, comentários e alcance de cada um.
+          Publique no Instagram (e, se quiser, na página do Facebook) pelo painel, na hora ou
+          agendado, e acompanhe os números das duas redes. Os anúncios ficam na Central de Anúncios.
         </p>
       </div>
 
       <Conexao st={st} atualizar={() => refetchSt()} />
+      <ConexaoFacebook fb={fb} atualizar={() => refetchFb()} />
+
+      {st?.conectado && <Desempenho />}
 
       {st?.conectado && (
         <Compositor
@@ -181,6 +205,7 @@ function PaginaInstagram() {
           setForm={setForm}
           username={st.username}
           foto={st.foto}
+          paginaFacebook={fb?.pagina?.nome ?? null}
           aoSalvar={(p) => {
             setForm(VAZIO);
             setAba(
@@ -379,12 +404,14 @@ function Compositor({
   setForm,
   username,
   foto,
+  paginaFacebook,
   aoSalvar,
 }: {
   form: PostForm;
   setForm: (f: PostForm) => void;
   username: string | null;
   foto: string | null;
+  paginaFacebook: string | null;
   aoSalvar: (p: PostInstagram) => void;
 }) {
   const [subindo, setSubindo] = useState(0);
@@ -617,6 +644,30 @@ function Compositor({
               className="mt-1 w-full rounded-md border bg-background p-2.5 text-sm"
             />
           </div>
+        )}
+        {form.tipo !== "STORY" && (
+          <label
+            className={cn(
+              "flex items-center justify-between gap-3 rounded-lg p-3 text-sm",
+              paginaFacebook ? "bg-blue-50" : "bg-muted/40 text-muted-foreground",
+            )}
+          >
+            <span className="flex items-center gap-2">
+              <Facebook className="h-4 w-4 text-blue-600" />
+              {paginaFacebook ? (
+                <>
+                  Publicar também na página <b>{paginaFacebook}</b> (legenda + hashtags)
+                </>
+              ) : (
+                "Para publicar também no Facebook, conecte o Facebook acima"
+              )}
+            </span>
+            <Switch
+              checked={!!form.facebook && !!paginaFacebook}
+              disabled={!paginaFacebook}
+              onCheckedChange={(v) => set({ facebook: v })}
+            />
+          </label>
         )}
 
         <div className="flex flex-wrap items-end gap-2 border-t pt-4">
@@ -896,5 +947,370 @@ function ItemPost({
         )}
       </div>
     </li>
+  );
+}
+
+// ---------------------------------------------------------------- Facebook (página e anúncios)
+function ConexaoFacebook({ fb, atualizar }: { fb: any; atualizar: () => void }) {
+  const [salvando, setSalvando] = useState(false);
+  if (!fb) return null;
+  const escolher = async (o: { pagina?: string; conta?: string }) => {
+    setSalvando(true);
+    try {
+      await escolherFacebookFn({ data: o });
+      toast.success("Salvo");
+      atualizar();
+    } catch (e: any) {
+      toast.error(e?.message || "Falha");
+    } finally {
+      setSalvando(false);
+    }
+  };
+  if (!fb.configurado)
+    return (
+      <Card className="space-y-2 border-blue-200 bg-blue-50/60 p-5 text-sm">
+        <p className="flex items-center gap-2 font-semibold text-blue-900">
+          <Facebook className="h-5 w-5" /> Facebook: página e anúncios (falta configurar)
+        </p>
+        <ol className="list-decimal space-y-1 pl-5 text-blue-950">
+          <li>
+            No app <b>agropartsapp</b> (developers.facebook.com):{" "}
+            <b>Login do Facebook para Empresas → Configurações</b> → em «URIs de redirecionamento do
+            OAuth válidos» coloque <code className="rounded bg-blue-100 px-1">{fb.callback}</code>
+          </li>
+          <li>
+            Em <b>Configurações do app → Básico</b>: copie o <b>ID do app</b> e a{" "}
+            <b>Chave secreta do app</b> para o hPanel como{" "}
+            <code className="rounded bg-blue-100 px-1">META_APP_ID</code> e{" "}
+            <code className="rounded bg-blue-100 px-1">META_APP_SECRET</code> (só no hPanel) e
+            reinicie o app.
+          </li>
+          <li>
+            Volte aqui e clique em <b>Conectar Facebook</b>.
+          </li>
+        </ol>
+      </Card>
+    );
+  if (!fb.conectado)
+    return (
+      <Card className="flex flex-wrap items-center gap-4 p-5">
+        <Facebook className="h-10 w-10 text-blue-600" />
+        <div className="min-w-0 flex-1 text-sm">
+          <p className="font-semibold">Conecte o Facebook (página e anúncios)</p>
+          <p className="text-muted-foreground">
+            Para publicar também na página, ver os números dela e controlar os anúncios na Central
+            de Anúncios, sem colar token.
+          </p>
+        </div>
+        <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+          <a href="/api/admin/facebook/conectar">
+            <Facebook className="mr-2 h-5 w-5" /> Conectar Facebook
+          </a>
+        </Button>
+      </Card>
+    );
+  const dias = fb.expira ? Math.max(0, Math.round((fb.expira - Date.now()) / 86400_000)) : null;
+  return (
+    <Card className="space-y-3 p-5">
+      <div className="flex flex-wrap items-center gap-3">
+        <Facebook className="h-8 w-8 text-blue-600" />
+        <div className="min-w-0 flex-1 text-sm">
+          <p className="flex items-center gap-2 font-semibold">
+            Facebook conectado{" "}
+            {fb.usuario && (
+              <span className="font-normal text-muted-foreground">({fb.usuario})</span>
+            )}
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+          </p>
+          {dias != null && (
+            <p
+              className={cn(
+                "text-xs",
+                dias < 10 ? "font-semibold text-amber-700" : "text-muted-foreground",
+              )}
+            >
+              A conexão dos anúncios vale mais {dias} dias
+              {dias < 10 ? ": clique em Reconectar" : ""} (a da página não vence).
+            </p>
+          )}
+        </div>
+        <Button asChild variant="outline" size="sm">
+          <a href="/api/admin/facebook/conectar">Reconectar</a>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-red-600"
+          onClick={async () => {
+            if (!window.confirm("Desconectar o Facebook (página e anúncios)?")) return;
+            await desconectarFacebookFn();
+            atualizar();
+          }}
+        >
+          Desconectar
+        </Button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="text-xs font-semibold text-muted-foreground">
+          Página do Facebook
+          <select
+            value={fb.pagina?.id ?? ""}
+            disabled={salvando}
+            onChange={(e) => escolher({ pagina: e.target.value })}
+            className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"
+          >
+            <option value="">
+              {fb.paginas.length ? "Escolha a página…" : "Nenhuma página encontrada"}
+            </option>
+            {fb.paginas.map((p: any) => (
+              <option key={p.id} value={p.id}>
+                {p.nome}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs font-semibold text-muted-foreground">
+          Conta de anúncios (Central de Anúncios)
+          <select
+            value={fb.contaAds ?? ""}
+            disabled={salvando}
+            onChange={(e) => escolher({ conta: e.target.value })}
+            className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"
+          >
+            <option value="">
+              {fb.contas.length ? "Escolha a conta…" : "Nenhuma conta de anúncios encontrada"}
+            </option>
+            {fb.contas.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.nome} ({c.moeda})
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {fb.contaAds && (
+        <p className="text-xs text-muted-foreground">
+          Gasto, campanhas, pausar/ativar e orçamento:{" "}
+          <Link to="/admin/ads" className="font-semibold text-primary hover:underline">
+            Central de Anúncios →
+          </Link>
+        </p>
+      )}
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------- desempenho das redes
+function Desempenho() {
+  const [aberto, setAberto] = useState(false);
+  const [dias, setDias] = useState(28);
+  const { data, isFetching, refetch } = useQuery({
+    queryKey: ["redes-desempenho", dias],
+    queryFn: () => desempenhoRedesFn({ data: { dias } }),
+    enabled: aberto,
+    staleTime: 10 * 60_000,
+  });
+  const n = (v: number | null | undefined) => (v == null ? "—" : v.toLocaleString("pt-BR"));
+  return (
+    <Card className="p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="flex items-center gap-2 font-semibold">
+          <BarChart3 className="h-4 w-4 text-primary" /> Desempenho das redes
+        </h2>
+        {aberto && (
+          <div className="ml-2 flex gap-1">
+            {[7, 14, 28].map((d) => (
+              <button
+                key={d}
+                onClick={() => setDias(d)}
+                className={cn(
+                  "rounded-full border px-3 py-0.5 text-xs font-semibold",
+                  dias === d
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "hover:bg-muted",
+                )}
+              >
+                {d} dias
+              </button>
+            ))}
+          </div>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          className="ml-auto"
+          onClick={() => (aberto ? refetch() : setAberto(true))}
+          disabled={isFetching}
+        >
+          {isFetching ? (
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="mr-1.5 h-4 w-4" />
+          )}
+          {aberto ? "Atualizar" : "Ver números"}
+        </Button>
+      </div>
+      {aberto && data && (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <Rede
+            titulo="Instagram"
+            icone={<Instagram className="h-4 w-4 text-pink-600" />}
+            erro={data.instagram.ok ? null : data.instagram.erro}
+            kpis={
+              data.instagram.ok
+                ? [
+                    ["Seguidores", n(data.instagram.seguidores), Users],
+                    ["Alcance", n(data.instagram.alcance), Eye],
+                    ["Visitas ao perfil", n(data.instagram.visitas), MousePointerClick],
+                    ["Interações", n(data.instagram.interacoes), Heart],
+                  ]
+                : []
+            }
+            posts={
+              data.instagram.ok
+                ? data.instagram.recentes.map((r: any) => ({
+                    id: r.id,
+                    imagem: r.imagem,
+                    texto: r.legenda || r.tipo,
+                    link: r.link,
+                    quando: r.quando,
+                    a: r.curtidas,
+                    b: r.comentarios,
+                    c: null,
+                  }))
+                : []
+            }
+          />
+          <Rede
+            titulo="Página do Facebook"
+            icone={<Facebook className="h-4 w-4 text-blue-600" />}
+            erro={data.facebook.ok ? null : data.facebook.erro}
+            kpis={
+              data.facebook.ok
+                ? [
+                    ["Seguidores", n(data.facebook.seguidores), Users],
+                    ["Alcance", n(data.facebook.alcance), Eye],
+                    ["Engajamento", n(data.facebook.engajamento), Heart],
+                    ["Novos seguidores", n(data.facebook.novosSeguidores), TrendingUp],
+                  ]
+                : []
+            }
+            posts={
+              data.facebook.ok
+                ? data.facebook.posts.map((p: any) => ({
+                    id: p.id,
+                    imagem: p.imagem,
+                    texto: p.texto || "(sem texto)",
+                    link: p.link,
+                    quando: p.quando,
+                    a: p.reacoes,
+                    b: p.comentarios,
+                    c: p.compartilhamentos,
+                  }))
+                : []
+            }
+          />
+        </div>
+      )}
+      {aberto && data && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Últimos {data.dias} dias. A Meta pode levar até 48 h para fechar os números.
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function Rede({
+  titulo,
+  icone,
+  erro,
+  kpis,
+  posts,
+}: {
+  titulo: string;
+  icone: React.ReactNode;
+  erro: string | null;
+  kpis: Array<[string, string, any]>;
+  posts: Array<{
+    id: string;
+    imagem: string | null;
+    texto: string;
+    link: string | null;
+    quando: string;
+    a: number;
+    b: number;
+    c: number | null;
+  }>;
+}) {
+  return (
+    <div className="rounded-xl border p-4">
+      <p className="flex items-center gap-2 text-sm font-semibold">
+        {icone} {titulo}
+      </p>
+      {erro ? (
+        <p className="mt-2 text-sm text-muted-foreground">{erro}</p>
+      ) : (
+        <>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {kpis.map(([r, v, I]) => (
+              <div key={r} className="rounded-lg bg-muted/50 p-2">
+                <p className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+                  <I className="h-3.5 w-3.5" /> {r}
+                </p>
+                <p className="text-lg font-bold">{v}</p>
+              </div>
+            ))}
+          </div>
+          <ul className="mt-3 max-h-80 divide-y overflow-y-auto">
+            {posts.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 py-2">
+                <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
+                  {p.imagem && (
+                    <img
+                      src={p.imagem}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm">{p.texto}</p>
+                  <p className="flex gap-3 text-xs text-muted-foreground">
+                    <span>{p.quando ? new Date(p.quando).toLocaleDateString("pt-BR") : ""}</span>
+                    <span className="flex items-center gap-1">
+                      <Heart className="h-3 w-3" /> {p.a}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MessageCircle className="h-3 w-3" /> {p.b}
+                    </span>
+                    {p.c != null && (
+                      <span className="flex items-center gap-1">
+                        <Share2 className="h-3 w-3" /> {p.c}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                {p.link && (
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Abrir"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </li>
+            ))}
+            {!posts.length && (
+              <li className="py-3 text-sm text-muted-foreground">Nenhuma publicação recente.</li>
+            )}
+          </ul>
+        </>
+      )}
+    </div>
   );
 }

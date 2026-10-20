@@ -92,7 +92,7 @@ const GRUPOS: Grupo[] = [
           { to: "/admin/emails/anuncios", label: "Anúncios" },
         ],
       },
-      { to: "/admin/instagram", label: "Instagram", icon: Instagram },
+      { to: "/admin/instagram", label: "Instagram e Facebook", icon: Instagram },
       { to: "/admin/popup", label: "Pop-up de cadastro", icon: Sparkles },
       { to: "/admin/campanhas", label: "Campanhas e cupons", icon: Flame },
       { to: "/admin/ads", label: "Central de Anúncios", icon: BarChart3 },

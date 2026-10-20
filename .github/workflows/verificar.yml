@@ -75,6 +75,9 @@ jobs:
       - name: Instagram (API da Meta falsa)
         run: npx tsx scripts/ci/testar-instagram.ts
 
+      - name: Facebook (página e anúncios, API da Meta falsa)
+        run: npx tsx scripts/ci/testar-facebook.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 

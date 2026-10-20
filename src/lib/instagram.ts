@@ -28,6 +28,8 @@ export type PostInstagram = {
   erro: string | null;
   metricas: Record<string, number> | null;
   metricas_em: string | null;
+  facebook: boolean;
+  fb_post_id: string | null;
 };
 export type PostForm = {
   id?: number;
@@ -35,6 +37,7 @@ export type PostForm = {
   legenda: string;
   comentario: string;
   midias: Midia[];
+  facebook?: boolean;
 };
 
 const paraPost = (r: any): PostInstagram => ({
@@ -50,6 +53,8 @@ const paraPost = (r: any): PostInstagram => ({
   erro: r.erro,
   metricas: r.metricas ? JSON.parse(r.metricas) : null,
   metricas_em: r.metricas_em?.toISOString() ?? null,
+  facebook: !!r.facebook,
+  fb_post_id: r.fb_post_id ?? null,
 });
 
 export const statusInstagramFn = createServerFn({ method: "GET" }).handler(async () => {
@@ -78,6 +83,7 @@ const limpar = (d: PostForm) => {
         tipo: m.tipo === "VIDEO" ? ("VIDEO" as const) : ("IMAGE" as const),
       }))
       .slice(0, 10),
+    facebook: !!d.facebook,
   };
 };
 
@@ -109,6 +115,7 @@ export const salvarPostFn = createServerFn({ method: "POST" })
         throw new Error("Essa publicação já saiu: crie outra.");
     }
     const campos = {
+      facebook: p.facebook && p.tipo !== "STORY",
       tipo: p.tipo,
       legenda: p.legenda || null,
       comentario: p.comentario || null,
@@ -175,3 +182,50 @@ export const desconectarInstagramFn = createServerFn({ method: "POST" }).handler
   await desconectar();
   return { ok: true };
 });
+
+// ---------------------------------------------------------------- Facebook e desempenho
+export const statusFacebookFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const { statusFacebook, callbackFacebook } = await import("./facebook.server");
+  return { ...(await statusFacebook()), callback: callbackFacebook(await origem()) };
+});
+
+export const escolherFacebookFn = createServerFn({ method: "POST" })
+  .validator((d: { pagina?: string | null; conta?: string | null }) => d)
+  .handler(async ({ data }) => {
+    await admin();
+    const { escolherFacebook } = await import("./facebook.server");
+    await escolherFacebook(data);
+    return { ok: true };
+  });
+
+export const desconectarFacebookFn = createServerFn({ method: "POST" }).handler(async () => {
+  await admin();
+  const { desconectarFacebook } = await import("./facebook.server");
+  await desconectarFacebook();
+  return { ok: true };
+});
+
+// Números das duas redes (cada uma pode falhar sozinha sem derrubar a outra)
+export const desempenhoRedesFn = createServerFn({ method: "GET" })
+  .validator((d: { dias?: number }) => ({ dias: Math.min(30, Math.max(7, Number(d?.dias) || 28)) }))
+  .handler(async ({ data }) => {
+    await admin();
+    const ig = await import("./instagram.server");
+    const fb = await import("./facebook.server");
+    const [instagram, facebook] = await Promise.all([
+      ig.desempenhoInstagram(data.dias).then(
+        (v) => ({ ok: true as const, ...v }),
+        (e) => ({ ok: false as const, erro: String(e?.message ?? e) }),
+      ),
+      fb.statusFacebook().then((s) =>
+        s.pagina
+          ? fb.desempenhoPagina(data.dias).then(
+              (v) => ({ ok: true as const, ...v }),
+              (e) => ({ ok: false as const, erro: String(e?.message ?? e) }),
+            )
+          : { ok: false as const, erro: "Conecte o Facebook e escolha a página." },
+      ),
+    ]);
+    return { dias: data.dias, instagram, facebook };
+  });

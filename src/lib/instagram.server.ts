@@ -46,6 +46,14 @@ export function garantirTabelaInstagram() {
   tabela ??= (async () => {
     const { prisma } = await import("./prisma");
     await prisma.$executeRawUnsafe(SQL);
+    // Colunas novas (Facebook) em tabelas já criadas
+    const cols = await prisma.$queryRaw<Array<{ c: string }>>`
+      SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'instagram_posts'`;
+    if (!cols.some((x) => x.c === "facebook"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `instagram_posts` ADD COLUMN `facebook` BOOLEAN NOT NULL DEFAULT false, ADD COLUMN `fb_post_id` VARCHAR(80) NULL",
+      );
   })().catch((e) => {
     tabela = null;
     throw e;
@@ -401,13 +409,27 @@ export async function publicarPost(id: number, origem: string) {
     const pub = await graph(`${c.userId}/media_publish`, { creation_id: criacao, ...tk }, "POST");
     const info = await graph(pub.id, { fields: "permalink", ...tk }).catch(() => ({}) as any);
     // Primeiro comentário (ex.: hashtags) — story não tem comentários
-    let aviso: string | null = null;
+    const avisos: string[] = [];
     if (p.comentario?.trim() && tipo !== "STORY")
       await graph(`${pub.id}/comments`, { message: p.comentario.trim(), ...tk }, "POST").catch(
         (e) => {
-          aviso = `Publicado, mas o primeiro comentário falhou: ${e.message}`;
+          avisos.push(`O primeiro comentário falhou: ${e.message}`);
         },
       );
+    // Também na página do Facebook (a API do Instagram não compartilha sozinha no Facebook)
+    let fbPost: string | null = null;
+    if (p.facebook && tipo !== "STORY") {
+      try {
+        const { publicarNaPagina } = await import("./facebook.server");
+        fbPost = await publicarNaPagina(
+          tipo,
+          midias.map((m) => ({ url: urlPublica(m.path, origem), tipo: m.tipo })),
+          [p.legenda ?? "", p.comentario ?? ""].filter((x) => x.trim()).join("\n\n"),
+        );
+      } catch (e: any) {
+        avisos.push(`Publicado no Instagram, mas o Facebook falhou: ${e?.message ?? e}`);
+      }
+    }
     await prisma.instagram_posts.update({
       where: { id },
       data: {
@@ -415,7 +437,8 @@ export async function publicarPost(id: number, origem: string) {
         publicado_em: new Date(),
         ig_media_id: pub.id,
         permalink: info.permalink ?? null,
-        erro: aviso,
+        fb_post_id: fbPost,
+        erro: avisos.length ? avisos.join(" · ") : null,
       },
     });
   } catch (e: any) {
@@ -496,4 +519,62 @@ export async function tarefasInstagram() {
     ultimaMetrica = Date.now();
     await atualizarMetricas().catch((e) => console.error("instagram métricas", e?.message));
   }
+}
+
+// ---------------------------------------------------------------- desempenho da conta
+// Alcance, visitas ao perfil e interações dos últimos N dias + posts recentes (inclusive os
+// feitos pelo app do Instagram), cada um com curtidas e comentários.
+export async function desempenhoInstagram(dias = 28) {
+  const c = await conta();
+  const ate = Math.floor(Date.now() / 1000);
+  const de = ate - Math.min(30, dias) * 86400; // a Meta aceita até 30 dias por consulta
+  const total = async (metrica: string) => {
+    const j = await graph(`${c.userId}/insights`, {
+      metric: metrica,
+      period: "day",
+      metric_type: "total_value",
+      since: String(de),
+      until: String(ate),
+      access_token: c.token,
+    }).catch(() => null);
+    const v = j?.data?.[0]?.total_value?.value;
+    return typeof v === "number" ? v : null;
+  };
+  const [perfil, alcance, visitas, interacoes, engajadas, midias] = await Promise.all([
+    graph("me", { fields: "username,followers_count,media_count", access_token: c.token }),
+    total("reach"),
+    total("profile_views"),
+    total("total_interactions"),
+    total("accounts_engaged"),
+    graph(`${c.userId}/media`, {
+      fields:
+        "id,caption,media_type,media_product_type,thumbnail_url,media_url,permalink,timestamp,like_count,comments_count",
+      limit: "18",
+      access_token: c.token,
+    }).catch(() => ({ data: [] })),
+  ]);
+  return {
+    seguidores: perfil.followers_count ?? null,
+    posts: perfil.media_count ?? null,
+    alcance,
+    visitas,
+    interacoes,
+    engajadas,
+    recentes: (midias.data ?? []).map((m: any) => ({
+      id: String(m.id),
+      legenda: String(m.caption ?? ""),
+      tipo: String(
+        m.media_product_type === "STORY"
+          ? "STORY"
+          : m.media_product_type === "REELS"
+            ? "REELS"
+            : m.media_type,
+      ),
+      imagem: m.thumbnail_url ?? (m.media_type === "VIDEO" ? null : m.media_url) ?? null,
+      link: m.permalink ?? null,
+      quando: String(m.timestamp ?? ""),
+      curtidas: m.like_count ?? 0,
+      comentarios: m.comments_count ?? 0,
+    })),
+  };
 }

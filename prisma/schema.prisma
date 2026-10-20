@@ -901,6 +901,9 @@ model instagram_posts {
   erro          String?   @db.Text
   metricas      String?   @db.Text // JSON: curtidas, comentarios, alcance, salvos, compartilhamentos, views
   metricas_em   DateTime?
+  // Também publicar na página do Facebook (Conectar Facebook): id do post lá
+  facebook      Boolean   @default(false)
+  fb_post_id    String?   @db.VarChar(80)
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 

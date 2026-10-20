@@ -94,6 +94,8 @@ import { Route as ApiAdminCatalogosUploadRouteImport } from './routes/api/admin/
 import { Route as ApiAdminCategoriesIdRouteImport } from './routes/api/admin/categories.$id'
 import { Route as ApiAdminCategoriesUploadRouteImport } from './routes/api/admin/categories.upload'
 import { Route as ApiAdminEmailsUploadRouteImport } from './routes/api/admin/emails.upload'
+import { Route as ApiAdminFacebookCallbackRouteImport } from './routes/api/admin/facebook.callback'
+import { Route as ApiAdminFacebookConectarRouteImport } from './routes/api/admin/facebook.conectar'
 import { Route as ApiAdminGoogleCallbackRouteImport } from './routes/api/admin/google.callback'
 import { Route as ApiAdminGoogleConectarRouteImport } from './routes/api/admin/google.conectar'
 import { Route as ApiAdminImagesImportRouteImport } from './routes/api/admin/images.import'
@@ -536,6 +538,18 @@ const ApiAdminEmailsUploadRoute = ApiAdminEmailsUploadRouteImport.update({
   path: '/api/admin/emails/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminFacebookCallbackRoute =
+  ApiAdminFacebookCallbackRouteImport.update({
+    id: '/api/admin/facebook/callback',
+    path: '/api/admin/facebook/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminFacebookConectarRoute =
+  ApiAdminFacebookConectarRouteImport.update({
+    id: '/api/admin/facebook/conectar',
+    path: '/api/admin/facebook/conectar',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminGoogleCallbackRoute = ApiAdminGoogleCallbackRouteImport.update({
   id: '/api/admin/google/callback',
   path: '/api/admin/google/callback',
@@ -702,6 +716,8 @@ export interface FileRoutesByFullPath {
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
+  '/api/admin/facebook/callback': typeof ApiAdminFacebookCallbackRoute
+  '/api/admin/facebook/conectar': typeof ApiAdminFacebookConectarRoute
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
   '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
@@ -803,6 +819,8 @@ export interface FileRoutesByTo {
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
+  '/api/admin/facebook/callback': typeof ApiAdminFacebookCallbackRoute
+  '/api/admin/facebook/conectar': typeof ApiAdminFacebookConectarRoute
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
   '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
@@ -906,6 +924,8 @@ export interface FileRoutesById {
   '/api/admin/categories/$id': typeof ApiAdminCategoriesIdRoute
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
+  '/api/admin/facebook/callback': typeof ApiAdminFacebookCallbackRoute
+  '/api/admin/facebook/conectar': typeof ApiAdminFacebookConectarRoute
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
   '/api/admin/google/conectar': typeof ApiAdminGoogleConectarRoute
   '/api/admin/images/import': typeof ApiAdminImagesImportRoute
@@ -1010,6 +1030,8 @@ export interface FileRouteTypes {
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
+    | '/api/admin/facebook/callback'
+    | '/api/admin/facebook/conectar'
     | '/api/admin/google/callback'
     | '/api/admin/google/conectar'
     | '/api/admin/images/import'
@@ -1111,6 +1133,8 @@ export interface FileRouteTypes {
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
+    | '/api/admin/facebook/callback'
+    | '/api/admin/facebook/conectar'
     | '/api/admin/google/callback'
     | '/api/admin/google/conectar'
     | '/api/admin/images/import'
@@ -1213,6 +1237,8 @@ export interface FileRouteTypes {
     | '/api/admin/categories/$id'
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
+    | '/api/admin/facebook/callback'
+    | '/api/admin/facebook/conectar'
     | '/api/admin/google/callback'
     | '/api/admin/google/conectar'
     | '/api/admin/images/import'
@@ -1277,6 +1303,8 @@ export interface RootRouteChildren {
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
+  ApiAdminFacebookCallbackRoute: typeof ApiAdminFacebookCallbackRoute
+  ApiAdminFacebookConectarRoute: typeof ApiAdminFacebookConectarRoute
   ApiAdminGoogleCallbackRoute: typeof ApiAdminGoogleCallbackRoute
   ApiAdminGoogleConectarRoute: typeof ApiAdminGoogleConectarRoute
   ApiAdminImagesImportRoute: typeof ApiAdminImagesImportRoute
@@ -1884,6 +1912,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminEmailsUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/facebook/callback': {
+      id: '/api/admin/facebook/callback'
+      path: '/api/admin/facebook/callback'
+      fullPath: '/api/admin/facebook/callback'
+      preLoaderRoute: typeof ApiAdminFacebookCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/facebook/conectar': {
+      id: '/api/admin/facebook/conectar'
+      path: '/api/admin/facebook/conectar'
+      fullPath: '/api/admin/facebook/conectar'
+      preLoaderRoute: typeof ApiAdminFacebookConectarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/google/callback': {
       id: '/api/admin/google/callback'
       path: '/api/admin/google/callback'
@@ -2197,6 +2239,8 @@ const rootRouteChildren: RootRouteChildren = {
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
+  ApiAdminFacebookCallbackRoute: ApiAdminFacebookCallbackRoute,
+  ApiAdminFacebookConectarRoute: ApiAdminFacebookConectarRoute,
   ApiAdminGoogleCallbackRoute: ApiAdminGoogleCallbackRoute,
   ApiAdminGoogleConectarRoute: ApiAdminGoogleConectarRoute,
   ApiAdminImagesImportRoute: ApiAdminImagesImportRoute,

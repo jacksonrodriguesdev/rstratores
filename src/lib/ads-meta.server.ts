@@ -30,8 +30,18 @@ export type DiaApi = {
 async function cfg() {
   const { configMarketing } = await import("./marketing-config.server");
   const c = await configMarketing();
-  const conta = c.mkt_meta_ad_account.replace(/^act_/i, "").replace(/\D/g, "");
-  return { conta: conta ? `act_${conta}` : "", token: c.mkt_meta_ads_token };
+  let conta = c.mkt_meta_ad_account.replace(/^act_/i, "").replace(/\D/g, "");
+  let token = c.mkt_meta_ads_token;
+  // Sem token colado em Integrações: usa a conexão «Conectar Facebook» (Instagram e Facebook)
+  if (!token) {
+    const { anunciosDaConexao } = await import("./facebook.server");
+    const fb = await anunciosDaConexao().catch(() => null);
+    if (fb) {
+      token = fb.token;
+      if (!conta) conta = fb.conta.replace(/^act_/i, "").replace(/\D/g, "");
+    }
+  }
+  return { conta: conta ? `act_${conta}` : "", token };
 }
 export async function metaConfigurado() {
   const c = await cfg();
