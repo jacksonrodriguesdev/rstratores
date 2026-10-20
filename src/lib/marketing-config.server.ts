@@ -31,7 +31,11 @@ export const CAMPOS = {
 export type ChaveMkt = keyof typeof CAMPOS;
 export type ConfigMkt = Record<ChaveMkt, string>;
 
-const PADRAO: Partial<ConfigMkt> = { mkt_ga4_id: "G-M8WS1HTBES" };
+// IDs públicos (aparecem no HTML de qualquer site): valem quando o painel não tem outro salvo
+const PADRAO: Partial<ConfigMkt> = {
+  mkt_ga4_id: "G-M8WS1HTBES",
+  mkt_meta_pixel_id: "1513637917487644",
+};
 
 let memo: { cfg: ConfigMkt; em: number } | null = null;
 export const limparCacheMarketing = () => {
