@@ -250,6 +250,11 @@ function RodapePublico() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (st) => st.location.pathname });
+  // Etiqueta de envio: página de impressão, sem nada do site em volta
+  const etiqueta = /^(\/pt)?\/etiqueta\//.test(pathname);
+  // Avaliação pelo QR: sem pop-up de cadastro nem sugestão de idioma por cima do formulário
+  const avaliar = /^(\/pt)?\/avaliar\//.test(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -257,11 +262,15 @@ function RootComponent() {
         <CartProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
-          <RodapePublico />
-          <MobileTabBar />
-          <VisitTracker />
-          <PopupAcesso />
-          <SugestaoIdioma />
+          {!etiqueta && (
+            <>
+              <RodapePublico />
+              <MobileTabBar />
+              <VisitTracker />
+              {!avaliar && <PopupAcesso />}
+              {!avaliar && <SugestaoIdioma />}
+            </>
+          )}
           <CartDrawer />
           {/* Notificações (toast) usadas no admin e no site */}
           <Toaster richColors position="top-center" />

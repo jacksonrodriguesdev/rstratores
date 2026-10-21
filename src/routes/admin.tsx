@@ -33,6 +33,8 @@ import {
   Plug,
   Megaphone,
   Route as RouteIcon,
+  ShoppingBag,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -76,6 +78,8 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
       { to: "/admin/pagamentos", label: "Pagamentos (links)", icon: CreditCard },
+      { to: "/admin/vendas", label: "Vendas e etiquetas", icon: ShoppingBag },
+      { to: "/admin/avaliacoes", label: "Avaliações", icon: Star },
     ],
   },
   {

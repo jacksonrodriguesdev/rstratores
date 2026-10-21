@@ -27,6 +27,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as AdminAnalisesRouteImport } from './routes/admin.analises'
 import { Route as AdminAnunciosRouteImport } from './routes/admin.anuncios'
+import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCampanhasRouteImport } from './routes/admin.campanhas'
 import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
@@ -51,9 +52,12 @@ import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificac
 import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
+import { Route as AdminVendasRouteImport } from './routes/admin.vendas'
 import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
+import { Route as AvaliarCodigoRouteImport } from './routes/avaliar.$codigo'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as CatalogosSlugRouteImport } from './routes/catalogos.$slug'
+import { Route as EtiquetaIdRouteImport } from './routes/etiqueta.$id'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as PagarCodigoRouteImport } from './routes/pagar.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
@@ -204,6 +208,11 @@ const AdminAnunciosRoute = AdminAnunciosRouteImport.update({
   path: '/anuncios',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAvaliacoesRoute = AdminAvaliacoesRouteImport.update({
+  id: '/avaliacoes',
+  path: '/avaliacoes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBannersRoute = AdminBannersRouteImport.update({
   id: '/banners',
   path: '/banners',
@@ -324,10 +333,20 @@ const AdminUploadRoute = AdminUploadRouteImport.update({
   path: '/upload',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminVendasRoute = AdminVendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminVisitantesRoute = AdminVisitantesRouteImport.update({
   id: '/visitantes',
   path: '/visitantes',
   getParentRoute: () => AdminRoute,
+} as any)
+const AvaliarCodigoRoute = AvaliarCodigoRouteImport.update({
+  id: '/avaliar/$codigo',
+  path: '/avaliar/$codigo',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CatalogosIndexRoute = CatalogosIndexRouteImport.update({
   id: '/catalogos/',
@@ -337,6 +356,11 @@ const CatalogosIndexRoute = CatalogosIndexRouteImport.update({
 const CatalogosSlugRoute = CatalogosSlugRouteImport.update({
   id: '/catalogos/$slug',
   path: '/catalogos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtiquetaIdRoute = EtiquetaIdRouteImport.update({
+  id: '/etiqueta/$id',
+  path: '/etiqueta/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedsArquivoRoute = FeedsArquivoRouteImport.update({
@@ -660,6 +684,7 @@ export interface FileRoutesByFullPath {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
@@ -684,8 +709,11 @@ export interface FileRoutesByFullPath {
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
+  '/admin/vendas': typeof AdminVendasRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
+  '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -765,6 +793,7 @@ export interface FileRoutesByTo {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
@@ -789,8 +818,11 @@ export interface FileRoutesByTo {
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
+  '/admin/vendas': typeof AdminVendasRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
+  '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -872,6 +904,7 @@ export interface FileRoutesById {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/analises': typeof AdminAnalisesRoute
   '/admin/anuncios': typeof AdminAnunciosRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
@@ -896,8 +929,11 @@ export interface FileRoutesById {
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
   '/admin/upload': typeof AdminUploadRoute
+  '/admin/vendas': typeof AdminVendasRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
+  '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -980,6 +1016,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/analises'
     | '/admin/anuncios'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/campanhas'
     | '/admin/carrinhos'
@@ -1004,8 +1041,11 @@ export interface FileRouteTypes {
     | '/admin/precificar'
     | '/admin/produtos'
     | '/admin/upload'
+    | '/admin/vendas'
     | '/admin/visitantes'
+    | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/pagar/$codigo'
     | '/produto/$sku'
@@ -1085,6 +1125,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/analises'
     | '/admin/anuncios'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/campanhas'
     | '/admin/carrinhos'
@@ -1109,8 +1150,11 @@ export interface FileRouteTypes {
     | '/admin/precificar'
     | '/admin/produtos'
     | '/admin/upload'
+    | '/admin/vendas'
     | '/admin/visitantes'
+    | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/pagar/$codigo'
     | '/produto/$sku'
@@ -1191,6 +1235,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/analises'
     | '/admin/anuncios'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/campanhas'
     | '/admin/carrinhos'
@@ -1215,8 +1260,11 @@ export interface FileRouteTypes {
     | '/admin/precificar'
     | '/admin/produtos'
     | '/admin/upload'
+    | '/admin/vendas'
     | '/admin/visitantes'
+    | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/pagar/$codigo'
     | '/produto/$sku'
@@ -1295,7 +1343,9 @@ export interface RootRouteChildren {
   PedidoRapidoRoute: typeof PedidoRapidoRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AvaliarCodigoRoute: typeof AvaliarCodigoRoute
   CatalogosSlugRoute: typeof CatalogosSlugRoute
+  EtiquetaIdRoute: typeof EtiquetaIdRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   PagarCodigoRoute: typeof PagarCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
@@ -1468,6 +1518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAnunciosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/avaliacoes': {
+      id: '/admin/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/admin/avaliacoes'
+      preLoaderRoute: typeof AdminAvaliacoesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/banners': {
       id: '/admin/banners'
       path: '/banners'
@@ -1636,12 +1693,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUploadRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/vendas': {
+      id: '/admin/vendas'
+      path: '/vendas'
+      fullPath: '/admin/vendas'
+      preLoaderRoute: typeof AdminVendasRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/visitantes': {
       id: '/admin/visitantes'
       path: '/visitantes'
       fullPath: '/admin/visitantes'
       preLoaderRoute: typeof AdminVisitantesRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/avaliar/$codigo': {
+      id: '/avaliar/$codigo'
+      path: '/avaliar/$codigo'
+      fullPath: '/avaliar/$codigo'
+      preLoaderRoute: typeof AvaliarCodigoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/catalogos/': {
       id: '/catalogos/'
@@ -1655,6 +1726,13 @@ declare module '@tanstack/react-router' {
       path: '/catalogos/$slug'
       fullPath: '/catalogos/$slug'
       preLoaderRoute: typeof CatalogosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etiqueta/$id': {
+      id: '/etiqueta/$id'
+      path: '/etiqueta/$id'
+      fullPath: '/etiqueta/$id'
+      preLoaderRoute: typeof EtiquetaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feeds/$arquivo': {
@@ -2077,6 +2155,7 @@ interface AdminRouteChildren {
   AdminAdsRoute: typeof AdminAdsRoute
   AdminAnalisesRoute: typeof AdminAnalisesRoute
   AdminAnunciosRoute: typeof AdminAnunciosRoute
+  AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
   AdminBannersRoute: typeof AdminBannersRoute
   AdminCampanhasRoute: typeof AdminCampanhasRoute
   AdminCarrinhosRoute: typeof AdminCarrinhosRoute
@@ -2101,6 +2180,7 @@ interface AdminRouteChildren {
   AdminPrecificarRoute: typeof AdminPrecificarRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
   AdminUploadRoute: typeof AdminUploadRoute
+  AdminVendasRoute: typeof AdminVendasRoute
   AdminVisitantesRoute: typeof AdminVisitantesRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminAutomacoesIdRoute: typeof AdminAutomacoesIdRoute
@@ -2116,6 +2196,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdsRoute: AdminAdsRoute,
   AdminAnalisesRoute: AdminAnalisesRoute,
   AdminAnunciosRoute: AdminAnunciosRoute,
+  AdminAvaliacoesRoute: AdminAvaliacoesRoute,
   AdminBannersRoute: AdminBannersRoute,
   AdminCampanhasRoute: AdminCampanhasRoute,
   AdminCarrinhosRoute: AdminCarrinhosRoute,
@@ -2140,6 +2221,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPrecificarRoute: AdminPrecificarRoute,
   AdminProdutosRoute: AdminProdutosRoute,
   AdminUploadRoute: AdminUploadRoute,
+  AdminVendasRoute: AdminVendasRoute,
   AdminVisitantesRoute: AdminVisitantesRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminAutomacoesIdRoute: AdminAutomacoesIdRoute,
@@ -2248,7 +2330,9 @@ const rootRouteChildren: RootRouteChildren = {
   PedidoRapidoRoute: PedidoRapidoRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AvaliarCodigoRoute: AvaliarCodigoRoute,
   CatalogosSlugRoute: CatalogosSlugRoute,
+  EtiquetaIdRoute: EtiquetaIdRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   PagarCodigoRoute: PagarCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,

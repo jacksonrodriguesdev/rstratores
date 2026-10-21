@@ -84,6 +84,9 @@ jobs:
       - name: Estúdio de publicações (recomendações, fotos, legendas)
         run: npx tsx scripts/ci/testar-estudio.ts
 
+      - name: Vendas, etiquetas e avaliações (cupom de 15%)
+        run: npx tsx scripts/ci/testar-avaliacoes.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 

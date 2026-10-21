@@ -936,3 +936,58 @@ model leads {
   @@index([status, quando])
   @@index([quando])
 }
+
+// Vendas lançadas pelo admin (balcão/WhatsApp): etiqueta da transportadora com QR para avaliar.
+// O QR leva a /avaliar/<codigo>; avaliou → cupom único (cupom) de 15% para a próxima compra.
+model vendas {
+  id               Int       @id @default(autoincrement())
+  codigo           String    @unique @db.VarChar(24)
+  cliente_nome     String    @db.VarChar(160)
+  cliente_email    String?   @db.VarChar(191)
+  cliente_telefone String?   @db.VarChar(40)
+  cliente_doc      String?   @db.VarChar(40)
+  endereco         String?   @db.Text
+  cidade           String?   @db.VarChar(120)
+  departamento     String?   @db.VarChar(80)
+  cep              String?   @db.VarChar(20)
+  pais             String    @default("UY") @db.VarChar(2)
+  user_id          Int?
+  itens            String    @db.Text // JSON: [{sku, codigo, nome, qtd, valor}]
+  total            Float     @default(0)
+  moeda            String    @default("UYU") @db.VarChar(3)
+  transportadora   String?   @db.VarChar(80)
+  rastreio         String?   @db.VarChar(80)
+  observacao       String?   @db.Text
+  status           String    @default("ABERTA") @db.VarChar(20) // ABERTA, ENVIADA, ENTREGUE, CANCELADA
+  cupom            String?   @db.VarChar(40)
+  avaliada_em      DateTime?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([created_at])
+  @@index([user_id])
+}
+
+// Avaliações de produtos (estrelas + comentário). Só aparecem no site depois de aprovadas.
+model avaliacoes {
+  id          Int       @id @default(autoincrement())
+  sku         String    @db.VarChar(64)
+  venda_id    Int?
+  user_id     Int?
+  nome        String    @db.VarChar(120)
+  cidade      String?   @db.VarChar(120)
+  nota        Int
+  comentario  String?   @db.Text
+  idioma      String    @default("es") @db.VarChar(2)
+  status      String    @default("PENDENTE") @db.VarChar(20) // PENDENTE, APROVADA, REJEITADA
+  resposta    String?   @db.Text
+  com_cupom   Boolean   @default(false)
+  verificada  Boolean   @default(false)
+  aprovada_em DateTime?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@index([sku, status])
+  @@index([status, created_at])
+  @@index([venda_id])
+}

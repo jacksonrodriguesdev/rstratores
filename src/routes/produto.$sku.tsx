@@ -46,6 +46,8 @@ import { getPrecosConfigFn } from "@/lib/produtos-admin";
 import { PrecoTag, usePreco } from "@/components/PrecoTag";
 import { eventoVerProduto } from "@/lib/marketing";
 import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
+import { avaliacoesProdutoFn } from "@/lib/avaliacoes";
+import { AvaliacoesPeca, ResumoEstrelas } from "@/components/AvaliacoesPeca";
 
 const SITE = SITE_URL;
 const urlImagem = (p: string) =>
@@ -65,8 +67,12 @@ export const Route = createFileRoute("/produto/$sku")({
       throw redirect({ to: "/produto/$sku", params: { sku: product.duplicado_de } });
     }
     // Configuração de preços junto: o preço já sai no HTML do servidor (e para o Google)
-    const precos = await getPrecosConfigFn().catch(() => undefined);
-    return { product, precos };
+    const [precos, avaliacoes] = await Promise.all([
+      getPrecosConfigFn().catch(() => undefined),
+      // Avaliações aprovadas: já no HTML (o Google lê as estrelas)
+      avaliacoesProdutoFn({ data: { sku: product.sku } }).catch(() => null),
+    ]);
+    return { product, precos, avaliacoes };
   },
   head: ({ loaderData, match }) => {
     const idioma: Idioma = match.context?.idioma ?? "es";
@@ -94,6 +100,7 @@ export const Route = createFileRoute("/produto/$sku")({
     // Ao compartilhar (WhatsApp, Facebook) a peça sem foto mostra a marca da loja
     const imagemCompartilhar = imagem ?? `${SITE}/icon-512.png`;
     const preco = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
+    const av = loaderData.avaliacoes;
     // Dados estruturados: o Google entende nome, código e marca da peça (resultado mais completo)
     const produtoLd = {
       "@context": "https://schema.org",
@@ -106,6 +113,22 @@ export const Route = createFileRoute("/produto/$sku")({
       category: categoriaNo(p.categoria, idioma) || undefined,
       ...(marca && { brand: { "@type": "Brand", name: marca } }),
       url,
+      ...(av?.total && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: av.media,
+          reviewCount: av.total,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        review: av.lista.slice(0, 5).map((r) => ({
+          "@type": "Review",
+          reviewRating: { "@type": "Rating", ratingValue: r.nota, bestRating: 5 },
+          author: { "@type": "Person", name: r.nome },
+          datePublished: r.quando.slice(0, 10),
+          ...(r.comentario && { reviewBody: r.comentario }),
+        })),
+      }),
       ...(() => {
         const pr = preco;
         if (!pr) return {};
@@ -171,7 +194,9 @@ export const Route = createFileRoute("/produto/$sku")({
       links: linksIdioma(caminho, idioma),
       scripts: [
         // O Google só aceita "Product" com preço (ou avaliações); sem preço, fica só a trilha
-        ...(preco ? [{ type: "application/ld+json", children: JSON.stringify(produtoLd) }] : []),
+        ...(preco || av?.total
+          ? [{ type: "application/ld+json", children: JSON.stringify(produtoLd) }]
+          : []),
         { type: "application/ld+json", children: JSON.stringify(trilhaLd) },
       ],
     };
@@ -228,7 +253,7 @@ function PecaNaoEncontrada() {
 }
 
 function ProductDetail() {
-  const { product, precos } = Route.useLoaderData();
+  const { product, precos, avaliacoes } = Route.useLoaderData();
   const { t, idioma } = useT();
   const precoAtual = usePreco(product, precos);
   const temPreco = !!precoAtual;
@@ -396,6 +421,9 @@ function ProductDetail() {
             <h1 className="break-words text-2xl font-extrabold leading-tight text-zinc-900 md:text-3xl">
               {nome}
             </h1>
+            {!!avaliacoes?.total && (
+              <ResumoEstrelas media={avaliacoes.media} total={avaliacoes.total} />
+            )}
 
             <button
               onClick={copiarCodigo}
@@ -647,6 +675,8 @@ function ProductDetail() {
         </div>
 
         <TrustCards />
+
+        <AvaliacoesPeca dados={avaliacoes} />
 
         {relatedQuery.data && relatedQuery.data.length > 0 && (
           <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm md:p-8">
