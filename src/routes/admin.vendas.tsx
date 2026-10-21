@@ -11,6 +11,7 @@ import {
   Loader2,
   MessageCircle,
   Pencil,
+  Truck,
   Plus,
   Printer,
   Save,
@@ -31,6 +32,7 @@ import {
   buscarPecasVendaFn,
   listarVendasFn,
   remetenteFn,
+  salvarRastreioFn,
   salvarRemetenteFn,
   salvarVendaFn,
 } from "@/lib/avaliacoes";
@@ -93,6 +95,32 @@ function textoWhats(v: { cliente_nome: string; codigo: string; pais: string }) {
   return v.pais === "BR"
     ? `Olá ${n}! Obrigado pela compra na AGRO PARTS 🚜\n\nQuando a peça chegar, avalie por aqui e ganhe 15% de desconto na próxima compra (vale qualquer nota):\n${linkDe(v)}`
     : `¡Hola ${n}! Gracias por tu compra en AGRO PARTS 🚜\n\nCuando llegue la pieza, calificala acá y ganá 15% de descuento en la próxima compra (vale cualquier nota):\n${linkDe(v)}`;
+}
+function textoRastreio(v: {
+  cliente_nome: string;
+  codigo: string;
+  pais: string;
+  rastreio: string;
+  transportadora?: string | null;
+}) {
+  const n = v.cliente_nome.split(/s+/)[0];
+  const t = v.transportadora || "DAC";
+  const onde = /dac/i.test(t)
+    ? v.pais === "BR"
+      ? " Acompanhe em dac.com.uy"
+      : " Seguilo en dac.com.uy"
+    : "";
+  return v.pais === "BR"
+    ? `Olá ${n}! Seu pedido saiu pela ${t} 🚚
+Código de rastreio: ${v.rastreio}.${onde}
+
+Quando chegar, avalie e ganhe 15% de desconto na próxima compra:
+${linkDe(v)}`
+    : `¡Hola ${n}! Tu pedido salió por ${t} 🚚
+Código de seguimiento: ${v.rastreio}.${onde}
+
+Cuando llegue, calificalo y ganá 15% de descuento en la próxima compra:
+${linkDe(v)}`;
 }
 const zapLink = (tel: string | null | undefined, texto: string) => {
   const n = String(tel ?? "").replace(/\D/g, "");
@@ -173,6 +201,7 @@ function PaginaVendas() {
                 <th className="p-3">Peças</th>
                 <th className="p-3 text-right">Total</th>
                 <th className="p-3">Situação</th>
+                <th className="p-3">Rastreio</th>
                 <th className="p-3">Avaliação</th>
                 <th className="p-3" />
               </tr>
@@ -180,7 +209,7 @@ function PaginaVendas() {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
                     <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                   </td>
                 </tr>
@@ -220,6 +249,9 @@ function PaginaVendas() {
                     >
                       {v.status}
                     </span>
+                  </td>
+                  <td className="p-3">
+                    <Rastreio v={v} />
                   </td>
                   <td className="p-3 text-xs">
                     {v.cupom ? (
@@ -301,7 +333,7 @@ function PaginaVendas() {
               ))}
               {data && !data.vendas.length && (
                 <tr>
-                  <td colSpan={7} className="p-10 text-center text-sm text-muted-foreground">
+                  <td colSpan={8} className="p-10 text-center text-sm text-muted-foreground">
                     Nenhuma venda ainda. Clique em <b>Nova venda</b>.
                   </td>
                 </tr>
@@ -313,6 +345,96 @@ function PaginaVendas() {
 
       {form && <FormVenda inicial={form} fechar={() => setForm(null)} />}
       {remetente && <DialogoRemetente fechar={() => setRemetente(false)} />}
+    </div>
+  );
+}
+
+// Código de rastreio (DAC etc.): só existe depois do despacho, então entra pela lista.
+// Salvar com a venda aberta marca como ENVIADA. WhatsApp: avisa o cliente com o código.
+function Rastreio({ v }: { v: any }) {
+  const qc = useQueryClient();
+  const [editando, setEditando] = useState(false);
+  const [cod, setCod] = useState<string>(v.rastreio ?? "");
+  const [salvando, setSalvando] = useState(false);
+  const salvar = async () => {
+    setSalvando(true);
+    try {
+      await salvarRastreioFn({
+        data: {
+          id: v.id,
+          rastreio: cod,
+          transportadora: v.transportadora || (v.pais === "UY" ? "DAC" : null),
+        },
+      });
+      toast.success(
+        cod.trim() ? "Rastreio salvo · venda marcada como enviada" : "Rastreio apagado",
+      );
+      setEditando(false);
+      qc.invalidateQueries({ queryKey: ["vendas"] });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSalvando(false);
+    }
+  };
+  if (editando)
+    return (
+      <form
+        className="flex min-w-[190px] gap-1"
+        onSubmit={(e) => {
+          e.preventDefault();
+          salvar();
+        }}
+      >
+        <Input
+          autoFocus
+          className="h-8 font-mono text-xs"
+          value={cod}
+          onChange={(e) => setCod(e.target.value)}
+          placeholder={v.transportadora || "DAC"}
+        />
+        <Button size="sm" type="submit" disabled={salvando} className="h-8">
+          {salvando ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Save className="h-3.5 w-3.5" />
+          )}
+        </Button>
+      </form>
+    );
+  if (!v.rastreio)
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-7 text-xs"
+        onClick={() => setEditando(true)}
+        disabled={v.status === "CANCELADA"}
+      >
+        <Plus className="mr-1 h-3.5 w-3.5" /> código {v.transportadora || "DAC"}
+      </Button>
+    );
+  return (
+    <div className="flex items-center gap-1 text-xs">
+      <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <button
+        onClick={() => setEditando(true)}
+        className="font-mono font-semibold hover:underline"
+        title="Alterar"
+      >
+        {v.rastreio}
+      </button>
+      {v.cliente_telefone && (
+        <a
+          href={zapLink(v.cliente_telefone, textoRastreio(v))}
+          target="_blank"
+          rel="noreferrer"
+          title="Avisar o cliente no WhatsApp"
+          aria-label="Avisar o cliente"
+        >
+          <MessageCircle className="h-4 w-4 text-emerald-600" />
+        </a>
+      )}
     </div>
   );
 }

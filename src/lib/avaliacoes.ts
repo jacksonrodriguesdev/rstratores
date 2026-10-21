@@ -185,3 +185,11 @@ export const salvarRemetenteFn = createServerFn({ method: "POST" })
     const a = await import("./avaliacoes.server");
     return a.salvarRemetente(data);
   });
+
+export const salvarRastreioFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number; rastreio: string; transportadora?: string | null }) => d)
+  .handler(async ({ data }) => {
+    await admin();
+    const a = await import("./avaliacoes.server");
+    return a.salvarRastreio(Number(data.id), String(data.rastreio ?? ""), data.transportadora);
+  });

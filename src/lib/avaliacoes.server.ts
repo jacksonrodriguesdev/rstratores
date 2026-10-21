@@ -537,3 +537,26 @@ export async function salvarRemetente(r: Remetente) {
   });
   return limpo;
 }
+
+// Código de rastreio (ex.: DAC), que só existe depois do despacho: salvo pela lista de vendas.
+// Venda ainda aberta passa para ENVIADA.
+export async function salvarRastreio(id: number, rastreio: string, transportadora?: string | null) {
+  await garantirTabelasAvaliacoes();
+  const { prisma } = await import("./prisma");
+  const v = await prisma.vendas.findUnique({ where: { id } });
+  if (!v) throw new Error("Venda não encontrada");
+  const codigo =
+    String(rastreio ?? "")
+      .trim()
+      .slice(0, 80) || null;
+  return paraVenda(
+    await prisma.vendas.update({
+      where: { id },
+      data: {
+        rastreio: codigo,
+        ...(transportadora !== undefined && { transportadora: txt(transportadora, 80) }),
+        ...(codigo && v.status === "ABERTA" && { status: "ENVIADA" }),
+      },
+    }),
+  );
+}

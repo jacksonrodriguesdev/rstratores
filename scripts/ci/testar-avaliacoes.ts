@@ -45,6 +45,18 @@ import assert from "node:assert/strict";
     assert.equal(v.itens.length, 2);
     console.log(`✔ venda ${v.codigo}: validações e total`);
 
+    // Rastreio depois do despacho: venda aberta vira ENVIADA; apagar não volta a situação
+    assert.equal(v.status, "ABERTA");
+    const vr = await a.salvarRastreio(v.id, " UY123456789 ", "DAC");
+    assert.equal(vr.rastreio, "UY123456789");
+    assert.equal(vr.status, "ENVIADA");
+    assert.equal(vr.transportadora, "DAC");
+    const vr2 = await a.salvarRastreio(v.id, "");
+    assert.equal(vr2.rastreio, null);
+    assert.equal(vr2.status, "ENVIADA");
+    await a.salvarRastreio(v.id, "UY123456789");
+    console.log("✔ rastreio salvo depois (venda vira ENVIADA)");
+
     // ------------------------------------------------ links
     assert.equal(
       a.linkAvaliacao("https://agropartsuy.com/", "ABC", "UY"),
