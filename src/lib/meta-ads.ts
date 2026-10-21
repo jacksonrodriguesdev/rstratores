@@ -190,3 +190,108 @@ export const criarAnuncioMetaFn = createServerFn({ method: "POST" })
       imagemBase64: String(data.imagemBase64 ?? "").replace(/^data:[^,]+,/, ""),
     });
   });
+
+// ---------------------------------------------------------------- campanhas prontas
+// As campanhas Meta do Criador de anúncios (Admin → Criador de anúncios), prontas para o
+// formulário: textos, títulos, link com UTM, objetivo e as peças com foto própria (agrotrator
+// ou enviada pelo admin; fotos de outras lojas e do /catalogo ficam de fora).
+// Anúncio pago só para o Uruguai: a campanha em português (RS) aparece bloqueada.
+export const campanhasProntasMetaFn = createServerFn({ method: "GET" })
+  .validator((d: { dias?: number }) => ({
+    dias: Math.min(365, Math.max(7, Number(d?.dias) || 90)),
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { criadorAnuncios } = await import("./anuncios.server");
+    const { fotoPropria, sugestaoOrcamento } = await import("./estudio.server");
+    const { prisma } = await import("./prisma");
+    const [c, orc] = await Promise.all([criadorAnuncios(data.dias), sugestaoOrcamento()]);
+    const metas = c.campanhas.filter((x) => x.plataforma === "Meta");
+    const skus = [
+      ...new Set([
+        ...metas.flatMap((m) => m.produtos.map((p) => p.sku)),
+        ...c.produtos.map((p) => p.sku),
+      ]),
+    ];
+    const rows = skus.length
+      ? await prisma.agricolas.findMany({
+          where: { sku: { in: skus } },
+          select: {
+            sku: true,
+            codigo_fabricante: true,
+            imagem_principal: true,
+            images: { select: { image_path: true }, orderBy: { sort_order: "asc" }, take: 4 },
+          } as any,
+        })
+      : [];
+    const fotos = new Map<string, string[]>();
+    const codigos = new Map<string, string>();
+    for (const r of rows as any[])
+      codigos.set(String(r.sku).trim(), String(r.codigo_fabricante || r.sku).trim());
+    for (const r of rows as any[])
+      fotos.set(String(r.sku).trim(), [
+        ...new Set(
+          [r.imagem_principal, ...(r.images ?? []).map((i: any) => i.image_path)].filter(
+            fotoPropria,
+          ),
+        ),
+      ] as string[]);
+    const info = new Map(c.produtos.map((p) => [p.sku.trim(), p]));
+    const peca = (sku: string, nome: string) => {
+      const p = info.get(sku.trim());
+      return {
+        sku,
+        codigo: codigos.get(sku.trim()) ?? sku,
+        nome,
+        marca: p?.marca ?? null,
+        fotos: fotos.get(sku.trim()) ?? [],
+        uyu: p?.uyu ?? null,
+        desconto: p?.desconto ?? 0,
+      };
+    };
+    // Peças de reserva (as de mais interesse, com foto própria) para campanha sem peças
+    const reserva = c.produtos
+      .map((p) => peca(p.sku, p.nome))
+      .filter((p) => p.fotos.length)
+      .slice(0, 8);
+    const corta = (s: string, n: number) => (s.length <= n ? s : s.slice(0, n - 1).trimEnd() + "…");
+    return {
+      orcamento: orc.diario,
+      base: orc.base,
+      campanhas: metas.map((m) => {
+        const whats = /whats|conversa|mensag/i.test(`${m.objetivo} ${m.tipo}`);
+        let produtos = m.produtos.map((p) => peca(p.sku, p.nome)).filter((p) => p.fotos.length);
+        if (!produtos.length) produtos = reserva;
+        const avisos = [m.aviso].filter(Boolean) as string[];
+        if (/remarketing/i.test(m.id))
+          avisos.push(
+            "Daqui o anúncio sai para todo o Uruguai (sem a lista de quem visitou o site). Remarketing de verdade: público personalizado no Gerenciador de Anúncios.",
+          );
+        return {
+          id: m.id,
+          nome: m.nome,
+          prioridade: m.prioridade,
+          tipo: m.tipo,
+          porque: m.porque,
+          avisos,
+          bloqueada:
+            m.idioma === "pt"
+              ? "Anúncio pago só para o Uruguai: para o RS, use publicação orgânica (Estúdio do Instagram)."
+              : null,
+          objetivo: (whats ? "WHATSAPP" : "TRAFEGO") as "WHATSAPP" | "TRAFEGO",
+          botao: /catalogo/i.test(m.id)
+            ? "LEARN_MORE"
+            : /b2b|cotiz/i.test(`${m.id} ${m.link}`)
+              ? "GET_QUOTE"
+              : "SHOP_NOW",
+          textos: m.textos.length ? m.textos : m.descricoes,
+          titulos: [...new Set(m.titulos.map((t) => corta(t, 40)))],
+          descricoes: m.descricoes.map((t) => corta(t, 90)),
+          link: m.link,
+          publico: m.publico,
+          locais: m.locais,
+          produtos,
+        };
+      }),
+    };
+  });

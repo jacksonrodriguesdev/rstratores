@@ -59,6 +59,7 @@ import {
   type Lead,
 } from "@/lib/meta-ads";
 import { cn } from "@/lib/utils";
+import { CampanhasProntas } from "@/components/admin/meta/CampanhasProntas";
 
 export const Route = createFileRoute("/admin/meta-ads")({
   component: MetaAds,
@@ -1415,6 +1416,9 @@ function Criar({ moeda, aoCriar }: { moeda: string; aoCriar: () => void }) {
   };
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="xl:col-span-2">
+        <CampanhasProntas aplicar={(p) => setF((x) => ({ ...x, ...p }))} aplicarImagem={setImg} />
+      </div>
       <Card className="space-y-4 p-5">
         <div className="grid gap-3 sm:grid-cols-2">
           <C r="Nome do anúncio (interno)">
