@@ -59,6 +59,8 @@ async function montarImagem(
       formato: "feed",
       idioma: "es",
       mostrar: mostrar === "preco" && !p.uyu ? "desconto" : mostrar,
+      // Pré-Black amarelo: campanha de WhatsApp sai com a caixa verde do WhatsApp
+      variante: c.objetivo === "WHATSAPP" && mostrar !== "preco" ? "whatsapp" : undefined,
       desconto: p.desconto || 20,
       selo: "PRE BLACK FRIDAY",
       chamada: "Repuestos para tu tractor",

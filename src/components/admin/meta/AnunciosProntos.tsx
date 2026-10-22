@@ -42,16 +42,46 @@ const COR_PRIORIDADE: Record<string, string> = {
 };
 const miniatura = (u: string) => `/api/admin/estudio/foto?u=${encodeURIComponent(u)}`;
 
-async function arte(a: Item, campanha: string | null) {
+// Layout da arte: o da campanha (Pré-Black amarelo, com variação por tipo de anúncio) ou o clássico
+type Visual = {
+  campanha: string | null;
+  epoca: string;
+  layout: "preblack" | "classico";
+  formato: "feed" | "story";
+};
+const VARIANTE_DO_ANGULO = {
+  oferta: "preco",
+  whatsapp: "whatsapp",
+  codigo: "codigo",
+  temporada: "desconto",
+  maquina: "desconto",
+} as const;
+function etiquetaDe(a: Item, v: Visual) {
+  if (a.angulo === "temporada") return `Para la ${v.epoca === "mantenimiento" ? "zafra" : v.epoca}`;
+  if (a.angulo === "maquina" && a.local.regioes.length) return `Repuestos en ${a.local.nome}`;
+  if (a.local.regioes.length) return `Envíos a ${a.local.nome}`;
+  return null;
+}
+async function arte(a: Item, v: Visual) {
   const p = a.peca;
+  const pre = v.layout === "preblack";
   return gerarArte({
-    modelo: MODELO_DO_ANGULO[a.angulo] ?? "escuro",
-    formato: "feed",
+    modelo: pre ? "amarelo" : (MODELO_DO_ANGULO[a.angulo] ?? "escuro"),
+    formato: v.formato,
     idioma: "es",
-    mostrar: a.angulo === "oferta" && p.desconto ? "desconto" : "nada",
-    desconto: p.desconto || null,
-    selo: campanha
-      ? campanha.toUpperCase()
+    mostrar:
+      a.angulo === "oferta" && p.desconto
+        ? pre
+          ? "preco"
+          : "desconto"
+        : pre
+          ? "desconto"
+          : "nada",
+    desconto: p.desconto || 20,
+    variante: VARIANTE_DO_ANGULO[a.angulo as keyof typeof VARIANTE_DO_ANGULO] ?? "desconto",
+    etiqueta: pre ? etiquetaDe(a, v) : null,
+    selo: v.campanha
+      ? v.campanha.toUpperCase()
       : a.local.regioes.length
         ? a.local.nome.toUpperCase()
         : "AGRO PARTS",
@@ -80,7 +110,7 @@ function rodarFila() {
     })();
   }
 }
-function Miniatura({ a, campanha }: { a: Item; campanha: string | null }) {
+function Miniatura({ a, v }: { a: Item; v: Visual }) {
   const [src, setSrc] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -93,7 +123,7 @@ function Miniatura({ a, campanha }: { a: Item; campanha: string | null }) {
       obs.disconnect();
       fila.push(async () => {
         if (!vivo) return;
-        const c = await arte(a, campanha);
+        const c = await arte(a, v);
         const m = document.createElement("canvas");
         m.width = 280;
         m.height = Math.round((280 * c.height) / c.width);
@@ -107,9 +137,15 @@ function Miniatura({ a, campanha }: { a: Item; campanha: string | null }) {
       vivo = false;
       obs.disconnect();
     };
-  }, [a.id]);
+  }, [a.id, v.layout, v.formato]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div ref={ref} className="relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
+    <div
+      ref={ref}
+      className={cn(
+        "relative overflow-hidden rounded-lg bg-muted",
+        v.formato === "story" ? "aspect-[9/16]" : "aspect-[4/5]",
+      )}
+    >
       {src ? (
         <img src={src} alt="" className="h-full w-full object-cover" />
       ) : (
@@ -147,6 +183,8 @@ export function AnunciosProntos({
   });
   const [q, setQ] = useState("");
   const [usando, setUsando] = useState<string | null>(null);
+  const [layout, setLayout] = useState<Visual["layout"]>("preblack");
+  const [formato, setFormato] = useState<Visual["formato"]>("feed");
   const [abrir, setAbrir] = useState<string | null>(null);
   useEffect(() => {
     if (localInicial !== undefined) setF((x) => ({ ...x, local: localInicial, pagina: 0 }));
@@ -169,6 +207,12 @@ export function AnunciosProntos({
     staleTime: 10 * 60_000,
   });
   const set = (p: Partial<typeof f>) => setF((x) => ({ ...x, pagina: 0, ...p }));
+  const visual: Visual = {
+    campanha: data?.campanha ?? null,
+    epoca: data?.epoca ?? "siembra",
+    layout,
+    formato,
+  };
   const paginas = data ? Math.ceil(data.total / data.tamanho) : 0;
 
   const usar = async (a: Item) => {
@@ -187,7 +231,7 @@ export function AnunciosProntos({
         botao: a.botao,
         regioes: a.local.regioes,
       });
-      const c = await arte(a, data?.campanha ?? null);
+      const c = await arte(a, visual);
       const url = c.toDataURL("image/jpeg", 0.9);
       aplicarImagem({ url, b64: url.split(",")[1] });
       toast.success("Anúncio no formulário: confira e clique em Criar anúncio");
@@ -304,6 +348,24 @@ export function AnunciosProntos({
           <option value="TRAFEGO">Só visitas ao site</option>
         </select>
       </div>
+      <div className="flex flex-wrap items-center gap-1.5 text-xs">
+        <span className="font-semibold uppercase tracking-wide text-muted-foreground">Arte</span>
+        <Chip on={layout === "preblack"} set={() => setLayout("preblack")}>
+          Pré-Black amarelo (layout da campanha)
+        </Chip>
+        <Chip on={layout === "classico"} set={() => setLayout("classico")}>
+          Preto e verde
+        </Chip>
+        <span className="ml-3 font-semibold uppercase tracking-wide text-muted-foreground">
+          Formato
+        </span>
+        <Chip on={formato === "feed"} set={() => setFormato("feed")}>
+          Post 4:5
+        </Chip>
+        <Chip on={formato === "story"} set={() => setFormato("story")}>
+          Story 9:16
+        </Chip>
+      </div>
       {data && (
         <div className="flex flex-wrap gap-1">
           <Chip on={!f.angulo} set={() => set({ angulo: "" })}>
@@ -329,7 +391,7 @@ export function AnunciosProntos({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {data?.itens.map((a) => (
           <div key={a.id} className="flex flex-col overflow-hidden rounded-xl border bg-card">
-            <Miniatura a={a} campanha={data.campanha} />
+            <Miniatura a={a} v={visual} />
             <div className="flex flex-1 flex-col gap-1.5 p-3">
               <div className="flex flex-wrap items-center gap-1 text-[10px] font-bold">
                 <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-0.5 text-primary">

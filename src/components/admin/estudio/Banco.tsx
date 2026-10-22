@@ -56,6 +56,7 @@ type Estilo = {
   desconto: number;
   tom: Tom | "variar";
   selo: string;
+  variante: "auto" | "desconto" | "preco" | "whatsapp" | "codigo"; // layout Pré-Black amarelo
 };
 const MODELOS_UM: Modelo[] = ["amarelo", "escuro", "verde"];
 const modeloDe = (e: Estilo, sku: string): Modelo =>
@@ -68,6 +69,12 @@ function opcoesDe(e: Estilo, i: Item): OpcoesArte {
     formato: e.formato,
     idioma: e.idioma,
     mostrar: e.mostrar === "preco" && !i.preco ? "desconto" : e.mostrar,
+    variante:
+      e.variante === "auto"
+        ? undefined
+        : e.variante === "preco" && !i.preco
+          ? "desconto"
+          : e.variante,
     desconto: e.desconto || null,
     selo: e.selo,
     chamada: e.idioma === "pt" ? "Peças para o seu trator" : "Repuestos para tu tractor",
@@ -184,6 +191,7 @@ export function Banco({ modo = "banco" }: { modo?: "banco" | "fila" | "zip" }) {
     mostrar: "desconto",
     desconto: 20,
     tom: "variar",
+    variante: "auto",
     selo: "PRE BLACK FRIDAY",
   });
   const [sel, setSel] = useState<Map<string, Item>>(new Map());
@@ -449,6 +457,19 @@ export function Banco({ modo = "banco" }: { modo?: "banco" | "fila" | "zip" }) {
                 ] as const
               }
             />
+          </Campo>
+          <Campo r="Variação (Pré-Black amarelo)">
+            <select
+              className="h-8 w-full rounded-md border bg-background px-2 text-xs"
+              value={e.variante}
+              onChange={(ev) => setE({ ...e, variante: ev.target.value as Estilo["variante"] })}
+            >
+              <option value="auto">Igual ao «Mostrar»</option>
+              <option value="desconto">% de desconto</option>
+              <option value="preco">Com preço</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="codigo">Código grande</option>
+            </select>
           </Campo>
           <Campo r="Tom da legenda">
             <select

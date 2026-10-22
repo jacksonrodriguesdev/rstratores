@@ -20,6 +20,9 @@ export type OpcoesArte = {
   desconto: number | null; // desconto da campanha (ex.: 20) quando a peça não tem o seu
   selo: string; // ex.: "PRE BLACK FRIDAY"
   chamada: string; // frase principal (modelos escuro/verde/grade)
+  // Pré-Black amarelo (layout da campanha): variação e etiqueta opcional
+  variante?: "desconto" | "preco" | "whatsapp" | "codigo";
+  etiqueta?: string | null;
 };
 
 export const TAMANHO: Record<Formato, [number, number]> = {
@@ -718,6 +721,34 @@ export async function gerarArte(o: OpcoesArte): Promise<HTMLCanvasElement> {
   c.height = H;
   const g = c.getContext("2d")!;
   if (!o.produtos.length) throw new Error("Escolha pelo menos uma peça.");
+  // Amarelo com uma peça, no post 4:5 ou story: o layout exato da campanha (HTML → imagem)
+  if (o.modelo === "amarelo" && o.formato !== "quadrado") {
+    const { gerarPreBlack } = await import("./layout-preblack");
+    const p = o.produtos[0];
+    const variante = o.variante ?? (o.mostrar === "preco" && p.preco ? "preco" : "desconto");
+    return gerarPreBlack({
+      variante,
+      formato: o.formato,
+      idioma: o.idioma,
+      fase: /^black/i.test(o.selo) ? "black" : "pre",
+      desconto: o.desconto ?? undefined,
+      etiqueta: o.etiqueta ?? null,
+      peca: {
+        nome: p.nome,
+        codigo: p.codigo,
+        marca: p.marca,
+        foto: p.foto,
+        preco: p.preco
+          ? {
+              uyu: p.preco.uyu,
+              brl: p.preco.brl,
+              deUyu: p.preco.deUyu ?? null,
+              desconto: p.preco.desconto,
+            }
+          : null,
+      },
+    });
+  }
   if (o.modelo === "amarelo") await desenharAmarelo(g, o, W, H);
   else if (o.modelo === "escuro") await desenharEscuro(g, o, W, H);
   else if (o.modelo === "verde") await desenharEscuro(g, o, W, H, true);

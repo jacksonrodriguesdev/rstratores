@@ -564,6 +564,9 @@ function Gerador({
   usarNoPost: (midias: Midia[], legenda: string, tipo: "FEED" | "CARROSSEL" | "STORY") => void;
 }) {
   const [modelo, setModelo] = useState<Modelo>("amarelo");
+  const [variante, setVariante] = useState<"auto" | "desconto" | "preco" | "whatsapp" | "codigo">(
+    "auto",
+  );
   const [formato, setFormato] = useState<Formato>("feed");
   const [idioma, setIdioma] = useState<"es" | "pt">("es");
   const [mostrar, setMostrar] = useState<OpcoesArte["mostrar"]>("desconto");
@@ -580,6 +583,7 @@ function Gerador({
 
   const lote = modelo === "grade" ? pecas.slice(0, 4) : pecas;
   const opcoes = (ps: Peca[]): OpcoesArte => ({
+    variante: variante === "auto" ? undefined : variante,
     modelo,
     formato,
     idioma,
@@ -597,6 +601,7 @@ function Gerador({
   });
   const chave = JSON.stringify([
     modelo,
+    variante,
     formato,
     idioma,
     mostrar,
@@ -789,6 +794,21 @@ function Gerador({
               ))}
             </div>
           </Campo>
+          {modelo === "amarelo" && (
+            <Campo r="Variação">
+              <Opcoes
+                v={variante}
+                set={setVariante}
+                ops={[
+                  ["auto", "Automática"],
+                  ["desconto", "% desconto"],
+                  ["preco", "Preço"],
+                  ["whatsapp", "WhatsApp"],
+                  ["codigo", "Código"],
+                ]}
+              />
+            </Campo>
+          )}
           <Campo r="Formato">
             <Opcoes v={formato} set={setFormato} ops={FORMATOS.map((f) => [f.k, f.rotulo])} />
           </Campo>
