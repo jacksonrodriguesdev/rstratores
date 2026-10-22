@@ -66,7 +66,7 @@ export const statusInstagramFn = createServerFn({ method: "GET" }).handler(async
 export const listarPostsFn = createServerFn({ method: "GET" }).handler(async () => {
   await admin();
   const { prisma } = await import("./prisma");
-  const rows = await prisma.instagram_posts.findMany({ orderBy: { id: "desc" }, take: 200 });
+  const rows = await prisma.instagram_posts.findMany({ orderBy: { id: "desc" }, take: 1000 });
   return rows.map(paraPost);
 });
 
@@ -228,4 +228,76 @@ export const desempenhoRedesFn = createServerFn({ method: "GET" })
       ),
     ]);
     return { dias: data.dias, instagram, facebook };
+  });
+
+// ---------------------------------------------------------------- verificação (Importar campanha)
+// Confere TODAS as publicações: quantas por situação e quais têm a imagem faltando na pasta de
+// uploads (ex.: UPLOADS_DIR apagado no hPanel). Publicadas nunca entram na limpeza.
+async function semArquivo(midias: string) {
+  const fs = await import("fs");
+  const { caminhoUpload } = await import("./uploads.server");
+  try {
+    const lista = JSON.parse(midias || "[]") as Array<{ path: string }>;
+    if (!lista.length) return true;
+    return lista.some((m) => {
+      try {
+        return !fs.existsSync(caminhoUpload(m.path));
+      } catch {
+        return true;
+      }
+    });
+  } catch {
+    return true;
+  }
+}
+export const verificarPostsFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const { prisma } = await import("./prisma");
+  const { pastaUploads } = await import("./uploads.server");
+  const fs = await import("fs");
+  const rows = await prisma.instagram_posts.findMany({
+    select: { id: true, status: true, tipo: true, midias: true, agendado_para: true },
+  });
+  const porStatus: Record<string, number> = {};
+  const faltando: Record<string, number> = {};
+  let atrasados = 0;
+  for (const r of rows) {
+    porStatus[r.status] = (porStatus[r.status] ?? 0) + 1;
+    if (r.status !== "PUBLICADO" && (await semArquivo(r.midias)))
+      faltando[r.status] = (faltando[r.status] ?? 0) + 1;
+    if (r.status === "AGENDADO" && r.agendado_para && r.agendado_para < new Date()) atrasados++;
+  }
+  const pasta = pastaUploads();
+  return {
+    total: rows.length,
+    porStatus,
+    faltando,
+    atrasados,
+    uploadsDir: !!process.env.UPLOADS_DIR?.trim(),
+    pastaExiste: fs.existsSync(pasta),
+    pastaInstagram: fs.existsSync(`${pasta}/instagram`),
+  };
+});
+
+// Apaga as não publicadas cuja imagem sumiu (AGENDADO, ERRO, RASCUNHO). Devolve quantas.
+export const apagarPostsSemImagemFn = createServerFn({ method: "POST" })
+  .validator((d: { status?: string[] }) => ({
+    status: (Array.isArray(d?.status) ? d.status : ["AGENDADO", "ERRO"]).filter((s) =>
+      ["AGENDADO", "ERRO", "RASCUNHO"].includes(s),
+    ),
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { prisma } = await import("./prisma");
+    const rows = await prisma.instagram_posts.findMany({
+      where: { status: { in: data.status } },
+      select: { id: true, midias: true },
+    });
+    const ids: number[] = [];
+    for (const r of rows) if (await semArquivo(r.midias)) ids.push(r.id);
+    if (ids.length)
+      await prisma.instagram_posts.deleteMany({
+        where: { id: { in: ids }, status: { in: data.status } },
+      });
+    return { apagados: ids.length };
   });

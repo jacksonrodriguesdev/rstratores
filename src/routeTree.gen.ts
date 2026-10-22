@@ -89,6 +89,7 @@ import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carri
 import { Route as ApiPublicEmailBajaRouteImport } from './routes/api/public/email-baja'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend-webhook'
+import { Route as ApiPublicSaudeRouteImport } from './routes/api/public/saude'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as CatalogosArchivoIdRouteImport } from './routes/catalogos.archivo.$id'
 import { Route as CatalogosVerIdRouteImport } from './routes/catalogos.ver.$id'
@@ -518,6 +519,11 @@ const ApiPublicResendWebhookRoute = ApiPublicResendWebhookRouteImport.update({
   path: '/api/public/resend-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSaudeRoute = ApiPublicSaudeRouteImport.update({
+  id: '/api/public/saude',
+  path: '/api/public/saude',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -745,6 +751,7 @@ export interface FileRoutesByFullPath {
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
+  '/api/public/saude': typeof ApiPublicSaudeRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
@@ -854,6 +861,7 @@ export interface FileRoutesByTo {
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
+  '/api/public/saude': typeof ApiPublicSaudeRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
@@ -965,6 +973,7 @@ export interface FileRoutesById {
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
+  '/api/public/saude': typeof ApiPublicSaudeRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
@@ -1077,6 +1086,7 @@ export interface FileRouteTypes {
     | '/api/public/email-baja'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
+    | '/api/public/saude'
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
@@ -1186,6 +1196,7 @@ export interface FileRouteTypes {
     | '/api/public/email-baja'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
+    | '/api/public/saude'
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
@@ -1296,6 +1307,7 @@ export interface FileRouteTypes {
     | '/api/public/email-baja'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
+    | '/api/public/saude'
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
@@ -1371,6 +1383,7 @@ export interface RootRouteChildren {
   ApiPublicEmailBajaRoute: typeof ApiPublicEmailBajaRoute
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
+  ApiPublicSaudeRoute: typeof ApiPublicSaudeRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   CatalogosArchivoIdRoute: typeof CatalogosArchivoIdRoute
   CatalogosVerIdRoute: typeof CatalogosVerIdRoute
@@ -1952,6 +1965,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicResendWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/saude': {
+      id: '/api/public/saude'
+      path: '/api/public/saude'
+      fullPath: '/api/public/saude'
+      preLoaderRoute: typeof ApiPublicSaudeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -2358,6 +2378,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmailBajaRoute: ApiPublicEmailBajaRoute,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
+  ApiPublicSaudeRoute: ApiPublicSaudeRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   CatalogosArchivoIdRoute: CatalogosArchivoIdRoute,
   CatalogosVerIdRoute: CatalogosVerIdRoute,

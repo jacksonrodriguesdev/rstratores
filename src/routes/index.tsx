@@ -21,7 +21,7 @@ import {
   DepoimentosBlock,
   NewsletterInstagramBlock,
   EnvioDacBlock,
-  VistosRecientesBlock,
+  ParaVoceBlock,
 } from "@/components/homepage-blocks";
 import { CatalogosCtaBlock } from "@/components/home/CatalogosCta";
 import { CotizacionDistribuidorBlock } from "@/components/CotizacionDistribuidor";
@@ -309,7 +309,7 @@ function HomePage() {
                   <Fragment key={b.id}>
                     <Bloco block={b} prioridade={b.id === primeiroId} />
                     {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
-                    {i === 0 && <VistosRecientesBlock />}
+                    {i === 0 && <ParaVoceBlock />}
                     {i === posCta && <CatalogosCtaBlock />}
                     {i === posCotizacao && <CotizacionDistribuidorBlock />}
                   </Fragment>

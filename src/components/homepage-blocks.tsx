@@ -23,6 +23,7 @@ import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
 import { getProductsBySkus, listProducts, type ListParams } from "@/lib/products";
 import { useVistos } from "@/hooks/use-vistos";
+import { paraVoceFn } from "@/lib/para-voce";
 import { listActiveBanners, type Banner } from "@/lib/banners";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { MONTADORAS, INSTAGRAM_URL } from "@/lib/navegacao";
@@ -989,5 +990,70 @@ export function VistosRecientesBlock() {
     <Section title={t("Vistos recientemente", "Vistos recentemente")}>
       <ProductRail products={produtos} />
     </Section>
+  );
+}
+
+// PARA VOS: home personalizada pelo que o visitante já fez (peças vistas, marca e categoria que
+// mais interessam, última busca). Anônimo; quem entra pela primeira vez não vê nada aqui.
+export function ParaVoceBlock() {
+  const vistos = useVistos();
+  const [vid, setVid] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      setVid(localStorage.getItem("ap_vid"));
+    } catch {
+      setVid(null);
+    }
+  }, []);
+  const { t, idioma } = useT();
+  const { data } = useQuery({
+    queryKey: ["para-voce", vistos, vid],
+    queryFn: () => paraVoceFn({ data: { vistos, visitorId: vid } }),
+    enabled: vid !== null || vistos.length > 0,
+    staleTime: 5 * 60_000,
+  });
+  const secoes = data?.secoes ?? [];
+  if (!secoes.length) return null;
+  return (
+    <>
+      {secoes.map((s) => (
+        <Section
+          key={s.tipo}
+          title={idioma === "pt" ? s.titulo.pt : s.titulo.es}
+          subtitle={
+            s.tipo === "vistos" ? undefined : t("Elegidos para vos", "Escolhidos para você")
+          }
+          verTodos={
+            s.tipo === "marca"
+              ? {
+                  search: {
+                    marca: s.link?.split("marca=")[1]
+                      ? decodeURIComponent(s.link.split("marca=")[1])
+                      : undefined,
+                  },
+                }
+              : s.tipo === "categoria"
+                ? {
+                    search: {
+                      categoria: s.link?.split("categoria=")[1]
+                        ? decodeURIComponent(s.link.split("categoria=")[1])
+                        : undefined,
+                    },
+                  }
+                : s.tipo === "busca"
+                  ? {
+                      search: {
+                        q: s.link?.split("q=")[1]
+                          ? decodeURIComponent(s.link.split("q=")[1])
+                          : undefined,
+                      },
+                    }
+                  : undefined
+          }
+        >
+          <ProductRail products={s.produtos as any} />
+        </Section>
+      ))}
+    </>
   );
 }

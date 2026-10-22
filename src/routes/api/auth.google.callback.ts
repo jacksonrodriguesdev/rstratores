@@ -55,7 +55,22 @@ export const Route = createFileRoute("/api/auth/google/callback")({
         } catch (e: any) {
           console.error("[google] login falhou:", e?.message);
           const erro = e?.message === "cancelado" ? "google_cancelado" : "google";
-          return redirecionar(`/login?erro=${erro}`, [g.limparCookieGoogle(request)]);
+          // Motivo curto (sem dados sensíveis) para diagnosticar: state, troca, sessao, banco…
+          const m = String(e?.message ?? "");
+          const motivo = /state|nonce/.test(m)
+            ? "sessao_expirada"
+            : /troca do código/.test(m)
+              ? `google_${m.split(": ")[1] || "troca"}`
+              : /JWT_SECRET/.test(m)
+                ? "jwt_secret"
+                : /verificado/.test(m)
+                  ? "email_nao_verificado"
+                  : /prisma|DATABASE_URL|database/i.test(m)
+                    ? "banco"
+                    : "outro";
+          return redirecionar(`/login?erro=${erro}&motivo=${motivo}`, [
+            g.limparCookieGoogle(request),
+          ]);
         }
       },
     },

@@ -3,13 +3,23 @@
 // 1 story (fila "story"), na ordem do pacote (que já alterna espanhol e português).
 // Retomável: o que já foi agendado fica anotado no navegador e não é repetido.
 import { useMemo, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CalendarClock, FileArchive, Loader2, StopCircle, Upload } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarClock,
+  CheckCircle2,
+  FileArchive,
+  Loader2,
+  RotateCcw,
+  StopCircle,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { salvarPostFn } from "@/lib/instagram";
+import { apagarPostsSemImagemFn, salvarPostFn, verificarPostsFn } from "@/lib/instagram";
 import { cn } from "@/lib/utils";
 import { Campo, enviarBlob } from "./comum";
 
@@ -172,6 +182,36 @@ export function Importar() {
 
   return (
     <div className="space-y-4">
+      <Verificacao />
+      {pacote && !!Object.keys(feitos).length && (
+        <Card className="flex flex-wrap items-center gap-3 border-amber-200 bg-amber-50/60 p-3 text-sm">
+          <span className="flex-1">
+            Este navegador marcou <b>{Object.keys(feitos).length}</b> itens deste pacote como já
+            agendados. Se as imagens se perderam e você apagou os agendados, recomece do zero.
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              if (
+                !window.confirm(
+                  "Esquecer o que já foi importado deste pacote e agendar tudo de novo?",
+                )
+              )
+                return;
+              try {
+                localStorage.removeItem(chaveFeitos(pacote.nome));
+              } catch {
+                /* sem localStorage */
+              }
+              setFeitos({});
+              toast.success("Pronto: o pacote vai ser agendado inteiro de novo");
+            }}
+          >
+            <RotateCcw className="mr-1.5 h-4 w-4" /> Importar de novo do zero
+          </Button>
+        </Card>
+      )}
       <Card className="space-y-3 p-4">
         <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed p-5 hover:bg-muted/40">
           <FileArchive className="h-8 w-8 text-primary" />
@@ -330,5 +370,119 @@ export function Importar() {
         </>
       )}
     </div>
+  );
+}
+
+// Verificação das publicações (todas, não só as 200 da lista): situação e imagens faltando
+function Verificacao() {
+  const qc = useQueryClient();
+  const [apagando, setApagando] = useState(false);
+  const { data, isFetching, refetch } = useQuery({
+    queryKey: ["ig-verificar"],
+    queryFn: () => verificarPostsFn(),
+  });
+  if (!data)
+    return (
+      <Card className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Verificando as publicações e as imagens no
+        servidor…
+      </Card>
+    );
+  const sem =
+    (data.faltando.AGENDADO ?? 0) + (data.faltando.ERRO ?? 0) + (data.faltando.RASCUNHO ?? 0);
+  const nomes: Record<string, string> = {
+    AGENDADO: "agendados",
+    PUBLICADO: "publicados",
+    ERRO: "com erro",
+    RASCUNHO: "rascunhos",
+    PUBLICANDO: "publicando agora",
+  };
+  return (
+    <Card
+      className={cn(
+        "space-y-3 p-4",
+        sem || !data.uploadsDir
+          ? "border-red-200 bg-red-50/40"
+          : "border-emerald-200 bg-emerald-50/40",
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        {sem || !data.uploadsDir ? (
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+        ) : (
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+        )}
+        <p className="flex-1 font-bold">Verificação das publicações</p>
+        <Button size="sm" variant="ghost" onClick={() => refetch()} disabled={isFetching}>
+          {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verificar de novo"}
+        </Button>
+      </div>
+      <p className="text-sm">
+        {data.total} publicações no banco:{" "}
+        {Object.entries(data.porStatus)
+          .map(([k, n]) => `${n} ${nomes[k] ?? k.toLowerCase()}`)
+          .join(" · ")}
+        {data.atrasados ? ` · ${data.atrasados} agendados já passaram da hora` : ""}
+      </p>
+      {!data.uploadsDir && (
+        <p className="text-sm font-semibold text-red-700">
+          Falta a variável UPLOADS_DIR no hPanel: as imagens enviadas vão para a pasta do app e se
+          perdem quando ele é recriado. Coloque o caminho da pasta de uploads e reinicie o app antes
+          de importar de novo.
+        </p>
+      )}
+      {data.uploadsDir && !data.pastaExiste && (
+        <p className="text-sm font-semibold text-red-700">
+          A pasta indicada em UPLOADS_DIR não existe no servidor.
+        </p>
+      )}
+      {sem > 0 ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="flex-1 text-sm text-red-700">
+            <b>{sem}</b> publicações não publicadas estão <b>sem imagem</b> no servidor
+            {data.faltando.AGENDADO ? ` (${data.faltando.AGENDADO} agendadas)` : ""} e vão falhar.
+          </p>
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={apagando}
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  `Apagar as ${sem} publicações sem imagem? As publicadas não são tocadas.`,
+                )
+              )
+                return;
+              setApagando(true);
+              try {
+                const r = await apagarPostsSemImagemFn({
+                  data: { status: ["AGENDADO", "ERRO", "RASCUNHO"] },
+                });
+                toast.success(
+                  `${r.apagados} publicações sem imagem apagadas. Agora importe o pacote de novo.`,
+                );
+                qc.invalidateQueries({ queryKey: ["ig-posts"] });
+                refetch();
+              } catch (e: any) {
+                toast.error(e.message);
+              } finally {
+                setApagando(false);
+              }
+            }}
+          >
+            {apagando ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="mr-1.5 h-4 w-4" />
+            )}
+            Apagar as {sem} sem imagem
+          </Button>
+        </div>
+      ) : (
+        <p className="text-sm text-emerald-700">
+          Todas as publicações não publicadas têm a imagem no servidor.
+        </p>
+      )}
+    </Card>
   );
 }
