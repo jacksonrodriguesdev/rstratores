@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { PrecoFinal } from "./precos";
+import { fotoInvalida } from "./fotos";
 
 // Admin → Clientes → "Enviar oferta": escolhe uma peça, define o desconto (aplicado no site)
 // e avisa os clientes por e-mail (Resend, como campanha) e por WhatsApp (um a um, pelo painel).
@@ -36,8 +37,7 @@ async function carregar(sku: string): Promise<ProdutoOferta | null> {
   if (!p) return null;
   const c = await configPrecos();
   const cheio = precoVenda({ ...p, valor_promocional: null }, c);
-  const img =
-    p.imagem_principal && !/redeparts/i.test(p.imagem_principal) ? p.imagem_principal : null;
+  const img = p.imagem_principal && !fotoInvalida(p.imagem_principal) ? p.imagem_principal : null;
   return {
     sku: p.sku.trim(),
     nome: nomeProduto(p as any),

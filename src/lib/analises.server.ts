@@ -14,6 +14,7 @@ import {
   type ResumoDia,
   type Cont,
 } from "./resumo-diario.server";
+import { fotoInvalida } from "./fotos";
 
 const EV = "/_evento/";
 const H = 3600_000;
@@ -137,8 +138,7 @@ async function nomesDasPecas(skus: string[]) {
       r.sku.trim(),
       {
         nome: nomeProduto(r as any),
-        imagem:
-          r.imagem_principal && !/redeparts/i.test(r.imagem_principal) ? r.imagem_principal : null,
+        imagem: r.imagem_principal && !fotoInvalida(r.imagem_principal) ? r.imagem_principal : null,
       },
     ]),
   );

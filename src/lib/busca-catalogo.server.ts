@@ -6,6 +6,7 @@
 // relevância e paginar leva poucos milissegundos. Do banco só vêm as peças da página atual.
 import { prisma } from "./prisma";
 import { buscaParaPortugues, prepararBusca } from "./pecas-es";
+import { fotoInvalida } from "./fotos";
 
 type Item = {
   sku: string;
@@ -111,7 +112,7 @@ async function carregar(): Promise<Item[]> {
         categoriaN: normalizar(l.categoria),
         temCategoria: l.category_id != null,
         marca: l.marca,
-        comImagem: img !== "" && !img.includes("redeparts"),
+        comImagem: img !== "" && !fotoInvalida(img),
         fotoPropria: img.startsWith("/catalogo/"),
         criado: l.created_at.getTime(),
       };

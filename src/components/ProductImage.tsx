@@ -4,6 +4,7 @@ import { useLocation } from "@tanstack/react-router";
 import { useIdioma } from "@/lib/idioma";
 import { useSegment } from "@/components/SegmentContext";
 import { cn } from "@/lib/utils";
+import { fotoInvalida } from "@/lib/fotos";
 
 type Props = {
   src: string | null | undefined;
@@ -37,7 +38,7 @@ export function ProductImage({ src, alt, className, marca, prioridade }: Props) 
     ? ({ loading: "eager", fetchPriority: "high" } as const)
     : ({ loading: "lazy" } as const);
 
-  const isPlaceholder = src?.toLowerCase().includes("redeparts");
+  const isPlaceholder = fotoInvalida(src);
 
   const semFoto = !src || error || isPlaceholder;
   // Peça agrícola sem foto: aviso "este item ainda não possui imagem" (HTML, não imagem: nada de

@@ -50,6 +50,7 @@ export type AnuncioEmail = {
 // Construtor por blocos (email-blocos.ts): quando há blocos, o e-mail é montado só com eles
 // (o topo com a logo e o rodapé com o "darse de baja" continuam sempre).
 import { renderBlocos, textoBlocos, type BlocoEmail, type TemaEmail } from "./email-blocos";
+import { fotoInvalida } from "./fotos";
 
 // Variáveis das automações: {{cupon}}, {{validez}}, {{descuento}}... (o {{nombre}} é por cliente)
 export function trocarVariaveis(s: string, vars: Record<string, string>) {
@@ -255,8 +256,7 @@ function cartaoProduto(
   largura = "50%",
 ) {
   const link = comUtm(`/produto/${encodeURIComponent(p.sku)}`, d);
-  const img =
-    fotos && p.imagem && !p.imagem.includes("redeparts") ? urlAbsoluta(p.imagem, d.origem) : "";
+  const img = fotos && p.imagem && !fotoInvalida(p.imagem) ? urlAbsoluta(p.imagem, d.origem) : "";
   return `<td width="${largura}" valign="top" style="padding:6px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #e4e4e7;border-radius:14px">
 <tr><td align="center" style="padding:14px 14px 0"><a href="${esc(link)}" style="text-decoration:none">${

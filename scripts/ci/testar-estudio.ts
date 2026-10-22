@@ -7,7 +7,15 @@ import assert from "node:assert/strict";
   const e = await import("../../src/lib/estudio.server");
 
   // Fotos: só agrotrator e uploads próprios
-  assert.ok(e.fotoPropria("https://agrotrator2.vteximg.com.br/arquivos/ids/1/peca.jpg"));
+  // Só fotos do nosso servidor: link externo da agrotrator não é usado
+  assert.ok(!e.fotoPropria("https://agrotrator2.vteximg.com.br/arquivos/ids/1/peca.jpg"));
+  const f = await import("../../src/lib/fotos");
+  assert.ok(f.fotoInvalida("https://agrotrator2.vteximg.com.br/arquivos/ids/1/peca.jpg"));
+  assert.ok(f.fotoInvalida("//www.agrotrator.com.br/x.jpg"));
+  assert.ok(f.fotoInvalida("https://redeparts.com.br/logo.jpg"));
+  assert.ok(f.fotoInvalida(null));
+  assert.ok(!f.fotoInvalida("agrotrator/5003584-1.jpg"));
+  assert.ok(!f.fotoInvalida("produtos/abc.jpg"));
   // Em produção as fotos da agrotrator ficam copiadas no servidor: uploads/agrotrator/<sku>-1.jpg
   assert.ok(e.fotoPropria("agrotrator/5003584-1.jpg"));
   assert.ok(e.fotoPropria("/uploads/agrotrator/5003584-1.jpg"));

@@ -48,6 +48,7 @@ import { eventoVerProduto } from "@/lib/marketing";
 import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
 import { avaliacoesProdutoFn } from "@/lib/avaliacoes";
 import { AvaliacoesPeca, ResumoEstrelas } from "@/components/AvaliacoesPeca";
+import { fotoInvalida } from "@/lib/fotos";
 
 const SITE = SITE_URL;
 const urlImagem = (p: string) =>
@@ -95,7 +96,7 @@ export const Route = createFileRoute("/produto/$sku")({
     const caminho = `/produto/${encodeURIComponent(p.sku)}`;
     const url = `${SITE}${comPrefixo(caminho, idioma)}`;
     // "redeparts" é o logo do fornecedor usado como foto provisória: não serve como imagem da peça
-    const temFoto = !!p.imagem_principal && !p.imagem_principal.includes("redeparts");
+    const temFoto = !!p.imagem_principal && !fotoInvalida(p.imagem_principal);
     const imagem = temFoto ? urlImagem(p.imagem_principal!) : null;
     // Ao compartilhar (WhatsApp, Facebook) a peça sem foto mostra a marca da loja
     const imagemCompartilhar = imagem ?? `${SITE}/icon-512.png`;
@@ -288,7 +289,7 @@ function ProductDetail() {
     ...(imagesQuery.data ?? [])
       .filter((i) => i.image_path !== product.imagem_principal)
       .map((i) => i.image_path),
-  ].filter(Boolean) as string[];
+  ].filter((u) => !!u && !fotoInvalida(u)) as string[];
 
   const adicionar = () => {
     if (!naCotacao) {

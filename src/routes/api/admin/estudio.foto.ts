@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import * as fs from "fs/promises";
 
 // Foto da peça para o gerador de artes do Estúdio (o canvas do navegador não pode ler imagens
-// de outro domínio). Só serve fotos próprias: agrotrator.com.br e uploads/produtos.
+// de outro domínio). Só serve fotos do nosso servidor (uploads/agrotrator e uploads/produtos):
+// não busca nada em outro site.
 export const Route = createFileRoute("/api/admin/estudio/foto")({
   server: {
     handlers: {
@@ -16,15 +17,7 @@ export const Route = createFileRoute("/api/admin/estudio/foto")({
         try {
           let corpo: ArrayBuffer;
           let tipo = "image/jpeg";
-          if (
-            /^https:\/\/[\w.-]*agrotrator[\w.-]*\.(com\.br|com)\//i.test(alvo) ||
-            /^https:\/\/agrotrator2\.vteximg\.com\.br\//i.test(alvo)
-          ) {
-            const r = await fetch(alvo, { signal: AbortSignal.timeout(20_000) });
-            if (!r.ok) return new Response("não encontrada", { status: 404 });
-            corpo = await r.arrayBuffer();
-            tipo = r.headers.get("content-type") || tipo;
-          } else if (!/^https?:/i.test(alvo)) {
+          if (!/^https?:/i.test(alvo)) {
             const { caminhoUpload } = await import("@/lib/uploads.server");
             const rel = alvo.replace(/^\/?(uploads\/)?/, "");
             if (rel.includes("..")) return new Response("caminho inválido", { status: 400 });

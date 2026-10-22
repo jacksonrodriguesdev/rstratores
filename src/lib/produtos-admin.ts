@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { ConfigPrecos } from "./precos";
+import { fotoInvalida } from "./fotos";
 
 // Central de produtos do admin: listas (com/sem foto, sem preço...), edição completa,
 // precificação, medidas e fotos. Tabela `agricolas` (a linha ativa do site).
@@ -53,7 +54,7 @@ export function avisosVisibilidade(p: {
       texto:
         "Sem categoria: fica fora da vitrine (não aparece na loja nem nas categorias). Escolha uma categoria.",
     });
-  if (!p.imagem_principal || /redeparts/i.test(p.imagem_principal))
+  if (!p.imagem_principal || fotoInvalida(p.imagem_principal))
     avisos.push({
       tipo: "parcial",
       texto:

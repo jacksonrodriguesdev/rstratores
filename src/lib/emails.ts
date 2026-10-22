@@ -7,6 +7,7 @@ import {
   type Publico,
 } from "./email-template";
 import type { BlocoEmail } from "./email-blocos";
+import { fotoInvalida } from "./fotos";
 
 // Painel de e-mails (Admin → E-mails): campanhas, público, teste e envio pelo Resend.
 const admin = async () => {
@@ -404,8 +405,7 @@ export const buscarProdutosEmailFn = createServerFn({ method: "GET" })
       sku: r.sku.trim(),
       nome: nomeProduto(r as any),
       codigo: r.codigo_fabricante || r.sku,
-      imagem:
-        r.imagem_principal && !r.imagem_principal.includes("redeparts") ? r.imagem_principal : null,
+      imagem: r.imagem_principal && !fotoInvalida(r.imagem_principal) ? r.imagem_principal : null,
       marca: r.marca,
     }));
   });

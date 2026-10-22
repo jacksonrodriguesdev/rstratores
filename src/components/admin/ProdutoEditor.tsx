@@ -37,6 +37,7 @@ import { enviarFotos } from "@/lib/imagem-cliente";
 import { fmtBRL, fmtUYU, margemDe, uyuDeBrl, vendaDeCusto, precoVenda } from "@/lib/precos";
 import { nomeEs } from "@/lib/pecas-es";
 import { MONTADORAS } from "@/lib/navegacao";
+import { fotoInvalida } from "@/lib/fotos";
 import { cn } from "@/lib/utils";
 
 // Editor completo de uma peça: dados, preço (R$ e $U), peso/medidas e fotos.
@@ -188,11 +189,7 @@ export function ProdutoEditor({
   const fotos = useMemo(() => {
     if (!p) return [] as string[];
     const l = p.images.map((i) => i.path);
-    if (
-      p.imagem_principal &&
-      !l.includes(p.imagem_principal) &&
-      !/redeparts/i.test(p.imagem_principal)
-    )
+    if (p.imagem_principal && !l.includes(p.imagem_principal) && !fotoInvalida(p.imagem_principal))
       l.unshift(p.imagem_principal);
     return l;
   }, [p]);

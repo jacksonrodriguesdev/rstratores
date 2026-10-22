@@ -10,6 +10,7 @@ import {
 } from "./email-template";
 import { defTipo, type ConfigAutomacao, type TipoAutomacao } from "./automacoes-tipos";
 import type { ItemCarrinho } from "./carrinhos";
+import { fotoInvalida } from "./fotos";
 
 const HORA = 3600_000;
 const DIA = 24 * HORA;
@@ -131,7 +132,7 @@ export async function produtosEmail(
         pr.desconto = Math.round((1 - pr.brl / ant) * 100);
       }
       const img =
-        r.imagem_principal && !/redeparts/i.test(r.imagem_principal) ? r.imagem_principal : null;
+        r.imagem_principal && !fotoInvalida(r.imagem_principal) ? r.imagem_principal : null;
       return {
         sku: r.sku.trim(),
         nome: nomeProduto(r as any),

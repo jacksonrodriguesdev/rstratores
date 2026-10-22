@@ -16,6 +16,7 @@ import {
   type DadosRender,
   type ProdutoEmail,
 } from "./email-template";
+import { fotoInvalida } from "./fotos";
 
 export type BlocoEmail = {
   id: string;
@@ -744,7 +745,7 @@ function cartaoProduto(x: Ctx, p: ProdutoEmail, b: BlocoEmail, larg: string, col
   const href = link(x, `/produto/${encodeURIComponent(p.sku)}`);
   const fotos = !!b.d.fotos;
   const imgUrl =
-    fotos && p.imagem && !/redeparts/i.test(p.imagem) ? urlAbsoluta(p.imagem, x.d.origem) : "";
+    fotos && p.imagem && !fotoInvalida(p.imagem) ? urlAbsoluta(p.imagem, x.d.origem) : "";
   const fundo = x.escuro ? x.t.suave : "#ffffff";
   const borda = x.escuro ? x.t.suave : "#e4e4e7";
   const altura = cols === 3 ? 110 : 150;

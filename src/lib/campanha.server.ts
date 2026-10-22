@@ -11,6 +11,7 @@ import {
   type Fase,
   type Regra,
 } from "./campanha-comum";
+import { fotoInvalida } from "./fotos";
 
 const SQL = [
   `CREATE TABLE IF NOT EXISTS \`campanhas\` (
@@ -221,7 +222,7 @@ export async function pecasDaCampanha(
   });
   // Com foto primeiro (sem as fotos provisórias do fornecedor)
   const comFoto = (p: (typeof rows)[number]) =>
-    !!p.imagem_principal && !/redeparts/i.test(p.imagem_principal);
+    !!p.imagem_principal && !fotoInvalida(p.imagem_principal);
   return [...rows.filter(comFoto), ...rows.filter((p) => !comFoto(p))].slice(0, limite);
 }
 

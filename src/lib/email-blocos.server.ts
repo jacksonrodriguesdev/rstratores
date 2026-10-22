@@ -2,8 +2,9 @@
 // Roda na prévia do admin e uma vez por envio de campanha (todos os clientes recebem as mesmas).
 import type { BlocoEmail } from "./email-blocos";
 import type { ProdutoEmail } from "./email-template";
+import { fotoInvalida } from "./fotos";
 
-const comFoto = (img: string | null) => !!img && !/redeparts/i.test(img);
+const comFoto = (img: string | null) => !!img && !fotoInvalida(img);
 
 async function skusDoBloco(d: Record<string, any>, limite: number): Promise<string[]> {
   const { prisma } = await import("./prisma");

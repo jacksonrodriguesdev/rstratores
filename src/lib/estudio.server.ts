@@ -8,19 +8,13 @@
 
 const DIA = 86_400_000;
 
-// Fotos próprias: agrotrator.com.br (link direto ou já copiada para o servidor em
-// uploads/agrotrator/, que é como fica em produção) e as enviadas pelo admin (uploads/produtos/)
+// Fotos próprias, sempre do nosso servidor: as copiadas do catálogo agrotrator
+// (uploads/agrotrator/…) e as enviadas pelo admin (uploads/produtos/…). Link externo não entra:
+// o site não busca nada no site da agrotrator.
 export const fotoPropria = (u: string | null | undefined) =>
-  !!u &&
-  (/^https:\/\/[\w.-]*agrotrator[\w.-]*\//i.test(u) ||
-    /^(uploads\/)?(produtos|agrotrator)\/[^/]/.test(u.replace(/^\//, "")));
-// Filtro do Prisma para peça com foto própria da agrotrator (link ou cópia no servidor)
-export const ONDE_FOTO_AGROTRATOR = {
-  OR: [
-    { imagem_principal: { startsWith: "https://agrotrator" } },
-    { imagem_principal: { startsWith: "agrotrator/" } },
-  ],
-};
+  !!u && /^(uploads\/)?(produtos|agrotrator)\/[^/]/.test(u.trim().replace(/^\//, ""));
+// Filtro do Prisma: peça com foto do catálogo agrotrator já no servidor
+export const ONDE_FOTO_AGROTRATOR = { imagem_principal: { startsWith: "agrotrator/" } };
 
 const normal = (s: string) =>
   s
@@ -390,7 +384,7 @@ export async function buscarPecas(q: string) {
               { codigo_fabricante: { contains: termo } },
             ],
           }
-        : { imagem_principal: { contains: "agrotrator" }, preco_brl: { gt: 0 } }),
+        : { ...ONDE_FOTO_AGROTRATOR, preco_brl: { gt: 0 } }),
     },
     orderBy: [{ estoque: "desc" }],
     take: 30,

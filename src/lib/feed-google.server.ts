@@ -2,6 +2,7 @@
 // podem aparecer de graça na aba Shopping do Google. Só entram peças com preço e foto, e só
 // quando "mostrar preços no site" está ligado (o Google confere se o preço do feed é o da página).
 import { SITE_URL } from "./site";
+import { fotoInvalida } from "./fotos";
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -48,7 +49,7 @@ export async function feedGoogle(): Promise<{ xml: string; itens: number }> {
     for (const p of rows) {
       const pr = precoVenda(p, cfg);
       // O site mostra o preço em $U: sem cotação não há preço para conferir
-      if (!pr?.uyu || !p.imagem_principal || p.imagem_principal.includes("redeparts")) continue;
+      if (!pr?.uyu || !p.imagem_principal || fotoInvalida(p.imagem_principal)) continue;
       const sku = p.sku.trim();
       const titulo = limpo(p.nome_es || p.nome, 150);
       const desc = limpo(

@@ -55,6 +55,7 @@ import {
 import { exportProductsCsv, downloadFile } from "@/lib/upload";
 import { nomeEs } from "@/lib/pecas-es";
 import { MONTADORAS } from "@/lib/navegacao";
+import { fotoInvalida } from "@/lib/fotos";
 import { cn } from "@/lib/utils";
 
 // Página única de produtos do admin: listas (com/sem foto, sem preço...), edição rápida na linha
@@ -65,7 +66,7 @@ export const Route = createFileRoute("/admin/produtos")({
 });
 
 const url = (p: string) => (/^(https?:)?\//.test(p) ? p : `/uploads/${p}`);
-const temFoto = (p: LinhaAdmin) => !!p.imagem_principal && !/redeparts/i.test(p.imagem_principal);
+const temFoto = (p: LinhaAdmin) => !!p.imagem_principal && !fotoInvalida(p.imagem_principal);
 const num = (v: string) => (v.trim() === "" ? null : Number(v.replace(",", ".")));
 const s = (v: number | null | undefined) => (v == null ? "" : String(v));
 const temPreco = (r: Pick<LinhaAdmin, "preco_brl" | "preco_modo" | "preco_uyu">) =>

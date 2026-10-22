@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { ChavePP } from "./pesquisa-precos.server";
+import { fotoInvalida } from "./fotos";
 
 // Admin → Produtos → Pesquisa de preços
 const admin = async () => {
@@ -232,9 +233,7 @@ export const listarResultadosFn = createServerFn({ method: "GET" })
         codigo: (p?.codigo_fabricante || r.sku).trim(),
         marca: p?.marca ?? null,
         imagem:
-          p?.imagem_principal && !p.imagem_principal.includes("redeparts")
-            ? p.imagem_principal
-            : null,
+          p?.imagem_principal && !fotoInvalida(p.imagem_principal) ? p.imagem_principal : null,
         precoAtual: p?.preco_brl ?? null,
         achados: r.achados,
         menor: r.menor_brl,
