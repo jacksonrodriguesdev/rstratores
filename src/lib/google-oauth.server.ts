@@ -84,10 +84,7 @@ export async function concluirGoogle(
     }),
   });
   const tokens = await res.json();
-  if (!res.ok || !tokens.id_token)
-    throw new Error(
-      `troca do código falhou: ${String(tokens.error || res.status).replace(/[^a-z0-9_]/gi, "")}`,
-    );
+  if (!res.ok || !tokens.id_token) throw new Error("troca do código falhou");
 
   const { payload } = await jwtVerify(tokens.id_token, JWKS, {
     issuer: ["https://accounts.google.com", "accounts.google.com"],

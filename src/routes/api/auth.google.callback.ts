@@ -60,7 +60,7 @@ export const Route = createFileRoute("/api/auth/google/callback")({
           const motivo = /state|nonce/.test(m)
             ? "sessao_expirada"
             : /troca do código/.test(m)
-              ? `google_${m.split(": ")[1] || "troca"}`
+              ? "google_troca"
               : /JWT_SECRET/.test(m)
                 ? "jwt_secret"
                 : /verificado/.test(m)
