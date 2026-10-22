@@ -188,6 +188,9 @@ export const criarAnuncioMetaFn = createServerFn({ method: "POST" })
       idadeMin: Number(data.idadeMin) || 18,
       idadeMax: Number(data.idadeMax) || 65,
       imagemBase64: String(data.imagemBase64 ?? "").replace(/^data:[^,]+,/, ""),
+      regioes: (Array.isArray(data.regioes) ? data.regioes : [])
+        .map((r) => String(r).slice(0, 60))
+        .slice(0, 19),
     });
   });
 
@@ -294,4 +297,22 @@ export const campanhasProntasMetaFn = createServerFn({ method: "GET" })
         };
       }),
     };
+  });
+
+// ---------------------------------------------------------------- anúncios prontos do dia
+// Milhares de combinações departamento × peça × ângulo (src/lib/anuncios-prontos.server.ts)
+export const anunciosProntosFn = createServerFn({ method: "GET" })
+  .validator((d: import("./anuncios-prontos.server").FiltroProntos) => ({
+    pagina: Math.max(0, Number(d?.pagina) || 0),
+    local: d?.local ? String(d.local).slice(0, 60) : undefined,
+    marca: d?.marca ? String(d.marca).slice(0, 60) : undefined,
+    categoria: d?.categoria ? String(d.categoria).slice(0, 80) : undefined,
+    angulo: d?.angulo ? String(d.angulo).slice(0, 20) : undefined,
+    objetivo: d?.objetivo === "WHATSAPP" || d?.objetivo === "TRAFEGO" ? d.objetivo : undefined,
+    q: d?.q ? String(d.q).slice(0, 80) : undefined,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { buscarProntos } = await import("./anuncios-prontos.server");
+    return buscarProntos(data, 30);
   });

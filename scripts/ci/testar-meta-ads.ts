@@ -54,6 +54,19 @@ const servidor = http.createServer(async (req, res) => {
       ],
     });
   if (c === "/me/adaccounts") return j({ data: [] });
+  // Busca de regiões (departamentos do Uruguai)
+  if (c === "/search" && p.type === "adgeolocation")
+    return j({
+      data: [
+        { key: "3001", name: "Rocha Department", type: "region", country_code: "UY" },
+        { key: "3002", name: "Soriano Department", type: "region", country_code: "UY" },
+        { key: "9999", name: "Rocha", type: "region", country_code: "BR" },
+      ].filter(
+        (x) =>
+          x.name.toLowerCase().startsWith(String(p.q).toLowerCase()) &&
+          x.country_code === p.country_code,
+      ),
+    });
   // Leads da página
   if (c === "/pg1/leadgen_forms") return j({ data: [{ id: "f1", name: "Cotação rápida" }] });
   if (c === "/f1/leads")
@@ -374,6 +387,28 @@ async function main() {
     assert.deepEqual(
       [crt.page_id, crt.instagram_user_id, crt.link_data.image_hash],
       ["pg1", "ig77", "HASH1"],
+    );
+    // Por departamento: regiões do Uruguai; nome desconhecido não vira outro país
+    const r2 = await m.criarAnuncio({ ...base, regioes: ["Rocha", "Soriano", "Atlântida"] });
+    assert.ok(r2.anuncio);
+    const conj2 = chamadas
+      .filter((c) => c.caminho === "/act_555/adsets" && c.metodo === "POST")
+      .at(-1)!;
+    assert.deepEqual(
+      JSON.parse(conj2.p.targeting).geo_locations,
+      { regions: [{ key: "3001" }, { key: "3002" }] },
+      "departamentos do Uruguai",
+    );
+    assert.match(conj2.p.name, /Rocha, Soriano/);
+    const r3 = await m.criarAnuncio({ ...base, regioes: ["Atlântida"] });
+    assert.ok(r3.anuncio);
+    const conj3 = chamadas
+      .filter((c) => c.caminho === "/act_555/adsets" && c.metodo === "POST")
+      .at(-1)!;
+    assert.deepEqual(
+      JSON.parse(conj3.p.targeting).geo_locations,
+      { countries: ["UY"] },
+      "sem achar: Uruguai inteiro",
     );
     await assert.rejects(m.criarAnuncio({ ...base, link: "agropartsuy.com" }), /https/);
     recusarAnuncio = true;

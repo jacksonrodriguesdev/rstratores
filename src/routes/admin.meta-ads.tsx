@@ -60,8 +60,15 @@ import {
 } from "@/lib/meta-ads";
 import { cn } from "@/lib/utils";
 import { CampanhasProntas } from "@/components/admin/meta/CampanhasProntas";
+import { AnunciosProntos } from "@/components/admin/meta/AnunciosProntos";
+import { DEPTOS as DEPTOS_UY } from "@/lib/locais-anuncio";
 
+type BuscaMeta = { aba?: string; local?: string };
 export const Route = createFileRoute("/admin/meta-ads")({
+  validateSearch: (s: Record<string, unknown>): BuscaMeta => ({
+    aba: typeof s.aba === "string" ? s.aba : undefined,
+    local: typeof s.local === "string" ? s.local.slice(0, 60) : undefined,
+  }),
   component: MetaAds,
 });
 
@@ -88,7 +95,11 @@ const pct = (v: number | null | undefined) => (v == null ? "—" : `${n(v, 2)}%`
 const div = (a: number, b: number) => (b > 0 ? a / b : null);
 
 function MetaAds() {
-  const [aba, setAba] = useState<Aba>("geral");
+  // ?aba=criar&local=Rocha (vindo do Criador de anúncios) abre direto nos anúncios do local
+  const busca = Route.useSearch();
+  const [aba, setAba] = useState<Aba>(
+    ABAS.some((x) => x[0] === busca.aba) ? (busca.aba as Aba) : "geral",
+  );
   const [dias, setDias] = useState(30);
   const {
     data: v,
@@ -191,7 +202,9 @@ function MetaAds() {
           {aba === "anuncios" && <Anuncios dias={dias} din={din} />}
           {aba === "publico" && <Publico dias={dias} din={din} />}
           {aba === "leads" && <Leads />}
-          {aba === "criar" && <Criar moeda={moeda} aoCriar={() => setAba("campanhas")} />}
+          {aba === "criar" && (
+            <Criar moeda={moeda} aoCriar={() => setAba("campanhas")} localInicial={busca.local} />
+          )}
           {aba === "conta" && <Conta v={v} din={din} />}
         </>
       )}
@@ -1346,8 +1359,18 @@ const C = ({ r, children }: { r: string; children: React.ReactNode }) => (
     <div className="mt-1">{children}</div>
   </label>
 );
-function Criar({ moeda, aoCriar }: { moeda: string; aoCriar: () => void }) {
+function Criar({
+  moeda,
+  aoCriar,
+  localInicial,
+}: {
+  moeda: string;
+  aoCriar: () => void;
+  localInicial?: string;
+}) {
+  const [modo, setModo] = useState<"prontos" | "campanhas">("prontos");
   const [f, setF] = useState({
+    regioes: [] as string[],
     nome: "",
     objetivo: "TRAFEGO" as "TRAFEGO" | "WHATSAPP",
     orcamentoDiario: "",
@@ -1416,10 +1439,43 @@ function Criar({ moeda, aoCriar }: { moeda: string; aoCriar: () => void }) {
   };
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-      <div className="xl:col-span-2">
-        <CampanhasProntas aplicar={(p) => setF((x) => ({ ...x, ...p }))} aplicarImagem={setImg} />
+      <div className="space-y-3 xl:col-span-2">
+        <div className="flex flex-wrap gap-1 rounded-xl bg-muted p-1">
+          {(
+            [
+              ["prontos", "Anúncios prontos de hoje (por departamento, peça e ideia)"],
+              ["campanhas", "Campanhas estratégicas do Criador"],
+            ] as const
+          ).map(([k, r]) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setModo(k)}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-sm font-semibold",
+                modo === k
+                  ? "bg-background shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+        {modo === "prontos" ? (
+          <AnunciosProntos
+            localInicial={localInicial}
+            aplicar={(p) => setF((x) => ({ ...x, ...p }))}
+            aplicarImagem={setImg}
+          />
+        ) : (
+          <CampanhasProntas
+            aplicar={(p) => setF((x) => ({ ...x, ...p, regioes: [] }))}
+            aplicarImagem={setImg}
+          />
+        )}
       </div>
-      <Card className="space-y-4 p-5">
+      <Card id="form-anuncio" className="scroll-mt-4 space-y-4 p-5">
         <div className="grid gap-3 sm:grid-cols-2">
           <C r="Nome do anúncio (interno)">
             <Input
@@ -1464,8 +1520,47 @@ function Criar({ moeda, aoCriar }: { moeda: string; aoCriar: () => void }) {
         </div>
         <div className="rounded-lg bg-muted/40 p-3">
           <p className="text-xs font-semibold text-muted-foreground">
-            Público: <b className="text-foreground">Uruguai</b> (a loja só anuncia para o Uruguai)
+            Público:{" "}
+            <b className="text-foreground">
+              {f.regioes.length ? `Uruguai — ${f.regioes.join(", ")}` : "todo o Uruguai"}
+            </b>{" "}
+            (a loja só anuncia para o Uruguai)
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {f.regioes.map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => set({ regioes: f.regioes.filter((x) => x !== r) })}
+                className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground"
+                title="Tirar"
+              >
+                {r} ×
+              </button>
+            ))}
+            <select
+              value=""
+              onChange={(e) =>
+                e.target.value && set({ regioes: [...new Set([...f.regioes, e.target.value])] })
+              }
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+              aria-label="Adicionar departamento"
+            >
+              <option value="">+ departamento</option>
+              {DEPTOS_UY.filter((d) => !f.regioes.includes(d)).map((d) => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+            {!!f.regioes.length && (
+              <button
+                type="button"
+                onClick={() => set({ regioes: [] })}
+                className="text-xs font-semibold text-muted-foreground underline"
+              >
+                todo o Uruguai
+              </button>
+            )}
+          </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
             <C r="Idade mínima">
               <Input

@@ -441,6 +441,14 @@ function Onde({ d }: { d: CriadorAnuncios }) {
           >
             <div className="space-y-3">
               <p className="rounded-md bg-muted/60 p-2.5 text-sm">{atual.motivo}</p>
+              {atual.pais === "UY" && (
+                <a
+                  href={`/admin/meta-ads?aba=criar&local=${encodeURIComponent(atual.nome)}`}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#1877F2] px-3 py-2 text-sm font-bold text-white hover:opacity-90"
+                >
+                  Criar no Meta: anúncios prontos para {atual.nome} →
+                </a>
+              )}
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Mini r="Visitas" v={n(atual.visitas)} />
                 <Mini r="Pedidos WhatsApp" v={n(atual.leads)} />
@@ -694,6 +702,14 @@ function Campanhas({ d }: { d: CriadorAnuncios }) {
                 <p className="text-sm">
                   <b>Por quê:</b> {c.porque}
                 </p>
+                {c.plataforma === "Meta" && c.idioma === "es" && (
+                  <a
+                    href="/admin/meta-ads?aba=criar"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#1877F2] px-3 py-2 text-sm font-bold text-white hover:opacity-90"
+                  >
+                    Criar no Meta Ads (campanha pronta, só aceitar) →
+                  </a>
+                )}
                 {c.aviso && (
                   <p className="flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-2 text-sm text-amber-900">
                     <AlertTriangle className="h-4 w-4 shrink-0" /> {c.aviso}

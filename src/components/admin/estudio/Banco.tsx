@@ -25,7 +25,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { bancoPostsFn, filtrosBancoFn } from "@/lib/estudio";
 import { salvarPostFn } from "@/lib/instagram";
-import { hash, hashtags, legenda, tomDaPeca, TONS, type Tom } from "@/lib/estudio-textos";
+import {
+  hash,
+  hashtags,
+  legenda,
+  nomeLimpo,
+  tomDaPeca,
+  TONS,
+  type Tom,
+} from "@/lib/estudio-textos";
 import { cn } from "@/lib/utils";
 import { gerarArte, paraJpg, type Formato, type Modelo, type OpcoesArte } from "./artes";
 import {
@@ -65,7 +73,12 @@ function opcoesDe(e: Estilo, i: Item): OpcoesArte {
     chamada: e.idioma === "pt" ? "Peças para o seu trator" : "Repuestos para tu tractor",
     produtos: [
       {
-        nome: e.idioma === "pt" ? i.nomePt || i.nome : i.nome,
+        nome: nomeLimpo({
+          nome: e.idioma === "pt" ? i.nomePt || i.nome : i.nome,
+          codigo: i.codigo,
+          sku: i.sku,
+          marca: i.marca,
+        }),
         codigo: i.codigo,
         marca: i.marca,
         foto: i.foto,

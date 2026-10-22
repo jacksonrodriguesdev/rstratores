@@ -753,7 +753,46 @@ export type NovoAnuncio = {
   link: string;
   botao: string;
   ativar: boolean;
+  regioes?: string[]; // departamentos do Uruguai (vazio = o Uruguai inteiro)
 };
+
+// Departamentos → regiões da Meta (busca adgeolocation, só do Uruguai). Sem achar: país inteiro.
+const cacheRegiao = new Map<string, string | null>();
+const normal = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/^departamento de /, "")
+    .replace(/ department$/, "")
+    .trim();
+export async function geoUruguai(regioes?: string[]) {
+  const nomes = [...new Set((regioes ?? []).map((r) => String(r).trim()).filter(Boolean))].slice(
+    0,
+    19,
+  );
+  const chaves: Array<{ key: string }> = [];
+  for (const nome of nomes) {
+    let key = cacheRegiao.get(normal(nome));
+    if (key === undefined) {
+      const j = await chamar("search", {
+        type: "adgeolocation",
+        location_types: JSON.stringify(["region"]),
+        country_code: "UY",
+        q: nome,
+        limit: "10",
+      }).catch(() => ({ data: [] }));
+      const achou = (j.data ?? []).find(
+        (x: any) =>
+          x.type === "region" && x.country_code === "UY" && normal(String(x.name)) === normal(nome),
+      );
+      key = achou ? String(achou.key) : null;
+      cacheRegiao.set(normal(nome), key);
+    }
+    if (key) chaves.push({ key });
+  }
+  return chaves.length ? { regions: chaves } : { countries: ["UY"] };
+}
 
 // Campanha + conjunto + criativo + anúncio. Público: Uruguai (a loja só anuncia para o Uruguai).
 export async function criarAnuncio(a: NovoAnuncio) {
@@ -786,10 +825,11 @@ export async function criarAnuncio(a: NovoAnuncio) {
     );
     criados.push(camp.id);
     const generos = a.genero === "HOMENS" ? [1] : a.genero === "MULHERES" ? [2] : undefined;
+    const geo = await geoUruguai(a.regioes);
     const conj = await chamar(
       `${c.conta}/adsets`,
       {
-        name: `${a.nome} · Uruguai`,
+        name: `${a.nome} · ${geo.regions ? (a.regioes ?? []).join(", ").slice(0, 120) : "Uruguai"}`,
         campaign_id: camp.id,
         daily_budget: String(Math.round(a.orcamentoDiario * 100)),
         billing_event: "IMPRESSIONS",
@@ -800,7 +840,7 @@ export async function criarAnuncio(a: NovoAnuncio) {
           promoted_object: JSON.stringify({ page_id: pg.id }),
         }),
         targeting: JSON.stringify({
-          geo_locations: { countries: ["UY"] },
+          geo_locations: geo,
           age_min: Math.max(18, a.idadeMin),
           age_max: Math.min(65, a.idadeMax),
           ...(generos && { genders: generos }),

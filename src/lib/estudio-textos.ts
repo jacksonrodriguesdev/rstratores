@@ -411,3 +411,23 @@ export function datas(hoje = new Date()) {
     .filter((x) => x.dias >= -1)
     .sort((a, b) => a.dias - b.dias);
 }
+
+// Nome da peça para anúncio/arte: sem o código e sem a marca repetida no fim
+// («Kit Reparación Motor Tractor Valtra 82636800 AGCO» → «Kit Reparación Motor Tractor»)
+const escapar = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export function nomeLimpo(p: { nome: string; codigo: string; sku: string; marca: string | null }) {
+  let n = ` ${p.nome} `;
+  for (const c of [p.codigo, p.sku])
+    if (c && c.length >= 3) n = n.replace(new RegExp(`\\s${escapar(c)}(?=\\s)`, "gi"), " ");
+  const fim = ["AGCO", "CNH", "JD", ...(p.marca ? [p.marca, ...p.marca.split(/\s+/)] : [])];
+  let antes = "";
+  while (antes !== n) {
+    antes = n;
+    for (const f of fim) n = n.replace(new RegExp(`\\s${escapar(f)}\\s*$`, "i"), " ");
+  }
+  n = n
+    .replace(/(^|\s)(\p{L}+)(\s+\2)+(?=\s|$)/giu, "$1$2") // «Jacto Jacto» → «Jacto»
+    .replace(/\s+/g, " ")
+    .trim();
+  return n.length >= 4 ? n : p.nome;
+}

@@ -9,6 +9,7 @@ import { AlertTriangle, Check, Loader2, Lock, Sparkles, Wand2 } from "lucide-rea
 import { Card } from "@/components/ui/card";
 import { campanhasProntasMetaFn } from "@/lib/meta-ads";
 import { cn } from "@/lib/utils";
+import { nomeLimpo } from "@/lib/estudio-textos";
 import { ajustarFormato, gerarArte, type Modelo } from "@/components/admin/estudio/artes";
 
 type Pronta = Awaited<ReturnType<typeof campanhasProntasMetaFn>>["campanhas"][number];
@@ -63,7 +64,7 @@ async function montarImagem(
       chamada: "Repuestos para tu tractor",
       produtos: [
         {
-          nome: p.nome,
+          nome: nomeLimpo({ nome: p.nome, codigo: p.codigo, sku: p.sku, marca: p.marca }),
           codigo: p.codigo,
           marca: p.marca,
           foto,
@@ -112,7 +113,7 @@ export function CampanhasProntas({
       botao: c.botao,
       ...(data?.orcamento ? { orcamentoDiario: String(data.orcamento) } : {}),
     });
-  }, [c?.id, texto, titulo]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [c?.id, texto, titulo]);
 
   // Imagem com a peça escolhida
   useEffect(() => {
@@ -123,7 +124,7 @@ export function CampanhasProntas({
       .then((img) => minha === vez.current && aplicarImagem(img))
       .catch((e) => minha === vez.current && toast.error(e.message))
       .finally(() => minha === vez.current && setGerando(false));
-  }, [c?.id, peca, foto, arte, mostrar]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [c?.id, peca, foto, arte, mostrar]);
 
   const escolher = (id: string) => {
     setSel(id);

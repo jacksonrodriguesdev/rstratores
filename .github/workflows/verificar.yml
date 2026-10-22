@@ -87,6 +87,9 @@ jobs:
       - name: Vendas, etiquetas e avaliações (cupom de 15%)
         run: npx tsx scripts/ci/testar-avaliacoes.ts
 
+      - name: Anúncios prontos do dia (Meta Ads)
+        run: npx tsx scripts/ci/testar-anuncios-prontos.ts
+
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 
