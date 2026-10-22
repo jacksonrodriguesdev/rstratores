@@ -8,6 +8,11 @@ import assert from "node:assert/strict";
 
   // Fotos: só agrotrator e uploads próprios
   assert.ok(e.fotoPropria("https://agrotrator2.vteximg.com.br/arquivos/ids/1/peca.jpg"));
+  // Em produção as fotos da agrotrator ficam copiadas no servidor: uploads/agrotrator/<sku>-1.jpg
+  assert.ok(e.fotoPropria("agrotrator/5003584-1.jpg"));
+  assert.ok(e.fotoPropria("/uploads/agrotrator/5003584-1.jpg"));
+  assert.ok(!e.fotoPropria("agrotrator/"));
+  assert.ok(!e.fotoPropria("https://exemplo.com/agrotrator/x.jpg"));
   assert.ok(e.fotoPropria("produtos/abc.jpg"));
   assert.ok(e.fotoPropria("/uploads/produtos/abc.jpg"));
   assert.ok(!e.fotoPropria("https://www.redeparts.com.br/foto.jpg"));
@@ -79,7 +84,7 @@ import assert from "node:assert/strict";
   // Banco de posts: forma da resposta (no CI as peças não têm foto da agrotrator)
   const banco = await e.bancoPosts({ pagina: 0, ordem: "novas" });
   assert.equal(typeof banco.total, "number");
-  assert.ok(banco.itens.every((i) => /^https:\/\/[\w.-]*agrotrator/i.test(i.foto ?? "")));
+  assert.ok(banco.itens.every((i) => e.fotoPropria(i.foto) && /agrotrator/i.test(i.foto ?? "")));
   const fb = await e.filtrosBanco();
   assert.equal(fb.total, banco.total);
   await e.cuponsParaArte();

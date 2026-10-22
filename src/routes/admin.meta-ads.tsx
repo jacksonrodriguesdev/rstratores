@@ -1353,6 +1353,9 @@ const BOTOES: Array<[string, string]> = [
   ["SEE_MORE", "Ver mais"],
 ];
 // Rótulo + campo (fora do formulário: dentro dele o campo perderia o foco a cada tecla)
+// Data no formato do campo datetime-local (horário do computador)
+const dataLocal = (d: Date) =>
+  new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 const C = ({ r, children }: { r: string; children: React.ReactNode }) => (
   <label className="block text-xs font-semibold text-muted-foreground">
     {r}
@@ -1369,6 +1372,9 @@ function Criar({
   localInicial?: string;
 }) {
   const [modo, setModo] = useState<"prontos" | "campanhas">("prontos");
+  // Veio de um anúncio pronto: o formulário mostra só valor, datas e ativar
+  const [pronto, setPronto] = useState(false);
+  const [detalhes, setDetalhes] = useState(false);
   const [f, setF] = useState({
     regioes: [] as string[],
     nome: "",
@@ -1465,51 +1471,56 @@ function Criar({
         {modo === "prontos" ? (
           <AnunciosProntos
             localInicial={localInicial}
-            aplicar={(p) => setF((x) => ({ ...x, ...p }))}
+            aplicar={(p) => {
+              setF((x) => ({ ...x, ...p }));
+              setPronto(true);
+              setDetalhes(false);
+            }}
             aplicarImagem={setImg}
           />
         ) : (
           <CampanhasProntas
-            aplicar={(p) => setF((x) => ({ ...x, ...p, regioes: [] }))}
+            aplicar={(p) => {
+              setF((x) => ({ ...x, ...p, regioes: [] }));
+              setPronto(true);
+              setDetalhes(false);
+            }}
             aplicarImagem={setImg}
           />
         )}
       </div>
-      <Card id="form-anuncio" className="scroll-mt-4 space-y-4 p-5">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <C r="Nome do anúncio (interno)">
+      {pronto && !detalhes ? (
+        <Card id="form-anuncio" className="scroll-mt-4 space-y-4 p-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+              ✔ Anúncio pronto — falta só o valor, a data e ativar
+            </p>
+            <p className="mt-1 font-bold">{f.nome}</p>
+            <p className="text-xs text-muted-foreground">
+              {f.objetivo === "WHATSAPP" ? "Conversas no WhatsApp" : "Visitas ao site"} · Público:{" "}
+              {f.regioes.length ? `Uruguai — ${f.regioes.join(", ")}` : "todo o Uruguai"} · idade{" "}
+              {f.idadeMin}–{f.idadeMax}
+            </p>
+          </div>
+          <C r={`Valor por dia (${moeda})`}>
             <Input
-              value={f.nome}
-              onChange={(e) => set({ nome: e.target.value })}
-              placeholder="Pre Black · Filtros"
-            />
-          </C>
-          <C r="Objetivo">
-            <select
-              value={f.objetivo}
-              onChange={(e) => set({ objetivo: e.target.value as any })}
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="TRAFEGO">Visitas ao site (link)</option>
-              <option value="WHATSAPP">Conversas no WhatsApp</option>
-            </select>
-          </C>
-          <C r={`Orçamento diário (${moeda})`}>
-            <Input
+              autoFocus
               value={f.orcamentoDiario}
               onChange={(e) => set({ orcamentoDiario: e.target.value })}
               inputMode="decimal"
+              placeholder="Ex.: 300"
+              className="h-12 text-lg font-bold"
             />
           </C>
           <div className="grid grid-cols-2 gap-2">
-            <C r="Começa (opcional)">
+            <C r="Começa (vazio = agora)">
               <Input
                 type="datetime-local"
                 value={f.inicio}
                 onChange={(e) => set({ inicio: e.target.value })}
               />
             </C>
-            <C r="Termina (opcional)">
+            <C r="Termina">
               <Input
                 type="datetime-local"
                 value={f.fim}
@@ -1517,163 +1528,265 @@ function Criar({
               />
             </C>
           </div>
-        </div>
-        <div className="rounded-lg bg-muted/40 p-3">
-          <p className="text-xs font-semibold text-muted-foreground">
-            Público:{" "}
-            <b className="text-foreground">
-              {f.regioes.length ? `Uruguai — ${f.regioes.join(", ")}` : "todo o Uruguai"}
-            </b>{" "}
-            (a loja só anuncia para o Uruguai)
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            {f.regioes.map((r) => (
+          <div className="flex flex-wrap gap-1.5 text-xs">
+            <span className="self-center font-semibold text-muted-foreground">Duração:</span>
+            {(
+              [
+                ["7 dias", 7],
+                ["15 dias", 15],
+                ["30 dias", 30],
+              ] as const
+            ).map(([r, d]) => (
               <button
                 key={r}
                 type="button"
-                onClick={() => set({ regioes: f.regioes.filter((x) => x !== r) })}
-                className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground"
-                title="Tirar"
+                onClick={() => set({ fim: dataLocal(new Date(Date.now() + d * 86_400_000)) })}
+                className="rounded-md bg-muted px-2 py-1 font-semibold hover:bg-muted/70"
               >
-                {r} ×
+                {r}
               </button>
             ))}
-            <select
-              value=""
-              onChange={(e) =>
-                e.target.value && set({ regioes: [...new Set([...f.regioes, e.target.value])] })
-              }
-              className="h-8 rounded-md border bg-background px-2 text-xs"
-              aria-label="Adicionar departamento"
+            <button
+              type="button"
+              onClick={() => {
+                const a = new Date().getFullYear();
+                set({ fim: dataLocal(new Date(a, 10, 30, 23, 59)) });
+              }}
+              className="rounded-md bg-muted px-2 py-1 font-semibold hover:bg-muted/70"
             >
-              <option value="">+ departamento</option>
-              {DEPTOS_UY.filter((d) => !f.regioes.includes(d)).map((d) => (
-                <option key={d}>{d}</option>
-              ))}
-            </select>
-            {!!f.regioes.length && (
-              <button
-                type="button"
-                onClick={() => set({ regioes: [] })}
-                className="text-xs font-semibold text-muted-foreground underline"
-              >
-                todo o Uruguai
-              </button>
-            )}
+              Até o fim da Black (30/11)
+            </button>
+            <button
+              type="button"
+              onClick={() => set({ fim: "" })}
+              className="rounded-md bg-muted px-2 py-1 font-semibold hover:bg-muted/70"
+            >
+              Sem data para acabar
+            </button>
           </div>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            <C r="Idade mínima">
+          <label className="flex items-center justify-between rounded-lg bg-amber-50 p-3 text-sm">
+            <span>
+              <b>Ativar já</b> (desligado: cria pausado para você conferir antes)
+            </span>
+            <Switch checked={f.ativar} onCheckedChange={(v) => set({ ativar: v })} />
+          </label>
+          <Button size="lg" className="w-full" onClick={criar} disabled={indo || !img}>
+            {indo ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <Plus className="mr-2 h-5 w-5" />
+            )}{" "}
+            {f.ativar ? "Criar e ativar" : "Criar anúncio (pausado)"}
+          </Button>
+          <button
+            type="button"
+            onClick={() => setDetalhes(true)}
+            className="w-full text-center text-xs font-semibold text-muted-foreground underline"
+          >
+            Editar texto, título, link, imagem e público
+          </button>
+        </Card>
+      ) : (
+        <Card id="form-anuncio" className="scroll-mt-4 space-y-4 p-5">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <C r="Nome do anúncio (interno)">
               <Input
-                type="number"
-                min={18}
-                max={65}
-                value={f.idadeMin}
-                onChange={(e) => set({ idadeMin: e.target.value })}
+                value={f.nome}
+                onChange={(e) => set({ nome: e.target.value })}
+                placeholder="Pre Black · Filtros"
               />
             </C>
-            <C r="Idade máxima">
-              <Input
-                type="number"
-                min={18}
-                max={65}
-                value={f.idadeMax}
-                onChange={(e) => set({ idadeMax: e.target.value })}
-              />
-            </C>
-            <C r="Gênero">
+            <C r="Objetivo">
               <select
-                value={f.genero}
-                onChange={(e) => set({ genero: e.target.value as any })}
+                value={f.objetivo}
+                onChange={(e) => set({ objetivo: e.target.value as any })}
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
               >
-                <option value="TODOS">Todos</option>
-                <option value="HOMENS">Homens</option>
-                <option value="MULHERES">Mulheres</option>
+                <option value="TRAFEGO">Visitas ao site (link)</option>
+                <option value="WHATSAPP">Conversas no WhatsApp</option>
               </select>
             </C>
-          </div>
-        </div>
-        <C r="Imagem (1080×1350 ou 1080×1080; os cards da pré-Black servem)">
-          <input
-            ref={ref}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && escolher(e.target.files[0])}
-          />
-          <Button type="button" variant="outline" onClick={() => ref.current?.click()}>
-            <Upload className="mr-1.5 h-4 w-4" /> {img ? "Trocar imagem" : "Escolher imagem"}
-          </Button>
-        </C>
-        <C r="Texto principal">
-          <textarea
-            value={f.texto}
-            onChange={(e) => set({ texto: e.target.value })}
-            rows={4}
-            className="w-full rounded-md border bg-background p-2.5 text-sm"
-            placeholder="🖤 Pre Black Friday: -20% en todo el sitio. Repuestos para tu tractor con envío a todo Uruguay."
-          />
-        </C>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <C r="Título">
-            <Input
-              value={f.titulo}
-              onChange={(e) => set({ titulo: e.target.value })}
-              placeholder="-20% en repuestos agrícolas"
-            />
-          </C>
-          <C r="Descrição (opcional)">
-            <Input
-              value={f.descricao}
-              onChange={(e) => set({ descricao: e.target.value })}
-              placeholder="Envíos por DAC a todo Uruguay"
-            />
-          </C>
-          {f.objetivo === "TRAFEGO" && (
-            <>
-              <C r="Link">
-                <Input value={f.link} onChange={(e) => set({ link: e.target.value })} />
+            <C r={`Orçamento diário (${moeda})`}>
+              <Input
+                value={f.orcamentoDiario}
+                onChange={(e) => set({ orcamentoDiario: e.target.value })}
+                inputMode="decimal"
+              />
+            </C>
+            <div className="grid grid-cols-2 gap-2">
+              <C r="Começa (opcional)">
+                <Input
+                  type="datetime-local"
+                  value={f.inicio}
+                  onChange={(e) => set({ inicio: e.target.value })}
+                />
               </C>
-              <C r="Botão">
+              <C r="Termina (opcional)">
+                <Input
+                  type="datetime-local"
+                  value={f.fim}
+                  onChange={(e) => set({ fim: e.target.value })}
+                />
+              </C>
+            </div>
+          </div>
+          <div className="rounded-lg bg-muted/40 p-3">
+            <p className="text-xs font-semibold text-muted-foreground">
+              Público:{" "}
+              <b className="text-foreground">
+                {f.regioes.length ? `Uruguai — ${f.regioes.join(", ")}` : "todo o Uruguai"}
+              </b>{" "}
+              (a loja só anuncia para o Uruguai)
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {f.regioes.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => set({ regioes: f.regioes.filter((x) => x !== r) })}
+                  className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground"
+                  title="Tirar"
+                >
+                  {r} ×
+                </button>
+              ))}
+              <select
+                value=""
+                onChange={(e) =>
+                  e.target.value && set({ regioes: [...new Set([...f.regioes, e.target.value])] })
+                }
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+                aria-label="Adicionar departamento"
+              >
+                <option value="">+ departamento</option>
+                {DEPTOS_UY.filter((d) => !f.regioes.includes(d)).map((d) => (
+                  <option key={d}>{d}</option>
+                ))}
+              </select>
+              {!!f.regioes.length && (
+                <button
+                  type="button"
+                  onClick={() => set({ regioes: [] })}
+                  className="text-xs font-semibold text-muted-foreground underline"
+                >
+                  todo o Uruguai
+                </button>
+              )}
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              <C r="Idade mínima">
+                <Input
+                  type="number"
+                  min={18}
+                  max={65}
+                  value={f.idadeMin}
+                  onChange={(e) => set({ idadeMin: e.target.value })}
+                />
+              </C>
+              <C r="Idade máxima">
+                <Input
+                  type="number"
+                  min={18}
+                  max={65}
+                  value={f.idadeMax}
+                  onChange={(e) => set({ idadeMax: e.target.value })}
+                />
+              </C>
+              <C r="Gênero">
                 <select
-                  value={f.botao}
-                  onChange={(e) => set({ botao: e.target.value })}
+                  value={f.genero}
+                  onChange={(e) => set({ genero: e.target.value as any })}
                   className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                 >
-                  {BOTOES.map(([k, r]) => (
-                    <option key={k} value={k}>
-                      {r}
-                    </option>
-                  ))}
+                  <option value="TODOS">Todos</option>
+                  <option value="HOMENS">Homens</option>
+                  <option value="MULHERES">Mulheres</option>
                 </select>
               </C>
-            </>
+            </div>
+          </div>
+          <C r="Imagem (1080×1350 ou 1080×1080; os cards da pré-Black servem)">
+            <input
+              ref={ref}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => e.target.files?.[0] && escolher(e.target.files[0])}
+            />
+            <Button type="button" variant="outline" onClick={() => ref.current?.click()}>
+              <Upload className="mr-1.5 h-4 w-4" /> {img ? "Trocar imagem" : "Escolher imagem"}
+            </Button>
+          </C>
+          <C r="Texto principal">
+            <textarea
+              value={f.texto}
+              onChange={(e) => set({ texto: e.target.value })}
+              rows={4}
+              className="w-full rounded-md border bg-background p-2.5 text-sm"
+              placeholder="🖤 Pre Black Friday: -20% en todo el sitio. Repuestos para tu tractor con envío a todo Uruguay."
+            />
+          </C>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <C r="Título">
+              <Input
+                value={f.titulo}
+                onChange={(e) => set({ titulo: e.target.value })}
+                placeholder="-20% en repuestos agrícolas"
+              />
+            </C>
+            <C r="Descrição (opcional)">
+              <Input
+                value={f.descricao}
+                onChange={(e) => set({ descricao: e.target.value })}
+                placeholder="Envíos por DAC a todo Uruguay"
+              />
+            </C>
+            {f.objetivo === "TRAFEGO" && (
+              <>
+                <C r="Link">
+                  <Input value={f.link} onChange={(e) => set({ link: e.target.value })} />
+                </C>
+                <C r="Botão">
+                  <select
+                    value={f.botao}
+                    onChange={(e) => set({ botao: e.target.value })}
+                    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                  >
+                    {BOTOES.map(([k, r]) => (
+                      <option key={k} value={k}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                </C>
+              </>
+            )}
+          </div>
+          {f.objetivo === "WHATSAPP" && (
+            <p className="text-xs text-amber-700">
+              Para conversas no WhatsApp, o número da loja precisa estar ligado à página do Facebook
+              (Configurações da página → WhatsApp).
+            </p>
           )}
-        </div>
-        {f.objetivo === "WHATSAPP" && (
-          <p className="text-xs text-amber-700">
-            Para conversas no WhatsApp, o número da loja precisa estar ligado à página do Facebook
-            (Configurações da página → WhatsApp).
+          <label className="flex items-center justify-between rounded-lg bg-amber-50 p-3 text-sm">
+            <span>
+              <b>Ativar já</b> (desligado: cria pausado para você conferir antes)
+            </span>
+            <Switch checked={f.ativar} onCheckedChange={(v) => set({ ativar: v })} />
+          </label>
+          <Button size="lg" className="w-full" onClick={criar} disabled={indo}>
+            {indo ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <Plus className="mr-2 h-5 w-5" />
+            )}{" "}
+            Criar anúncio
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Evite «el mejor precio» ou «la mayor tienda»: a Meta pode recusar promessas sem prova.
           </p>
-        )}
-        <label className="flex items-center justify-between rounded-lg bg-amber-50 p-3 text-sm">
-          <span>
-            <b>Ativar já</b> (desligado: cria pausado para você conferir antes)
-          </span>
-          <Switch checked={f.ativar} onCheckedChange={(v) => set({ ativar: v })} />
-        </label>
-        <Button size="lg" className="w-full" onClick={criar} disabled={indo}>
-          {indo ? (
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-          ) : (
-            <Plus className="mr-2 h-5 w-5" />
-          )}{" "}
-          Criar anúncio
-        </Button>
-        <p className="text-xs text-muted-foreground">
-          Evite «el mejor precio» ou «la mayor tienda»: a Meta pode recusar promessas sem prova.
-        </p>
-      </Card>
+        </Card>
+      )}
       <Card className="self-start overflow-hidden p-0">
         <p className="border-b bg-muted/50 px-4 py-2 text-xs font-semibold text-muted-foreground">
           Prévia aproximada

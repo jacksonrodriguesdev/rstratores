@@ -300,6 +300,7 @@ export const campanhasProntasMetaFn = createServerFn({ method: "GET" })
   });
 
 // ---------------------------------------------------------------- anúncios prontos do dia
+let memoOrc: { em: number; diario: number | null } | null = null;
 // Milhares de combinações departamento × peça × ângulo (src/lib/anuncios-prontos.server.ts)
 export const anunciosProntosFn = createServerFn({ method: "GET" })
   .validator((d: import("./anuncios-prontos.server").FiltroProntos) => ({
@@ -314,5 +315,12 @@ export const anunciosProntosFn = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     await admin();
     const { buscarProntos } = await import("./anuncios-prontos.server");
-    return buscarProntos(data, 30);
+    const { sugestaoOrcamento } = await import("./estudio.server");
+    // Valor sugerido (custo por clique real × 25 cliques/dia), guardado por 30 min
+    if (!memoOrc || Date.now() - memoOrc.em > 30 * 60_000)
+      memoOrc = {
+        em: Date.now(),
+        diario: (await sugestaoOrcamento().catch(() => null))?.diario ?? null,
+      };
+    return { ...(await buscarProntos(data, 30)), orcamento: memoOrc.diario };
   });

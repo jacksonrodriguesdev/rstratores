@@ -230,6 +230,7 @@ export function AnunciosProntos({
         link: a.link,
         botao: a.botao,
         regioes: a.local.regioes,
+        ...(data?.orcamento ? { orcamentoDiario: String(data.orcamento) } : {}),
       });
       const c = await arte(a, visual);
       const url = c.toDataURL("image/jpeg", 0.9);

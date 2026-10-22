@@ -8,10 +8,19 @@
 
 const DIA = 86_400_000;
 
+// Fotos próprias: agrotrator.com.br (link direto ou já copiada para o servidor em
+// uploads/agrotrator/, que é como fica em produção) e as enviadas pelo admin (uploads/produtos/)
 export const fotoPropria = (u: string | null | undefined) =>
   !!u &&
   (/^https:\/\/[\w.-]*agrotrator[\w.-]*\//i.test(u) ||
-    /^(uploads\/)?produtos\//.test(u.replace(/^\//, "")));
+    /^(uploads\/)?(produtos|agrotrator)\/[^/]/.test(u.replace(/^\//, "")));
+// Filtro do Prisma para peça com foto própria da agrotrator (link ou cópia no servidor)
+export const ONDE_FOTO_AGROTRATOR = {
+  OR: [
+    { imagem_principal: { startsWith: "https://agrotrator" } },
+    { imagem_principal: { startsWith: "agrotrator/" } },
+  ],
+};
 
 const normal = (s: string) =>
   s
@@ -445,10 +454,11 @@ export type FiltroBanco = {
   soNovas?: boolean; // só peças que ainda não foram postadas
   comDesconto?: boolean;
 };
+// AND: o filtro de busca (OR) não pode sobrescrever o da foto
 const ONDE_BANCO = {
   duplicado_de: null,
-  imagem_principal: { startsWith: "https://agrotrator" },
   preco_brl: { gt: 0 },
+  AND: [ONDE_FOTO_AGROTRATOR],
 };
 
 // SKUs que já aparecem em alguma publicação (pelo link da peça na legenda)

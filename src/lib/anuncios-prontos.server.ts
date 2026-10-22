@@ -106,7 +106,7 @@ async function pecasDoCatalogo(marcas: string[], porMarca: number, fora: Set<str
   const { configPrecos } = await import("./precos.server");
   const { precoVenda } = await import("./precos");
   const { nomeProduto } = await import("./pecas-es");
-  const { fotoPropria } = await import("./estudio.server");
+  const { fotoPropria, ONDE_FOTO_AGROTRATOR } = await import("./estudio.server");
   const cfg = await configPrecos();
   const out: PecaPronta[] = [];
   for (const marca of marcas) {
@@ -114,7 +114,7 @@ async function pecasDoCatalogo(marcas: string[], porMarca: number, fora: Set<str
       where: {
         duplicado_de: null,
         marca,
-        imagem_principal: { startsWith: "https://agrotrator" },
+        AND: [ONDE_FOTO_AGROTRATOR],
         preco_brl: { gt: 0 },
       },
       orderBy: [{ estoque: "desc" }, { sku: "asc" }],
