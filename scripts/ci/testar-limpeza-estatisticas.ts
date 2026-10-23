@@ -81,13 +81,33 @@ async function main() {
     const r = await executar();
     assert.ok(r.internas >= 3, `internas: ${r.internas}`);
     const ua = async (v: string) =>
-      (await prisma.site_visits.findMany({ where: { visitor_id: P + v } })).map((x) => x.user_agent ?? "");
-    assert.ok((await ua("gb1")).every((u) => u.startsWith("fora-regiao ")), "robô de fora marcado");
-    assert.ok((await ua("gb2")).every((u) => u === CHROME), "estrangeiro que navegou fica");
-    assert.ok((await ua("us1")).every((u) => u === CHROME), "estrangeiro com ação fica");
-    assert.ok((await ua("uy1")).every((u) => u === CHROME), "cliente do Uruguai fica");
-    assert.ok((await ua("adm")).every((u) => u.startsWith("visita-interna ")), "admin marcado");
-    assert.ok((await ua("tst")).every((u) => u.startsWith("visita-interna ")), "conta de teste marcada");
+      (await prisma.site_visits.findMany({ where: { visitor_id: P + v } })).map(
+        (x) => x.user_agent ?? "",
+      );
+    assert.ok(
+      (await ua("gb1")).every((u) => u.startsWith("fora-regiao ")),
+      "robô de fora marcado",
+    );
+    assert.ok(
+      (await ua("gb2")).every((u) => u === CHROME),
+      "estrangeiro que navegou fica",
+    );
+    assert.ok(
+      (await ua("us1")).every((u) => u === CHROME),
+      "estrangeiro com ação fica",
+    );
+    assert.ok(
+      (await ua("uy1")).every((u) => u === CHROME),
+      "cliente do Uruguai fica",
+    );
+    assert.ok(
+      (await ua("adm")).every((u) => u.startsWith("visita-interna ")),
+      "admin marcado",
+    );
+    assert.ok(
+      (await ua("tst")).every((u) => u.startsWith("visita-interna ")),
+      "conta de teste marcada",
+    );
     assert.equal(await prisma.site_eventos.count({ where: { visitor_id: P + "adm" } }), 0);
     assert.equal(await prisma.site_eventos.count({ where: { visitor_id: P + "us1" } }), 1);
 

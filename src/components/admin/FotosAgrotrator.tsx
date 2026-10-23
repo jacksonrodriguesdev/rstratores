@@ -49,7 +49,11 @@ export function FotosAgrotrator() {
         {(data.faltam > 0 || sumidas > 0 || data.rodando) && (
           <Button onClick={iniciar} disabled={pedindo || data.rodando}>
             {(pedindo || data.rodando) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {data.rodando ? "Baixando…" : sumidas > 0 ? "Recuperar fotos" : "Copiar fotos para o servidor"}
+            {data.rodando
+              ? "Baixando…"
+              : sumidas > 0
+                ? "Recuperar fotos"
+                : "Copiar fotos para o servidor"}
           </Button>
         )}
       </div>

@@ -86,7 +86,10 @@ export async function executar() {
         ...lote,
       );
       ev.forEach((x) => dias.add(diaLocal(new Date(x.created_at))));
-      await prisma.$executeRawUnsafe(`DELETE FROM site_eventos WHERE visitor_id IN (${marcas})`, ...lote);
+      await prisma.$executeRawUnsafe(
+        `DELETE FROM site_eventos WHERE visitor_id IN (${marcas})`,
+        ...lote,
+      );
     }
   }
 
@@ -106,7 +109,6 @@ export async function executar() {
   );
 
   // 3. Dias já resumidos que mudaram: recalculados na próxima consulta
-  if (dias.size)
-    await prisma.analise_dia.deleteMany({ where: { dia: { in: [...dias] } } });
+  if (dias.size) await prisma.analise_dia.deleteMany({ where: { dia: { in: [...dias] } } });
   return { internas, fora: fora.length, dias: dias.size };
 }
