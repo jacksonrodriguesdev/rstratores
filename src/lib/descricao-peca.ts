@@ -915,8 +915,46 @@ export function descricaoPeca(p: PecaTexto, idioma: Idioma): string {
 }
 
 // ---------------------------------------------------------------- Título e meta descrição
-// "Retén New Holland 420462 | AGRO PARTS" (até ~60 caracteres; o sufixo sai se não couber)
+// Português (/pt): "Retentor New Holland 420462 | AGRO PARTS" (até ~60 caracteres; o sufixo sai se
+// não couber). Espanhol (a versão que vai para o Google, Uruguai): o código na frente, porque a maior parte
+// das buscas que já trazem o site são pelo código da peça, e o Google destaca o que bate com a
+// busca. "30250100 · Filtro hidráulico tractor Valtra | Uruguay" (até ~60 caracteres).
+function tituloPecaEs(p: PecaTexto): string {
+  const codigo = codigoDe(p);
+  const marca = marcaDe(p);
+  let nome = semCodigo(nomeLegivel(nomePeca(p, "es")), codigo);
+  if (!nome.includes(" ")) nome += " para tractor";
+  const marcaTxt = marca && !sem(nome).includes(sem(marca)) ? ` ${marca}` : "";
+  const inicio = `${codigo} · `;
+  const fim = " | Uruguay";
+  const cabe = 60 - inicio.length - marcaTxt.length;
+  if (nome.length <= cabe - fim.length) return `${inicio}${nome}${marcaTxt}${fim}`;
+  if (nome.length <= cabe) return `${inicio}${nome}${marcaTxt}`;
+  const curto = nome.slice(0, Math.max(18, cabe)).replace(/\s+\S*$/, "");
+  return `${inicio}${curto}${marcaTxt}`;
+}
+
+// Tira o código do nome ("Filtro Valtra 30250100 Tecfil" → "Filtro Valtra Tecfil")
+function semCodigo(nome: string, codigo: string): string {
+  // Também tira palavra repetida ("Pulverizador Jacto 000026 Jacto" → "Pulverizador Jacto")
+  const vistas = new Set<string>();
+  const limpo = nome
+    .split(/\s+/)
+    .filter((w) => {
+      const k = sem(w);
+      if (k === sem(codigo)) return false;
+      // Só palavras de verdade (marcas, nomes); "de", "y", números curtos podem repetir
+      if (k.length > 3 && vistas.has(k)) return false;
+      vistas.add(k);
+      return true;
+    })
+    .join(" ")
+    .trim();
+  return limpo || nome;
+}
+
 export function tituloPeca(p: PecaTexto, idioma: Idioma): string {
+  if (idioma === "es") return tituloPecaEs(p);
   let nome = nomeLegivel(nomePeca(p, idioma));
   const marca = marcaDe(p);
   const codigo = codigoDe(p);
@@ -934,7 +972,41 @@ export function tituloPeca(p: PecaTexto, idioma: Idioma): string {
   return sem(curto).includes(sem(codigo)) ? `${curto}${resto}` : `${curto}${comCodigo}`;
 }
 
-export function metaDescricaoPeca(p: PecaTexto, idioma: Idioma): string {
+// Espanhol: preço em $U e códigos equivalentes no resultado do Google (o que faz clicar)
+export type ExtraMeta = { precoUyu?: number | null; equivalentes?: string[] };
+function metaDescricaoPecaEs(p: PecaTexto, extra: ExtraMeta): string {
+  const codigo = codigoDe(p);
+  const marca = marcaDe(p);
+  const nome = semCodigo(nomeLegivel(nomePeca(p, "es")), codigo);
+  const marcaTxt = marca && !sem(nome).includes(sem(marca)) ? ` ${marca}` : "";
+  const equiv = [
+    ...new Set(
+      (extra.equivalentes ?? []).map((c) =>
+        String(c ?? "")
+          .trim()
+          .toUpperCase(),
+      ),
+    ),
+  ]
+    .filter((c) => c && c !== codigo)
+    .slice(0, 3);
+  const preco =
+    extra.precoUyu && extra.precoUyu > 0
+      ? `$U ${Math.round(extra.precoUyu).toLocaleString("es-UY")}`
+      : "";
+  const estoque = (p.estoque ?? 0) > 0 ? "en stock" : "";
+  const situacao = [preco, estoque].filter(Boolean).join(", ");
+  const final = "Envío a todo Uruguay por DAC. Cotizá por WhatsApp.";
+  const partes = (comEquiv: boolean) =>
+    `${nome}${marcaTxt}, código ${codigo}${comEquiv && equiv.length ? ` (equivale a ${equiv.join(", ")})` : ""}.${situacao ? ` ${situacao[0].toUpperCase()}${situacao.slice(1)}.` : ""} ${final}`;
+  const completa = partes(true);
+  if (completa.length <= 160) return completa;
+  const semEquiv = partes(false);
+  return semEquiv.length <= 160 ? semEquiv : `${semEquiv.slice(0, 157).replace(/\s+\S*$/, "")}…`;
+}
+
+export function metaDescricaoPeca(p: PecaTexto, idioma: Idioma, extra: ExtraMeta = {}): string {
+  if (idioma === "es") return metaDescricaoPecaEs(p, extra);
   const pt = idioma === "pt";
   const nome = nomeLegivel(nomePeca(p, idioma));
   const codigo = codigoDe(p);

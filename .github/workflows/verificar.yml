@@ -66,6 +66,9 @@ jobs:
       - name: Limpeza das estatísticas (robôs de fora, contas internas, recorrentes, Valmet = Valtra)
         run: npx tsx scripts/ci/testar-limpeza-estatisticas.ts
 
+      - name: SEO fase 1 (títulos das peças, descrição com preço, cache, leads do Google)
+        run: npx tsx scripts/ci/testar-seo-leads.ts
+
       - name: Campanhas (Black Friday) e cupons
         run: npx tsx scripts/ci/testar-campanha.ts
 

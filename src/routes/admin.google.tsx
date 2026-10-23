@@ -43,6 +43,7 @@ import {
 } from "@/lib/search-console";
 import { gerarPalavras } from "@/lib/palavras-chave";
 import { cn } from "@/lib/utils";
+import { leadsOrganicosFn } from "@/lib/analises";
 
 // Admin → Posições no Google: dados do Search Console (cliques, impressões, posição média, buscas
 // e páginas), importados todo dia e guardados para comparar períodos.
@@ -166,8 +167,106 @@ function PosicoesGoogle() {
           página atualiza sozinha.
         </Card>
       )}
+      <LeadsGoogle dias={dias} />
       {rel.data && <Relatorio r={rel.data} dias={dias} />}
     </div>
+  );
+}
+
+// Leads do Google: quem chegou por busca orgânica e pediu preço (WhatsApp ou cotação).
+// Dados do próprio site (não dependem do Search Console).
+function LeadsGoogle({ dias }: { dias: number }) {
+  const q = useQuery({
+    queryKey: ["leads-organicos", dias],
+    queryFn: () => leadsOrganicosFn({ data: { dias } }),
+  });
+  const r = q.data;
+  if (!r) return null;
+  const pct = (v: number) => `${(v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+  return (
+    <section className="space-y-4">
+      <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-900">
+        <Target className="h-5 w-5 text-primary" /> Leads do Google (busca orgânica)
+      </h2>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          { rotulo: "Visitas pela busca", valor: n(r.sessoes) },
+          { rotulo: "Leads (pediram preço)", valor: n(r.leads) },
+          { rotulo: "Taxa de lead", valor: pct(r.taxa) },
+          { rotulo: "Cliques no WhatsApp", valor: n(r.whatsapp) },
+        ].map((k) => (
+          <Card key={k.rotulo} className="p-4">
+            <p className="text-xs font-semibold uppercase text-zinc-500">{k.rotulo}</p>
+            <p className="mt-1 text-2xl font-extrabold text-zinc-900">{k.valor}</p>
+          </Card>
+        ))}
+      </div>
+      <Card className="p-4">
+        <h3 className="font-bold text-zinc-900">Por dia</h3>
+        <div className="mt-2 h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={r.porDia.map((d) => ({
+                ...d,
+                dia: d.dia.slice(5).split("-").reverse().join("/"),
+              }))}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
+              <XAxis dataKey="dia" tick={{ fontSize: 11 }} minTickGap={16} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
+              <Tooltip />
+              <Legend />
+              <Area
+                dataKey="sessoes"
+                name="Visitas pela busca"
+                fill="#bbf7d0"
+                stroke="#16a34a"
+                strokeWidth={2}
+              />
+              <Line dataKey="leads" name="Leads" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="p-4">
+          <h3 className="font-bold text-zinc-900">Páginas que trazem leads</h3>
+          <p className="text-xs text-zinc-500">
+            A página que o Google mostrou (por onde a pessoa entrou).
+          </p>
+          <Tabela
+            colunas={["Página", "Visitas", "Leads"]}
+            linhas={r.paginas.map((p) => [
+              <a
+                key={p.pagina}
+                href={p.pagina}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline"
+              >
+                {p.pagina}
+              </a>,
+              n(p.sessoes),
+              n(p.leads),
+            ])}
+          />
+        </Card>
+        <Card className="p-4">
+          <h3 className="font-bold text-zinc-900">Últimos leads</h3>
+          <Tabela
+            colunas={["Quando", "Entrou por", "Pediu"]}
+            linhas={r.recentes.map((l) => [
+              new Date(l.quando).toLocaleString("pt-BR", {
+                dateStyle: "short",
+                timeStyle: "short",
+              }) + (l.cidade ? ` · ${l.cidade}` : ""),
+              l.entrada,
+              `${l.acao}: ${l.dado}`,
+            ])}
+          />
+        </Card>
+      </div>
+    </section>
   );
 }
 

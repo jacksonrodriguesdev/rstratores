@@ -49,6 +49,7 @@ import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
 import { avaliacoesProdutoFn } from "@/lib/avaliacoes";
 import { AvaliacoesPeca, ResumoEstrelas } from "@/components/AvaliacoesPeca";
 import { fotoInvalida } from "@/lib/fotos";
+import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
 
 const SITE = SITE_URL;
 const urlImagem = (p: string) =>
@@ -90,9 +91,13 @@ export const Route = createFileRoute("/produto/$sku")({
     const nome = nomePeca(p, idioma);
     const marca = marcaExibicao(p);
     const codigo = codigoExibicao(p);
-    // "Retén New Holland 420462 | AGRO PARTS": nome, marca e código (o que se busca), até ~60 caracteres
+    // "420462 · Retén New Holland | Uruguay": código, nome e marca (o que se busca), até ~60 caracteres
     const title = tituloPeca(p, idioma);
-    const desc = metaDescricaoPeca(p, idioma);
+    const precoMeta = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
+    const desc = metaDescricaoPeca(p, idioma, {
+      precoUyu: precoMeta?.uyu ?? null,
+      equivalentes: (p.variantes ?? []).map((v) => v.codigo_fabricante ?? "").filter(Boolean),
+    });
     const caminho = `/produto/${encodeURIComponent(p.sku)}`;
     const url = `${SITE}${comPrefixo(caminho, idioma)}`;
     // "redeparts" é o logo do fornecedor usado como foto provisória: não serve como imagem da peça
@@ -679,6 +684,9 @@ function ProductDetail() {
 
         <AvaliacoesPeca dados={avaliacoes} />
 
+        {/* Links para as páginas de marca e categoria (já no HTML: o Google segue e dá força a elas) */}
+        <MaisRepuestos marca={product.marca} categoria={product.categoria} />
+
         {relatedQuery.data && relatedQuery.data.length > 0 && (
           <div className="mt-8 rounded-2xl bg-white p-4 shadow-sm md:p-8">
             <h2 className="mb-4 text-xl font-bold tracking-tight md:text-2xl">
@@ -729,5 +737,60 @@ function SpecRow({ label, value }: { label: string; value: string }) {
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="font-medium">{value}</dd>
     </>
+  );
+}
+
+// "Más repuestos": marca + categoria, a marca, a categoria e as outras marcas (só páginas com peças:
+// as de marca + categoria de outra marca podem estar vazias)
+function MaisRepuestos({ marca, categoria }: { marca: string | null; categoria: string | null }) {
+  const { t, idioma, href } = useT();
+  const m = MARCAS_SEO.find((x) => x.marca === marca);
+  const c = CATEGORIAS_SEO.find((x) => x.categoria === categoria);
+  const nomeCat = c ? (idioma === "pt" ? c.categoria : c.nome) : null;
+  const links: Array<{ url: string; texto: string }> = [];
+  if (m && c)
+    links.push({
+      url: `/repuestos/${m.slug}/${c.slug}`,
+      texto: `${nomeCat} ${m.marca}`,
+    });
+  if (m)
+    links.push({
+      url: `/repuestos/${m.slug}`,
+      texto: t(`Repuestos ${m.marca}`, `Peças ${m.marca}`),
+    });
+  if (c)
+    links.push({
+      url: `/repuestos/${c.slug}`,
+      texto: t(`${nomeCat} para tractores`, `${nomeCat} para tratores`),
+    });
+  for (const o of MARCAS_SEO)
+    if (o.marca !== marca)
+      links.push({
+        url: `/repuestos/${o.slug}`,
+        texto: t(`Repuestos ${o.marca}`, `Peças ${o.marca}`),
+      });
+  links.push({
+    url: "/repuestos-agricolas",
+    texto: t("Repuestos agrícolas en Uruguay", "Peças agrícolas no Uruguai"),
+  });
+  return (
+    <nav
+      aria-label={t("Más repuestos", "Mais peças")}
+      className="mt-8 rounded-2xl bg-white p-4 shadow-sm md:p-6"
+    >
+      <h2 className="text-lg font-bold tracking-tight">{t("Más repuestos", "Mais peças")}</h2>
+      <ul className="mt-3 flex flex-wrap gap-2">
+        {links.map((l) => (
+          <li key={l.url}>
+            <a
+              href={href(l.url)}
+              className="inline-block rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-primary/10 hover:text-primary"
+            >
+              {l.texto}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

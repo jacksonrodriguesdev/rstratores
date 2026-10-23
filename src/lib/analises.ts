@@ -80,3 +80,11 @@ export const tempoRealFn = createServerFn({ method: "GET" }).handler(async () =>
   await admin();
   return (await import("./analises.server")).tempoReal();
 });
+
+// Admin → Google: leads que vieram da busca orgânica (WhatsApp e cotações) por página de entrada
+export const leadsOrganicosFn = createServerFn({ method: "GET" })
+  .validator((d: { dias: number }) => ({ dias: diasOk(d?.dias) }))
+  .handler(async ({ data }) => {
+    await admin();
+    return (await import("./leads-organicos.server")).leadsOrganicos(data.dias);
+  });
