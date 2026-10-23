@@ -20,6 +20,7 @@ export async function resumoVisitantes(
   dias: number,
   pais: string | null = null,
 ): Promise<Visitantes> {
+  await (await import("./limpeza-estatisticas.server")).limparEstatisticas();
   const { sessoesDoPeriodo } = await import("./jornadas.server");
   const { diasAte } = await import("./resumo-diario.server");
   const [{ sessoes: lista }, recentes] = await Promise.all([

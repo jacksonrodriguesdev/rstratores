@@ -861,6 +861,16 @@ const FRASES_BUSCA: Array<[RegExp, string]> = [
   [/\bARBOL DE LEVAS\b/g, "COMANDO"],
   [/\bROSCA SIN FIN\b/g, "ROSCA SEM FIM"],
 ];
+// Nomes da mesma marca: no Uruguai ainda se diz «Valmet» para Valtra (o catálogo usa Valtra)
+const SINONIMOS_BUSCA: Record<string, string[]> = {
+  VALMET: ["VALTRA"],
+  VALTRA: ["VALMET"],
+  MF: ["MASSEY"],
+};
+export function sinonimosBusca(termo: string): string[] {
+  return SINONIMOS_BUSCA[termo.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase()] ?? [];
+}
+
 // Conectivos não ajudam a achar a peça ("junta de la tapa" = "junta tapa")
 const CONECTIVOS = new Set([
   "DE",

@@ -5,7 +5,7 @@
 // busca), recarregado a cada 5 minutos ou quando o admin altera algo; filtrar, ordenar por
 // relevância e paginar leva poucos milissegundos. Do banco só vêm as peças da página atual.
 import { prisma } from "./prisma";
-import { buscaParaPortugues, prepararBusca } from "./pecas-es";
+import { buscaParaPortugues, prepararBusca, sinonimosBusca } from "./pecas-es";
 import { fotoInvalida } from "./fotos";
 
 type Item = {
@@ -164,7 +164,7 @@ export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
   // Cada termo pode vir em espanhol: "rodamiento" também procura "ROLAMENTO"
   const variantes = termos.map((t) => {
     const pt = buscaParaPortugues(t);
-    return [...new Set([normalizar(t), normalizar(pt)])];
+    return [...new Set([normalizar(t), normalizar(pt), ...sinonimosBusca(t).map(normalizar)])];
   });
 
   if (f.vitrine) lista = lista.filter((i) => i.temCategoria);

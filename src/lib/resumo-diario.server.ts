@@ -637,6 +637,7 @@ const emCalculo = new Map<string, Promise<ResumoDia>>();
 // Resumos dos últimos `dias` dias (o último é hoje). Dias fechados que faltam são calculados e salvos.
 export async function resumosDoPeriodo(dias: number): Promise<ResumoDia[]> {
   await eventosProntos();
+  await (await import("./limpeza-estatisticas.server")).limparEstatisticas();
   const lista = diasAte(dias);
   const hoje = hojeLocal();
   const fechados = lista.filter((d) => d < hoje);
@@ -684,8 +685,10 @@ export function medianaDuracao(h: Cont) {
   return pares[pares.length - 1][0];
 }
 
-// Visitantes únicos do período e quantos já tinham vindo antes (direto no MySQL)
+// Visitantes únicos do período e quantos voltaram: já tinham vindo antes do período ou vieram
+// em dois dias diferentes dentro dele (direto no MySQL)
 export async function visitantesDoPeriodo(dias: number) {
+  await (await import("./limpeza-estatisticas.server")).limparEstatisticas();
   const desde = inicioDia(diasAte(dias)[0]);
   const [[a], [b]] = await Promise.all([
     prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
@@ -693,7 +696,14 @@ export async function visitantesDoPeriodo(dias: number) {
       desde,
     ),
     prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
-      `SELECT COUNT(DISTINCT v.visitor_id) AS n FROM site_visits v WHERE v.created_at >= ? AND v.visitor_id IS NOT NULL AND ${sqlHumano("v.")} AND EXISTS (SELECT 1 FROM site_visits o WHERE o.visitor_id = v.visitor_id AND o.created_at < ?)`,
+      `SELECT COUNT(*) AS n FROM (
+         SELECT v.visitor_id FROM site_visits v WHERE v.created_at >= ? AND v.visitor_id IS NOT NULL AND ${sqlHumano("v.")}
+           GROUP BY v.visitor_id HAVING COUNT(DISTINCT DATE(DATE_SUB(v.created_at, INTERVAL 3 HOUR))) >= 2
+         UNION
+         SELECT DISTINCT v.visitor_id FROM site_visits v WHERE v.created_at >= ? AND v.visitor_id IS NOT NULL AND ${sqlHumano("v.")}
+           AND EXISTS (SELECT 1 FROM site_visits o WHERE o.visitor_id = v.visitor_id AND o.created_at < ?)
+       ) x`,
+      desde,
       desde,
       desde,
     ),

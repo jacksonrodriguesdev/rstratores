@@ -63,6 +63,9 @@ jobs:
       - name: Contagem diária de visitas (fuso do Uruguai, sem robôs)
         run: npx tsx scripts/ci/testar-visitas.ts
 
+      - name: Limpeza das estatísticas (robôs de fora, contas internas, recorrentes, Valmet = Valtra)
+        run: npx tsx scripts/ci/testar-limpeza-estatisticas.ts
+
       - name: Campanhas (Black Friday) e cupons
         run: npx tsx scripts/ci/testar-campanha.ts
 

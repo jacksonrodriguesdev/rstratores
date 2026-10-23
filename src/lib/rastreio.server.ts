@@ -203,6 +203,9 @@ export const ROBOS = [
   "python",
   "axios",
   "node-fetch",
+  // Etiquetas da limpeza das estatísticas (limpeza-estatisticas.server.ts)
+  "fora-regiao",
+  "visita-interna",
 ];
 // Só letras, números, "-" e "/": cabe direto numa expressão regular (JS e MySQL) sem escapar
 if (ROBOS.some((r) => !/^[a-z0-9/-]+$/.test(r))) throw new Error("ROBOS: use só a-z, 0-9, - e /");

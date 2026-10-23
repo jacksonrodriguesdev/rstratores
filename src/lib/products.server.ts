@@ -1,7 +1,7 @@
 import type { Product, ProductImage, ListParams } from "./products";
 import { prisma } from "./prisma";
 import { AUTOMOTIVA_ATIVA } from "./linhas";
-import { buscaParaPortugues } from "./pecas-es";
+import { buscaParaPortugues, sinonimosBusca } from "./pecas-es";
 import { limparCacheCatalogo } from "./busca-catalogo.server";
 import { semCusto } from "./precos.server";
 
@@ -82,7 +82,9 @@ export async function listProducts(params: ListParams) {
     for (const termo of terms) {
       // O catálogo está em português: "rodamiento" também procura "ROLAMENTO".
       const pt = buscaParaPortugues(termo);
-      const variantes = pt.toUpperCase() === termo.toUpperCase() ? [termo] : [termo, pt];
+      const variantes = [
+        ...new Set([termo, pt, ...sinonimosBusca(termo)].map((s) => s.toUpperCase())),
+      ];
       where.AND.push({
         OR: variantes.flatMap((s) => [
           { nome: { contains: s } },
