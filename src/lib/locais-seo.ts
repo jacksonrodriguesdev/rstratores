@@ -518,7 +518,11 @@ const BASE: Base[] = [
   },
 ];
 
-export const LOCAIS_SEO: LocalSeo[] = BASE.map((b) => ({ ...b, slug: slugify(b.nome) }));
+// O site é para o Uruguai: só as páginas dos locais do Uruguai ficam no ar. As do Rio Grande do Sul
+// (BASE, pais "RS") levam para a página central de zonas (ver ehLocalRs e a rota $local).
+const TODOS: LocalSeo[] = BASE.map((b) => ({ ...b, slug: slugify(b.nome) }));
+export const LOCAIS_SEO: LocalSeo[] = TODOS.filter((l) => l.pais === "UY");
+export const ehLocalRs = (s: string) => TODOS.some((l) => l.slug === s && l.pais === "RS");
 export const localPorSlug = (s: string) => LOCAIS_SEO.find((l) => l.slug === s) ?? null;
 export const localPeloNome = (nome: string) => LOCAIS_SEO.find((l) => l.nome === nome) ?? null;
 
@@ -527,20 +531,20 @@ export function textoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number)
   const n = totalPecas.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
   const marcas = l.marcas.join(", ");
   if (idioma === "pt") {
-    const envio = l.pais === "RS" ? "por Correios ou transportadora" : "pela DAC";
+    const envio = l.pais === "RS" ? "pela DAC" : "pela DAC";
     const onde = l.tipo === "cidade" && l.dentro ? `${nomeLocal(l, idioma)} (${l.dentro})` : l.nome;
     return [
       `Loja online de peças agrícolas com mais de ${n} peças publicadas, preço visível e atendimento pelo WhatsApp. Enviamos para ${onde} ${envio}${l.pais === "RS" ? ", com preço em R$" : ""}.`,
       `A região tem forte presença de ${l.perfil.pt}. Por isso as peças mais procuradas aqui são para ${l.maquinas.pt}, de marcas como ${marcas}.`,
-      `Estamos na fronteira Chuí / Chuy. Mande o código original ou uma foto da peça e confirmamos a compatibilidade antes da compra.`,
+      `Estamos em Chuy, Rocha (Uruguai). Mande o código original ou uma foto da peça e confirmamos a compatibilidade antes da compra.`,
     ];
   }
-  const envio = l.pais === "RS" ? "por Correios o transportadora" : "por DAC";
+  const envio = l.pais === "RS" ? "por DAC" : "por DAC";
   const onde = l.tipo === "cidade" && l.dentro ? `${nomeLocal(l, idioma)} (${l.dentro})` : l.nome;
   return [
     `Tienda online de repuestos agrícolas con más de ${n} repuestos publicados, precio a la vista y atención por WhatsApp. Enviamos a ${onde} ${envio}${l.pais === "RS" ? ", con precio en reales" : ""}.`,
     `En la zona predomina ${l.perfil.es}. Por eso los repuestos más pedidos acá son para ${l.maquinas.es}, de marcas como ${marcas}.`,
-    `Somos distribuidores de repuestos agrícolas en Uruguay, en la frontera Chuy / Chuí. Mandanos el código original o una foto de la pieza y te confirmamos la compatibilidad antes de comprar.`,
+    `Somos distribuidores de repuestos agrícolas en Uruguay, en Chuy, Rocha. Mandanos el código original o una foto de la pieza y te confirmamos la compatibilidad antes de comprar.`,
   ];
 }
 
@@ -557,8 +561,8 @@ export function tituloLocal(l: LocalSeo, idioma: "es" | "pt") {
 export function descricaoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number) {
   const n = totalPecas.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
   if (idioma === "pt")
-    return `Mais de ${n} peças para tratores e colheitadeiras ${l.marcas.slice(0, 3).join(", ")} com envio para ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por Correios ou transportadora" : " pela DAC"}. Orçamento pelo WhatsApp.`;
-  return `Más de ${n} repuestos para tractores y cosechadoras ${l.marcas.slice(0, 3).join(", ")} con envío a ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por Correios o transportadora" : " por DAC"}. Cotizá por WhatsApp.`;
+    return `Mais de ${n} peças para tratores e colheitadeiras ${l.marcas.slice(0, 3).join(", ")} com envio para ${nomeLocal(l, idioma)}${l.pais === "RS" ? " pela DAC" : " pela DAC"}. Orçamento pelo WhatsApp.`;
+  return `Más de ${n} repuestos para tractores y cosechadoras ${l.marcas.slice(0, 3).join(", ")} con envío a ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por DAC" : " por DAC"}. Cotizá por WhatsApp.`;
 }
 
 export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
@@ -566,7 +570,7 @@ export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
     return [
       {
         p: `Vocês enviam peças agrícolas para ${nomeLocal(l, idioma)}?`,
-        r: `Sim. Enviamos para ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios ou transportadora, com código de rastreio e preço em R$" : "pela DAC, com número de rastreio"}. O frete é combinado pelo WhatsApp e pago pelo cliente.`,
+        r: `Sim. Enviamos para ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "pela DAC, com código de rastreio e preço em R$" : "pela DAC, com número de rastreio"}. O frete é combinado pelo WhatsApp e pago pelo cliente.`,
       },
       {
         p: "Quanto tempo demora a entrega?",
@@ -578,13 +582,13 @@ export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
       },
       {
         p: "Vocês têm loja física?",
-        r: "Somos uma loja online na fronteira Chuí / Chuy. Todo o atendimento é pelo WhatsApp e enviamos para todo o Uruguai e todo o Rio Grande do Sul.",
+        r: "Somos uma loja online em Chuy, Rocha (Uruguai). Todo o atendimento é pelo WhatsApp e enviamos para todo o Uruguai.",
       },
     ];
   return [
     {
       p: `¿Hacen envíos de repuestos agrícolas a ${nomeLocal(l, idioma)}?`,
-      r: `Sí. Enviamos a ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios o transportadora, con número de rastreo y precio en reales" : "por DAC, con número de rastreo"}. El costo del envío lo paga el cliente.`,
+      r: `Sí. Enviamos a ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por DAC, con número de rastreo y precio en reales" : "por DAC, con número de rastreo"}. El costo del envío lo paga el cliente.`,
     },
     {
       p: "¿Cuánto demora el envío?",
@@ -596,7 +600,7 @@ export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
     },
     {
       p: "¿Tienen local físico?",
-      r: "Somos una tienda online en la frontera Chuy / Chuí. Atendemos por WhatsApp y enviamos a todo Uruguay y a todo Rio Grande do Sul.",
+      r: "Somos una tienda online en Chuy, Rocha. Atendemos por WhatsApp y enviamos a todo Uruguay.",
     },
   ];
 }

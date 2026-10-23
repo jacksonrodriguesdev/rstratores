@@ -5,10 +5,10 @@ import { useT } from "@/lib/idioma";
 const CARDS = [
   {
     icon: Truck,
-    title: ["Envíos a todo Uruguay", "Envio para todo o Rio Grande do Sul"],
+    title: ["Envíos a todo Uruguay", "Envio para todo o Uruguai"],
     desc: [
       "Despachamos por DAC con número de rastreo a cualquier punto del país.",
-      "Enviamos por Correios ou transportadora, com código de rastreio, para qualquer cidade.",
+      "Enviamos pela DAC, com código de rastreio, para qualquer cidade.",
     ],
   },
   {

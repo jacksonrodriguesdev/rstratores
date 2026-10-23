@@ -506,7 +506,7 @@ function ProductDetail() {
                   <Truck className="h-4 w-4 shrink-0 text-primary" />{" "}
                   {t(
                     "Envío a todo Uruguay por DAC, con seguimiento",
-                    "Envio para todo o Rio Grande do Sul por Correios ou transportadora, com rastreio",
+                    "Envio para todo o Uruguai pela DAC, com rastreio",
                   )}
                 </li>
                 <li className="flex items-center gap-2">

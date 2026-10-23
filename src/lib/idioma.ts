@@ -54,13 +54,15 @@ export function useT() {
   };
 }
 
-// Canônico + versões nos dois idiomas (hreflang) de uma página. caminho = interno, sem "/pt".
+// Canônico e idioma de uma página. caminho = interno, sem "/pt". O site é para o Uruguai: o Google
+// só recebe a versão em espanhol (es-UY). A versão /pt fica fora do Google (noindex no __root.tsx)
+// e não é anunciada como alternativa.
 export function linksIdioma(caminho: string, idioma: Idioma) {
   const url = (i: Idioma) => `${SITE_URL}${comPrefixo(caminho, i)}`;
+  if (idioma === "pt") return [{ rel: "canonical", href: url("pt") }];
   return [
-    { rel: "canonical", href: url(idioma) },
+    { rel: "canonical", href: url("es") },
     { rel: "alternate", hrefLang: HREFLANG.es, href: url("es") },
-    { rel: "alternate", hrefLang: HREFLANG.pt, href: url("pt") },
     { rel: "alternate", hrefLang: "x-default", href: url("es") },
   ];
 }

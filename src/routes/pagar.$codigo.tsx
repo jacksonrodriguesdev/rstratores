@@ -173,7 +173,7 @@ function PagarPage() {
                 <b>{t("Envío a cargo del comprador.", "Frete por conta do comprador.")}</b>{" "}
                 {t(
                   "No está incluido en este total: lo pagás al recibir (DAC o transportadora).",
-                  "Não está incluído neste total: você paga na chegada (Correios ou transportadora).",
+                  "Não está incluído neste total: você paga na chegada (DAC).",
                 )}
               </span>
             </p>

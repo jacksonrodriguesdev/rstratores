@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin, Instagram, Facebook, Lock, Truck, MessageCircle } from "lucide-react";
 import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
 import { INSTAGRAM_URL, INSTAGRAM_USUARIO, FACEBOOK_URL } from "@/lib/navegacao";
-import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { BandeiraUruguay } from "@/components/Bandeiras";
 import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
 import { LOCAIS_SEO, nomeLocal } from "@/lib/locais-seo";
 import { useT } from "@/lib/idioma";
@@ -10,7 +10,7 @@ import { SeletorIdioma } from "@/components/SeletorIdioma";
 
 const AYUDA = [
   { label: ["Cómo comprar", "Como comprar"], hash: "como-comprar" },
-  { label: ["Envíos a Uruguay", "Envio para o Rio Grande do Sul"], hash: "envios" },
+  { label: ["Envíos a Uruguay", "Envio para o Uruguai"], hash: "envios" },
   { label: ["Formas de pago", "Formas de pagamento"], hash: "pagos" },
   { label: ["Garantía y devoluciones", "Garantia e trocas"], hash: "garantia" },
   { label: ["Preguntas frecuentes", "Perguntas frequentes"], hash: "preguntas" },
@@ -45,7 +45,7 @@ export function SiteFooter() {
           <p className="text-sm leading-relaxed">
             {t(
               "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Enviamos a todo Uruguay por DAC.",
-              "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Enviamos para todo o Rio Grande do Sul por Correios ou transportadora.",
+              "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Enviamos para todo o Uruguai pela DAC.",
             )}
           </p>
         </div>
@@ -80,14 +80,11 @@ export function SiteFooter() {
             <li className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <span>
-                {t(
-                  "Tienda online · Chuy, Rocha (frontera con Brasil)",
-                  "Loja online · Chuí / Chuy (fronteira Brasil–Uruguai)",
-                )}
+                {t("Tienda online · Chuy, Rocha", "Loja online · Chuí / Chuy, Rocha (Uruguai)")}
                 <br />
                 {t(
                   "Atendemos por WhatsApp y enviamos por DAC a todo Uruguay.",
-                  "Atendemos pelo WhatsApp e enviamos para todo o Rio Grande do Sul por Correios ou transportadora.",
+                  "Atendemos pelo WhatsApp e enviamos para todo o Uruguai pela DAC.",
                 )}
               </span>
             </li>
@@ -153,12 +150,8 @@ export function SiteFooter() {
               {t("Sitio seguro (HTTPS)", "Site seguro (HTTPS)")}
             </li>
             <li className="flex items-center gap-2">
-              {idioma === "pt" ? (
-                <BandeiraBrasil className="h-3.5 w-5 rounded-[2px]" />
-              ) : (
-                <BandeiraUruguay className="h-3.5 w-5 rounded-[2px]" />
-              )}{" "}
-              {t("Atendemos todo Uruguay", "Atendemos todo o RS e todo o Uruguai")}
+              <BandeiraUruguay className="h-3.5 w-5 rounded-[2px]" />{" "}
+              {t("Atendemos todo Uruguay", "Atendemos todo o Uruguai")}
             </li>
           </ul>
           {(INSTAGRAM_URL || FACEBOOK_URL) && (
@@ -251,7 +244,7 @@ export function SiteFooter() {
       </div>
 
       <div className="mt-8 border-t border-zinc-800 px-4 pt-6 text-center text-xs text-zinc-500">
-        <SeletorIdioma variante="escura" className="mb-3 justify-center" />
+        {idioma === "pt" && <SeletorIdioma variante="escura" className="mb-3 justify-center" />}
         <p>
           &copy; {new Date().getFullYear()} AGRO PARTS ·{" "}
           {t(

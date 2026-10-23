@@ -155,12 +155,7 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" />{" "}
-                {l.pais === "RS"
-                  ? t(
-                      `Envío a ${nome} por Correios o transportadora`,
-                      `Envio para ${nome} por Correios ou transportadora`,
-                    )
-                  : t(`Envío a ${nome} por DAC`, `Envio para ${nome} pela DAC`)}
+                {t(`Envío a ${nome} por DAC`, `Envio para ${nome} pela DAC`)}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-amber-300" />{" "}
@@ -290,7 +285,7 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
   );
 }
 
-// Página central: todas as zonas de envio (Uruguai e Rio Grande do Sul)
+// Página central: todas as zonas de envio (Uruguai)
 export function PaginaZonas({ total }: { total: number }) {
   const { t, idioma, href } = useT();
   const grupos: Array<{ titulo: string; itens: LocalSeo[] }> = [
@@ -308,16 +303,6 @@ export function PaginaZonas({ total }: { total: number }) {
       titulo: t("Ciudades de Uruguay", "Cidades do Uruguai"),
       itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "cidade"),
     },
-    {
-      titulo: t("Rio Grande do Sul por región", "Rio Grande do Sul por região"),
-      itens: LOCAIS_SEO.filter(
-        (l) => l.pais === "RS" && (l.tipo === "estado" || l.tipo === "regiao"),
-      ),
-    },
-    {
-      titulo: t("Ciudades de Rio Grande do Sul", "Cidades do Rio Grande do Sul"),
-      itens: LOCAIS_SEO.filter((l) => l.pais === "RS" && l.tipo === "cidade"),
-    },
   ];
   return (
     <div className="min-h-screen bg-[#f3f5f1]">
@@ -327,14 +312,14 @@ export function PaginaZonas({ total }: { total: number }) {
           <div className="mx-auto max-w-7xl px-4 py-10 md:py-14">
             <h1 className="max-w-4xl text-3xl font-extrabold leading-tight md:text-5xl">
               {t(
-                "Repuestos agrícolas con envío a todo Uruguay y Rio Grande do Sul",
-                "Peças agrícolas com envio para todo o Uruguai e todo o Rio Grande do Sul",
+                "Repuestos agrícolas con envío a todo Uruguay",
+                "Peças agrícolas com envio para todo o Uruguai",
               )}
             </h1>
             <p className="mt-4 max-w-3xl text-white/85 md:text-lg">
               {t(
-                `Tienda online con más de ${fmt(total, idioma)} repuestos para tractores y cosechadoras, en la frontera Chuy / Chuí. Elegí tu zona para ver las marcas y los repuestos más pedidos.`,
-                `Loja online com mais de ${fmt(total, idioma)} peças para tratores e colheitadeiras, na fronteira Chuí / Chuy. Escolha sua região para ver as marcas e as peças mais procuradas.`,
+                `Tienda online con más de ${fmt(total, idioma)} repuestos para tractores y cosechadoras, en Chuy, Rocha. Elegí tu zona para ver las marcas y los repuestos más pedidos.`,
+                `Loja online com mais de ${fmt(total, idioma)} peças para tratores e colheitadeiras, em Chuy, Rocha (Uruguai). Escolha sua região para ver as marcas e as peças mais procuradas.`,
               )}
             </p>
           </div>

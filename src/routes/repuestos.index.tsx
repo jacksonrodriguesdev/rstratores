@@ -17,7 +17,7 @@ export const Route = createFileRoute("/repuestos/")({
     );
     const desc = t(
       "Repuestos para Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford y Agrale: filtros, rodamientos, juntas, transmisión, hidráulica y más. Envíos a todo Uruguay.",
-      "Peças para Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford e Agrale: filtros, rolamentos, juntas, transmissão, hidráulica e mais. Envio para todo o Rio Grande do Sul.",
+      "Peças para Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford e Agrale: filtros, rolamentos, juntas, transmissão, hidráulica e mais. Envio para todo o Uruguai.",
     );
     return {
       links: linksIdioma("/repuestos", idioma),
@@ -55,13 +55,13 @@ function IndiceRepuestos() {
             <h1 className="mt-3 text-3xl font-extrabold md:text-5xl">
               {t(
                 "Repuestos para tractores en Uruguay",
-                "Peças para tratores com envio para todo o Rio Grande do Sul",
+                "Peças para tratores com envio para todo o Uruguai",
               )}
             </h1>
             <p className="mt-4 max-w-3xl text-white/85 md:text-lg">
               {t(
                 "Elegí la marca de tu tractor o el tipo de repuesto. Todas las piezas con código original y envío a todo Uruguay por DAC.",
-                "Escolha a marca do seu trator ou o tipo de peça. Todas as peças com código original e envio para todo o Rio Grande do Sul.",
+                "Escolha a marca do seu trator ou o tipo de peça. Todas as peças com código original e envio para todo o Uruguai.",
               )}
             </p>
           </div>

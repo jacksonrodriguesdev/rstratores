@@ -34,7 +34,7 @@ import { Reveal, Section } from "@/components/home/Reveal";
 import { GoogleReviews } from "@/components/home/GoogleReviews";
 import { QuoteModal } from "@/components/QuoteModal";
 import { BannerImage } from "@/components/BannerImage";
-import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { BandeiraUruguay } from "@/components/Bandeiras";
 import { useT } from "@/lib/idioma";
 
 // Produtos dos blocos da home. Se o bloco pede "só com imagem" e não há nenhum
@@ -450,8 +450,8 @@ export function FeaturesStripBlock({ config }: { config: string | null }) {
   const itens = [
     {
       icon: Truck,
-      titulo: t("Envíos a todo Uruguay", "Envio para todo o RS"),
-      texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio"),
+      titulo: t("Envíos a todo Uruguay", "Envio para todo o Uruguai"),
+      texto: t("Por DAC, con número de rastreo", "DAC, com rastreio"),
     },
     {
       icon: ShieldCheck,
@@ -773,17 +773,17 @@ const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
 
 export function EnvioDacBlock({ config }: { config: string | null }) {
   const { idioma } = useT();
-  // Versão em português: o cliente do Brasil recebe por Correios ou transportadora (não por DAC)
-  if (idioma === "pt") return <EnvioBrasilBlock />;
+  // Versão em português (link enviado a quem prefere ler em português): mesmo envio pela DAC
+  if (idioma === "pt") return <EnvioUruguaiPt />;
   return <EnvioDacUruguai config={config} />;
 }
 
-function EnvioBrasilBlock() {
+function EnvioUruguaiPt() {
   const vantagens = [
     {
       icon: MapPin,
-      titulo: "Todo o Rio Grande do Sul",
-      texto: "Enviamos para qualquer cidade do país.",
+      titulo: "Todo o Uruguai",
+      texto: "Enviamos para os 19 departamentos.",
     },
     {
       icon: Search,
@@ -798,7 +798,7 @@ function EnvioBrasilBlock() {
     {
       icon: MessageCircle,
       titulo: "Frete combinado",
-      texto: "Cotamos Correios ou transportadora e você escolhe.",
+      texto: "Informamos o frete da DAC junto com o orçamento.",
     },
   ];
   return (
@@ -811,21 +811,17 @@ function EnvioBrasilBlock() {
         <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
-              <BandeiraBrasil className="h-3.5 w-5 rounded-sm" /> Envio para todo o Rio Grande do
-              Sul
+              <BandeiraUruguay className="h-3.5 w-5 rounded-sm" /> Envio para todo o Uruguai
             </span>
             <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">
-              Receba suas peças em qualquer cidade do Rio Grande do Sul
+              Receba suas peças em qualquer cidade do Uruguai
             </h2>
             <p className="mt-2 text-sm text-white/85 md:text-base">
-              Estamos na fronteira Chuí / Chuy e enviamos por Correios ou transportadora, com código
-              de rastreio.
+              Estamos em Chuy, Rocha (Uruguai) e enviamos pela DAC, com código de rastreio.
             </p>
             <a
               data-livre="1"
-              href={whatsappContactUrl(
-                "Olá! Quero consultar o frete de peças para o Rio Grande do Sul.",
-              )}
+              href={whatsappContactUrl("Olá! Quero consultar o frete de peças para o Uruguai.")}
               target="_blank"
               rel="noreferrer noopener"
               className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"

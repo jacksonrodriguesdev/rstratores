@@ -18,21 +18,21 @@ export const Route = createFileRoute("/cotizar")({
         {
           title: t(
             "Cotizá repuestos agrícolas — Distribuidores en Uruguay | AGRO PARTS",
-            "Orçamento de peças agrícolas com envio para o Rio Grande do Sul | AGRO PARTS",
+            "Orçamento de peças agrícolas com envio para o Uruguai | AGRO PARTS",
           ),
         },
         {
           name: "description",
           content: t(
             "Somos distribuidores de repuestos para tractores y cosechadoras en Uruguay. Pedí tu cotización gratis: te respondemos por WhatsApp. Envíos por DAC a los 19 departamentos.",
-            "Peças para tratores e colheitadeiras na fronteira Chuí / Chuy. Peça seu orçamento grátis: respondemos pelo WhatsApp. Envio para todo o Rio Grande do Sul.",
+            "Peças para tratores e colheitadeiras em Chuy, Rocha (Uruguai). Peça seu orçamento grátis: respondemos pelo WhatsApp. Envio para todo o Uruguai.",
           ),
         },
         {
           property: "og:title",
           content: t(
             "Cotizá tus repuestos con AGRO PARTS — Distribuidores en Uruguay",
-            "Peça seu orçamento na AGRO PARTS — envio para todo o Rio Grande do Sul",
+            "Peça seu orçamento na AGRO PARTS — envio para todo o Uruguai",
           ),
         },
         { property: "og:url", content: `${SITE_URL}${comPrefixo("/cotizar", idioma)}` },
@@ -50,7 +50,7 @@ const PASSOS = [
 const PASSOS_PT = [
   ["Conte o que precisa", "Código, nome da peça ou uma foto."],
   ["Passamos o preço", "Pelo WhatsApp, com disponibilidade e frete."],
-  ["Receba na sua cidade", "Enviamos por Correios ou transportadora, com rastreio."],
+  ["Receba na sua cidade", "Enviamos pela DAC, com rastreio."],
 ];
 
 function CotizarPage() {
@@ -76,12 +76,12 @@ function CotizarPage() {
               ) : (
                 <BandeiraUruguay className="h-3.5 w-5 rounded-sm" />
               )}{" "}
-              {t("Distribuidores en Uruguay", "Na fronteira Chuí / Chuy")}
+              {t("Distribuidores en Uruguay", "Em Chuy, Rocha (Uruguai)")}
             </span>
             <h1 className="mt-4 text-3xl font-extrabold leading-tight md:text-5xl md:leading-[1.05]">
               {t(
                 "Somos distribuidores de repuestos agrícolas en Uruguay",
-                "Peças agrícolas com envio para todo o Rio Grande do Sul",
+                "Peças agrícolas com envio para todo o Uruguai",
               )}
             </h1>
             <p className="mt-3 text-xl font-bold text-amber-300 md:text-2xl">
@@ -90,7 +90,7 @@ function CotizarPage() {
             <p className="mt-4 max-w-xl text-white/80">
               {t(
                 "Tienda online con base en Chuy (Rocha). Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y más. Para productores, talleres y revendedores.",
-                "Loja online na fronteira Chuí / Chuy. Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e mais. Para produtores, oficinas e revendedores.",
+                "Loja online em Chuy, Rocha (Uruguai). Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e mais. Para produtores, oficinas e revendedores.",
               )}
             </p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">

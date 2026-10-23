@@ -1,7 +1,7 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
 import { comPrefixo, linksIdioma, type Idioma } from "@/lib/idioma";
-import { localPorSlug, tituloLocal, descricaoLocal } from "@/lib/locais-seo";
+import { localPorSlug, ehLocalRs, tituloLocal, descricaoLocal } from "@/lib/locais-seo";
 import { getPaginaLocalFn } from "@/lib/repuestos";
 import { PaginaLocal, ldLocal } from "@/components/PaginaLocal";
 
@@ -9,6 +9,9 @@ import { PaginaLocal, ldLocal } from "@/components/PaginaLocal";
 export const Route = createFileRoute("/repuestos-agricolas/$local")({
   loader: async ({ params }) => {
     const local = localPorSlug(params.local);
+    // Antigas páginas do Rio Grande do Sul: o site agora é só para o Uruguai
+    if (!local && ehLocalRs(params.local))
+      throw redirect({ to: "/repuestos-agricolas", statusCode: 301 });
     if (!local) throw notFound();
     const dados = await getPaginaLocalFn({ data: { foco: local.foco } });
     return { local, dados };

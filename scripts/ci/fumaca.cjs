@@ -6,15 +6,17 @@ const BASE = (process.env.BASE_URL || "http://localhost:3000").replace(/\/$/, ""
 const PAGINAS = [
   ["/", 200, ["AGRO PARTS", "<h1"]],
   ["/loja", 200, ["CI-0"]],
-  ["/pt", 200, ['lang="pt-BR"']],
+  // Site para o Uruguai: a versão /pt existe, mas fica fora do Google
+  ["/pt", 200, ['lang="pt-BR"', 'content="noindex, follow"']],
   ["/produto/CI-001", 200, ["CI-001", "application/ld+json"]],
   ["/pt/produto/CI-001", 200, ["CI-001"]],
   ["/repuestos", 200, ["John Deere"]],
   ["/repuestos/john-deere", 200, ["John Deere"]],
   ["/repuestos/filtros", 200, ["Filtros"]],
-  ["/repuestos-agricolas", 200, ["Rio Grande do Sul"]],
+  ["/repuestos-agricolas", 200, ["Los 19 departamentos"]],
   ["/repuestos-agricolas/rocha", 200, ["Repuestos agrícolas en Rocha"]],
-  ["/pt/repuestos-agricolas/pelotas", 200, ["Peças agrícolas em Pelotas"]],
+  // Antigas páginas do Rio Grande do Sul levam para a página de zonas do Uruguai
+  ["/repuestos-agricolas/pelotas", 301, []],
   ["/catalogos", 200, ["<h1"]],
   ["/ayuda", 200, ["<h1"]],
   ["/cotizar", 200, ["<h1"]],

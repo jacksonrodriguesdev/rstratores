@@ -153,7 +153,7 @@ export function CartDrawer() {
             <p className="text-center text-xs text-zinc-500">
               {t(
                 "Te respondemos con precio y disponibilidad. Envíos a todo Uruguay por DAC.",
-                "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Rio Grande do Sul.",
+                "Respondemos com preço, disponibilidade e frete. Enviamos para todo o Uruguai.",
               )}
             </p>
 

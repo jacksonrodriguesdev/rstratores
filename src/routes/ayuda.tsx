@@ -11,12 +11,12 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { BandeiraUruguay } from "@/components/Bandeiras";
 import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 
 // Página de ajuda: como comprar, envios, pagamento e perguntas frequentes.
 // Os textos não prometem prazos nem condições que a loja não confirmou; revise antes de mudar.
-// Em português (/pt/ayuda): cliente do Brasil, envio por Correios ou transportadora.
+// Em português (/pt/ayuda): mesmo atendimento, envio pela DAC para todo o Uruguai.
 const PREGUNTAS = {
   es: [
     {
@@ -54,8 +54,8 @@ const PREGUNTAS = {
       r: "Trabalhamos com mais de 49.000 peças. A maioria já tem preço publicado; nas demais, o preço depende da marca e da disponibilidade. Pelo WhatsApp passamos o preço final, o prazo e o frete na hora, sem compromisso.",
     },
     {
-      p: "Vocês enviam para todo o Rio Grande do Sul?",
-      r: "Sim. Estamos na fronteira Chuí / Chuy e enviamos para qualquer cidade do Rio Grande do Sul por Correios ou transportadora. Quando o pedido sai, mandamos o código de rastreio pelo WhatsApp.",
+      p: "Vocês enviam para todo o Uruguai?",
+      r: "Sim. Estamos em Chuy, Rocha (Uruguai) e enviamos para qualquer cidade do Uruguai pela DAC. Quando o pedido sai, mandamos o código de rastreio pelo WhatsApp.",
     },
     {
       p: "Posso pedir várias peças juntas?",
@@ -89,7 +89,7 @@ export const Route = createFileRoute("/ayuda")({
           name: "description",
           content: t(
             "Cómo comprar repuestos agrícolas en AGRO PARTS: cotización por WhatsApp, envíos a todo Uruguay por DAC, formas de pago y preguntas frecuentes.",
-            "Como comprar peças agrícolas na AGRO PARTS: orçamento pelo WhatsApp, envio para todo o Rio Grande do Sul, formas de pagamento e perguntas frequentes.",
+            "Como comprar peças agrícolas na AGRO PARTS: orçamento pelo WhatsApp, envio para todo o Uruguai, formas de pagamento e perguntas frequentes.",
           ),
         },
       ],
@@ -154,7 +154,7 @@ const PASOS = {
     {
       icon: Truck,
       titulo: "Receba em casa",
-      texto: "Você confirma o pedido e enviamos por Correios ou transportadora, com rastreio.",
+      texto: "Você confirma o pedido e enviamos pela DAC, com rastreio.",
     },
   ],
 };
@@ -224,13 +224,13 @@ function AyudaPage() {
         </Seccion>
 
         {pt ? (
-          <Seccion id="envios" icon={Truck} titulo="Envio para o Rio Grande do Sul">
+          <Seccion id="envios" icon={Truck} titulo="Envio para o Uruguai">
             <p className="flex items-center gap-2 font-semibold text-zinc-900">
-              <BandeiraBrasil className="h-4 w-6 rounded-sm" /> Enviamos para qualquer cidade do Rio
-              Grande do Sul por Correios ou transportadora.
+              <BandeiraUruguay className="h-4 w-6 rounded-sm" /> Enviamos para qualquer cidade do
+              Uruguai pela DAC.
             </p>
             <p>
-              Estamos na fronteira Chuí / Chuy. Quando o pedido sai, mandamos o código de rastreio
+              Estamos em Chuy, Rocha (Uruguai). Quando o pedido sai, mandamos o código de rastreio
               pelo WhatsApp para você acompanhar a entrega.
             </p>
             <p>

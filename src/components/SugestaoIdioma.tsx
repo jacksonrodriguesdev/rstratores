@@ -40,7 +40,9 @@ export function SugestaoIdioma() {
 
   useEffect(() => {
     if (ler(ESCOLHIDO) || ler(FECHADO)) return;
-    const sugerir = idioma === "es" ? pareceBrasil() : navegadorEmEspanhol();
+    // Site para o Uruguai: na versão em espanhol não oferece mais o português; na versão /pt,
+    // sugere o espanhol para quem tem o navegador em espanhol
+    const sugerir = idioma === "pt" && navegadorEmEspanhol();
     // Espera um pouco: não aparece junto com o carregamento da página
     const t = sugerir ? setTimeout(() => setMostrar(true), 2500) : undefined;
     return () => clearTimeout(t);
@@ -76,7 +78,7 @@ export function SugestaoIdioma() {
         </p>
         <p className="text-xs text-zinc-600">
           {paraPt
-            ? "Veja o site em português, com preços em R$ e envio para o Rio Grande do Sul."
+            ? "Veja o site em português, com preços em R$ e envio para o Uruguai."
             : "Mirá el sitio en español, con precios en $U y envíos por DAC."}
         </p>
       </div>

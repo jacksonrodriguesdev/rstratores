@@ -98,7 +98,7 @@ export function AuthShell({
         </div>
         <p className="relative text-sm text-white/50">
           © {new Date().getFullYear()} AGRO PARTS ·{" "}
-          {t("Envíos a todo Uruguay", "Envio para todo o Rio Grande do Sul")}
+          {t("Envíos a todo Uruguay", "Envio para todo o Uruguai")}
         </p>
       </aside>
 

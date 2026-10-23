@@ -44,11 +44,11 @@ export function tituloRepuestos(
 ) {
   if (idioma === "pt") {
     if (marca && categoria)
-      return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Rio Grande do Sul`;
-    if (marca) return `Peças ${marca.marca} com envio para todo o Rio Grande do Sul`;
+      return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Uruguai`;
+    if (marca) return `Peças ${marca.marca} com envio para todo o Uruguai`;
     if (categoria)
-      return `${nomeCat(categoria, idioma)} para tratores com envio para todo o Rio Grande do Sul`;
-    return "Peças para tratores com envio para todo o Rio Grande do Sul";
+      return `${nomeCat(categoria, idioma)} para tratores com envio para todo o Uruguai`;
+    return "Peças para tratores com envio para todo o Uruguai";
   }
   if (marca && categoria) return `${categoria.nome} para ${marca.marca} en Uruguay`;
   if (marca) return `Repuestos ${marca.marca} en Uruguay`;
@@ -65,12 +65,12 @@ export function descricaoRepuestos(
   if (idioma === "pt") {
     const qtd = total ? `${fmt(total, idioma)} peças` : "Peças";
     if (marca && categoria)
-      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para tratores ${marca.marca}. Código original, envio para todo o Rio Grande do Sul e orçamento pelo WhatsApp.`;
+      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para tratores ${marca.marca}. Código original, envio para todo o Uruguai e orçamento pelo WhatsApp.`;
     if (marca)
-      return `${qtd} para tratores ${marca.marca} (${modelos(marca, idioma).split(",").slice(0, 4).join(",")}…). Envio para todo o Rio Grande do Sul. Orçamento pelo WhatsApp.`;
+      return `${qtd} para tratores ${marca.marca} (${modelos(marca, idioma).split(",").slice(0, 4).join(",")}…). Envio para todo o Uruguai. Orçamento pelo WhatsApp.`;
     if (categoria)
-      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland e mais. Envio para todo o Rio Grande do Sul.`;
-    return "Peças para tratores e colheitadeiras com envio para todo o Rio Grande do Sul.";
+      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland e mais. Envio para todo o Uruguai.`;
+    return "Peças para tratores e colheitadeiras com envio para todo o Uruguai.";
   }
   const qtd = total ? `${fmt(total)} repuestos` : "Repuestos";
   if (marca && categoria)
@@ -240,7 +240,7 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" />{" "}
-                {t("Envíos a todo Uruguay por DAC", "Envio para todo o Rio Grande do Sul")}
+                {t("Envíos a todo Uruguay por DAC", "Envio para todo o Uruguai")}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-amber-300" />{" "}

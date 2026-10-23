@@ -61,8 +61,8 @@ export const VANTAGENS_PT = [
   },
   {
     icon: Truck,
-    titulo: "Envio para todo o Rio Grande do Sul",
-    texto: "Por Correios ou transportadora, com rastreio.",
+    titulo: "Envio para todo o Uruguai",
+    texto: "Por DAC, com rastreio.",
   },
   { icon: Wrench, titulo: "A peça certa", texto: "Confirmamos a compatibilidade antes de enviar." },
   {
@@ -398,7 +398,7 @@ export function CotizacionDistribuidorBlock() {
               ) : (
                 <BandeiraUruguay className="h-3.5 w-5 rounded-sm" />
               )}{" "}
-              {t("Distribuidores en Uruguay", "Na fronteira Chuí / Chuy")}
+              {t("Distribuidores en Uruguay", "Em Chuy, Rocha (Uruguai)")}
             </span>
             <h2
               id="cotizar-titulo"
@@ -406,7 +406,7 @@ export function CotizacionDistribuidorBlock() {
             >
               {t(
                 "Somos distribuidores de repuestos agrícolas en Uruguay",
-                "Peças agrícolas com envio para todo o Rio Grande do Sul",
+                "Peças agrícolas com envio para todo o Uruguai",
               )}
             </h2>
             <p className="mt-3 text-lg font-bold text-amber-300 md:text-xl">

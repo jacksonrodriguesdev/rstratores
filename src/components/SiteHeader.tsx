@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
-import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { BandeiraUruguay } from "@/components/Bandeiras";
 import { SeletorIdioma } from "@/components/SeletorIdioma";
 import { useT } from "@/lib/idioma";
 import { useSegment } from "@/components/SegmentContext";
@@ -60,8 +60,8 @@ const AVISOS = {
     { icon: PackageSearch, texto: "Buscá por el código original de la pieza" },
   ],
   pt: [
-    { icon: ShieldCheck, texto: "Peças agrícolas na fronteira Chuí / Chuy" },
-    { icon: Truck, texto: "Enviamos para todo o Rio Grande do Sul por Correios ou transportadora" },
+    { icon: ShieldCheck, texto: "Peças agrícolas em Chuy, Rocha (Uruguai)" },
+    { icon: Truck, texto: "Enviamos para todo o Uruguai pela DAC" },
     { icon: MessageCircle, texto: `Orçamento rápido pelo WhatsApp · ${PHONE_DISPLAY}` },
     { icon: ShieldCheck, texto: "Peças para Massey, Valtra, John Deere, New Holland e mais" },
     { icon: PackageSearch, texto: "Busque pelo código original da peça" },
@@ -207,7 +207,8 @@ export function SiteHeader() {
                 <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
                 {t("Rastrear envío", "Rastrear envio (Uruguai)")}
               </a>
-              <SeletorIdioma />
+              {/* Site para o Uruguai: o seletor só aparece na versão /pt, para voltar ao espanhol */}
+              {idioma === "pt" && <SeletorIdioma />}
               {INSTAGRAM_URL && (
                 <a
                   href={INSTAGRAM_URL}
@@ -532,12 +533,8 @@ export function SiteHeader() {
                 href={href("/") + "#envios-uruguay"}
                 className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white xl:flex"
               >
-                {idioma === "pt" ? (
-                  <BandeiraBrasil className="h-3 w-[18px] rounded-[2px]" />
-                ) : (
-                  <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
-                )}
-                {t("Envíos a todo Uruguay", "Envio para todo o RS")}
+                <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
+                {t("Envíos a todo Uruguay", "Envio para todo o Uruguai")}
               </a>
               <Link
                 to="/loja"

@@ -875,15 +875,15 @@ export function descricaoPeca(p: PecaTexto, idioma: Idioma): string {
   const envio: Par[] = [
     [
       "Enviamos por DAC a los 19 departamentos de Uruguay, con seguimiento.",
-      "Enviamos para todo o Rio Grande do Sul por Correios ou transportadora, com rastreio.",
+      "Enviamos para todo o Uruguai pela DAC, com rastreio.",
     ],
     [
       "Envío a todo Uruguay por DAC: te pasamos el número de seguimiento.",
-      "Envio para todo o RS por Correios ou transportadora, com código de rastreio.",
+      "Envio para todo o Uruguai pela DAC, com código de rastreio.",
     ],
     [
       "Despachamos por DAC a cualquier punto de Uruguay.",
-      "Despachamos para qualquer cidade do Rio Grande do Sul.",
+      "Despachamos para qualquer cidade do Uruguai.",
     ],
   ];
   partes.push(
@@ -946,7 +946,7 @@ export function metaDescricaoPeca(p: PecaTexto, idioma: Idioma): string {
   const fim: Par[] = [
     [
       "Envío a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      "Envio para todo o RS. Orçamento pelo WhatsApp.",
+      "Envio para todo o Uruguai. Orçamento pelo WhatsApp.",
     ],
     ["Consultá precio y envío por WhatsApp.", "Consulte preço e frete pelo WhatsApp."],
     [
