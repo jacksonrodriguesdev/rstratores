@@ -33,6 +33,8 @@ import { PHONE } from "@/lib/whatsapp";
 import { ehLarguraTotal, temH1, tipoNovo } from "@/lib/blocos-home";
 import { BlocoNovo } from "@/components/home/BlocosNovos";
 import { HeroCampanhaHome } from "@/components/campanha/Campanha";
+import { GUIA_INICIO, ldPerguntas } from "@/lib/seo-guias";
+import { GuiaSeoBloco, LINKS_BUSCAS_PRINCIPAIS, PerguntasBloco } from "@/components/GuiaSeo";
 
 // Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
 const lojaLd = {
@@ -123,6 +125,14 @@ export const Route = createFileRoute("/")({
           type: "application/ld+json",
           children: JSON.stringify({ ...siteLd, inLanguage: idioma === "pt" ? "pt-BR" : "es-UY" }),
         },
+        ...(idioma === "es"
+          ? [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify(ldPerguntas(GUIA_INICIO.perguntas)),
+              },
+            ]
+          : []),
       ],
     };
   },
@@ -203,7 +213,7 @@ function HomePage() {
   // Os blocos vêm prontos do servidor (loader): a página já nasce com a estrutura certa,
   // sem os retângulos provisórios que depois "pulavam" ao trocar pelo conteúdo.
   const { blocos: iniciais, hero: heroInicial } = Route.useLoaderData();
-  const { t } = useT();
+  const { t, idioma } = useT();
   const { data: blocks = [], isLoading } = useQuery({
     queryKey: ["homepage_blocks"],
     queryFn: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
@@ -308,6 +318,13 @@ function HomePage() {
               })}
             </div>
           ),
+        )}
+        {/* Texto para o Google: "repuestos para tractores en Uruguay" e links para as outras buscas */}
+        {idioma === "es" && (
+          <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 md:py-12">
+            <GuiaSeoBloco guia={GUIA_INICIO} links={LINKS_BUSCAS_PRINCIPAIS} />
+            <PerguntasBloco titulo="Preguntas frecuentes" perguntas={GUIA_INICIO.perguntas} />
+          </div>
         )}
       </main>
     </div>

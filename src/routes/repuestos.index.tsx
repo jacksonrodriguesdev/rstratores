@@ -54,8 +54,8 @@ function IndiceRepuestos() {
             </nav>
             <h1 className="mt-3 text-3xl font-extrabold md:text-5xl">
               {t(
-                "Repuestos para tractores en Uruguay",
-                "Peças para tratores com envio para todo o Uruguai",
+                "Repuestos para tractores por marca y categoría",
+                "Peças para tratores por marca e categoria",
               )}
             </h1>
             <p className="mt-4 max-w-3xl text-white/85 md:text-lg">

@@ -1,13 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ChevronRight,
-  ChevronDown,
-  Truck,
-  MessageCircle,
-  ShieldCheck,
-  Search,
-  ArrowRight,
-} from "lucide-react";
+import { ChevronRight, Truck, MessageCircle, ShieldCheck, Search, ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CardLoja } from "@/components/CardPeca";
 import { whatsappContactUrl } from "@/lib/whatsapp";
@@ -16,11 +8,12 @@ import { comPrefixo, useT, type Idioma } from "@/lib/idioma";
 import {
   MARCAS_SEO,
   CATEGORIAS_SEO,
-  perguntasFrequentes,
   urlRepuestos,
   type MarcaSeo,
   type CategoriaSeo,
 } from "@/lib/seo-paginas";
+import { guiaDaPagina, ldPerguntas, perguntasDaPagina } from "@/lib/seo-guias";
+import { GuiaSeoBloco, LINKS_BUSCAS_PRINCIPAIS, PerguntasBloco } from "@/components/GuiaSeo";
 import type { PaginaRepuestos as Dados } from "@/lib/repuestos";
 
 // Página de entrada para o Google: "Repuestos John Deere en Uruguay", "Filtros para Massey
@@ -134,15 +127,7 @@ export function ldRepuestos(
         })),
       },
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: perguntasFrequentes(alvoDe(marca, categoria, idioma), idioma).map((q) => ({
-        "@type": "Question",
-        name: q.p,
-        acceptedAnswer: { "@type": "Answer", text: q.r },
-      })),
-    },
+    ldPerguntas(perguntasDaPagina(marca, categoria, alvoDe(marca, categoria, idioma), idioma)),
   ];
 }
 
@@ -150,6 +135,7 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
   const { t, idioma, href } = useT();
   const titulo = tituloRepuestos(marca, categoria, idioma);
   const alvo = alvoDe(marca, categoria, idioma);
+  const guia = guiaDaPagina(marca, categoria, idioma);
   const lojaParams = new URLSearchParams();
   if (categoria) lojaParams.set("categoria", categoria.categoria);
   if (marca) lojaParams.set("marca", marca.marca);
@@ -342,23 +328,19 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
             )}
           </section>
 
-          {/* Perguntas */}
-          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-8">
-            <h2 className="text-xl font-extrabold text-zinc-900 md:text-2xl">
-              {t("Preguntas frecuentes", "Perguntas frequentes")}
-            </h2>
-            <div className="mt-3 divide-y divide-zinc-100">
-              {perguntasFrequentes(alvo, idioma).map((q) => (
-                <details key={q.p} className="group py-3">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-zinc-900">
-                    {q.p}
-                    <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400 transition group-open:rotate-180" />
-                  </summary>
-                  <p className="mt-2 text-zinc-600">{q.r}</p>
-                </details>
-              ))}
-            </div>
-          </section>
+          {/* Texto da página (o que o Google lê) e perguntas */}
+          {guia && (
+            <GuiaSeoBloco
+              guia={guia}
+              links={LINKS_BUSCAS_PRINCIPAIS.filter(
+                (l) => l.href !== `/repuestos/${marca?.slug ?? categoria?.slug}`,
+              ).map((l) => ({ ...l, href: href(l.href) }))}
+            />
+          )}
+          <PerguntasBloco
+            titulo={t("Preguntas frecuentes", "Perguntas frequentes")}
+            perguntas={perguntasDaPagina(marca, categoria, alvo, idioma)}
+          />
 
           {/* Outras marcas e categorias (links internos) */}
           <section className="grid gap-6 md:grid-cols-2">

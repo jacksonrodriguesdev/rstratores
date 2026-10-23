@@ -25,6 +25,8 @@ import {
   perguntasLocal,
   type LocalSeo,
 } from "@/lib/locais-seo";
+import { GUIA_ZONAS } from "@/lib/seo-guias";
+import { GuiaSeoBloco, LINKS_BUSCAS_PRINCIPAIS, PerguntasBloco } from "@/components/GuiaSeo";
 import type { Product } from "@/lib/products";
 
 // Página de entrada por local ("repuestos agrícolas en Rocha", "peças agrícolas em Pelotas").
@@ -311,10 +313,7 @@ export function PaginaZonas({ total }: { total: number }) {
         <section className="bg-[#06321b] text-white">
           <div className="mx-auto max-w-7xl px-4 py-10 md:py-14">
             <h1 className="max-w-4xl text-3xl font-extrabold leading-tight md:text-5xl">
-              {t(
-                "Repuestos agrícolas con envío a todo Uruguay",
-                "Peças agrícolas com envio para todo o Uruguai",
-              )}
+              {t("Repuestos agrícolas en Uruguay", "Peças agrícolas no Uruguai")}
             </h1>
             <p className="mt-4 max-w-3xl text-white/85 md:text-lg">
               {t(
@@ -357,6 +356,15 @@ export function PaginaZonas({ total }: { total: number }) {
               ))}
             </div>
           </section>
+          {idioma === "es" && (
+            <>
+              <GuiaSeoBloco
+                guia={GUIA_ZONAS}
+                links={LINKS_BUSCAS_PRINCIPAIS.filter((l) => l.href !== "/repuestos-agricolas")}
+              />
+              <PerguntasBloco titulo="Preguntas frecuentes" perguntas={GUIA_ZONAS.perguntas} />
+            </>
+          )}
         </div>
       </main>
     </div>

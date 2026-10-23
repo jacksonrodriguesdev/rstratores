@@ -3,6 +3,7 @@ import { SITE_URL } from "@/lib/site";
 import { comPrefixo, linksIdioma, tr, type Idioma } from "@/lib/idioma";
 import { getPaginaLocalFn } from "@/lib/repuestos";
 import { PaginaZonas } from "@/components/PaginaLocal";
+import { GUIA_ZONAS, ldPerguntas } from "@/lib/seo-guias";
 
 // /repuestos-agricolas: todas as zonas de envio (links para as páginas por local)
 export const Route = createFileRoute("/repuestos-agricolas/")({
@@ -12,15 +13,24 @@ export const Route = createFileRoute("/repuestos-agricolas/")({
     const n = (loaderData?.total ?? 0).toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
     const titulo = tr(
       idioma,
-      "Repuestos agrícolas en todo Uruguay | AGRO PARTS",
+      "Repuestos agrícolas en Uruguay | Envío a los 19 departamentos | AGRO PARTS",
       "Peças agrícolas em todo o Uruguai | AGRO PARTS",
     );
     const desc = tr(
       idioma,
-      `Más de ${n} repuestos para tractores y cosechadoras con envío a los 19 departamentos de Uruguay. Elegí tu zona.`,
-      `Mais de ${n} peças para tratores e colheitadeiras com envio para os 19 departamentos do Uruguai e todo o Uruguai. Escolha sua região.`,
+      `Repuestos agrícolas en Uruguay: más de ${n} repuestos para tractores y cosechadoras Massey Ferguson, John Deere, Valtra, New Holland y más, con envío por DAC a los 19 departamentos. Cotizá por WhatsApp.`,
+      `Mais de ${n} peças para tratores e colheitadeiras com envio para os 19 departamentos do Uruguai. Escolha sua região.`,
     );
     return {
+      scripts:
+        idioma === "es"
+          ? [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify(ldPerguntas(GUIA_ZONAS.perguntas)),
+              },
+            ]
+          : [],
       links: linksIdioma("/repuestos-agricolas", idioma),
       meta: [
         { title: titulo },
