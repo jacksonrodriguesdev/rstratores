@@ -25,6 +25,8 @@ const PAGINAS = [
   ["/pt/repuestos-agricolas/rocha", 301, []],
   ["/catalogos", 200, ["<h1"]],
   ["/ayuda", 200, ["<h1"]],
+  ["/guias", 200, ["Guías"]],
+  ["/pt/guias/valtra-o-valmet", 200, ["Valtra ou Valmet"]],
   ["/cotizar", 200, ["<h1"]],
   ["/pedido-rapido", 200, []],
   ["/login", 200, []],

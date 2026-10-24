@@ -5,6 +5,7 @@ import { INSTAGRAM_URL, INSTAGRAM_USUARIO, FACEBOOK_URL } from "@/lib/navegacao"
 import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
 import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
 import { locaisDoIdioma, nomeLocal } from "@/lib/locais-seo";
+import { GUIAS } from "@/lib/guias";
 import { useT } from "@/lib/idioma";
 import { SeletorIdioma } from "@/components/SeletorIdioma";
 
@@ -189,6 +190,20 @@ export function SiteFooter() {
 
       {/* Links para as páginas por marca e categoria (ajudam o Google a encontrá-las) */}
       <div className="mx-auto mt-10 max-w-7xl space-y-3 border-t border-zinc-800 px-4 pt-6 text-sm">
+        {/* Guias técnicos e páginas por máquina */}
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <a
+            href={href("/guias")}
+            className="font-bold uppercase tracking-wider text-white hover:text-primary"
+          >
+            {t("Guías:", "Guias:")}
+          </a>
+          {GUIAS.map((g) => (
+            <a key={g.slug} href={href(`/guias/${g.slug}`)} className="hover:text-white">
+              {g.titulo[idioma]}
+            </a>
+          ))}
+        </p>
         <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <a
             href={href("/repuestos")}

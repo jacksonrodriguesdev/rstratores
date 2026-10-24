@@ -92,6 +92,11 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
       url(`/cotizar`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
       url(`/pedido-rapido`, "<priority>0.6</priority>"),
       url(`/ayuda`, "<priority>0.5</priority>"),
+      // Guias técnicos
+      url(`/guias`, "<changefreq>monthly</changefreq><priority>0.6</priority>"),
+      ...(await import("./guias")).GUIAS.map((g) =>
+        url(`/guias/${g.slug}`, "<changefreq>monthly</changefreq><priority>0.6</priority>"),
+      ),
       // Campanha (endereço fixo o ano todo) e cupons
       url(`/black-friday`, "<changefreq>daily</changefreq><priority>0.8</priority>"),
       url(`/cupones`, "<changefreq>daily</changefreq><priority>0.6</priority>"),
