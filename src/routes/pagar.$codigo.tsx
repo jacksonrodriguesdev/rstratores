@@ -436,13 +436,20 @@ function Pendentes({ d }: { d: Dados }) {
       {tresDs && (
         <div className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
           <p className="font-bold">
-            {t("Tu banco pide confirmar la compra.", "Seu banco pediu para confirmar a compra.")}
+            {tresDs.metodo === "STRIPE"
+              ? t(
+                  "Tu pago con tarjeta quedó sin terminar.",
+                  "Seu pagamento com cartão ficou sem terminar.",
+                )
+              : t("Tu banco pide confirmar la compra.", "Seu banco pediu para confirmar a compra.")}
           </p>
           <a
             href={tresDs.redirect!}
             className="mt-2 inline-flex rounded-xl bg-amber-500 px-4 py-2 font-bold text-white"
           >
-            {t("Confirmar en el banco", "Confirmar no banco")}
+            {tresDs.metodo === "STRIPE"
+              ? t("Continuar el pago", "Continuar o pagamento")
+              : t("Confirmar en el banco", "Confirmar no banco")}
           </a>
         </div>
       )}
@@ -557,11 +564,13 @@ function Formulario({ d }: { d: Dados }) {
   const br = d.pais === "BR";
   const semCartao = metodo === "CARTAO" && !d.cartao;
 
+  // Stripe: nome e cartão são pedidos na página do próprio Stripe
+  const stripe = metodo === "STRIPE";
   const pagar = async () => {
     setErro(null);
-    if (nome.trim().split(/\s+/).length < 2)
+    if (!stripe && nome.trim().split(/\s+/).length < 2)
       return setErro(t("Escribí tu nombre y apellido.", "Escreva nome e sobrenome."));
-    if (!documentoValido(d.pais, doc))
+    if (!stripe && !documentoValido(d.pais, doc))
       return setErro(
         br ? "CPF ou CNPJ inválido." : t("Cédula o RUT inválido.", "Cédula ou RUT inválido."),
       );
@@ -584,7 +593,7 @@ function Formulario({ d }: { d: Dados }) {
         return;
       }
       if (r.redirect) {
-        window.location.href = r.redirect; // 3D Secure: confirmar no banco
+        window.location.href = r.redirect; // 3D Secure no banco, ou a página de pagamento do Stripe
         return;
       }
       await router.invalidate();
@@ -617,7 +626,7 @@ function Formulario({ d }: { d: Dados }) {
                 : "text-zinc-700 ring-zinc-200 hover:bg-zinc-50",
             )}
           >
-            {m === "CARTAO" ? (
+            {m === "CARTAO" || m === "STRIPE" ? (
               <CreditCard className="h-5 w-5" />
             ) : m === "PIX" ? (
               <QrCode className="h-5 w-5" />
@@ -629,7 +638,15 @@ function Formulario({ d }: { d: Dados }) {
         ))}
       </div>
 
-      <div className="mt-4 space-y-3">
+      {stripe && (
+        <p className="mt-4 rounded-xl bg-zinc-50 p-3 text-sm text-zinc-700">
+          {t(
+            "Vas a pagar en la página segura de Stripe. Al terminar, volvés acá con el pago confirmado.",
+            "Você vai pagar na página segura do Stripe. Ao terminar, volta aqui com o pagamento confirmado.",
+          )}
+        </p>
+      )}
+      <div className={cn("mt-4 space-y-3", stripe && "hidden")}>
         <label className="block text-sm font-semibold text-zinc-700">
           {metodo === "CARTAO"
             ? t("Nombre como figura en la tarjeta", "Nome como está no cartão")
@@ -680,7 +697,7 @@ function Formulario({ d }: { d: Dados }) {
         className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0b7a3b] py-3.5 text-[15px] font-extrabold text-white shadow-sm transition hover:bg-[#096a33] disabled:opacity-60"
       >
         {enviando ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-4 w-4" />}
-        {metodo === "CARTAO"
+        {metodo === "CARTAO" || stripe
           ? `${t("Pagar", "Pagar")} ${fmtValor(d.total, d.moeda)}`
           : metodo === "PIX"
             ? "Gerar código PIX"

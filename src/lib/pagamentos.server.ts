@@ -20,6 +20,14 @@ import {
   type PagamentoDlocal,
 } from "./dlocal.server";
 import {
+  ErroStripe,
+  consultarSessaoStripe,
+  criarSessaoStripe,
+  sessaoComoPagamento,
+  stripeConfigurado,
+} from "./stripe.server";
+import {
+  provedorDe,
   ID_DLOCAL,
   METODOS,
   documentoValido,
@@ -72,8 +80,9 @@ const SQL = [
     \`link_id\` INTEGER NOT NULL,
     \`user_id\` INTEGER NULL,
     \`metodo\` VARCHAR(20) NOT NULL,
+    \`provedor\` VARCHAR(10) NOT NULL DEFAULT 'dlocal',
     \`order_id\` VARCHAR(64) NOT NULL,
-    \`dlocal_id\` VARCHAR(64) NULL,
+    \`dlocal_id\` VARCHAR(100) NULL,
     \`status\` VARCHAR(20) NOT NULL DEFAULT 'CRIANDO',
     \`status_code\` VARCHAR(8) NULL,
     \`status_detalhe\` VARCHAR(300) NULL,
@@ -112,7 +121,7 @@ const SQL = [
   `CREATE TABLE IF NOT EXISTS \`dlocal_avisos\` (
     \`id\` INTEGER NOT NULL AUTO_INCREMENT,
     \`tipo\` VARCHAR(20) NOT NULL,
-    \`dlocal_id\` VARCHAR(64) NULL,
+    \`dlocal_id\` VARCHAR(100) NULL,
     \`status\` VARCHAR(20) NULL,
     \`assinatura_ok\` BOOLEAN NOT NULL DEFAULT false,
     \`processado\` BOOLEAN NOT NULL DEFAULT false,
@@ -139,6 +148,24 @@ export function garantirTabelasPagamento() {
     if (!colunas.some((x) => x.c === "cupom"))
       await prisma.$executeRawUnsafe(
         "ALTER TABLE `links_pagamento` ADD COLUMN `cupom` VARCHAR(40) NULL AFTER `desconto`",
+      );
+    // Stripe: provedor do pagamento e id da sessão (cs_..., mais de 64 caracteres)
+    const cols = await prisma.$queryRaw<Array<{ t: string; c: string; n: bigint | number | null }>>`
+      SELECT TABLE_NAME AS t, COLUMN_NAME AS c, CHARACTER_MAXIMUM_LENGTH AS n
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN ('pagamentos', 'dlocal_avisos')`;
+    const col = (t: string, c: string) => cols.find((x) => x.t === t && x.c === c);
+    if (!col("pagamentos", "provedor"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `pagamentos` ADD COLUMN `provedor` VARCHAR(10) NOT NULL DEFAULT 'dlocal' AFTER `metodo`",
+      );
+    if (Number(col("pagamentos", "dlocal_id")?.n ?? 100) < 100)
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `pagamentos` MODIFY `dlocal_id` VARCHAR(100) NULL",
+      );
+    if (Number(col("dlocal_avisos", "dlocal_id")?.n ?? 100) < 100)
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `dlocal_avisos` MODIFY `dlocal_id` VARCHAR(100) NULL",
       );
   })().catch((e) => {
     tabelas = null;
@@ -307,7 +334,8 @@ export async function iniciarPagamento(
   await garantirTabelasPagamento();
   const pt = p.idioma === "pt";
   const t = (es: string, ptb: string) => (pt ? ptb : es);
-  if (!dlocalConfigurado())
+  const stripe = provedorDe(p.metodo) === "stripe";
+  if (stripe ? !stripeConfigurado() : !dlocalConfigurado())
     return {
       ok: false,
       erro: t(
@@ -333,8 +361,9 @@ export async function iniciarPagamento(
       ok: false,
       erro: t("Medio de pago no disponible.", "Forma de pagamento indisponível."),
     };
+  // Stripe: o próprio Stripe pede nome e cartão na página dele (documento não é exigido)
   const doc = somenteDigitos(p.documento);
-  if (!documentoValido(pais, doc))
+  if (!stripe && !documentoValido(pais, doc))
     return {
       ok: false,
       erro:
@@ -346,13 +375,28 @@ export async function iniciarPagamento(
     .trim()
     .replace(/\s+/g, " ")
     .slice(0, 100);
-  if (nome.split(" ").length < 2)
+  if (!stripe && nome.split(" ").length < 2)
     return { ok: false, erro: t("Escribí tu nombre y apellido.", "Escreva nome e sobrenome.") };
   if (p.metodo === "CARTAO" && !/^[\w-]{8,200}$/.test(String(p.token || "")))
     return { ok: false, erro: t("Revisá los datos de la tarjeta.", "Confira os dados do cartão.") };
 
+  // Stripe: sessão aberta e ainda válida para este cliente → volta para a mesma página de pagamento
+  if (stripe) {
+    const aberta = await prisma.pagamentos.findFirst({
+      where: {
+        link_id: link.id,
+        metodo: "STRIPE",
+        status: "PENDENTE",
+        user_id: sessao.id,
+        redirect_url: { not: null },
+        expira_em: { gt: new Date(Date.now() + 5 * 60_000) },
+      },
+      orderBy: { id: "desc" },
+    });
+    if (aberta) return { ok: true, status: "PENDENTE", redirect: aberta.redirect_url };
+  }
   // Já existe um código PIX / ticket de efectivo válido para este link: reaproveita
-  if (p.metodo !== "CARTAO") {
+  if (p.metodo !== "CARTAO" && !stripe) {
     const aberto = await prisma.pagamentos.findFirst({
       where: {
         link_id: link.id,
@@ -404,14 +448,17 @@ export async function iniciarPagamento(
       link_id: link.id,
       user_id: u.id,
       metodo: p.metodo,
+      provedor: provedorDe(p.metodo),
       order_id: orderId,
       valor: link.total,
       moeda: link.moeda,
-      documento: mascararDocumento(doc),
+      documento: doc ? mascararDocumento(doc) : null,
     },
   });
 
   const caminho = `${pt ? "/pt" : ""}/pagar/${link.codigo}`;
+  if (stripe)
+    return iniciarStripe(link, pg.id, orderId, u.email, p.idioma, contexto.origem + caminho);
   // Endereço do pagador: só o que o cliente cadastrou (nunca endereço de exemplo)
   const endereco = {
     ...(u.departamento && { state: u.departamento }),
@@ -424,7 +471,7 @@ export async function iniciarPagamento(
     amount: link.total / 100,
     currency: link.moeda,
     country: pais,
-    payment_method_id: ID_DLOCAL[p.metodo],
+    payment_method_id: ID_DLOCAL[p.metodo as keyof typeof ID_DLOCAL],
     payment_method_flow: "DIRECT",
     payer: {
       name: nome,
@@ -487,6 +534,64 @@ export async function iniciarPagamento(
               "No pudimos conectar con el medio de pago. Probá de nuevo en unos minutos.",
               "Não conseguimos falar com o meio de pagamento. Tente de novo em alguns minutos.",
             ),
+    };
+  }
+}
+
+// ---------- Stripe: cria a página de pagamento (Checkout) e manda o cliente para lá ----------
+async function iniciarStripe(
+  link: { id: number; total: number; moeda: string; itens: string; descricao: string | null },
+  pagamentoId: number,
+  orderId: string,
+  email: string,
+  idioma: "es" | "pt",
+  volta: string,
+): Promise<RespostaPagamento> {
+  const pt = idioma === "pt";
+  const itens = lerItens(link.itens);
+  try {
+    const sessaoStripe = await criarSessaoStripe({
+      orderId,
+      linkId: link.id,
+      valor: link.total,
+      moeda: link.moeda === "BRL" ? "BRL" : "UYU",
+      descricao: link.descricao || `AGRO PARTS - pedido #${link.id}`,
+      itensResumo: itens
+        .map((i) => `${i.quantidade}× ${i.nome}${i.codigo ? ` (${i.codigo})` : ""}`)
+        .join(" · "),
+      email,
+      idioma,
+      sucesso: `${volta}?retorno=${pagamentoId}`,
+      cancelar: volta,
+    });
+    if (!sessaoStripe.url)
+      throw new ErroStripe("Stripe não devolveu a página de pagamento", 502, null);
+    if (sessaoStripe.expires_at)
+      await prisma.pagamentos.update({
+        where: { id: pagamentoId },
+        data: { expira_em: new Date(sessaoStripe.expires_at * 1000) },
+      });
+    await evento(link.id, "tentativa", `STRIPE · ${email}`, pagamentoId);
+    const final = await aplicarResposta(pagamentoId, sessaoComoPagamento(sessaoStripe), "criacao");
+    return { ok: true, status: final.status, redirect: final.redirect_url ?? sessaoStripe.url };
+  } catch (e) {
+    const err = e as ErroStripe;
+    console.error("Stripe (criar sessão):", err?.http, err?.codigo, err?.message);
+    await prisma.pagamentos.update({
+      where: { id: pagamentoId },
+      data: { status: "ERRO", status_detalhe: String(err?.message || e).slice(0, 300) },
+    });
+    await evento(
+      link.id,
+      "erro",
+      `Stripe ${err?.http ?? ""} ${err?.codigo ?? ""} ${err?.message ?? e}`.trim(),
+      pagamentoId,
+    );
+    return {
+      ok: false,
+      erro: pt
+        ? "Não conseguimos abrir a página de pagamento. Tente de novo em alguns minutos."
+        : "No pudimos abrir la página de pago. Probá de nuevo en unos minutos.",
     };
   }
 }
@@ -566,7 +671,7 @@ export async function aplicarResposta(
     const atual = await tx.pagamentos.update({
       where: { id: pg.id },
       data: {
-        ...(r.id && !pg.dlocal_id && { dlocal_id: String(r.id).slice(0, 64) }),
+        ...(r.id && !pg.dlocal_id && { dlocal_id: String(r.id).slice(0, 100) }),
         ...(muda && {
           status: novo,
           status_code: r.status_code != null ? String(r.status_code).slice(0, 8) : null,
@@ -779,13 +884,18 @@ async function emailsDaVenda(linkId: number) {
 // ---------- Conferência (o que está em aberto, direto na dLocal) ----------
 export async function conferirPagamento(id: number) {
   const pg = await prisma.pagamentos.findUnique({ where: { id } });
+  if (pg?.provedor === "stripe") {
+    if (!pg.dlocal_id || !stripeConfigurado()) return pg;
+    const s = await consultarSessaoStripe(pg.dlocal_id);
+    return aplicarResposta(pg.id, sessaoComoPagamento(s), "conferencia");
+  }
   if (!pg?.dlocal_id || !dlocalConfigurado()) return pg;
   const r = await consultarPagamentoDlocal(pg.dlocal_id);
   return aplicarResposta(pg.id, r, "conferencia");
 }
 
 export async function conferirPendentes() {
-  if (!dlocalConfigurado()) return 0;
+  if (!dlocalConfigurado() && !stripeConfigurado()) return 0;
   await garantirTabelasPagamento();
   const abertos = await prisma.pagamentos.findMany({
     where: {
@@ -864,4 +974,70 @@ export async function limparAvisosAntigos() {
       ],
     },
   });
+}
+
+// ---------- Aviso do Stripe (webhook) ----------
+// Eventos: checkout.session.completed / async_payment_succeeded / async_payment_failed / expired.
+// O aviso só diz "mudou": o status vale o que o próprio Stripe responde na consulta da sessão.
+type EventoStripe = {
+  type?: string;
+  data?: { object?: { id?: string; object?: string; client_reference_id?: string | null } };
+};
+export async function receberAvisoStripe(corpo: string, autentico: boolean) {
+  await garantirTabelasPagamento();
+  let ev: EventoStripe | null = null;
+  try {
+    ev = JSON.parse(corpo);
+  } catch {
+    /* corpo inválido: só registra */
+  }
+  const obj = ev?.data?.object;
+  const sessaoId = obj?.object === "checkout.session" && obj.id ? String(obj.id) : null;
+  const aviso = await prisma.dlocal_avisos.create({
+    data: {
+      tipo: "stripe",
+      dlocal_id: sessaoId ? sessaoId.slice(0, 100) : null,
+      status: ev?.type
+        ? String(ev.type)
+            .replace(/^checkout\.session\./, "")
+            .slice(0, 20)
+        : null,
+      assinatura_ok: autentico,
+    },
+  });
+  if (!autentico) {
+    await prisma.dlocal_avisos.update({
+      where: { id: aviso.id },
+      data: { erro: "assinatura inválida" },
+    });
+    return { ok: false, status: 400 };
+  }
+  // Outros eventos (o Stripe pode mandar vários): só confirma o recebimento
+  if (!sessaoId) {
+    await prisma.dlocal_avisos.update({ where: { id: aviso.id }, data: { processado: true } });
+    return { ok: true, status: 200 };
+  }
+  try {
+    const pg = await prisma.pagamentos.findFirst({
+      where: {
+        provedor: "stripe",
+        OR: [
+          { dlocal_id: sessaoId },
+          ...(obj?.client_reference_id ? [{ order_id: String(obj.client_reference_id) }] : []),
+        ],
+      },
+    });
+    if (!pg) throw new Error("pagamento desconhecido");
+    const s = await consultarSessaoStripe(sessaoId);
+    await aplicarResposta(pg.id, sessaoComoPagamento(s), "aviso");
+    await prisma.dlocal_avisos.update({ where: { id: aviso.id }, data: { processado: true } });
+    return { ok: true, status: 200 };
+  } catch (e: any) {
+    await prisma.dlocal_avisos.update({
+      where: { id: aviso.id },
+      data: { erro: String(e?.message ?? e).slice(0, 1000) },
+    });
+    // Desconhecido: 200 para o Stripe não insistir; falha nossa: 500 e ele tenta de novo
+    return { ok: false, status: e?.message === "pagamento desconhecido" ? 200 : 500 };
+  }
 }

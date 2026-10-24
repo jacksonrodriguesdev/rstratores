@@ -118,6 +118,7 @@ import { Route as ApiAdminQuotesIdRouteImport } from './routes/api/admin/quotes.
 import { Route as ApiAuthCodigoVerificarRouteImport } from './routes/api/auth.codigo.verificar'
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
 import { Route as ApiPublicDlocalPagamentosRouteImport } from './routes/api/public/dlocal.pagamentos'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe.webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -671,6 +672,11 @@ const ApiPublicDlocalPagamentosRoute =
     path: '/api/public/dlocal/pagamentos',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe/webhook',
+  path: '/api/public/stripe/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -782,6 +788,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
+  '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -892,6 +899,7 @@ export interface FileRoutesByTo {
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
+  '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1004,6 +1012,7 @@ export interface FileRoutesById {
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
+  '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1117,6 +1126,7 @@ export interface FileRouteTypes {
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
     | '/api/public/dlocal/pagamentos'
+    | '/api/public/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1227,6 +1237,7 @@ export interface FileRouteTypes {
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
     | '/api/public/dlocal/pagamentos'
+    | '/api/public/stripe/webhook'
   id:
     | '__root__'
     | '/'
@@ -1338,6 +1349,7 @@ export interface FileRouteTypes {
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
     | '/api/public/dlocal/pagamentos'
+    | '/api/public/stripe/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1401,6 +1413,7 @@ export interface RootRouteChildren {
   ApiAdminInstagramUploadRoute: typeof ApiAdminInstagramUploadRoute
   ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
   ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2168,6 +2181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDlocalPagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/stripe/webhook': {
+      id: '/api/public/stripe/webhook'
+      path: '/api/public/stripe/webhook'
+      fullPath: '/api/public/stripe/webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2396,6 +2416,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminInstagramUploadRoute: ApiAdminInstagramUploadRoute,
   ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
   ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

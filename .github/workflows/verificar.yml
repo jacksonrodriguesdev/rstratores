@@ -99,6 +99,9 @@ jobs:
       - name: Links de pagamento (dLocal falsa)
         run: npx tsx scripts/ci/testar-pagamentos.ts
 
+      - name: Links de pagamento (Stripe falso)
+        run: npx tsx scripts/ci/testar-stripe.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

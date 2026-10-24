@@ -2,16 +2,19 @@
 // site, no admin e no servidor).
 
 export type Pais = "UY" | "BR";
-export type Metodo = "CARTAO" | "PIX" | "ABITAB" | "REDPAGOS";
+export type Metodo = "CARTAO" | "PIX" | "ABITAB" | "REDPAGOS" | "STRIPE";
+// Quem processa cada forma: STRIPE = página de pagamento do Stripe (Checkout); o resto, dLocal
+export type Provedor = "dlocal" | "stripe";
+export const provedorDe = (m: string): Provedor => (m === "STRIPE" ? "stripe" : "dlocal");
 
 export const MOEDA: Record<Pais, "UYU" | "BRL"> = { UY: "UYU", BR: "BRL" };
 
-// Formas de pagamento por país (o código é o payment_method_id da dLocal)
+// Formas de pagamento por país (o código é o payment_method_id da dLocal; STRIPE não usa)
 export const METODOS: Record<Pais, Metodo[]> = {
-  UY: ["CARTAO", "ABITAB", "REDPAGOS"],
-  BR: ["CARTAO", "PIX"],
+  UY: ["CARTAO", "ABITAB", "REDPAGOS", "STRIPE"],
+  BR: ["CARTAO", "PIX", "STRIPE"],
 };
-export const ID_DLOCAL: Record<Metodo, string> = {
+export const ID_DLOCAL: Record<Exclude<Metodo, "STRIPE">, string> = {
   CARTAO: "CARD",
   PIX: "PQ",
   ABITAB: "AI",
@@ -22,6 +25,7 @@ export const ROTULO_METODO: Record<Metodo, [string, string]> = {
   PIX: ["PIX", "PIX"],
   ABITAB: ["Abitab (efectivo)", "Abitab (dinheiro)"],
   REDPAGOS: ["Redpagos (efectivo)", "Redpagos (dinheiro)"],
+  STRIPE: ["Tarjeta de crédito o débito (Stripe)", "Cartão de crédito ou débito (Stripe)"],
 };
 
 // Frete: no total do link, grátis, ou por conta do comprador (paga ao receber: DAC / transportadora)

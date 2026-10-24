@@ -42,6 +42,7 @@ export type ResumoLink = {
 export const statusIntegracaoFn = createServerFn({ method: "GET" }).handler(async () => {
   await admin();
   const d = await import("./dlocal.server");
+  const st = await import("./stripe.server");
   const { garantirTabelasPagamento } = await servidor();
   await garantirTabelasPagamento();
   const { prisma } = await import("./prisma");
@@ -66,6 +67,12 @@ export const statusIntegracaoFn = createServerFn({ method: "GET" }).handler(asyn
     avisos,
     comErro,
     presos,
+    stripe: {
+      configurado: st.stripeConfigurado(),
+      ambiente: st.ambienteStripe(),
+      aviso: st.avisoStripeConfigurado(),
+      urlAviso: `${SITE_URL}/api/public/stripe/webhook`,
+    },
   };
 });
 
@@ -467,6 +474,7 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
 
     const { smartFields } = await import("./dlocal.server");
     const sf = smartFields();
+    const stripeAtivo = (await import("./stripe.server")).stripeConfigurado();
     const mascarar = (e: string) => e.replace(/^(.).*?(.)?@/, (_m, a, b) => `${a}•••${b ?? ""}@`);
     return {
       id: l.id,
@@ -479,7 +487,7 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
       frete_modo: l.frete_modo as FreteModo,
       desconto: l.desconto,
       total: l.total,
-      metodos: l.metodos.split(",") as Metodo[],
+      metodos: (l.metodos.split(",") as Metodo[]).filter((m) => m !== "STRIPE" || stripeAtivo),
       descricao: l.descricao,
       nota_cliente: l.nota_cliente,
       status: sv.statusDoLink(l),

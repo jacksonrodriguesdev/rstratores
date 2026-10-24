@@ -631,9 +631,10 @@ model pagamentos {
   id             Int       @id @default(autoincrement())
   link_id        Int
   user_id        Int?
-  metodo         String    @db.VarChar(20) // CARTAO, PIX, ABITAB, REDPAGOS
+  metodo         String    @db.VarChar(20) // CARTAO, PIX, ABITAB, REDPAGOS (dLocal), STRIPE
+  provedor       String    @default("dlocal") @db.VarChar(10) // dlocal | stripe
   order_id       String    @unique @db.VarChar(64)
-  dlocal_id      String?   @unique @db.VarChar(64)
+  dlocal_id      String?   @unique @db.VarChar(100) // id no provedor (dLocal: pagamento; Stripe: sessão cs_...)
   status         String    @default("CRIANDO") @db.VarChar(20) // CRIANDO, PENDENTE, PAGO, AUTORIZADO, RECUSADO, CANCELADO, ERRO
   status_code    String?   @db.VarChar(8)
   status_detalhe String?   @db.VarChar(300)
@@ -674,8 +675,8 @@ model pagamento_eventos {
 // Cada aviso (webhook) recebido da dLocal, sem dados pessoais
 model dlocal_avisos {
   id            Int      @id @default(autoincrement())
-  tipo          String   @db.VarChar(20) // pagamento, reembolso, contestacao
-  dlocal_id     String?  @db.VarChar(64)
+  tipo          String   @db.VarChar(20) // pagamento, reembolso, contestacao, stripe
+  dlocal_id     String?  @db.VarChar(100) // id do pagamento (dLocal) ou da sessão (Stripe)
   status        String?  @db.VarChar(20)
   assinatura_ok Boolean  @default(false)
   processado    Boolean  @default(false)

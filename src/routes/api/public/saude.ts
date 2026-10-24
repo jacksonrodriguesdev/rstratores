@@ -57,6 +57,15 @@ export const Route = createFileRoute("/api/public/saude")({
           instagram: ok(tem("INSTAGRAM_APP_ID") && tem("INSTAGRAM_APP_SECRET")),
           facebook_meta: ok(tem("META_APP_ID") && tem("META_APP_SECRET")),
           avaliacoes_google: ok(tem("GOOGLE_PLACES_API_KEY") && tem("GOOGLE_PLACE_ID"), "faltando (opcional)"),
+          stripe: !tem("STRIPE_SECRET_KEY")
+            ? "faltando (opcional)"
+            : !/^(sk|rk)_(test|live)_/.test(process.env.STRIPE_SECRET_KEY!.trim())
+              ? "STRIPE_SECRET_KEY não começa com sk_test_ ou sk_live_"
+              : !process.env.STRIPE_WEBHOOK_SECRET?.trim().startsWith("whsec_")
+                ? "falta STRIPE_WEBHOOK_SECRET (whsec_...)"
+                : process.env.STRIPE_SECRET_KEY!.includes("_live_")
+                  ? "ok (produção)"
+                  : "ok (teste)",
         };
         return new Response(JSON.stringify(r, null, 2), {
           headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },

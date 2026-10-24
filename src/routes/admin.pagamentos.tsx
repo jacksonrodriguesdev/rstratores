@@ -328,6 +328,59 @@ function PagamentosPage() {
 
 function Integracao({ d }: { d?: Awaited<ReturnType<typeof statusIntegracaoFn>> }) {
   if (!d) return null;
+  return (
+    <div className="space-y-2">
+      <IntegracaoDlocal d={d} />
+      <IntegracaoStripe s={d.stripe} />
+    </div>
+  );
+}
+
+// Stripe: o cliente paga na página do Stripe (Checkout); o aviso confirma o pagamento sozinho
+function IntegracaoStripe({ s }: { s: Awaited<ReturnType<typeof statusIntegracaoFn>>["stripe"] }) {
+  if (!s.configurado)
+    return (
+      <div className="rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-700 ring-1 ring-zinc-200">
+        <p className="font-bold">Stripe ainda não configurado</p>
+        <p className="mt-1">
+          Para aceitar cartão pelo Stripe, coloque nas variáveis de ambiente da Hostinger (hPanel):{" "}
+          <code>STRIPE_SECRET_KEY</code> (sk_test_… para testar, sk_live_… em produção) e{" "}
+          <code>STRIPE_WEBHOOK_SECRET</code> (whsec_…). Nunca mande as chaves por chat.
+        </p>
+        <p className="mt-1">
+          No painel do Stripe (Developers → Webhooks), cadastre o endereço{" "}
+          <code className="select-all break-all">{s.urlAviso}</code> com os eventos{" "}
+          <code>checkout.session.completed</code>, <code>checkout.session.expired</code>,{" "}
+          <code>checkout.session.async_payment_succeeded</code> e{" "}
+          <code>checkout.session.async_payment_failed</code>.
+        </p>
+      </div>
+    );
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-x-5 gap-y-1 rounded-2xl p-3 text-sm ring-1",
+        s.ambiente === "producao"
+          ? "bg-emerald-50 text-emerald-900 ring-emerald-200"
+          : "bg-sky-50 text-sky-900 ring-sky-200",
+      )}
+    >
+      <span className="flex items-center gap-1.5 font-bold">
+        <CheckCircle2 className="h-4 w-4" /> Stripe{" "}
+        {s.ambiente === "producao" ? "em PRODUÇÃO" : "em TESTE"}
+      </span>
+      <span className={cn(!s.aviso && "font-bold text-amber-700")}>
+        Avisos:{" "}
+        {s.aviso
+          ? "ativos"
+          : "falta STRIPE_WEBHOOK_SECRET (o pagamento só confirma ao voltar à página)"}
+      </span>
+      <span className="text-xs opacity-70">Avisos em: {s.urlAviso}</span>
+    </div>
+  );
+}
+
+function IntegracaoDlocal({ d }: { d: Awaited<ReturnType<typeof statusIntegracaoFn>> }) {
   if (!d.configurado)
     return (
       <div className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
@@ -380,7 +433,20 @@ let seq = 1;
 
 function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: number) => void }) {
   const [pais, setPais] = useState<Pais>("UY");
-  const [metodos, setMetodos] = useState<Metodo[]>(METODOS.UY);
+  // Formas marcadas de início: só as dos provedores já configurados (Stripe e/ou dLocal)
+  const integ = useQuery({ queryKey: ["dlocal-status"], queryFn: () => statusIntegracaoFn() });
+  const padrao = (p: Pais) => {
+    const ok = METODOS[p].filter((m) =>
+      m === "STRIPE" ? !!integ.data?.stripe.configurado : !!integ.data?.configurado,
+    );
+    return ok.length ? ok : METODOS[p].filter((m) => m !== "STRIPE");
+  };
+  const [metodos, setMetodos] = useState<Metodo[]>(METODOS.UY.filter((m) => m !== "STRIPE"));
+  const [mexeuMetodos, setMexeuMetodos] = useState(false);
+  useEffect(() => {
+    if (integ.data && !mexeuMetodos) setMetodos(padrao(pais));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [integ.data]);
   const [itens, setItens] = useState<Linha[]>([]);
   const [frete, setFrete] = useState("");
   const [freteModo, setFreteModo] = useState<FreteModo>("COBRADO");
@@ -416,7 +482,7 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
     dadosDoCarrinhoFn({ data: { id: carrinhoId } })
       .then((c) => {
         setPais(c.pais);
-        setMetodos(METODOS[c.pais]);
+        setMetodos(padrao(c.pais));
         if (c.cliente?.email) setEmail(c.cliente.email);
         setPrecosCarrinho(
           Object.fromEntries(c.itens.map((i) => [i.sku, { uyu: i.uyu, brl: i.brl }])),
@@ -442,7 +508,7 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
 
   const trocarPais = (p: Pais) => {
     setPais(p);
-    setMetodos(METODOS[p]);
+    setMetodos(padrao(p));
     // Troca o preço das peças do catálogo para a moeda do país
     setItens((l) =>
       l.map((i) => {
@@ -548,9 +614,10 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
                     <input
                       type="checkbox"
                       checked={metodos.includes(m)}
-                      onChange={(e) =>
+                      onChange={(e) => (
+                        setMexeuMetodos(true),
                         setMetodos((l) => (e.target.checked ? [...l, m] : l.filter((x) => x !== m)))
-                      }
+                      )}
                     />
                     {ROTULO_METODO[m][pais === "BR" ? 1 : 0]}
                   </label>
