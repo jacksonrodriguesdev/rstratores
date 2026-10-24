@@ -383,11 +383,27 @@ export async function iniciarPagamento(
     return { ok: false, erro: t("Revisá los datos de la tarjeta.", "Confira os dados do cartão.") };
 
   // Stripe: sessão aberta e ainda válida para este cliente → volta para a mesma página de pagamento
-  // Moeda e valor cobrados: os do link, ou em dólares (Stripe, Uruguai) pela cotação do dia
+  // Moeda e valor cobrados: os do link; no Stripe, a moeda da conta (conta brasileira = só R$:
+  // o link em $U é convertido pela cotação do dia) ou, com STRIPE_MOEDA=MULTI, pesos ou dólares
   let moedaCobrada = link.moeda;
   let valorCobrado = link.total;
   let cotacaoUsada: number | null = null;
-  if (stripe && p.emDolares && link.moeda === "UYU") {
+  const { moedaContaStripe } = await import("./stripe.server");
+  if (stripe && moedaContaStripe() === "BRL" && link.moeda === "UYU") {
+    const { cotacaoReal, emReais } = await import("./cambio.server");
+    const cot = await cotacaoReal();
+    if (!cot)
+      return {
+        ok: false,
+        erro: t(
+          "No pudimos obtener la cotización del día. Probá de nuevo en unos minutos.",
+          "Não conseguimos a cotação do dia. Tente de novo em alguns minutos.",
+        ),
+      };
+    moedaCobrada = "BRL";
+    valorCobrado = emReais(link.total, cot);
+    cotacaoUsada = cot;
+  } else if (stripe && moedaContaStripe() === "MULTI" && p.emDolares && link.moeda === "UYU") {
     const { cotacaoDolar, emDolares } = await import("./cambio.server");
     const cot = await cotacaoDolar();
     if (!cot)
@@ -589,7 +605,7 @@ async function iniciarStripe(
       descricao:
         (link.descricao || `AGRO PARTS - pedido #${link.id}`) +
         (cobranca.cotacao
-          ? ` (${fmtValor(link.total, link.moeda)} · US$ 1 = $U ${cobranca.cotacao.toFixed(2)})`
+          ? ` (${fmtValor(link.total, link.moeda)} · ${cobranca.moeda === "BRL" ? "R$" : "US$"} 1 = $U ${cobranca.cotacao.toFixed(2)})`
           : ""),
       itensResumo: itens
         .map((i) => `${i.quantidade}× ${i.nome}${i.codigo ? ` (${i.codigo})` : ""}`)

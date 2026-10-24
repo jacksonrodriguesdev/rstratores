@@ -45,5 +45,16 @@ export async function cotacaoDolar(): Promise<{ valor: number; fonte: string } |
   return nova;
 }
 
+// Cotação do real (R$ 1 = $U x): a mesma dos preços do site (Admin → Preços: manual ou automática),
+// sem o ajuste de câmbio dos preços (aqui é só a conversão do valor do link)
+export async function cotacaoReal(): Promise<number | null> {
+  const { configPrecos } = await import("./precos.server");
+  const c = await configPrecos().catch(() => null);
+  return c?.cotacao && c.cotacao > 1 ? c.cotacao : null;
+}
+
+// Total do link em $U (centavos) → reais (centavos), arredondado para cima no centavo
+export const emReais = (centavosUyu: number, cotacao: number) => Math.ceil(centavosUyu / cotacao);
+
 // Total do link em $U (centavos) → dólares (centavos), arredondado para cima no centavo
 export const emDolares = (centavosUyu: number, cotacao: number) => Math.ceil(centavosUyu / cotacao);

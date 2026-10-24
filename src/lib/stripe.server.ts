@@ -14,6 +14,12 @@ export const stripeConfigurado = () => /^(sk|rk)_(test|live)_/.test(env("STRIPE_
 export const avisoStripeConfigurado = () => env("STRIPE_WEBHOOK_SECRET").startsWith("whsec_");
 export const ambienteStripe = (): "teste" | "producao" =>
   env("STRIPE_SECRET_KEY").includes("_live_") ? "producao" : "teste";
+// Moeda que a conta Stripe consegue cobrar. Conta brasileira (padrão): só R$ — cobrança em outra
+// moeda é recusada; o link em $U é convertido para R$ pela cotação do dia e o banco do cliente
+// converte para a moeda do cartão. STRIPE_MOEDA=MULTI: conta que cobra em várias moedas
+// (o cliente do Uruguai escolhe pesos ou dólares).
+export const moedaContaStripe = (): "BRL" | "MULTI" =>
+  env("STRIPE_MOEDA").toUpperCase() === "MULTI" ? "MULTI" : "BRL";
 const urlApi = () => (env("STRIPE_BASE_URL") || "https://api.stripe.com").replace(/\/+$/, "");
 
 export class ErroStripe extends Error {

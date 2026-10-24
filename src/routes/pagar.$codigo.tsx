@@ -569,6 +569,8 @@ function Formulario({ d }: { d: Dados }) {
   // Stripe no Uruguai: o cliente escolhe pagar em pesos ou em dólares (cotação do dia)
   const [emDolares, setEmDolares] = useState(false);
   const usd = stripe && d.dolar ? d.dolar : null;
+  // Conta Stripe brasileira: o link em $U é cobrado em R$ (o banco do cliente converte)
+  const brl = stripe && d.real ? d.real : null;
   const pagar = async () => {
     setErro(null);
     if (!stripe && nome.trim().split(/\s+/).length < 2)
@@ -649,6 +651,24 @@ function Formulario({ d }: { d: Dados }) {
         ))}
       </div>
 
+      {brl && (
+        <div className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+          <p>
+            {t("Con tarjeta se cobra en reales:", "No cartão a cobrança é em reais:")}{" "}
+            <b className="text-base">{fmtValor(brl.valor, "BRL")}</b>{" "}
+            {t(
+              `(equivale a ${fmtValor(d.total, d.moeda)})`,
+              `(equivale a ${fmtValor(d.total, d.moeda)})`,
+            )}
+          </p>
+          <p className="mt-1 text-xs">
+            {t(
+              `Cotización del día: R$ 1 = $U ${brl.cotacao.toLocaleString("es-UY", { maximumFractionDigits: 2 })}. Tu banco lo convierte a la moneda de tu tarjeta y puede cobrar su comisión por compra en el exterior.`,
+              `Cotação do dia: R$ 1 = $U ${brl.cotacao.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}. O seu banco converte para a moeda do cartão e pode cobrar a tarifa de compra no exterior.`,
+            )}
+          </p>
+        </div>
+      )}
       {usd && (
         <div className="mt-4">
           <p className="text-sm font-semibold text-zinc-700">
@@ -741,7 +761,7 @@ function Formulario({ d }: { d: Dados }) {
       >
         {enviando ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-4 w-4" />}
         {metodo === "CARTAO" || stripe
-          ? `${t("Pagar", "Pagar")} ${usd && emDolares ? fmtValor(usd.valor, "USD") : fmtValor(d.total, d.moeda)}`
+          ? `${t("Pagar", "Pagar")} ${brl ? fmtValor(brl.valor, "BRL") : usd && emDolares ? fmtValor(usd.valor, "USD") : fmtValor(d.total, d.moeda)}`
           : metodo === "PIX"
             ? "Gerar código PIX"
             : t("Generar número de pago", "Gerar número de pagamento")}

@@ -475,12 +475,20 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
     const { smartFields } = await import("./dlocal.server");
     const sf = smartFields();
     const stripeAtivo = (await import("./stripe.server")).stripeConfigurado();
-    // Prévia do valor em dólares (Stripe, link do Uruguai): o cliente escolhe a moeda na hora
+    // Stripe, link do Uruguai: conta brasileira cobra em R$ (prévia do valor em reais);
+    // conta multimoeda (STRIPE_MOEDA=MULTI): o cliente escolhe pesos ou dólares
     let dolar: { valor: number; cotacao: number } | null = null;
+    let real: { valor: number; cotacao: number } | null = null;
     if (stripeAtivo && l.moeda === "UYU" && l.metodos.split(",").includes("STRIPE")) {
-      const { cotacaoDolar, emDolares } = await import("./cambio.server");
-      const cot = await cotacaoDolar().catch(() => null);
-      if (cot) dolar = { valor: emDolares(l.total, cot.valor), cotacao: cot.valor };
+      const { moedaContaStripe } = await import("./stripe.server");
+      const cb = await import("./cambio.server");
+      if (moedaContaStripe() === "BRL") {
+        const cot = await cb.cotacaoReal().catch(() => null);
+        if (cot) real = { valor: cb.emReais(l.total, cot), cotacao: cot };
+      } else {
+        const cot = await cb.cotacaoDolar().catch(() => null);
+        if (cot) dolar = { valor: cb.emDolares(l.total, cot.valor), cotacao: cot.valor };
+      }
     }
     const mascarar = (e: string) => e.replace(/^(.).*?(.)?@/, (_m, a, b) => `${a}•••${b ?? ""}@`);
     return {
@@ -497,6 +505,7 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
       metodos: (l.metodos.split(",") as Metodo[]).filter((m) => m !== "STRIPE" || stripeAtivo),
       descricao: l.descricao,
       dolar,
+      real,
       nota_cliente: l.nota_cliente,
       status: sv.statusDoLink(l),
       expira_em: l.expira_em?.toISOString() ?? null,

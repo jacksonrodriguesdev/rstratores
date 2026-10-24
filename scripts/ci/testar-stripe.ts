@@ -100,6 +100,17 @@ async function main() {
     data: { nome_completo: "Cliente Stripe", email, senha_hash: "codigo:x" },
   });
   const s = { id: u.id, email };
+  // Conta Stripe brasileira (padrão): o link em $U é cobrado em R$ pela cotação dos preços
+  delete process.env.STRIPE_MOEDA;
+  const cotacaoAntes = await prisma.configuracoes.findUnique({
+    where: { chave: "cotacao_manual" },
+  });
+  await prisma.configuracoes.upsert({
+    where: { chave: "cotacao_manual" },
+    create: { chave: "cotacao_manual", valor: "8" },
+    update: { valor: "8" },
+  });
+  (await import("../../src/lib/precos.server")).limparCacheConfig();
   const ctx = { ip: null, origem: "http://localhost:3999" };
   const links: number[] = [];
   const aviso = async (tipo: string, sessaoId: string, assinado = true) => {
@@ -140,8 +151,11 @@ async function main() {
     assert.equal(pg.provedor, "stripe");
     assert.equal(pg.status, "PENDENTE");
     assert.ok(pg.dlocal_id && pg.dlocal_id.length > 64, "id da sessão inteiro (mais de 64)");
-    assert.equal(sessoes.get(pg.dlocal_id!).amount_total, 250000, "valor em centavos");
-    assert.equal(sessoes.get(pg.dlocal_id!).currency, "uyu");
+    // $U 2.500 ÷ 8 = R$ 312,50 (conta brasileira só cobra em reais)
+    assert.equal(sessoes.get(pg.dlocal_id!).amount_total, 31250, "valor em reais (centavos)");
+    assert.equal(sessoes.get(pg.dlocal_id!).currency, "brl");
+    assert.equal(pg.moeda, "BRL");
+    assert.equal(pg.valor, 31250);
 
     // 2. Clicou de novo: volta para a mesma sessão (não cria outra)
     const r2 = await sv.iniciarPagamento(
@@ -226,7 +240,7 @@ async function main() {
     Object.assign(sessoes.get(pg2.dlocal_id!), {
       payment_status: "unpaid",
       status: "expired",
-      amount_total: 250000,
+      amount_total: 31250,
     });
     await sv.conferirPagamento(pg2.id);
     assert.equal(
@@ -234,7 +248,8 @@ async function main() {
       "CANCELADO",
     );
 
-    // 7. Pagar em dólares (link em pesos): cotação do dia, sessão em USD, pago normalmente
+    // 7. Conta multimoeda (STRIPE_MOEDA=MULTI): o cliente escolhe dólares; sessão em USD, pago
+    process.env.STRIPE_MOEDA = "MULTI";
     await prisma.configuracoes.upsert({
       where: { chave: "cotacao_usd_manual" },
       create: { chave: "cotacao_usd_manual", valor: "40" },
@@ -294,7 +309,7 @@ async function main() {
       200,
     );
     console.log(
-      "✔ Stripe: página de pagamento, aviso assinado, pago, divergência, expirado e pago em dólares",
+      "✔ Stripe: página de pagamento, aviso assinado, pago, divergência, expirado, cobrança em reais (conta brasileira) e em dólares (multimoeda)",
     );
   } finally {
     await prisma.pagamento_eventos.deleteMany({ where: { link_id: { in: links } } });
@@ -302,6 +317,12 @@ async function main() {
     await prisma.dlocal_avisos.deleteMany({ where: { tipo: "stripe" } });
     await prisma.users.deleteMany({ where: { id: u.id } });
     await prisma.configuracoes.deleteMany({ where: { chave: "cotacao_usd_manual" } });
+    if (cotacaoAntes)
+      await prisma.configuracoes.update({
+        where: { chave: "cotacao_manual" },
+        data: { valor: cotacaoAntes.valor },
+      });
+    else await prisma.configuracoes.deleteMany({ where: { chave: "cotacao_manual" } });
     await prisma.$disconnect();
     servidor.close();
   }
