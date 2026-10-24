@@ -138,7 +138,7 @@ async function lerLinhas(filtro: any): Promise<Linha[]> {
       select: { ...SELECT_LINHA, path: true },
     }) as Promise<Linha[]>,
     prisma.site_eventos.findMany({
-      where: { ...filtro, tipo: { notIn: ["clique", "rolagem"] } },
+      where: { ...filtro, tipo: { notIn: ["clique", "rolagem", "vitals"] } },
       orderBy: { created_at: "asc" },
       take: 50000,
       select: { ...SELECT_LINHA, tipo: true, dado: true },

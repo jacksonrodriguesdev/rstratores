@@ -919,14 +919,15 @@ export function descricaoPeca(p: PecaTexto, idioma: Idioma): string {
 // não couber). Espanhol (a versão que vai para o Google, Uruguai): o código na frente, porque a maior parte
 // das buscas que já trazem o site são pelo código da peça, e o Google destaca o que bate com a
 // busca. "30250100 · Filtro hidráulico tractor Valtra | Uruguay" (até ~60 caracteres).
-function tituloPecaEs(p: PecaTexto): string {
+function tituloPecaCodigo(p: PecaTexto, idioma: Idioma): string {
   const codigo = codigoDe(p);
   const marca = marcaDe(p);
-  let nome = semCodigo(nomeLegivel(nomePeca(p, "es")), codigo);
-  if (!nome.includes(" ")) nome += " para tractor";
+  let nome = semCodigo(nomeLegivel(nomePeca(p, idioma)), codigo);
+  if (!nome.includes(" ")) nome += idioma === "pt" ? " para trator" : " para tractor";
   const marcaTxt = marca && !sem(nome).includes(sem(marca)) ? ` ${marca}` : "";
   const inicio = `${codigo} · `;
-  const fim = " | Uruguay";
+  // Português (Sul do Brasil): a região no fim, como o "Uruguay" do espanhol
+  const fim = idioma === "pt" ? " | RS, SC e PR" : " | Uruguay";
   const cabe = 60 - inicio.length - marcaTxt.length;
   if (nome.length <= cabe - fim.length) return `${inicio}${nome}${marcaTxt}${fim}`;
   if (nome.length <= cabe) return `${inicio}${nome}${marcaTxt}`;
@@ -954,7 +955,11 @@ function semCodigo(nome: string, codigo: string): string {
 }
 
 export function tituloPeca(p: PecaTexto, idioma: Idioma): string {
-  if (idioma === "es") return tituloPecaEs(p);
+  return tituloPecaCodigo(p, idioma);
+}
+
+// Formato antigo do título (nome primeiro e "| AGRO PARTS"), guardado para comparação
+export function tituloPecaNomePrimeiro(p: PecaTexto, idioma: Idioma): string {
   let nome = nomeLegivel(nomePeca(p, idioma));
   const marca = marcaDe(p);
   const codigo = codigoDe(p);
@@ -973,11 +978,16 @@ export function tituloPeca(p: PecaTexto, idioma: Idioma): string {
 }
 
 // Espanhol: preço em $U e códigos equivalentes no resultado do Google (o que faz clicar)
-export type ExtraMeta = { precoUyu?: number | null; equivalentes?: string[] };
-function metaDescricaoPecaEs(p: PecaTexto, extra: ExtraMeta): string {
+export type ExtraMeta = {
+  precoUyu?: number | null;
+  precoBrl?: number | null;
+  equivalentes?: string[];
+};
+function metaDescricaoPecaCodigo(p: PecaTexto, idioma: Idioma, extra: ExtraMeta): string {
+  const pt = idioma === "pt";
   const codigo = codigoDe(p);
   const marca = marcaDe(p);
-  const nome = semCodigo(nomeLegivel(nomePeca(p, "es")), codigo);
+  const nome = semCodigo(nomeLegivel(nomePeca(p, idioma)), codigo);
   const marcaTxt = marca && !sem(nome).includes(sem(marca)) ? ` ${marca}` : "";
   const equiv = [
     ...new Set(
@@ -990,15 +1000,20 @@ function metaDescricaoPecaEs(p: PecaTexto, extra: ExtraMeta): string {
   ]
     .filter((c) => c && c !== codigo)
     .slice(0, 3);
-  const preco =
-    extra.precoUyu && extra.precoUyu > 0
+  const preco = pt
+    ? extra.precoBrl && extra.precoBrl > 0
+      ? `R$ ${extra.precoBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : ""
+    : extra.precoUyu && extra.precoUyu > 0
       ? `$U ${Math.round(extra.precoUyu).toLocaleString("es-UY")}`
       : "";
-  const estoque = (p.estoque ?? 0) > 0 ? "en stock" : "";
+  const estoque = (p.estoque ?? 0) > 0 ? (pt ? "em estoque" : "en stock") : "";
   const situacao = [preco, estoque].filter(Boolean).join(", ");
-  const final = "Envío a todo Uruguay por DAC. Cotizá por WhatsApp.";
+  const final = pt
+    ? "Envio para RS, SC e PR com nota fiscal. Orçamento pelo WhatsApp."
+    : "Envío a todo Uruguay por DAC. Cotizá por WhatsApp.";
   const partes = (comEquiv: boolean) =>
-    `${nome}${marcaTxt}, código ${codigo}${comEquiv && equiv.length ? ` (equivale a ${equiv.join(", ")})` : ""}.${situacao ? ` ${situacao[0].toUpperCase()}${situacao.slice(1)}.` : ""} ${final}`;
+    `${nome}${marcaTxt}, código ${codigo}${comEquiv && equiv.length ? ` (${pt ? "equivale a" : "equivale a"} ${equiv.join(", ")})` : ""}.${situacao ? ` ${situacao[0].toUpperCase()}${situacao.slice(1)}.` : ""} ${final}`;
   const completa = partes(true);
   if (completa.length <= 160) return completa;
   const semEquiv = partes(false);
@@ -1006,7 +1021,11 @@ function metaDescricaoPecaEs(p: PecaTexto, extra: ExtraMeta): string {
 }
 
 export function metaDescricaoPeca(p: PecaTexto, idioma: Idioma, extra: ExtraMeta = {}): string {
-  if (idioma === "es") return metaDescricaoPecaEs(p, extra);
+  return metaDescricaoPecaCodigo(p, idioma, extra);
+}
+
+// Formato antigo da descrição (sem preço), guardado para comparação
+export function metaDescricaoPecaAntiga(p: PecaTexto, idioma: Idioma): string {
   const pt = idioma === "pt";
   const nome = nomeLegivel(nomePeca(p, idioma));
   const codigo = codigoDe(p);

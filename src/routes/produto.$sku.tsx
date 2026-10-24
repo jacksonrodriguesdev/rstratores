@@ -96,6 +96,7 @@ export const Route = createFileRoute("/produto/$sku")({
     const precoMeta = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
     const desc = metaDescricaoPeca(p, idioma, {
       precoUyu: precoMeta?.uyu ?? null,
+      precoBrl: precoMeta?.brl ?? null,
       equivalentes: (p.variantes ?? []).map((v) => v.codigo_fabricante ?? "").filter(Boolean),
     });
     const caminho = `/produto/${encodeURIComponent(p.sku)}`;

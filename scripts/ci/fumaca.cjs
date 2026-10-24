@@ -32,6 +32,7 @@ const PAGINAS = [
   ["/sitemaps/pecas-1.xml", 200, ["CI-001"]],
   ["/robots.txt", 200, ["Sitemap"]],
   ["/feeds/google-merchant.xml", 200, ["<?xml"]],
+  ["/feeds/google-merchant-br.xml", 200, ["<?xml"]],
   ["/pagar/link-que-nao-existe", 200, ["Link no encontrado"]],
   ["/pt/pagar/link-que-nao-existe", 200, ["Link não encontrado"]],
   ["/pagina-que-nao-existe-ci", 404, []],

@@ -88,3 +88,11 @@ export const leadsOrganicosFn = createServerFn({ method: "GET" })
     await admin();
     return (await import("./leads-organicos.server")).leadsOrganicos(data.dias);
   });
+
+// Admin → Google: velocidade real (Core Web Vitals) medida nos aparelhos dos visitantes
+export const velocidadeFn = createServerFn({ method: "GET" })
+  .validator((d: { dias: number }) => ({ dias: diasOk(d?.dias) }))
+  .handler(async ({ data }) => {
+    await admin();
+    return (await import("./velocidade.server")).velocidade(data.dias);
+  });

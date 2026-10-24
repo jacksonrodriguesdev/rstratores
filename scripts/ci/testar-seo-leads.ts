@@ -52,8 +52,18 @@ async function main() {
   });
   assert.ok(d.includes("$U 1.420") || d.includes("$U 1420"), `preço: ${d}`);
   assert.ok(d.includes("P550148") && d.includes("Uruguay") && d.length <= 160, `descrição: ${d}`);
-  // Português continua como antes (marca da loja)
-  assert.ok(tituloPeca(peca, "pt").includes("AGRO PARTS") || tituloPeca(peca, "pt").length <= 62);
+  // Português (Sul do Brasil): código na frente, preço em R$ e envio para RS, SC e PR
+  const tPt = tituloPeca(peca, "pt");
+  assert.ok(tPt.startsWith("30250100 · ") && tPt.length <= 60, `título pt: ${tPt}`);
+  const dPt = metaDescricaoPeca(peca, "pt", { precoBrl: 221.25 });
+  assert.ok(dPt.includes("R$ 221,25") && dPt.includes("RS, SC e PR") && dPt.length <= 160, dPt);
+  assert.ok(!dPt.includes("Uruguay") && !dPt.includes("DAC"), "português sem Uruguai");
+
+  // ---- Feed do Google Shopping para o Brasil (R$, /pt)
+  const { feedGoogle } = await import("../../src/lib/feed-google.server");
+  const fbr = await feedGoogle("BR");
+  assert.ok(fbr.xml.includes("Peças agrícolas"), "feed BR em português");
+  assert.ok(!/ UYU<\/g:price>/.test(fbr.xml), "feed BR sem preço em pesos");
 
   // ---- Lista guardada: venceu → entrega o valor antigo e recalcula por trás
   const { emCache } = await import("../../src/lib/cache.server");
@@ -117,7 +127,30 @@ async function main() {
     assert.ok(!r.pecas.some((p) => p.peca === "Z1"), "Facebook não entra");
     assert.ok(r.recentes.some((l) => l.entrada === "/produto/30250100TF" && l.acao === "WhatsApp"));
     assert.equal(r.porDia.length, 7);
-    console.log("ok: SEO fase 1 (títulos, descrição, lista guardada, leads do Google)");
+    // Velocidade real: percentil 75 por aparelho e por tipo de página
+    for (const [lcp, inp, ap] of [
+      [1000, 100, "celular"],
+      [2000, 150, "celular"],
+      [3000, 300, "celular"],
+      [4000, 400, "celular"],
+      [900, 50, "computador"],
+    ] as const)
+      await prisma.site_eventos.create({
+        data: {
+          tipo: "vitals",
+          dado: `/pt/produto/X|${lcp}|0.01|${inp}|${ap}`,
+          visitor_id: P + "v",
+          session_id: P + "v",
+        },
+      });
+    const { velocidade } = await import("../../src/lib/velocidade.server");
+    const vel = await velocidade(7);
+    assert.ok(vel.celular.visitas >= 4);
+    assert.ok(
+      vel.porTipo.some((t) => t.tipo === "Peça (pt)"),
+      "tipo de página",
+    );
+    console.log("ok: SEO (títulos es/pt, descrição, feed BR, lista guardada, leads, velocidade)");
   } finally {
     await limpar();
     await prisma.$disconnect();

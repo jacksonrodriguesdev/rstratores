@@ -521,7 +521,7 @@ export async function calcularDiaCompleto(
   const linhas: Linha[] = [
     ...(ps as Linha[]),
     ...evs
-      .filter((e) => e.tipo !== "clique" && e.tipo !== "rolagem")
+      .filter((e) => e.tipo !== "clique" && e.tipo !== "rolagem" && e.tipo !== "vitals")
       .map(
         ({ tipo, dado, id, ...e }) =>
           ({ ...e, id: -id, path: caminhoDoEvento({ tipo, dado }) }) as Linha,

@@ -28,7 +28,7 @@ const enviar = (corpo: object) => {
     keepalive: true,
   }).catch(() => {});
 };
-const evento = (tipo: "clique" | "rolagem", dado: string, pagina: string) =>
+const evento = (tipo: "clique" | "rolagem" | "vitals", dado: string, pagina: string) =>
   enviar({
     path: `${PREFIXO_EVENTO}${tipo}/${encodeURIComponent(dado).slice(0, 170)}`,
     pagina,
@@ -120,6 +120,61 @@ export function VisitTracker() {
       sair(); // trocou de página dentro do site
     };
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Velocidade real (Core Web Vitals) da primeira página aberta, no aparelho do visitante: LCP (quando
+  // o conteúdo principal aparece), CLS (quanto a tela "pula") e INP (demora para responder ao toque).
+  // É o que o Google usa para avaliar o site. Enviado uma vez, ao sair (Admin → Google → Velocidade).
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof PerformanceObserver === "undefined") return;
+    const pagina = window.location.pathname;
+    if (pagina.startsWith("/admin") || pagina.startsWith("/login") || daEquipe()) return;
+    let lcp = 0;
+    let cls = 0;
+    let inp = 0;
+    const obs: PerformanceObserver[] = [];
+    const observar = (type: string, cb: (l: PerformanceEntryList) => void, extra = {}) => {
+      try {
+        const o = new PerformanceObserver((l) => cb(l.getEntries()));
+        o.observe({ type, buffered: true, ...extra } as PerformanceObserverInit);
+        obs.push(o);
+      } catch {
+        /* navegador sem esta métrica */
+      }
+    };
+    observar("largest-contentful-paint", (es) => {
+      const u = es[es.length - 1];
+      if (u) lcp = Math.round(u.startTime);
+    });
+    observar("layout-shift", (es) => {
+      for (const e of es as any[]) if (!e.hadRecentInput) cls += e.value;
+    });
+    observar(
+      "event",
+      (es) => {
+        for (const e of es as any[]) if (e.interactionId && e.duration > inp) inp = e.duration;
+      },
+      { durationThreshold: 40 },
+    );
+    let enviado = false;
+    const enviarVitals = () => {
+      if (enviado || !lcp) return;
+      enviado = true;
+      const aparelho = window.matchMedia("(max-width: 767px)").matches ? "celular" : "computador";
+      evento(
+        "vitals",
+        `${pagina}|${lcp}|${Math.round(cls * 1000) / 1000}|${Math.round(inp)}|${aparelho}`,
+        pagina,
+      );
+      obs.forEach((o) => o.disconnect());
+    };
+    const onVis = () => document.visibilityState === "hidden" && enviarVitals();
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("pagehide", enviarVitals);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("pagehide", enviarVitals);
+    };
+  }, []);
 
   // Todo clique em link do WhatsApp vira um evento de interesse (qual peça, de qual página).
   // O carrinho abre o WhatsApp por window.open e registra o próprio evento.

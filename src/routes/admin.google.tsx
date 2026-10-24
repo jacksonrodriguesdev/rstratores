@@ -43,7 +43,7 @@ import {
 } from "@/lib/search-console";
 import { gerarPalavras } from "@/lib/palavras-chave";
 import { cn } from "@/lib/utils";
-import { leadsOrganicosFn } from "@/lib/analises";
+import { leadsOrganicosFn, velocidadeFn } from "@/lib/analises";
 
 // Admin → Posições no Google: dados do Search Console (cliques, impressões, posição média, buscas
 // e páginas), importados todo dia e guardados para comparar períodos.
@@ -168,6 +168,7 @@ function PosicoesGoogle() {
         </Card>
       )}
       <LeadsGoogle dias={dias} />
+      <Velocidade dias={dias} />
       {rel.data && <Relatorio r={rel.data} dias={dias} />}
     </div>
   );
@@ -795,5 +796,72 @@ function Tabela({ colunas, linhas }: { colunas: string[]; linhas: React.ReactNod
         </tbody>
       </table>
     </div>
+  );
+}
+
+// Velocidade real (Core Web Vitals) medida no celular/computador de quem visita. O Google usa o
+// percentil 75; verde = dentro do limite "bom" do Google.
+function Velocidade({ dias }: { dias: number }) {
+  const q = useQuery({
+    queryKey: ["velocidade", dias],
+    queryFn: () => velocidadeFn({ data: { dias } }),
+  });
+  const r = q.data;
+  if (!r) return null;
+  const L = r.limites;
+  const cor = (v: number | null, lim: number) =>
+    v == null
+      ? "text-zinc-400"
+      : v <= lim
+        ? "text-emerald-700"
+        : v <= lim * 1.6
+          ? "text-amber-600"
+          : "text-red-600";
+  const seg = (v: number | null) =>
+    v == null ? "—" : `${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} s`;
+  const ms = (v: number | null) => (v == null ? "—" : `${Math.round(v)} ms`);
+  const cls = (v: number | null) =>
+    v == null ? "—" : v.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+  const linha = (
+    rotulo: string,
+    m: { visitas: number; lcp: number | null; cls: number | null; inp: number | null },
+  ) => [
+    rotulo,
+    n(m.visitas),
+    <span key="l" className={cn("font-bold", cor(m.lcp, L.lcp))}>
+      {seg(m.lcp)}
+    </span>,
+    <span key="i" className={cn("font-bold", cor(m.inp, L.inp))}>
+      {ms(m.inp)}
+    </span>,
+    <span key="c" className={cn("font-bold", cor(m.cls, L.cls))}>
+      {cls(m.cls)}
+    </span>,
+  ];
+  return (
+    <Card className="p-4">
+      <h2 className="flex items-center gap-2 font-bold text-zinc-900">
+        <Sparkles className="h-5 w-5 text-primary" /> Velocidade real (o que o Google mede)
+      </h2>
+      <p className="text-xs text-zinc-500">
+        Medida no aparelho de cada visitante (percentil 75). Bom para o Google: conteúdo principal
+        em até 2,5 s (LCP), resposta ao toque em até 200 ms (INP) e tela sem pular (CLS até 0,1).
+      </p>
+      {r.geral.visitas === 0 ? (
+        <p className="mt-2 text-sm text-zinc-500">
+          Ainda sem medidas: começam a chegar com as próximas visitas.
+        </p>
+      ) : (
+        <Tabela
+          colunas={["Onde", "Visitas", "Aparece em (LCP)", "Responde em (INP)", "Pula (CLS)"]}
+          linhas={[
+            linha("Todas", r.geral),
+            linha("Celular", r.celular),
+            linha("Computador", r.computador),
+            ...r.porTipo.map((t) => linha(t.tipo, t)),
+          ]}
+        />
+      )}
+    </Card>
   );
 }
