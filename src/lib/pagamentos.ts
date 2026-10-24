@@ -475,6 +475,13 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
     const { smartFields } = await import("./dlocal.server");
     const sf = smartFields();
     const stripeAtivo = (await import("./stripe.server")).stripeConfigurado();
+    // Prévia do valor em dólares (Stripe, link do Uruguai): o cliente escolhe a moeda na hora
+    let dolar: { valor: number; cotacao: number } | null = null;
+    if (stripeAtivo && l.moeda === "UYU" && l.metodos.split(",").includes("STRIPE")) {
+      const { cotacaoDolar, emDolares } = await import("./cambio.server");
+      const cot = await cotacaoDolar().catch(() => null);
+      if (cot) dolar = { valor: emDolares(l.total, cot.valor), cotacao: cot.valor };
+    }
     const mascarar = (e: string) => e.replace(/^(.).*?(.)?@/, (_m, a, b) => `${a}•••${b ?? ""}@`);
     return {
       id: l.id,
@@ -489,6 +496,7 @@ export const linkPagamentoFn = createServerFn({ method: "GET" })
       total: l.total,
       metodos: (l.metodos.split(",") as Metodo[]).filter((m) => m !== "STRIPE" || stripeAtivo),
       descricao: l.descricao,
+      dolar,
       nota_cliente: l.nota_cliente,
       status: sv.statusDoLink(l),
       expira_em: l.expira_em?.toISOString() ?? null,
@@ -510,6 +518,7 @@ export const pagarLinkFn = createServerFn({ method: "POST" })
       nome: string;
       token?: string;
       idioma?: "es" | "pt";
+      emDolares?: boolean;
     }) => ({
       codigo: String(d?.codigo || "").slice(0, 40),
       metodo: String(d?.metodo || "") as Metodo,
@@ -517,6 +526,7 @@ export const pagarLinkFn = createServerFn({ method: "POST" })
       nome: String(d?.nome || "").slice(0, 120),
       token: d?.token ? String(d.token).slice(0, 200) : undefined,
       idioma: d?.idioma === "pt" ? ("pt" as const) : ("es" as const),
+      emDolares: d?.emDolares === true,
     }),
   )
   .handler(async ({ data }) => {

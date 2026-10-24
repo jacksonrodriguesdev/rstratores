@@ -322,6 +322,8 @@ export type PedidoPagamento = {
   nome: string;
   token?: string; // cartão (Smart Fields)
   idioma: "es" | "pt";
+  // Stripe, link do Uruguai: o cliente escolhe pagar em pesos (padrão) ou em dólares (cotação do dia)
+  emDolares?: boolean;
 };
 export type RespostaPagamento =
   { ok: true; status: string; redirect?: string | null } | { ok: false; erro: string };
@@ -381,11 +383,32 @@ export async function iniciarPagamento(
     return { ok: false, erro: t("Revisá los datos de la tarjeta.", "Confira os dados do cartão.") };
 
   // Stripe: sessão aberta e ainda válida para este cliente → volta para a mesma página de pagamento
+  // Moeda e valor cobrados: os do link, ou em dólares (Stripe, Uruguai) pela cotação do dia
+  let moedaCobrada = link.moeda;
+  let valorCobrado = link.total;
+  let cotacaoUsada: number | null = null;
+  if (stripe && p.emDolares && link.moeda === "UYU") {
+    const { cotacaoDolar, emDolares } = await import("./cambio.server");
+    const cot = await cotacaoDolar();
+    if (!cot)
+      return {
+        ok: false,
+        erro: t(
+          "No pudimos obtener la cotación del dólar. Probá pagar en pesos.",
+          "Não conseguimos a cotação do dólar. Tente pagar em pesos.",
+        ),
+      };
+    moedaCobrada = "USD";
+    valorCobrado = emDolares(link.total, cot.valor);
+    cotacaoUsada = cot.valor;
+  }
   if (stripe) {
     const aberta = await prisma.pagamentos.findFirst({
       where: {
         link_id: link.id,
         metodo: "STRIPE",
+        moeda: moedaCobrada,
+        valor: valorCobrado,
         status: "PENDENTE",
         user_id: sessao.id,
         redirect_url: { not: null },
@@ -450,15 +473,22 @@ export async function iniciarPagamento(
       metodo: p.metodo,
       provedor: provedorDe(p.metodo),
       order_id: orderId,
-      valor: link.total,
-      moeda: link.moeda,
+      valor: valorCobrado,
+      moeda: moedaCobrada,
       documento: doc ? mascararDocumento(doc) : null,
     },
   });
 
   const caminho = `${pt ? "/pt" : ""}/pagar/${link.codigo}`;
   if (stripe)
-    return iniciarStripe(link, pg.id, orderId, u.email, p.idioma, contexto.origem + caminho);
+    return iniciarStripe(
+      link,
+      { id: pg.id, valor: valorCobrado, moeda: moedaCobrada, cotacao: cotacaoUsada },
+      orderId,
+      u.email,
+      p.idioma,
+      contexto.origem + caminho,
+    );
   // Endereço do pagador: só o que o cliente cadastrou (nunca endereço de exemplo)
   const endereco = {
     ...(u.departamento && { state: u.departamento }),
@@ -541,7 +571,7 @@ export async function iniciarPagamento(
 // ---------- Stripe: cria a página de pagamento (Checkout) e manda o cliente para lá ----------
 async function iniciarStripe(
   link: { id: number; total: number; moeda: string; itens: string; descricao: string | null },
-  pagamentoId: number,
+  cobranca: { id: number; valor: number; moeda: string; cotacao: number | null },
   orderId: string,
   email: string,
   idioma: "es" | "pt",
@@ -549,13 +579,18 @@ async function iniciarStripe(
 ): Promise<RespostaPagamento> {
   const pt = idioma === "pt";
   const itens = lerItens(link.itens);
+  const pagamentoId = cobranca.id;
   try {
     const sessaoStripe = await criarSessaoStripe({
       orderId,
       linkId: link.id,
-      valor: link.total,
-      moeda: link.moeda === "BRL" ? "BRL" : "UYU",
-      descricao: link.descricao || `AGRO PARTS - pedido #${link.id}`,
+      valor: cobranca.valor,
+      moeda: cobranca.moeda === "USD" ? "USD" : cobranca.moeda === "BRL" ? "BRL" : "UYU",
+      descricao:
+        (link.descricao || `AGRO PARTS - pedido #${link.id}`) +
+        (cobranca.cotacao
+          ? ` (${fmtValor(link.total, link.moeda)} · US$ 1 = $U ${cobranca.cotacao.toFixed(2)})`
+          : ""),
       itensResumo: itens
         .map((i) => `${i.quantidade}× ${i.nome}${i.codigo ? ` (${i.codigo})` : ""}`)
         .join(" · "),
@@ -571,7 +606,12 @@ async function iniciarStripe(
         where: { id: pagamentoId },
         data: { expira_em: new Date(sessaoStripe.expires_at * 1000) },
       });
-    await evento(link.id, "tentativa", `STRIPE · ${email}`, pagamentoId);
+    await evento(
+      link.id,
+      "tentativa",
+      `STRIPE · ${fmtValor(cobranca.valor, cobranca.moeda)}${cobranca.cotacao ? ` (cotação ${cobranca.cotacao.toFixed(2)})` : ""} · ${email}`,
+      pagamentoId,
+    );
     const final = await aplicarResposta(pagamentoId, sessaoComoPagamento(sessaoStripe), "criacao");
     return { ok: true, status: final.status, redirect: final.redirect_url ?? sessaoStripe.url };
   } catch (e) {
@@ -824,7 +864,11 @@ async function emailsDaVenda(linkId: number) {
     codigo: i.codigo,
     quantidade: i.quantidade,
   }));
-  const valor = fmtValor(link.total, link.moeda);
+  // Pago em outra moeda (dólares pelo Stripe): mostra o valor cobrado e o do pedido
+  const valor =
+    pg && pg.moeda !== link.moeda
+      ? `${fmtValor(pg.valor, pg.moeda)} (${fmtValor(link.total, link.moeda)})`
+      : fmtValor(link.total, link.moeda);
   const contaUrl = `${SITE_URL}${pt ? "/pt" : ""}/cuenta`;
 
   if (link.user) {

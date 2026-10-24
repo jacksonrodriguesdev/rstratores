@@ -101,7 +101,7 @@ export type NovaSessao = {
   orderId: string;
   linkId: number;
   valor: number; // centavos
-  moeda: "UYU" | "BRL";
+  moeda: "UYU" | "BRL" | "USD";
   descricao: string;
   itensResumo: string;
   email?: string | null;

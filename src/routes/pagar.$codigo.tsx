@@ -566,6 +566,9 @@ function Formulario({ d }: { d: Dados }) {
 
   // Stripe: nome e cartão são pedidos na página do próprio Stripe
   const stripe = metodo === "STRIPE";
+  // Stripe no Uruguai: o cliente escolhe pagar em pesos ou em dólares (cotação do dia)
+  const [emDolares, setEmDolares] = useState(false);
+  const usd = stripe && d.dolar ? d.dolar : null;
   const pagar = async () => {
     setErro(null);
     if (!stripe && nome.trim().split(/\s+/).length < 2)
@@ -585,7 +588,15 @@ function Formulario({ d }: { d: Dados }) {
         token = await cartao.current.token(nome.trim());
       }
       const r = await pagarLinkFn({
-        data: { codigo: d.codigo, metodo, documento: doc, nome, token, idioma },
+        data: {
+          codigo: d.codigo,
+          metodo,
+          documento: doc,
+          nome,
+          token,
+          idioma,
+          emDolares: !!usd && emDolares,
+        },
       });
       if (!r.ok) {
         setErro(r.erro);
@@ -638,6 +649,38 @@ function Formulario({ d }: { d: Dados }) {
         ))}
       </div>
 
+      {usd && (
+        <div className="mt-4">
+          <p className="text-sm font-semibold text-zinc-700">
+            {t("¿En qué moneda querés pagar?", "Em qual moeda quer pagar?")}
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {[
+              { dol: false, rotulo: t("Pesos", "Pesos"), valor: fmtValor(d.total, d.moeda) },
+              { dol: true, rotulo: t("Dólares", "Dólares"), valor: fmtValor(usd.valor, "USD") },
+            ].map((o) => (
+              <button
+                key={o.rotulo}
+                type="button"
+                onClick={() => setEmDolares(o.dol)}
+                className={cn(
+                  "rounded-xl px-3 py-2.5 text-left ring-1 transition",
+                  emDolares === o.dol
+                    ? "bg-primary/5 ring-2 ring-primary"
+                    : "ring-zinc-200 hover:bg-zinc-50",
+                )}
+              >
+                <span className="block text-xs font-semibold text-zinc-500">{o.rotulo}</span>
+                <span className="block text-base font-extrabold text-zinc-900">{o.valor}</span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-1.5 text-xs text-zinc-500">
+            {t("Cotización del día:", "Cotação do dia:")} US$ 1 = $U{" "}
+            {usd.cotacao.toLocaleString("es-UY", { maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      )}
       {stripe && (
         <p className="mt-4 rounded-xl bg-zinc-50 p-3 text-sm text-zinc-700">
           {t(
@@ -698,7 +741,7 @@ function Formulario({ d }: { d: Dados }) {
       >
         {enviando ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-4 w-4" />}
         {metodo === "CARTAO" || stripe
-          ? `${t("Pagar", "Pagar")} ${fmtValor(d.total, d.moeda)}`
+          ? `${t("Pagar", "Pagar")} ${usd && emDolares ? fmtValor(usd.valor, "USD") : fmtValor(d.total, d.moeda)}`
           : metodo === "PIX"
             ? "Gerar código PIX"
             : t("Generar número de pago", "Gerar número de pagamento")}

@@ -234,18 +234,74 @@ async function main() {
       "CANCELADO",
     );
 
-    // 7. Evento de outro tipo: só confirma o recebimento
+    // 7. Pagar em dólares (link em pesos): cotação do dia, sessão em USD, pago normalmente
+    await prisma.configuracoes.upsert({
+      where: { chave: "cotacao_usd_manual" },
+      create: { chave: "cotacao_usd_manual", valor: "40" },
+      update: { valor: "40" },
+    });
+    const l3 = await sv.criarLink(
+      {
+        pais: "UY",
+        itens: [item],
+        frete: 0,
+        desconto: 0,
+        metodos: ["STRIPE"],
+        email_cliente: email,
+        dias_validade: 7,
+      },
+      1,
+    );
+    links.push(l3.id);
+    const rUsd = await sv.iniciarPagamento(
+      {
+        codigo: l3.codigo,
+        metodo: "STRIPE",
+        documento: "",
+        nome: "",
+        idioma: "es",
+        emDolares: true,
+      },
+      s,
+      ctx,
+    );
+    assert.ok(rUsd.ok && rUsd.redirect, JSON.stringify(rUsd));
+    const pg3 = await prisma.pagamentos.findFirstOrThrow({ where: { link_id: l3.id } });
+    assert.equal(pg3.moeda, "USD");
+    assert.equal(pg3.valor, 6250, "$U 2.500 ÷ 40 = US$ 62,50");
+    const ses3 = sessoes.get(pg3.dlocal_id!);
+    assert.equal(ses3.currency, "usd");
+    assert.equal(ses3.amount_total, 6250);
+    // Em pesos depois: outra sessão (moeda diferente), não reaproveita a de dólares
+    const rUyu = await sv.iniciarPagamento(
+      { codigo: l3.codigo, metodo: "STRIPE", documento: "", nome: "", idioma: "es" },
+      s,
+      ctx,
+    );
+    assert.ok(rUyu.ok && rUyu.redirect !== rUsd.redirect, "pesos: outra sessão");
+    Object.assign(ses3, { payment_status: "paid", status: "complete" });
+    await aviso("checkout.session.completed", pg3.dlocal_id!);
+    assert.equal(
+      (await prisma.links_pagamento.findUniqueOrThrow({ where: { id: l3.id } })).status,
+      "PAGO",
+      "pago em dólares",
+    );
+
+    // 8. Evento de outro tipo: só confirma o recebimento
     const outro = JSON.stringify({ type: "charge.succeeded", data: { object: { id: "ch_1" } } });
     assert.equal(
       (await sv.receberAvisoStripe(outro, st.avisoStripeAutentico(outro, assinar(outro)))).status,
       200,
     );
-    console.log("✔ Stripe: página de pagamento, aviso assinado, pago, divergência e expirado");
+    console.log(
+      "✔ Stripe: página de pagamento, aviso assinado, pago, divergência, expirado e pago em dólares",
+    );
   } finally {
     await prisma.pagamento_eventos.deleteMany({ where: { link_id: { in: links } } });
     await prisma.links_pagamento.deleteMany({ where: { id: { in: links } } });
     await prisma.dlocal_avisos.deleteMany({ where: { tipo: "stripe" } });
     await prisma.users.deleteMany({ where: { id: u.id } });
+    await prisma.configuracoes.deleteMany({ where: { chave: "cotacao_usd_manual" } });
     await prisma.$disconnect();
     servidor.close();
   }

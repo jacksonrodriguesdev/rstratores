@@ -59,6 +59,8 @@ export const STATUS_LINK: Record<string, [string, string]> = {
 // Valor em centavos → "$U 12.500" / "R$ 1.234,50"
 export function fmtValor(centavos: number, moeda: string) {
   const v = centavos / 100;
+  if (moeda === "USD")
+    return `US$ ${v.toLocaleString("es-UY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   if (moeda === "BRL")
     return `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const inteiro = Number.isInteger(v);
