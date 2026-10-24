@@ -13,7 +13,7 @@ import {
   type CategoriaSeo,
 } from "@/lib/seo-paginas";
 import { guiaDaPagina, ldPerguntas, perguntasDaPagina } from "@/lib/seo-guias";
-import { GuiaSeoBloco, LINKS_BUSCAS_PRINCIPAIS, PerguntasBloco } from "@/components/GuiaSeo";
+import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/components/GuiaSeo";
 import type { PaginaRepuestos as Dados } from "@/lib/repuestos";
 
 // Página de entrada para o Google: "Repuestos John Deere en Uruguay", "Filtros para Massey
@@ -37,11 +37,11 @@ export function tituloRepuestos(
 ) {
   if (idioma === "pt") {
     if (marca && categoria)
-      return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Uruguai`;
-    if (marca) return `Peças ${marca.marca} com envio para todo o Uruguai`;
+      return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Sul do Brasil`;
+    if (marca) return `Peças ${marca.marca} com envio para todo o Sul do Brasil`;
     if (categoria)
-      return `${nomeCat(categoria, idioma)} para tratores com envio para todo o Uruguai`;
-    return "Peças para tratores com envio para todo o Uruguai";
+      return `${nomeCat(categoria, idioma)} para tratores com envio para todo o Sul do Brasil`;
+    return "Peças para tratores com envio para todo o Sul do Brasil";
   }
   if (marca && categoria) return `${categoria.nome} para ${marca.marca} en Uruguay`;
   if (marca) return `Repuestos ${marca.marca} en Uruguay`;
@@ -58,12 +58,12 @@ export function descricaoRepuestos(
   if (idioma === "pt") {
     const qtd = total ? `${fmt(total, idioma)} peças` : "Peças";
     if (marca && categoria)
-      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para tratores ${marca.marca}. Código original, envio para todo o Uruguai e orçamento pelo WhatsApp.`;
+      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para tratores ${marca.marca}. Código original, envio para todo o Sul do Brasil e orçamento pelo WhatsApp.`;
     if (marca)
-      return `${qtd} para tratores ${marca.marca} (${modelos(marca, idioma).split(",").slice(0, 4).join(",")}…). Envio para todo o Uruguai. Orçamento pelo WhatsApp.`;
+      return `${qtd} para tratores ${marca.marca} (${modelos(marca, idioma).split(",").slice(0, 4).join(",")}…). Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.`;
     if (categoria)
-      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland e mais. Envio para todo o Uruguai.`;
-    return "Peças para tratores e colheitadeiras com envio para todo o Uruguai.";
+      return `${qtd} de ${nomeCat(categoria, idioma).toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland e mais. Envio para todo o Sul do Brasil.`;
+    return "Peças para tratores e colheitadeiras com envio para todo o Sul do Brasil.";
   }
   const qtd = total ? `${fmt(total)} repuestos` : "Repuestos";
   if (marca && categoria)
@@ -226,7 +226,7 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" />{" "}
-                {t("Envíos a todo Uruguay por DAC", "Envio para todo o Uruguai")}
+                {t("Envíos a todo Uruguay por DAC", "Envio para todo o Sul do Brasil")}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-amber-300" />{" "}
@@ -332,9 +332,9 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
           {guia && (
             <GuiaSeoBloco
               guia={guia}
-              links={LINKS_BUSCAS_PRINCIPAIS.filter(
-                (l) => l.href !== `/repuestos/${marca?.slug ?? categoria?.slug}`,
-              ).map((l) => ({ ...l, href: href(l.href) }))}
+              links={linksBuscasPrincipais(idioma)
+                .filter((l) => l.href !== `/repuestos/${marca?.slug ?? categoria?.slug}`)
+                .map((l) => ({ ...l, href: href(l.href) }))}
             />
           )}
           <PerguntasBloco

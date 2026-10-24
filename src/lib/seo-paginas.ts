@@ -59,7 +59,7 @@ export const MARCAS_SEO: MarcaSeo[] = [
     texto:
       "Repuestos para tractores y cosechadoras John Deere: filtros, rodamientos, juntas, piezas de motor, hidráulica y transmisión. Consultá precio y disponibilidad por WhatsApp y recibí en todo Uruguay.",
     texto_pt:
-      "Peças para tratores e colheitadeiras John Deere: filtros, rolamentos, juntas, peças de motor, hidráulica e transmissão. Consulte preço e disponibilidade pelo WhatsApp e receba em todo o Uruguai.",
+      "Peças para tratores e colheitadeiras John Deere: filtros, rolamentos, juntas, peças de motor, hidráulica e transmissão. Consulte preço e disponibilidade pelo WhatsApp e receba em todo o Sul do Brasil.",
   },
   {
     marca: "Case IH",
@@ -199,8 +199,8 @@ export function perguntasFrequentes(alvo: string, idioma: "es" | "pt" = "es") {
   if (idioma === "pt")
     return [
       {
-        p: "Vocês enviam para todo o Uruguai?",
-        r: "Sim. Enviamos para qualquer cidade do Uruguai pela DAC, com código de rastreio. Estamos em Chuy, Rocha (Uruguai). O frete é combinado pelo WhatsApp e pago pelo cliente.",
+        p: "Vocês enviam para todo o Sul do Brasil?",
+        r: "Sim. Enviamos para qualquer cidade do RS, SC e PR por Correios ou transportadora, com nota fiscal e código de rastreio. O frete é combinado pelo WhatsApp e pago pelo cliente.",
       },
       {
         p: `Como sei se a peça ${alvo} é a certa para o meu trator?`,

@@ -1,7 +1,7 @@
 // Páginas de entrada por local para o Google: /repuestos-agricolas/rocha, /pt/repuestos-agricolas/pelotas...
 // Cada local tem perfil agrícola, máquinas típicas e a categoria em foco (peças diferentes em cada
-// página), para o texto não ser repetido. Uruguai: envio por DAC. Rio Grande do Sul: Correios ou
-// transportadora. Base: Chuy / Chuí (sem endereço público, sem retirada no local).
+// página), para o texto não ser repetido. Uruguai (espanhol): envio por DAC. Sul do Brasil (português,
+// pais "RS" = RS, SC e PR): Correios ou transportadora, com nota fiscal da empresa brasileira.
 import { slugify } from "./seo-paginas";
 
 export type LocalSeo = {
@@ -516,14 +516,243 @@ const BASE: Base[] = [
     ),
     maquinas: M.talleres,
   },
+  // Mais cidades do RS (planalto, missões, serra)
+  RS(
+    "Ijuí",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+    ["cruz-alta", "santo-angelo", "santa-rosa"],
+  ),
+  RS(
+    "Santo Ângelo",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["ijui", "santa-rosa", "cruz-alta"],
+  ),
+  RS(
+    "Santa Rosa",
+    "granos",
+    F.hi,
+    ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+    ["santo-angelo", "ijui", "palmeira-das-missoes"],
+  ),
+  RS(
+    "Palmeira das Missões",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["carazinho", "santa-rosa", "passo-fundo"],
+  ),
+  RS(
+    "Carazinho",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH", "New Holland"],
+    ["passo-fundo", "palmeira-das-missoes", "cruz-alta"],
+  ),
+  RS(
+    "Erechim",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "John Deere", "Agrale"],
+    ["passo-fundo", "chapeco", "concordia"],
+  ),
+  RS(
+    "Vacaria",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["lages", "passo-fundo", "caxias-do-sul"],
+  ),
+  RS(
+    "Caxias do Sul",
+    "granja",
+    F.fi,
+    ["Agrale", "Massey Ferguson", "Valtra", "New Holland"],
+    ["vacaria", "lajeado", "porto-alegre"],
+  ),
+  RS(
+    "Lajeado",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "Agrale", "New Holland"],
+    ["caxias-do-sul", "porto-alegre", "santa-maria"],
+  ),
+  // Santa Catarina
+  {
+    ...RS(
+      "Santa Catarina",
+      "leche",
+      F.fi,
+      ["Massey Ferguson", "Valtra", "John Deere", "Agrale", "New Holland"],
+      ["chapeco", "xanxere", "concordia", "campos-novos", "lages", "sul-do-brasil"],
+      "estado",
+      "",
+    ),
+    perfil: {
+      es: "leche, granos, cerdos y aves en el oeste y la sierra catarinense",
+      pt: "leite, grãos, suínos e aves no oeste e na serra catarinense",
+    },
+  },
+  RS(
+    "Chapecó",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "John Deere", "Agrale"],
+    ["xanxere", "concordia", "erechim", "santa-catarina"],
+    "cidade",
+    "Santa Catarina",
+  ),
+  RS(
+    "Xanxerê",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["chapeco", "campos-novos", "santa-catarina"],
+    "cidade",
+    "Santa Catarina",
+  ),
+  RS(
+    "Concórdia",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "Agrale"],
+    ["chapeco", "erechim", "santa-catarina"],
+    "cidade",
+    "Santa Catarina",
+  ),
+  RS(
+    "Campos Novos",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["xanxere", "lages", "santa-catarina"],
+    "cidade",
+    "Santa Catarina",
+  ),
+  RS(
+    "Lages",
+    "ganaderia",
+    F.hi,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["campos-novos", "vacaria", "santa-catarina"],
+    "cidade",
+    "Santa Catarina",
+  ),
+  // Paraná
+  {
+    ...RS(
+      "Paraná",
+      "granos",
+      F.tr,
+      ["John Deere", "Massey Ferguson", "Case IH", "New Holland", "Valtra"],
+      ["cascavel", "toledo", "guarapuava", "ponta-grossa", "londrina", "sul-do-brasil"],
+      "estado",
+      "",
+    ),
+    perfil: {
+      es: "soja, maíz, trigo y leche en el oeste, los Campos Gerais y el norte paranaense",
+      pt: "soja, milho, trigo e leite no oeste, nos Campos Gerais e no norte do Paraná",
+    },
+  },
+  RS(
+    "Cascavel",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH", "New Holland"],
+    ["toledo", "guarapuava", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  RS(
+    "Toledo",
+    "granos",
+    F.hi,
+    ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+    ["cascavel", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  RS(
+    "Guarapuava",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["cascavel", "ponta-grossa", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  RS(
+    "Ponta Grossa",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "New Holland", "Case IH"],
+    ["castro", "guarapuava", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  RS(
+    "Castro",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "John Deere", "Valtra", "New Holland"],
+    ["ponta-grossa", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  RS(
+    "Londrina",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "New Holland", "Case IH"],
+    ["maringa", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  RS(
+    "Maringá",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["londrina", "parana"],
+    "cidade",
+    "Paraná",
+  ),
+  // Sul do Brasil (página dos três estados)
+  {
+    ...RS(
+      "Sul do Brasil",
+      "granos",
+      F.fi,
+      ["Massey Ferguson", "John Deere", "Valtra", "New Holland", "Case IH"],
+      ["rio-grande-do-sul", "santa-catarina", "parana"],
+      "regiao",
+      "",
+    ),
+    perfil: {
+      es: "granos, arroz, leche y ganadería en Rio Grande do Sul, Santa Catarina y Paraná",
+      pt: "grãos, arroz, leite e pecuária no Rio Grande do Sul, em Santa Catarina e no Paraná",
+    },
+  },
 ];
 
-// O site é para o Uruguai: só as páginas dos locais do Uruguai ficam no ar. As do Rio Grande do Sul
-// (BASE, pais "RS") levam para a página central de zonas (ver ehLocalRs e a rota $local).
-const TODOS: LocalSeo[] = BASE.map((b) => ({ ...b, slug: slugify(b.nome) }));
-export const LOCAIS_SEO: LocalSeo[] = TODOS.filter((l) => l.pais === "UY");
-export const ehLocalRs = (s: string) => TODOS.some((l) => l.slug === s && l.pais === "RS");
+// Cada país na sua língua: os locais do Uruguai (pais "UY") só em espanhol (/repuestos-agricolas/...);
+// os do Sul do Brasil (pais "RS" = RS, SC e PR) só em português (/pt/repuestos-agricolas/...).
+// A rota $local leva o endereço na língua errada para a certa.
+export const LOCAIS_SEO: LocalSeo[] = BASE.map((b) => ({ ...b, slug: slugify(b.nome) }));
+export const idiomaDoLocal = (l: Pick<LocalSeo, "pais">): "es" | "pt" =>
+  l.pais === "UY" ? "es" : "pt";
+export const locaisDoIdioma = (idioma: "es" | "pt") =>
+  LOCAIS_SEO.filter((l) => idiomaDoLocal(l) === idioma);
 export const localPorSlug = (s: string) => LOCAIS_SEO.find((l) => l.slug === s) ?? null;
+// Sigla do estado (Brasil) para títulos: "Peças agrícolas em Chapecó – SC"
+export const UF: Record<string, string> = {
+  "Rio Grande do Sul": "RS",
+  "Santa Catarina": "SC",
+  Paraná: "PR",
+};
 export const localPeloNome = (nome: string) => LOCAIS_SEO.find((l) => l.nome === nome) ?? null;
 
 // Texto da página (gerado a partir do perfil: muda de um local para outro)
@@ -531,12 +760,12 @@ export function textoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number)
   const n = totalPecas.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
   const marcas = l.marcas.join(", ");
   if (idioma === "pt") {
-    const envio = l.pais === "RS" ? "pela DAC" : "pela DAC";
+    const envio = l.pais === "RS" ? "por Correios ou transportadora" : "pela DAC";
     const onde = l.tipo === "cidade" && l.dentro ? `${nomeLocal(l, idioma)} (${l.dentro})` : l.nome;
     return [
       `Loja online de peças agrícolas com mais de ${n} peças publicadas, preço visível e atendimento pelo WhatsApp. Enviamos para ${onde} ${envio}${l.pais === "RS" ? ", com preço em R$" : ""}.`,
       `A região tem forte presença de ${l.perfil.pt}. Por isso as peças mais procuradas aqui são para ${l.maquinas.pt}, de marcas como ${marcas}.`,
-      `Estamos em Chuy, Rocha (Uruguai). Mande o código original ou uma foto da peça e confirmamos a compatibilidade antes da compra.`,
+      `Atendemos todo o RS, SC e PR. Mande o código original ou uma foto da peça e confirmamos a compatibilidade antes da compra.`,
     ];
   }
   const envio = l.pais === "RS" ? "por DAC" : "por DAC";
@@ -551,7 +780,7 @@ export function textoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number)
 export function tituloLocal(l: LocalSeo, idioma: "es" | "pt") {
   if (idioma === "pt")
     return l.pais === "RS"
-      ? `Peças agrícolas em ${nomeLocal(l, idioma)}${l.tipo === "cidade" ? " – RS" : ""}`
+      ? `Peças agrícolas em ${nomeLocal(l, idioma)}${l.tipo === "cidade" ? ` – ${UF[l.dentro ?? ""] ?? "RS"}` : ""}`
       : `Peças agrícolas em ${nomeLocal(l, idioma)}`;
   return l.tipo === "pais"
     ? "Repuestos agrícolas en todo Uruguay"
@@ -561,7 +790,7 @@ export function tituloLocal(l: LocalSeo, idioma: "es" | "pt") {
 export function descricaoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number) {
   const n = totalPecas.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
   if (idioma === "pt")
-    return `Mais de ${n} peças para tratores e colheitadeiras ${l.marcas.slice(0, 3).join(", ")} com envio para ${nomeLocal(l, idioma)}${l.pais === "RS" ? " pela DAC" : " pela DAC"}. Orçamento pelo WhatsApp.`;
+    return `Mais de ${n} peças para tratores e colheitadeiras ${l.marcas.slice(0, 3).join(", ")} com envio para ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por Correios ou transportadora" : " pela DAC"}. Orçamento pelo WhatsApp.`;
   return `Más de ${n} repuestos para tractores y cosechadoras ${l.marcas.slice(0, 3).join(", ")} con envío a ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por DAC" : " por DAC"}. Cotizá por WhatsApp.`;
 }
 
@@ -570,7 +799,7 @@ export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
     return [
       {
         p: `Vocês enviam peças agrícolas para ${nomeLocal(l, idioma)}?`,
-        r: `Sim. Enviamos para ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "pela DAC, com código de rastreio e preço em R$" : "pela DAC, com número de rastreio"}. O frete é combinado pelo WhatsApp e pago pelo cliente.`,
+        r: `Sim. Enviamos para ${nomeLocal(l, idioma)} ${l.pais === "RS" ? "por Correios ou transportadora, com nota fiscal, código de rastreio e preço em R$" : "pela DAC, com número de rastreio"}. O frete é combinado pelo WhatsApp e pago pelo cliente.`,
       },
       {
         p: "Quanto tempo demora a entrega?",
@@ -582,7 +811,7 @@ export function perguntasLocal(l: LocalSeo, idioma: "es" | "pt") {
       },
       {
         p: "Vocês têm loja física?",
-        r: "Somos uma loja online em Chuy, Rocha (Uruguai). Todo o atendimento é pelo WhatsApp e enviamos para todo o Uruguai.",
+        r: "Somos uma loja online de peças agrícolas para o Sul do Brasil. Todo o atendimento é pelo WhatsApp e enviamos para RS, SC e PR com nota fiscal.",
       },
     ];
   return [

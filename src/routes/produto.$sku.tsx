@@ -511,7 +511,7 @@ function ProductDetail() {
                   <Truck className="h-4 w-4 shrink-0 text-primary" />{" "}
                   {t(
                     "Envío a todo Uruguay por DAC, con seguimiento",
-                    "Envio para todo o Uruguai pela DAC, com rastreio",
+                    "Envio para RS, SC e PR por Correios ou transportadora, com rastreio",
                   )}
                 </li>
                 <li className="flex items-center gap-2">
@@ -771,7 +771,7 @@ function MaisRepuestos({ marca, categoria }: { marca: string | null; categoria: 
       });
   links.push({
     url: "/repuestos-agricolas",
-    texto: t("Repuestos agrícolas en Uruguay", "Peças agrícolas no Uruguai"),
+    texto: t("Repuestos agrícolas en Uruguay", "Peças agrícolas no Sul do Brasil"),
   });
   return (
     <nav

@@ -55,7 +55,21 @@ export function PerguntasBloco({ titulo, perguntas }: { titulo: string; pergunta
   );
 }
 
-// Links internos para as buscas principais (texto = a busca do cliente)
+// Links internos para as buscas principais (texto = a busca do cliente). Caminhos sem "/pt":
+// quem usa passa por href() da versão.
+export const linksBuscasPrincipais = (idioma: "es" | "pt") =>
+  idioma === "pt" ? LINKS_BUSCAS_PT : LINKS_BUSCAS_PRINCIPAIS;
+const LINKS_BUSCAS_PT = [
+  { href: "/repuestos-agricolas", texto: "Peças agrícolas no RS, SC e PR" },
+  { href: "/repuestos/massey-ferguson", texto: "Peças Massey Ferguson" },
+  { href: "/repuestos/john-deere", texto: "Peças John Deere" },
+  { href: "/repuestos/valtra", texto: "Peças Valtra / Valmet" },
+  { href: "/repuestos/new-holland", texto: "Peças New Holland" },
+  { href: "/repuestos/case-ih", texto: "Peças Case IH" },
+  { href: "/repuestos/agrale", texto: "Peças Agrale" },
+  { href: "/repuestos/ford", texto: "Peças Ford" },
+  { href: "/repuestos/filtros", texto: "Filtros para trator" },
+];
 export const LINKS_BUSCAS_PRINCIPAIS = [
   { href: "/repuestos-agricolas", texto: "Repuestos agrícolas en Uruguay" },
   { href: "/repuestos/massey-ferguson", texto: "Repuestos Massey Ferguson" },

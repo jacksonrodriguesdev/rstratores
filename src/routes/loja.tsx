@@ -89,7 +89,7 @@ export const Route = createFileRoute("/loja")({
       .filter(Boolean)
       .join(" ");
     const titulo = q ? `${t("Resultados para", "Resultados para")} "${q}"` : alvo;
-    const desc = `${alvo} ${t("con envío a todo Uruguay por DAC. Buscá por código original y cotizá por WhatsApp.", "com envio para todo o Uruguai. Busque pelo código original e peça orçamento pelo WhatsApp.")}`;
+    const desc = `${alvo} ${t("con envío a todo Uruguay por DAC. Buscá por código original y cotizá por WhatsApp.", "com envio para todo o Sul do Brasil. Busque pelo código original e peça orçamento pelo WhatsApp.")}`;
     // Canonical só com os filtros que viram página própria (categoria e marca), na mesma ordem
     const params = new URLSearchParams();
     if (categoria) params.set("categoria", categoria);
@@ -351,7 +351,7 @@ function LojaPage() {
             {categorias.length === 1 && categoriaFraseEs(categorias[0]) && !busca && (
               <p className="mt-1 max-w-2xl text-sm text-zinc-600">
                 {idioma === "pt"
-                  ? `Peças de ${categorias[0].toLowerCase()} com envio para todo o Uruguai.`
+                  ? `Peças de ${categorias[0].toLowerCase()} com envio para todo o Sul do Brasil.`
                   : `${categoriaFraseEs(categorias[0])} Envíos a todo Uruguay por DAC.`}
               </p>
             )}

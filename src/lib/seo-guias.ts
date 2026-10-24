@@ -190,9 +190,10 @@ export function guiaDaPagina(
   categoria: { slug: string } | null | undefined,
   idioma: "es" | "pt" = "es",
 ): GuiaSeo | null {
-  if (idioma !== "es" || (marca && categoria)) return null;
-  if (marca) return GUIAS_MARCA[marca.slug] ?? null;
-  if (categoria) return GUIAS_CATEGORIA[categoria.slug] ?? null;
+  if (marca && categoria) return null;
+  const pt = idioma === "pt";
+  if (marca) return (pt ? GUIAS_MARCA_PT : GUIAS_MARCA)[marca.slug] ?? null;
+  if (categoria) return (pt ? GUIAS_CATEGORIA_PT : GUIAS_CATEGORIA)[categoria.slug] ?? null;
   return null;
 }
 
@@ -206,3 +207,124 @@ export const ldPerguntas = (perguntas: Pergunta[]) => ({
     acceptedAnswer: { "@type": "Answer", text: q.r },
   })),
 });
+
+// ---------------------------------------------------------------- Português (Sul do Brasil)
+// Mesmas páginas na versão /pt, escritas para quem busca no RS, SC e PR ("peças para trator RS",
+// "peças Massey Ferguson Rio Grande do Sul"...). Venda e nota fiscal pela empresa brasileira.
+const ESTADOS = "Rio Grande do Sul, Santa Catarina e Paraná";
+
+export const GUIAS_MARCA_PT: Record<string, GuiaSeo> = {
+  "massey-ferguson": {
+    titulo: "Peças Massey Ferguson no RS, SC e PR",
+    paragrafos: [
+      "Os tratores Massey Ferguson são dos mais comuns nas lavouras e propriedades do Sul do Brasil: MF 265, 275, 283, 290, 292 e as séries 4200 e 5200 seguem trabalhando todos os dias. Temos peças Massey Ferguson de motor, transmissão, embreagem, freios, hidráulico, direção, levante e filtros, cada uma com o código original.",
+      "Compare o código da peça que você tirou do trator (os terminados em M1, M91, M92) ou mande pelo WhatsApp uma foto, o modelo e o número de série: confirmamos a compatibilidade antes da compra.",
+      `Enviamos peças Massey Ferguson para ${ESTADOS} por Correios ou transportadora, com nota fiscal e código de rastreio.`,
+    ],
+    perguntas: [
+      {
+        p: "Vocês têm peças para Massey Ferguson 265, 275 e 290?",
+        r: "Sim. Boa parte do catálogo Massey Ferguson é para a linha 200 (265, 275, 283, 290, 292, 297) e para as séries 4200 e 5200. Busque pelo código original ou fale conosco pelo WhatsApp com o modelo e o número de série.",
+      },
+    ],
+  },
+  "john-deere": {
+    titulo: "Peças John Deere no RS, SC e PR: tratores, colheitadeiras e plantadeiras",
+    paragrafos: [
+      "Trabalhamos peças John Deere para tratores das séries 5000, 6000 e 7000, colheitadeiras e plantadeiras: filtros, rolamentos, juntas, retentores, peças de motor, hidráulico, transmissão e buchas, cada uma com o código original John Deere (AL, AH, AR, RE, CQ…).",
+      "Buscar pelo código é a forma mais segura de acertar a peça. Se o código não aparecer, fale conosco pelo WhatsApp: muitas vezes conseguimos a peça mesmo que não esteja publicada.",
+      `Enviamos para ${ESTADOS} por Correios ou transportadora, com nota fiscal e rastreio.`,
+    ],
+    perguntas: [
+      {
+        p: "Vocês têm peças para colheitadeiras e plantadeiras John Deere?",
+        r: "Sim, além de tratores temos peças para colheitadeiras e plantadeiras John Deere. Busque pelo código original ou mande uma foto da peça pelo WhatsApp.",
+      },
+    ],
+  },
+  valtra: {
+    titulo: "Peças Valtra e Valmet no Sul do Brasil",
+    paragrafos: [
+      "Peças para tratores Valtra e Valmet (685, 785, 885, 985, BM, BH e série A): kits de motor, juntas, bombas, filtros, rolamentos e peças de transmissão e levante, com o código original.",
+      `Busque por "Valtra" ou "Valmet": aparecem as mesmas peças. Enviamos para ${ESTADOS} por Correios ou transportadora, com nota fiscal.`,
+    ],
+    perguntas: [],
+  },
+  "new-holland": {
+    titulo: "Peças New Holland no RS, SC e PR",
+    paragrafos: [
+      "Peças para tratores New Holland TL, TM, TS, TT, 7630, 8030 e a linha Ford New Holland, e para colheitadeiras New Holland: filtros, juntas, rolamentos, motor, hidráulico, direção, embreagem e transmissão, com código original.",
+      `Enviamos para ${ESTADOS} por Correios ou transportadora, com nota fiscal e rastreio.`,
+    ],
+    perguntas: [],
+  },
+  agrale: {
+    titulo: "Peças Agrale no RS, SC e PR",
+    paragrafos: [
+      "Os tratores Agrale são muito usados em propriedades familiares, na fruticultura e nas serras gaúcha e catarinense. Temos peças Agrale para os modelos 4100, 4118, 4230, 5075 e série BX: motor, transmissão, embreagem, hidráulico, direção e filtros, com código original.",
+      `Enviamos para ${ESTADOS} por Correios ou transportadora, com nota fiscal.`,
+    ],
+    perguntas: [],
+  },
+};
+
+export const GUIAS_CATEGORIA_PT: Record<string, GuiaSeo> = {
+  filtros: {
+    titulo: "Filtros para trator no RS, SC e PR: óleo, combustível, ar e hidráulico",
+    paragrafos: [
+      "Filtros para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford e Agrale: óleo do motor, combustível (diesel) e sedimentadores, ar (primário e de segurança), hidráulico e de transmissão.",
+      "Busque pelo código original do filtro ou pelo código do filtro que está no trator. Se preferir, mande pelo WhatsApp o modelo do trator e montamos o kit de filtros para a revisão.",
+      `Enviamos filtros para ${ESTADOS} por Correios ou transportadora, com nota fiscal e rastreio.`,
+    ],
+    perguntas: [
+      {
+        p: "Vocês montam kit de filtros para a revisão do trator?",
+        r: "Sim. Mande pelo WhatsApp a marca, o modelo e o número de série do trator e passamos o kit de filtros (óleo, combustível, ar e hidráulico) com preço e frete.",
+      },
+    ],
+  },
+};
+
+export const GUIA_INICIO_PT: GuiaSeo = {
+  titulo: "Peças para tratores no Rio Grande do Sul, Santa Catarina e Paraná",
+  paragrafos: [
+    "A AGRO PARTS é uma loja online de peças para tratores, colheitadeiras e máquinas agrícolas, com mais de 49.000 peças com código original para Massey Ferguson, John Deere, Valtra, New Holland, Case IH, Ford e Agrale: filtros, rolamentos, juntas e retentores, motor, transmissão, hidráulico, freios, embreagens e elétrica.",
+    `Busque pelo código da peça, pela marca ou pelo tipo, monte o seu orçamento e mande pelo WhatsApp. Respondemos com preço, disponibilidade e frete, e enviamos para ${ESTADOS} por Correios ou transportadora, com nota fiscal e código de rastreio.`,
+  ],
+  perguntas: [
+    {
+      p: "Onde comprar peças para trator no RS, SC e PR?",
+      r: "Na AGRO PARTS você busca entre mais de 49.000 peças agrícolas, faz o orçamento pelo WhatsApp e recebe por Correios ou transportadora em qualquer cidade do Rio Grande do Sul, de Santa Catarina e do Paraná.",
+    },
+    {
+      p: "Vocês emitem nota fiscal?",
+      r: "Sim. As vendas para o Brasil são feitas pela nossa empresa brasileira, com nota fiscal.",
+    },
+    {
+      p: "Como sei se a peça serve no meu trator?",
+      r: "Busque pelo código original da peça. Se tiver dúvida, mande pelo WhatsApp o modelo, o número de série e uma foto da peça e confirmamos antes da compra.",
+    },
+  ],
+};
+
+export const GUIA_ZONAS_PT: GuiaSeo = {
+  titulo: "Peças agrícolas no Sul do Brasil: o que você encontra e como comprar",
+  paragrafos: [
+    "Atendemos produtores, prestadores de serviço e oficinas do Rio Grande do Sul, de Santa Catarina e do Paraná com peças para tratores, colheitadeiras, plantadeiras e máquinas de forragem, sempre com o código original da peça.",
+    "As peças mais pedidas são filtros, rolamentos, retentores e juntas, peças de transmissão e embreagem, bombas e componentes hidráulicos e peças de motor. Escolha a sua região ou cidade para ver as marcas mais comuns, ou busque direto pelo código.",
+    "Enviamos por Correios ou transportadora, com nota fiscal e código de rastreio, e confirmamos preço, disponibilidade e frete pelo WhatsApp antes da compra.",
+  ],
+  perguntas: [
+    {
+      p: "Vocês enviam peças agrícolas para todo o Sul do Brasil?",
+      r: "Sim. Enviamos para qualquer cidade do Rio Grande do Sul, de Santa Catarina e do Paraná por Correios ou transportadora, com nota fiscal e rastreio.",
+    },
+    {
+      p: "Quais formas de pagamento vocês aceitam?",
+      r: "Mandamos um link de pagamento seguro, com PIX ou cartão. O valor e o frete são confirmados antes pelo WhatsApp.",
+    },
+  ],
+};
+
+export const guiaInicio = (idioma: "es" | "pt") => (idioma === "pt" ? GUIA_INICIO_PT : GUIA_INICIO);
+export const guiaZonas = (idioma: "es" | "pt") => (idioma === "pt" ? GUIA_ZONAS_PT : GUIA_ZONAS);

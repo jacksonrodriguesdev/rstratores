@@ -33,29 +33,43 @@ import { PHONE } from "@/lib/whatsapp";
 import { ehLarguraTotal, temH1, tipoNovo } from "@/lib/blocos-home";
 import { BlocoNovo } from "@/components/home/BlocosNovos";
 import { HeroCampanhaHome } from "@/components/campanha/Campanha";
-import { GUIA_INICIO, ldPerguntas } from "@/lib/seo-guias";
-import { GuiaSeoBloco, LINKS_BUSCAS_PRINCIPAIS, PerguntasBloco } from "@/components/GuiaSeo";
+import { guiaInicio, ldPerguntas } from "@/lib/seo-guias";
+import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/components/GuiaSeo";
 
 // Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
-const lojaLd = {
+// Loja online, sem atendimento ao público em endereço fixo. Cada versão fala do seu país:
+// espanhol = Uruguai (Chuy, DAC); português = Sul do Brasil (RS, SC e PR, empresa brasileira).
+const lojaLd = (idioma: Idioma) => ({
   "@context": "https://schema.org",
-  // Loja online, sem atendimento ao público em endereço fixo: só a cidade
   "@type": "OnlineStore",
   name: "AGRO PARTS",
-  url: SITE_URL,
+  url: idioma === "pt" ? `${SITE_URL}/pt` : SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/icon-512.png`,
-  description: "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC.",
   telephone: `+${PHONE}`,
   email: "comercialrsautoparts@gmail.com",
-  areaServed: { "@type": "Country", name: "Uruguay" },
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Chuy",
-    addressRegion: "Rocha",
-    addressCountry: "UY",
-  },
-};
+  ...(idioma === "pt"
+    ? {
+        description:
+          "Peças para tratores e máquinas agrícolas com envio para RS, SC e PR por Correios ou transportadora, com nota fiscal.",
+        areaServed: ["Rio Grande do Sul", "Santa Catarina", "Paraná"].map((name) => ({
+          "@type": "State",
+          name,
+          containedInPlace: { "@type": "Country", name: "Brasil" },
+        })),
+      }
+    : {
+        description:
+          "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC.",
+        areaServed: { "@type": "Country", name: "Uruguay" },
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Chuy",
+          addressRegion: "Rocha",
+          addressCountry: "UY",
+        },
+      }),
+});
 const siteLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -97,7 +111,7 @@ export const Route = createFileRoute("/")({
     const t = (es: string, pt: string) => tr(idioma, es, pt);
     const titulo = t(
       "AGRO PARTS — Repuestos para tractores en Uruguay",
-      "AGRO PARTS — Peças para tratores com envio para todo o Uruguai",
+      "AGRO PARTS — Peças para tratores com envio para todo o Sul do Brasil",
     );
     return {
       meta: [
@@ -106,7 +120,7 @@ export const Route = createFileRoute("/")({
           name: "description",
           content: t(
             "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-            "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Uruguai. Orçamento pelo WhatsApp.",
+            "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.",
           ),
         },
         { property: "og:title", content: titulo },
@@ -114,25 +128,21 @@ export const Route = createFileRoute("/")({
           property: "og:description",
           content: t(
             "Más de 49.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-            "Mais de 49.000 peças para tratores e colheitadeiras. Envio para todo o Uruguai. Orçamento pelo WhatsApp.",
+            "Mais de 49.000 peças para tratores e colheitadeiras. Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.",
           ),
         },
       ],
       links: [...linksIdioma("/", idioma), ...preloadBanner],
       scripts: [
-        { type: "application/ld+json", children: JSON.stringify(lojaLd) },
+        { type: "application/ld+json", children: JSON.stringify(lojaLd(idioma)) },
         {
           type: "application/ld+json",
           children: JSON.stringify({ ...siteLd, inLanguage: idioma === "pt" ? "pt-BR" : "es-UY" }),
         },
-        ...(idioma === "es"
-          ? [
-              {
-                type: "application/ld+json",
-                children: JSON.stringify(ldPerguntas(GUIA_INICIO.perguntas)),
-              },
-            ]
-          : []),
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(ldPerguntas(guiaInicio(idioma).perguntas)),
+        },
       ],
     };
   },
@@ -213,7 +223,7 @@ function HomePage() {
   // Os blocos vêm prontos do servidor (loader): a página já nasce com a estrutura certa,
   // sem os retângulos provisórios que depois "pulavam" ao trocar pelo conteúdo.
   const { blocos: iniciais, hero: heroInicial } = Route.useLoaderData();
-  const { t, idioma } = useT();
+  const { t, idioma, href } = useT();
   const { data: blocks = [], isLoading } = useQuery({
     queryKey: ["homepage_blocks"],
     queryFn: () => import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
@@ -261,7 +271,7 @@ function HomePage() {
           <h1 className="sr-only">
             {t(
               "Repuestos para tractores y maquinaria agrícola en Uruguay",
-              "Peças para tratores e máquinas agrícolas com envio para todo o Uruguai",
+              "Peças para tratores e máquinas agrícolas com envio para todo o Sul do Brasil",
             )}
           </h1>
         )}
@@ -319,13 +329,18 @@ function HomePage() {
             </div>
           ),
         )}
-        {/* Texto para o Google: "repuestos para tractores en Uruguay" e links para as outras buscas */}
-        {idioma === "es" && (
-          <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 md:py-12">
-            <GuiaSeoBloco guia={GUIA_INICIO} links={LINKS_BUSCAS_PRINCIPAIS} />
-            <PerguntasBloco titulo="Preguntas frecuentes" perguntas={GUIA_INICIO.perguntas} />
-          </div>
-        )}
+        {/* Texto para o Google: "repuestos para tractores en Uruguay" (espanhol) ou "peças para
+            trator RS, SC e PR" (português), e links para as outras buscas */}
+        <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 md:py-12">
+          <GuiaSeoBloco
+            guia={guiaInicio(idioma)}
+            links={linksBuscasPrincipais(idioma).map((l) => ({ ...l, href: href(l.href) }))}
+          />
+          <PerguntasBloco
+            titulo={t("Preguntas frecuentes", "Perguntas frequentes")}
+            perguntas={guiaInicio(idioma).perguntas}
+          />
+        </div>
       </main>
     </div>
   );

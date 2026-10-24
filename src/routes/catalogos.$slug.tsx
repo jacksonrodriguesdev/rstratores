@@ -278,7 +278,7 @@ function CatalogoPage() {
             <p className="mt-2 text-sm text-zinc-600">
               {t(
                 "Buscalo en la tienda o mandanos el código por WhatsApp: te pasamos precio y te lo enviamos a todo Uruguay por DAC.",
-                "Busque na loja ou mande o código pelo WhatsApp: passamos o preço e enviamos para todo o Uruguai.",
+                "Busque na loja ou mande o código pelo WhatsApp: passamos o preço e enviamos para todo o Sul do Brasil.",
               )}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">

@@ -25,8 +25,8 @@ import {
   perguntasLocal,
   type LocalSeo,
 } from "@/lib/locais-seo";
-import { GUIA_ZONAS } from "@/lib/seo-guias";
-import { GuiaSeoBloco, LINKS_BUSCAS_PRINCIPAIS, PerguntasBloco } from "@/components/GuiaSeo";
+import { guiaZonas } from "@/lib/seo-guias";
+import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/components/GuiaSeo";
 import type { Product } from "@/lib/products";
 
 // Página de entrada por local ("repuestos agrícolas en Rocha", "peças agrícolas em Pelotas").
@@ -157,7 +157,7 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" />{" "}
-                {t(`Envío a ${nome} por DAC`, `Envio para ${nome} pela DAC`)}
+                {t(`Envío a ${nome} por DAC`, `Envio para ${nome} por Correios ou transportadora`)}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-amber-300" />{" "}
@@ -290,22 +290,40 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
 // Página central: todas as zonas de envio (Uruguai)
 export function PaginaZonas({ total }: { total: number }) {
   const { t, idioma, href } = useT();
-  const grupos: Array<{ titulo: string; itens: LocalSeo[] }> = [
-    {
-      titulo: t("Uruguay por zona", "Uruguai por região"),
-      itens: LOCAIS_SEO.filter(
-        (l) => l.pais === "UY" && (l.tipo === "regiao" || l.tipo === "pais"),
-      ),
-    },
-    {
-      titulo: t("Los 19 departamentos", "Os 19 departamentos"),
-      itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "departamento"),
-    },
-    {
-      titulo: t("Ciudades de Uruguay", "Cidades do Uruguai"),
-      itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "cidade"),
-    },
-  ];
+  // Espanhol: zonas do Uruguai. Português: RS, SC e PR.
+  const grupos: Array<{ titulo: string; itens: LocalSeo[] }> =
+    idioma === "pt"
+      ? [
+          {
+            titulo: "Estados e regiões",
+            itens: LOCAIS_SEO.filter(
+              (l) => l.pais === "RS" && (l.tipo === "estado" || l.tipo === "regiao"),
+            ),
+          },
+          ...["Rio Grande do Sul", "Santa Catarina", "Paraná"].map((uf) => ({
+            titulo: `Cidades — ${uf}`,
+            itens: LOCAIS_SEO.filter(
+              (l) =>
+                l.pais === "RS" && l.tipo === "cidade" && (l.dentro || "Rio Grande do Sul") === uf,
+            ),
+          })),
+        ]
+      : [
+          {
+            titulo: t("Uruguay por zona", "Uruguai por região"),
+            itens: LOCAIS_SEO.filter(
+              (l) => l.pais === "UY" && (l.tipo === "regiao" || l.tipo === "pais"),
+            ),
+          },
+          {
+            titulo: t("Los 19 departamentos", "Os 19 departamentos"),
+            itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "departamento"),
+          },
+          {
+            titulo: t("Ciudades de Uruguay", "Cidades do Uruguai"),
+            itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "cidade"),
+          },
+        ];
   return (
     <div className="min-h-screen bg-[#f3f5f1]">
       <SiteHeader />
@@ -313,12 +331,12 @@ export function PaginaZonas({ total }: { total: number }) {
         <section className="bg-[#06321b] text-white">
           <div className="mx-auto max-w-7xl px-4 py-10 md:py-14">
             <h1 className="max-w-4xl text-3xl font-extrabold leading-tight md:text-5xl">
-              {t("Repuestos agrícolas en Uruguay", "Peças agrícolas no Uruguai")}
+              {t("Repuestos agrícolas en Uruguay", "Peças agrícolas no Sul do Brasil")}
             </h1>
             <p className="mt-4 max-w-3xl text-white/85 md:text-lg">
               {t(
                 `Tienda online con más de ${fmt(total, idioma)} repuestos para tractores y cosechadoras, en Chuy, Rocha. Elegí tu zona para ver las marcas y los repuestos más pedidos.`,
-                `Loja online com mais de ${fmt(total, idioma)} peças para tratores e colheitadeiras, em Chuy, Rocha (Uruguai). Escolha sua região para ver as marcas e as peças mais procuradas.`,
+                `Loja online com mais de ${fmt(total, idioma)} peças para tratores e colheitadeiras, com envio para RS, SC e PR. Escolha sua região para ver as marcas e as peças mais procuradas.`,
               )}
             </p>
           </div>
@@ -356,15 +374,16 @@ export function PaginaZonas({ total }: { total: number }) {
               ))}
             </div>
           </section>
-          {idioma === "es" && (
-            <>
-              <GuiaSeoBloco
-                guia={GUIA_ZONAS}
-                links={LINKS_BUSCAS_PRINCIPAIS.filter((l) => l.href !== "/repuestos-agricolas")}
-              />
-              <PerguntasBloco titulo="Preguntas frecuentes" perguntas={GUIA_ZONAS.perguntas} />
-            </>
-          )}
+          <GuiaSeoBloco
+            guia={guiaZonas(idioma)}
+            links={linksBuscasPrincipais(idioma)
+              .filter((l) => l.href !== "/repuestos-agricolas")
+              .map((l) => ({ ...l, href: href(l.href) }))}
+          />
+          <PerguntasBloco
+            titulo={t("Preguntas frecuentes", "Perguntas frequentes")}
+            perguntas={guiaZonas(idioma).perguntas}
+          />
         </div>
       </main>
     </div>

@@ -132,11 +132,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
     const t = (es: string, pt: string) => tr(idioma, es, pt);
     const titulo = t(
       "AGRO PARTS — Repuestos para tractores en Uruguay",
-      "AGRO PARTS — Peças para tratores, atendimento no Uruguai",
+      "AGRO PARTS — Peças para tratores no RS, SC e PR",
     );
     const resumo = t(
       "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-      "Peças para tratores e colheitadeiras. Envios a todo o Uruguai por DAC. Orçamento pelo WhatsApp.",
+      "Peças para tratores e colheitadeiras. Envio para RS, SC e PR por Correios ou transportadora. Orçamento pelo WhatsApp.",
     );
     return {
       meta: [
@@ -155,13 +155,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
           name: "description",
           content: t(
             "Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
-            "Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Envios a todo o Uruguai por DAC. Orçamento pelo WhatsApp.",
+            "Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Envio para RS, SC e PR por Correios ou transportadora. Orçamento pelo WhatsApp.",
           ),
         },
         { property: "og:locale", content: OG_LOCALE[idioma] },
-        // O site é para o Uruguai: a versão em português (/pt) existe para quem recebe o link,
-        // mas fica fora do Google
-        ...(idioma === "pt" ? [{ name: "robots", content: "noindex, follow" }] : []),
+        { property: "og:locale:alternate", content: OG_LOCALE[idioma === "pt" ? "es" : "pt"] },
         { property: "og:site_name", content: "AGRO PARTS" },
         { name: "author", content: "AGRO PARTS" },
         { property: "og:title", content: titulo },
