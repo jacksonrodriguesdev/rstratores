@@ -13,6 +13,7 @@ const ACOES = [...LEAD, "carrinho"];
 export type LeadsOrganicos = {
   sessoes: number;
   leads: number; // sessões com pedido no WhatsApp ou cotação
+  shopping: { sessoes: number; leads: number };
   whatsapp: number;
   carrinho: number;
   taxa: number; // leads / sessões
@@ -36,21 +37,31 @@ export async function leadsOrganicos(dias: number): Promise<LeadsOrganicos> {
   await limparEstatisticas();
   const desde = new Date(Date.now() - dias * 24 * H);
   const linhas = await prisma.$queryRawUnsafe<
-    Array<{ session_id: string; path: string; created_at: Date; city: string | null }>
+    Array<{
+      session_id: string;
+      path: string;
+      created_at: Date;
+      city: string | null;
+      meio: string | null;
+    }>
   >(
-    `SELECT session_id, path, created_at, city FROM site_visits
-     WHERE created_at >= ? AND session_id IS NOT NULL AND meio = 'orgânico' AND ${sqlHumano()}
+    `SELECT session_id, path, created_at, city, meio FROM site_visits
+     WHERE created_at >= ? AND session_id IS NOT NULL AND meio IN ('orgânico', 'shopping') AND ${sqlHumano()}
      ORDER BY created_at ASC`,
     desde,
   );
   // Primeira página de cada sessão = a página que o buscador mostrou
-  const sessoes = new Map<string, { entrada: string; dia: string; cidade: string | null }>();
+  const sessoes = new Map<
+    string,
+    { entrada: string; dia: string; cidade: string | null; shopping: boolean }
+  >();
   for (const l of linhas)
     if (!sessoes.has(l.session_id))
       sessoes.set(l.session_id, {
         entrada: pagina(l.path),
         dia: diaLocal(new Date(l.created_at)),
         cidade: l.city,
+        shopping: l.meio === "shopping",
       });
 
   const ids = [...sessoes.keys()];
@@ -94,9 +105,15 @@ export async function leadsOrganicos(dias: number): Promise<LeadsOrganicos> {
     serie.push({ dia, ...(porDia.get(dia) ?? { sessoes: 0, leads: 0 }) });
   }
 
+  const doShopping = [...sessoes].filter(([, s]) => s.shopping).map(([id]) => id);
   return {
     sessoes: sessoes.size,
     leads: comLead.size,
+    // Parte que veio da aba Shopping (listagens grátis do Merchant Center)
+    shopping: {
+      sessoes: doShopping.length,
+      leads: doShopping.filter((id) => comLead.has(id)).length,
+    },
     whatsapp: eventos.filter((e) => e.tipo === "whatsapp").length,
     carrinho: eventos.filter((e) => e.tipo === "carrinho").length,
     taxa: sessoes.size ? comLead.size / sessoes.size : 0,
@@ -115,7 +132,9 @@ export async function leadsOrganicos(dias: number): Promise<LeadsOrganicos> {
       .map((e) => ({
         quando: new Date(e.created_at).toISOString(),
         entrada: sessoes.get(e.session_id)?.entrada ?? "",
-        acao: e.tipo === "whatsapp" ? "WhatsApp" : "Cotação",
+        acao:
+          (e.tipo === "whatsapp" ? "WhatsApp" : "Cotação") +
+          (sessoes.get(e.session_id)?.shopping ? " (Shopping)" : ""),
         dado: e.dado,
         cidade: sessoes.get(e.session_id)?.cidade ?? null,
       })),

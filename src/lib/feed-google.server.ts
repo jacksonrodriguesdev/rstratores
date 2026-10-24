@@ -74,7 +74,8 @@ export async function feedGoogle(
         `<g:id>${esc(sku)}</g:id>`,
         `<g:title>${esc(titulo)}</g:title>`,
         `<g:description>${esc(desc)}</g:description>`,
-        `<g:link>${SITE_URL}${br ? "/pt" : ""}/produto/${encodeURIComponent(sku)}</g:link>`,
+        // utm: as visitas e os pedidos que vêm do Shopping aparecem separados no painel
+        `<g:link>${SITE_URL}${br ? "/pt" : ""}/produto/${encodeURIComponent(sku)}?utm_source=google_shopping&amp;utm_medium=shopping&amp;utm_campaign=merchant_${br ? "br" : "uy"}</g:link>`,
         `<g:image_link>${esc(urlImagem(p.imagem_principal))}</g:image_link>`,
         `<g:condition>new</g:condition>`,
         // Sem estoque: pedido por encomenda (chega em uns dias)

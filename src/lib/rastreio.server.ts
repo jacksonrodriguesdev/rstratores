@@ -233,6 +233,7 @@ export type Atribuicao = {
 const FONTES: Array<[RegExp, string]> = [
   [/^(ig|instagram)/i, "instagram"],
   [/^(fb|facebook|meta)/i, "facebook"],
+  [/^google[_-]?shopping/i, "google_shopping"], // links do feed do Merchant Center (listagens grátis)
   [/^(google|adwords|gads)/i, "google"],
   [/^(wa|whatsapp)/i, "whatsapp"],
   [/^(bing|microsoft)/i, "bing"],

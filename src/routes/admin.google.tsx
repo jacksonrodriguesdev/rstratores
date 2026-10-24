@@ -34,6 +34,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  merchantFn,
+  registrarMerchantFn,
   estadoGscFn,
   relatorioGscFn,
   sincronizarGscFn,
@@ -169,6 +171,7 @@ function PosicoesGoogle() {
       )}
       <LeadsGoogle dias={dias} />
       <Velocidade dias={dias} />
+      <GoogleShopping dias={dias} estado={estado.data} />
       {rel.data && <Relatorio r={rel.data} dias={dias} />}
     </div>
   );
@@ -189,12 +192,16 @@ function LeadsGoogle({ dias }: { dias: number }) {
       <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-900">
         <Target className="h-5 w-5 text-primary" /> Leads do Google (busca orgânica)
       </h2>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {[
           { rotulo: "Visitas pela busca", valor: n(r.sessoes) },
           { rotulo: "Leads (pediram preço)", valor: n(r.leads) },
           { rotulo: "Taxa de lead", valor: pct(r.taxa) },
           { rotulo: "Cliques no WhatsApp", valor: n(r.whatsapp) },
+          {
+            rotulo: "Vindos do Shopping",
+            valor: `${n(r.shopping.sessoes)} visitas · ${n(r.shopping.leads)} leads`,
+          },
         ].map((k) => (
           <Card key={k.rotulo} className="p-4">
             <p className="text-xs font-semibold uppercase text-zinc-500">{k.rotulo}</p>
@@ -863,5 +870,140 @@ function Velocidade({ dias }: { dias: number }) {
         />
       )}
     </Card>
+  );
+}
+
+// Google Shopping (Merchant Center): peças aprovadas/reprovadas e vistas/cliques nas listagens grátis
+function GoogleShopping({
+  dias,
+  estado,
+}: {
+  dias: number;
+  estado?: { conectado: boolean; merchant?: boolean } | null;
+}) {
+  const ativo = !!estado?.conectado && !!estado.merchant;
+  const q = useQuery({
+    queryKey: ["merchant", dias],
+    queryFn: () => merchantFn({ data: { dias } }),
+    enabled: ativo,
+  });
+  const [registrando, setRegistrando] = useState(false);
+  if (!estado?.conectado) return null;
+  if (!estado.merchant)
+    return (
+      <Card className="border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+        <p className="font-bold">Google Shopping (Merchant Center)</p>
+        <p className="mt-1">
+          Para ver aqui as peças aprovadas e as vistas e cliques no Shopping, conecte o Google de
+          novo e marque também a permissão do <b>Merchant Center</b> (conteúdo de compras). Use a
+          mesma conta Google que é usuária do Merchant Center.
+        </p>
+        <a href="/api/admin/google/conectar">
+          <Button className="mt-3" size="sm">
+            <Link2 className="mr-1.5 h-4 w-4" /> Reconectar com o Merchant Center
+          </Button>
+        </a>
+      </Card>
+    );
+  const r = q.data;
+  if (!r)
+    return (
+      <p className="flex items-center gap-2 text-sm text-zinc-500">
+        <Loader2 className="h-4 w-4 animate-spin" /> Carregando o Google Shopping…
+      </p>
+    );
+  if (!r.ok)
+    return (
+      <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <p className="flex items-center gap-2 font-bold">
+          <AlertTriangle className="h-4 w-4" /> Google Shopping: {r.erro}
+        </p>
+        {/registr/i.test(r.erro) && (
+          <Button
+            className="mt-3"
+            size="sm"
+            disabled={registrando}
+            onClick={async () => {
+              setRegistrando(true);
+              const x: any = await registrarMerchantFn();
+              setRegistrando(false);
+              if (x?.ok) {
+                toast.success("Acesso registrado no Merchant Center.");
+                q.refetch();
+              } else toast.error(x?.erro || "Não foi possível registrar.");
+            }}
+          >
+            {registrando && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />} Registrar acesso
+          </Button>
+        )}
+      </Card>
+    );
+  const ctr = r.vistas
+    ? `${((r.cliques / r.vistas) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`
+    : "—";
+  return (
+    <section className="space-y-4">
+      <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-900">
+        <Target className="h-5 w-5 text-primary" /> Google Shopping (listagens grátis)
+      </h2>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          { rotulo: "Vistas no Shopping", valor: n(r.vistas) },
+          { rotulo: "Cliques", valor: n(r.cliques) },
+          { rotulo: "Taxa de clique", valor: ctr },
+          {
+            rotulo: "Peças aprovadas",
+            valor: n(r.situacoes.reduce((t, x) => t + x.ativas, 0)),
+          },
+        ].map((k) => (
+          <Card key={k.rotulo} className="p-4">
+            <p className="text-xs font-semibold uppercase text-zinc-500">{k.rotulo}</p>
+            <p className="mt-1 text-2xl font-extrabold text-zinc-900">{k.valor}</p>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="p-4">
+          <h3 className="font-bold text-zinc-900">Situação das peças</h3>
+          <Tabela
+            colunas={["País / onde", "Aprovadas", "Pendentes", "Reprovadas"]}
+            linhas={r.situacoes.map((x) => [
+              `${x.pais} · ${x.contexto.replace(/_/g, " ").toLowerCase()}`,
+              n(x.ativas),
+              n(x.pendentes),
+              <span key="r" className={cn(x.reprovadas > 0 && "font-bold text-red-600")}>
+                {n(x.reprovadas)}
+              </span>,
+            ])}
+          />
+        </Card>
+        <Card className="p-4">
+          <h3 className="font-bold text-zinc-900">Problemas mais comuns</h3>
+          <Tabela
+            colunas={["Problema", "Peças"]}
+            linhas={r.problemas.map((p) => [p.descricao, n(p.pecas)])}
+          />
+        </Card>
+      </div>
+      <Card className="p-4">
+        <h3 className="font-bold text-zinc-900">Peças mais clicadas no Shopping</h3>
+        <Tabela
+          colunas={["Peça", "Vistas", "Cliques"]}
+          linhas={r.pecas.map((p) => [
+            <a
+              key={p.sku}
+              href={`/produto/${encodeURIComponent(p.sku)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:underline"
+            >
+              {p.titulo || p.sku}
+            </a>,
+            n(p.vistas),
+            n(p.cliques),
+          ])}
+        />
+      </Card>
+    </section>
   );
 }

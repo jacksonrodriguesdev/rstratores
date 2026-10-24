@@ -69,6 +69,9 @@ jobs:
       - name: SEO fase 1 (títulos das peças, descrição com preço, cache, leads do Google)
         run: npx tsx scripts/ci/testar-seo-leads.ts
 
+      - name: Google Shopping no painel (Merchant Center falso)
+        run: npx tsx scripts/ci/testar-merchant.ts
+
       - name: Campanhas (Black Friday) e cupons
         run: npx tsx scripts/ci/testar-campanha.ts
 

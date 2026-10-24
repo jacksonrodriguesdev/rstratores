@@ -10,6 +10,8 @@ import { prisma } from "./prisma";
 const API = (process.env.GSC_API_URL || "https://www.googleapis.com").replace(/\/+$/, "");
 const TOKEN_URL = process.env.GSC_TOKEN_URL || "https://oauth2.googleapis.com/token";
 export const ESCOPO = "https://www.googleapis.com/auth/webmasters.readonly";
+// Merchant Center (Admin → Google → Google Shopping): mesma conexão, permissão a mais (opcional)
+export const ESCOPO_MERCHANT = "https://www.googleapis.com/auth/content";
 
 // ---------- Tabelas (produção não roda "prisma db push") ----------
 const SQL = [
@@ -56,7 +58,14 @@ export function garantirTabelasGsc() {
 }
 
 // ---------- Configuração (configuracoes gsc_*) ----------
-type ChaveGsc = "gsc_refresh" | "gsc_site" | "gsc_email" | "gsc_sync" | "gsc_sitemaps" | "gsc_erro";
+type ChaveGsc =
+  | "gsc_refresh"
+  | "gsc_site"
+  | "gsc_email"
+  | "gsc_sync"
+  | "gsc_sitemaps"
+  | "gsc_erro"
+  | "gsc_escopos";
 async function ler(): Promise<Partial<Record<ChaveGsc, string>>> {
   const rows = await prisma.configuracoes.findMany({ where: { chave: { startsWith: "gsc_" } } });
   return Object.fromEntries(rows.map((r) => [r.chave, r.valor]));
@@ -90,6 +99,8 @@ export async function estadoGsc() {
     ultimaSync: c.gsc_sync || null,
     erro: c.gsc_erro || null,
     sitemaps,
+    // A conexão também deu acesso ao Merchant Center?
+    merchant: (c.gsc_escopos || "").includes(ESCOPO_MERCHANT),
   };
 }
 
@@ -100,7 +111,7 @@ export function urlConectar(redirect: string, state: string) {
     client_id: process.env.GOOGLE_CLIENT_ID!,
     redirect_uri: redirect,
     response_type: "code",
-    scope: `openid email ${ESCOPO}`,
+    scope: `openid email ${ESCOPO} ${ESCOPO_MERCHANT}`,
     access_type: "offline", // devolve refresh token
     prompt: "consent", // garante o refresh token mesmo se já autorizou antes
     include_granted_scopes: "true",
@@ -135,7 +146,12 @@ export async function concluirConexao(code: string, redirect: string) {
     /* sem e-mail: só informativo */
   }
   acesso = { token: j.access_token, expira: Date.now() + (Number(j.expires_in) || 3600) * 1000 };
-  await gravar({ gsc_refresh: j.refresh_token, gsc_email: email, gsc_erro: null });
+  await gravar({
+    gsc_refresh: j.refresh_token,
+    gsc_email: email,
+    gsc_erro: null,
+    gsc_escopos: String(j.scope || ""),
+  });
   // Propriedade: a que tem o domínio do site
   const sites = await listarSites();
   const { SITE_URL } = await import("./site");
@@ -162,6 +178,10 @@ export async function desconectar() {
 }
 
 let acesso: { token: string; expira: number } | null = null;
+// Token de acesso da conta Google conectada (Search Console e, se autorizado, Merchant Center)
+export async function tokenGoogle() {
+  return token();
+}
 async function token() {
   if (acesso && acesso.expira - Date.now() > 60_000) return acesso.token;
   const c = await ler();

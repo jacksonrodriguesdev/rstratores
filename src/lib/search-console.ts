@@ -53,3 +53,30 @@ export const desconectarGscFn = createServerFn({ method: "POST" }).handler(async
   await (await sc()).desconectar();
   return { ok: true };
 });
+
+// Google Shopping (Merchant Center): situação das peças e desempenho das listagens grátis
+export const merchantFn = createServerFn({ method: "GET" })
+  .validator((d: { dias: number }) => ({
+    dias: [7, 28, 90].includes(Number(d?.dias)) ? Number(d.dias) : 28,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const m = await import("./merchant.server");
+    try {
+      return { ok: true as const, ...(await m.merchantResumo(data.dias)) };
+    } catch (e: any) {
+      return { ok: false as const, erro: String(e?.message ?? e) };
+    }
+  });
+
+// Registro do projeto do Google Cloud no Merchant Center (pedido uma vez pela Merchant API)
+export const registrarMerchantFn = createServerFn({ method: "POST" }).handler(async () => {
+  await admin();
+  const s = await (await sc()).estadoGsc();
+  const m = await import("./merchant.server");
+  try {
+    return await m.registrarAcesso(s.email || "");
+  } catch (e: any) {
+    return { ok: false, erro: String(e?.message ?? e) };
+  }
+});
