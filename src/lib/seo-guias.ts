@@ -108,6 +108,36 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
 };
 
 export const GUIAS_CATEGORIA: Record<string, GuiaSeo> = {
+  cosechadoras: {
+    titulo: "Repuestos para cosechadoras en Uruguay",
+    paragrafos: [
+      "Tenemos repuestos para cosechadoras John Deere, New Holland, Case IH y Massey Ferguson: piezas de plataforma y cabezal, cilindro y cóncavo, sinfines, zarandas, correas, cadenas, rodamientos, juntas y filtros, cada uno con su código original.",
+      "Antes de la zafra de soja, arroz o trigo, revisá rodamientos, correas y cadenas: son las piezas que más paran la cosechadora en plena cosecha. Buscá por el código grabado en la pieza o mandanos una foto por WhatsApp con el modelo de la máquina.",
+      "Enviamos a los 19 departamentos por DAC, con número de rastreo.",
+    ],
+    perguntas: [
+      {
+        p: "¿Tienen repuestos para cosechadoras John Deere y New Holland?",
+        r: "Sí. La mayoría de los repuestos de cosechadora del catálogo son John Deere, New Holland y Case IH. Buscá por el código original o consultanos por WhatsApp con el modelo y el año de la máquina.",
+      },
+    ],
+  },
+  sembradoras: {
+    titulo: "Repuestos para sembradoras en Uruguay",
+    paragrafos: [
+      "Repuestos para sembradoras y plantadoras: bujes, discos de corte, cuchillas, dosificadores, engranajes, cadenas y rodamientos, con el código original de cada pieza.",
+      "Para no perder días de siembra, revisá la sembradora antes de la temporada y pedí los repuestos con tiempo. Enviamos a todo Uruguay por DAC.",
+    ],
+    perguntas: [],
+  },
+  pulverizadores: {
+    titulo: "Repuestos para pulverizadores en Uruguay",
+    paragrafos: [
+      "Repuestos para pulverizadores Jacto y otras marcas: picos, filtros de línea, válvulas, bombas, membranas, mangueras y conexiones, con código original.",
+      "Mandanos el modelo del pulverizador o una foto de la pieza por WhatsApp y te confirmamos el repuesto correcto. Enviamos a todo Uruguay por DAC.",
+    ],
+    perguntas: [],
+  },
   filtros: {
     titulo: "Filtros para tractores en Uruguay: aceite, combustible, aire e hidráulico",
     paragrafos: [
@@ -269,6 +299,36 @@ export const GUIAS_MARCA_PT: Record<string, GuiaSeo> = {
 };
 
 export const GUIAS_CATEGORIA_PT: Record<string, GuiaSeo> = {
+  cosechadoras: {
+    titulo: "Peças para colheitadeira no RS, SC e PR",
+    paragrafos: [
+      "Temos peças para colheitadeiras John Deere, New Holland, Case IH e Massey Ferguson: plataforma, cilindro e côncavo, caracóis, peneiras, correias, correntes, rolamentos, juntas e filtros, cada uma com o código original.",
+      "Antes da colheita de soja, milho, trigo ou arroz, revise rolamentos, correias e correntes: são as peças que mais param a colheitadeira no meio da safra. Busque pelo código gravado na peça ou mande uma foto pelo WhatsApp com o modelo da máquina.",
+      `Enviamos para ${ESTADOS} por Correios ou transportadora, com nota fiscal e rastreio.`,
+    ],
+    perguntas: [
+      {
+        p: "Vocês têm peças para colheitadeira John Deere e New Holland?",
+        r: "Sim. A maior parte das peças de colheitadeira do catálogo é John Deere, New Holland e Case IH. Busque pelo código original ou fale conosco pelo WhatsApp com o modelo e o ano da máquina.",
+      },
+    ],
+  },
+  sembradoras: {
+    titulo: "Peças para plantadeira no RS, SC e PR",
+    paragrafos: [
+      "Peças para plantadeiras e semeadoras: buchas, discos de corte, facões, dosadores, engrenagens, correntes e rolamentos, com o código original de cada peça.",
+      `Para não perder dias de plantio, revise a plantadeira antes da safra e peça as peças com antecedência. Enviamos para ${ESTADOS} com nota fiscal.`,
+    ],
+    perguntas: [],
+  },
+  pulverizadores: {
+    titulo: "Peças para pulverizador Jacto e outras marcas no RS, SC e PR",
+    paragrafos: [
+      "Peças para pulverizadores Jacto e outras marcas: bicos, filtros de linha, válvulas, bombas, membranas, mangueiras e conexões, com código original.",
+      `Mande o modelo do pulverizador ou uma foto da peça pelo WhatsApp e confirmamos a peça certa. Enviamos para ${ESTADOS} por Correios ou transportadora.`,
+    ],
+    perguntas: [],
+  },
   filtros: {
     titulo: "Filtros para trator no RS, SC e PR: óleo, combustível, ar e hidráulico",
     paragrafos: [

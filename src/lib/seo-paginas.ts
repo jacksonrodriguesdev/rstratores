@@ -25,6 +25,10 @@ export type CategoriaSeo = {
   nome: string;
   texto: string;
   texto_pt: string;
+  // Tipo de máquina (colheitadeira, plantadeira, pulverizador): não é uma categoria do banco,
+  // as peças vêm da busca por este termo (em português; a busca entende o espanhol também)
+  busca?: string;
+  maquina?: boolean; // tipo de máquina ("peças para colheitadeira"); sem isso, tipo de peça
 };
 
 export const MARCAS_SEO: MarcaSeo[] = [
@@ -174,6 +178,138 @@ export const CATEGORIAS_SEO: CategoriaSeo[] = CATS.map((c) => ({ ...c, slug: slu
 
 export const marcaPorSlug = (s: string) => MARCAS_SEO.find((m) => m.slug === s) ?? null;
 export const categoriaPorSlug = (s: string) => CATEGORIAS_SEO.find((c) => c.slug === s) ?? null;
+
+// Páginas por tipo de máquina: buscas como "peças para colheitadeira", "repuestos para cosechadoras"
+// (categoria = nome em português; nome = em espanhol)
+export const MAQUINAS_SEO: CategoriaSeo[] = [
+  {
+    slug: "cosechadoras",
+    categoria: "Colheitadeiras",
+    nome: "Cosechadoras",
+    busca: "colheitadeira",
+    maquina: true,
+    texto:
+      "Repuestos para cosechadoras John Deere, New Holland, Case IH y Massey Ferguson: plataforma, cilindro, cóncavo, sinfines, correas, rodamientos, cadenas y filtros, con código original.",
+    texto_pt:
+      "Peças para colheitadeiras John Deere, New Holland, Case IH e Massey Ferguson: plataforma, cilindro, côncavo, caracóis, correias, rolamentos, correntes e filtros, com código original.",
+  },
+  {
+    slug: "sembradoras",
+    categoria: "Plantadeiras",
+    nome: "Sembradoras",
+    busca: "plantadeira",
+    maquina: true,
+    texto:
+      "Repuestos para sembradoras: bujes, discos, cuchillas, dosificadores, engranajes y rodamientos, con el código original de cada pieza.",
+    texto_pt:
+      "Peças para plantadeiras: buchas, discos, facões, dosadores, engrenagens e rolamentos, com o código original de cada peça.",
+  },
+  {
+    slug: "pulverizadores",
+    categoria: "Pulverizadores",
+    nome: "Pulverizadores",
+    busca: "pulverizador",
+    maquina: true,
+    texto:
+      "Repuestos para pulverizadores Jacto y otras marcas: picos, filtros, válvulas, bombas, membranas y conexiones, con código original.",
+    texto_pt:
+      "Peças para pulverizadores Jacto e outras marcas: bicos, filtros, válvulas, bombas, membranas e conexões, com código original.",
+  },
+];
+// Páginas por tipo de peça (bomba hidráulica, embreagem, radiador...): peças da busca pelo termo
+export const PECAS_SEO: CategoriaSeo[] = [
+  {
+    slug: "bombas-hidraulicas",
+    categoria: "Bombas hidráulicas",
+    nome: "Bombas hidráulicas",
+    busca: "bomba hidraulica",
+    texto:
+      "Bombas hidráulicas para tractores Massey Ferguson, Valtra, John Deere, New Holland y más, con código original. Te confirmamos la compatibilidad por WhatsApp.",
+    texto_pt:
+      "Bombas hidráulicas para tratores Massey Ferguson, Valtra, John Deere, New Holland e mais, com código original. Confirmamos a compatibilidade pelo WhatsApp.",
+  },
+  {
+    slug: "embragues",
+    categoria: "Embreagens",
+    nome: "Embragues",
+    busca: "embreagem",
+    texto:
+      "Discos, platos, rulemanes y kits de embrague para tractores, con el código original de cada pieza.",
+    texto_pt:
+      "Discos, platôs, rolamentos e kits de embreagem para tratores, com o código original de cada peça.",
+  },
+  {
+    slug: "pistones",
+    categoria: "Pistões",
+    nome: "Pistones",
+    busca: "pistao",
+    texto:
+      "Pistones, aros y camisas para motores de tractor (Perkins, MWM, Sisu/AGCO Power y más), con código original.",
+    texto_pt:
+      "Pistões, anéis e camisas para motores de trator (Perkins, MWM, Sisu/AGCO Power e mais), com código original.",
+  },
+  {
+    slug: "radiadores",
+    categoria: "Radiadores",
+    nome: "Radiadores",
+    busca: "radiador",
+    texto:
+      "Radiadores y piezas del sistema de refrigeración para tractores y cosechadoras, con código original.",
+    texto_pt:
+      "Radiadores e peças do sistema de arrefecimento para tratores e colheitadeiras, com código original.",
+  },
+  {
+    slug: "bombas-de-agua",
+    categoria: "Bombas d'água",
+    nome: "Bombas de agua",
+    busca: "bomba agua",
+    texto:
+      "Bombas de agua para motores de tractor, con el código original para confirmar la compatibilidad.",
+    texto_pt:
+      "Bombas d'água para motores de trator, com o código original para confirmar a compatibilidade.",
+  },
+  {
+    slug: "crucetas",
+    categoria: "Cruzetas",
+    nome: "Crucetas",
+    busca: "cruzeta",
+    texto:
+      "Crucetas de cardán y de transmisión para tractores y máquinas agrícolas, con código original.",
+    texto_pt:
+      "Cruzetas de cardã e de transmissão para tratores e máquinas agrícolas, com código original.",
+  },
+  {
+    slug: "juntas-de-tapa",
+    categoria: "Juntas de cabeçote",
+    nome: "Juntas de tapa de cilindros",
+    busca: "junta cabecote",
+    texto:
+      "Juntas de tapa de cilindros y juegos de juntas de motor para tractores, con código original.",
+    texto_pt: "Juntas de cabeçote e jogos de juntas de motor para tratores, com código original.",
+  },
+  {
+    slug: "terminales-de-direccion",
+    categoria: "Terminais de direção",
+    nome: "Terminales de dirección",
+    busca: "terminal direcao",
+    texto:
+      "Terminales y extremos de dirección para tractores Massey Ferguson, Valtra, New Holland y más, con código original.",
+    texto_pt:
+      "Terminais e pontas de direção para tratores Massey Ferguson, Valtra, New Holland e mais, com código original.",
+  },
+  {
+    slug: "bombas-inyectoras",
+    categoria: "Bombas injetoras",
+    nome: "Bombas inyectoras",
+    busca: "bomba injetora",
+    texto:
+      "Bombas inyectoras y piezas del sistema de inyección para motores de tractor, con código original.",
+    texto_pt:
+      "Bombas injetoras e peças do sistema de injeção para motores de trator, com código original.",
+  },
+];
+export const maquinaPorSlug = (s: string) =>
+  [...MAQUINAS_SEO, ...PECAS_SEO].find((c) => c.slug === s) ?? null;
 export const slugDaMarca = (marca: string) =>
   MARCAS_SEO.find((m) => m.marca === marca)?.slug ?? null;
 export const slugDaCategoria = (categoria: string) =>

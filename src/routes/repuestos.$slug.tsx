@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
 import { comPrefixo, linksIdioma, type Idioma } from "@/lib/idioma";
-import { marcaPorSlug, categoriaPorSlug } from "@/lib/seo-paginas";
+import { marcaPorSlug, categoriaPorSlug, maquinaPorSlug } from "@/lib/seo-paginas";
 import { getPaginaRepuestosFn } from "@/lib/repuestos";
 import {
   PaginaRepuestos,
@@ -10,14 +10,16 @@ import {
   ldRepuestos,
 } from "@/components/PaginaRepuestos";
 
-// /repuestos/john-deere (marca) ou /repuestos/filtros (categoria)
+// /repuestos/john-deere (marca), /repuestos/filtros (categoria) ou /repuestos/cosechadoras (máquina)
 export const Route = createFileRoute("/repuestos/$slug")({
   loader: async ({ params }) => {
     const marca = marcaPorSlug(params.slug);
-    const categoria = marca ? null : categoriaPorSlug(params.slug);
+    const categoria = marca ? null : (categoriaPorSlug(params.slug) ?? maquinaPorSlug(params.slug));
     if (!marca && !categoria) throw notFound();
     const dados = await getPaginaRepuestosFn({
-      data: { marca: marca?.marca, categoria: categoria?.categoria },
+      data: categoria?.busca
+        ? { busca: categoria.busca }
+        : { marca: marca?.marca, categoria: categoria?.categoria },
     });
     return { marca, categoria, dados };
   },

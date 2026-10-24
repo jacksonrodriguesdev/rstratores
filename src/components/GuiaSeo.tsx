@@ -69,6 +69,9 @@ const LINKS_BUSCAS_PT = [
   { href: "/repuestos/agrale", texto: "Peças Agrale" },
   { href: "/repuestos/ford", texto: "Peças Ford" },
   { href: "/repuestos/filtros", texto: "Filtros para trator" },
+  { href: "/repuestos/cosechadoras", texto: "Peças para colheitadeira" },
+  { href: "/repuestos/sembradoras", texto: "Peças para plantadeira" },
+  { href: "/repuestos/pulverizadores", texto: "Peças para pulverizador" },
 ];
 export const LINKS_BUSCAS_PRINCIPAIS = [
   { href: "/repuestos-agricolas", texto: "Repuestos agrícolas en Uruguay" },
@@ -78,6 +81,9 @@ export const LINKS_BUSCAS_PRINCIPAIS = [
   { href: "/repuestos/new-holland", texto: "Repuestos New Holland" },
   { href: "/repuestos/case-ih", texto: "Repuestos Case IH" },
   { href: "/repuestos/agrale", texto: "Repuestos Agrale" },
+  { href: "/repuestos/cosechadoras", texto: "Repuestos para cosechadoras" },
+  { href: "/repuestos/sembradoras", texto: "Repuestos para sembradoras" },
+  { href: "/repuestos/pulverizadores", texto: "Repuestos para pulverizadores" },
   { href: "/repuestos/ford", texto: "Repuestos Ford" },
   { href: "/repuestos/filtros", texto: "Filtros para tractores" },
 ];

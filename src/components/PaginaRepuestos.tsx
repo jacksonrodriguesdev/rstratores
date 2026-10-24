@@ -35,6 +35,14 @@ export function tituloRepuestos(
   categoria?: CategoriaSeo | null,
   idioma: Idioma = "es",
 ) {
+  if (categoria?.busca && !marca)
+    return categoria.maquina
+      ? idioma === "pt"
+        ? `Peças para ${categoria.categoria.toLowerCase()} no RS, SC e PR`
+        : `Repuestos para ${categoria.nome.toLowerCase()} en Uruguay`
+      : idioma === "pt"
+        ? `${categoria.categoria} para trator no RS, SC e PR`
+        : `${categoria.nome} para tractores en Uruguay`;
   if (idioma === "pt") {
     if (marca && categoria)
       return `${nomeCat(categoria, idioma)} para ${marca.marca} com envio para todo o Sul do Brasil`;
@@ -55,6 +63,14 @@ export function descricaoRepuestos(
   total?: number,
   idioma: Idioma = "es",
 ) {
+  if (categoria?.busca && !categoria.maquina && !marca)
+    return idioma === "pt"
+      ? `${total ? `${fmt(total, idioma)} peças de ` : "Peças de "}${categoria.categoria.toLowerCase()} para tratores Massey Ferguson, Valtra, John Deere, New Holland e mais, com código original. Envio para RS, SC e PR com nota fiscal.`
+      : `${total ? `${fmt(total)} repuestos de ` : "Repuestos de "}${categoria.nome.toLowerCase()} para tractores Massey Ferguson, Valtra, John Deere, New Holland y más, con código original. Envío a todo Uruguay por DAC.`;
+  if (categoria?.busca && !marca)
+    return idioma === "pt"
+      ? `${total ? `${fmt(total, idioma)} peças` : "Peças"} para ${categoria.categoria.toLowerCase()} John Deere, New Holland, Case IH, Massey Ferguson, Jacto e mais. Envio para RS, SC e PR com nota fiscal.`
+      : `${total ? `${fmt(total)} repuestos` : "Repuestos"} para ${categoria.nome.toLowerCase()} John Deere, New Holland, Case IH, Massey Ferguson, Jacto y más. Envío a todo Uruguay por DAC.`;
   if (idioma === "pt") {
     const qtd = total ? `${fmt(total, idioma)} peças` : "Peças";
     if (marca && categoria)
@@ -137,7 +153,8 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
   const alvo = alvoDe(marca, categoria, idioma);
   const guia = guiaDaPagina(marca, categoria, idioma);
   const lojaParams = new URLSearchParams();
-  if (categoria) lojaParams.set("categoria", categoria.categoria);
+  if (categoria?.busca) lojaParams.set("q", categoria.busca);
+  else if (categoria) lojaParams.set("categoria", categoria.categoria);
   if (marca) lojaParams.set("marca", marca.marca);
   const lojaUrl = href(`/loja?${lojaParams.toString()}`);
   const whats = whatsappContactUrl(
@@ -253,13 +270,21 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
                       `Repuestos ${marca.marca} por categoría`,
                       `Peças ${marca.marca} por categoria`,
                     )
-                  : `${categoria ? nomeCat(categoria, idioma) : ""} ${t("por marca de tractor", "por marca de trator")}`}
+                  : categoria?.maquina
+                    ? t(
+                        `Repuestos para ${categoria.nome.toLowerCase()} por marca`,
+                        `Peças para ${categoria.categoria.toLowerCase()} por marca`,
+                      )
+                    : `${categoria ? nomeCat(categoria, idioma) : ""} ${t("por marca de tractor", "por marca de trator")}`}
               </h2>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 {dados.facetas.map((f) => {
                   const url = marca
                     ? urlRepuestos({ marca: marca.marca, categoria: f.chave })
-                    : urlRepuestos({ marca: f.chave, categoria: categoria!.categoria });
+                    : categoria?.busca
+                      ? // Máquina + marca: a loja já filtrada (ex.: colheitadeira John Deere)
+                        `/loja?${new URLSearchParams({ q: categoria.busca, marca: f.chave })}`
+                      : urlRepuestos({ marca: f.chave, categoria: categoria!.categoria });
                   const cat = CATEGORIAS_SEO.find((c) => c.categoria === f.chave);
                   const rotulo = marca ? (cat ? nomeCat(cat, idioma) : f.chave) : f.chave;
                   return (
@@ -292,7 +317,12 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
                   ? `${nomeCat(categoria, idioma)} ${marca.marca}`
                   : marca
                     ? t(`Repuestos ${marca.marca} destacados`, `Peças ${marca.marca} em destaque`)
-                    : `${categoria ? nomeCat(categoria, idioma) : ""} ${t("destacados", "em destaque")}`}
+                    : categoria?.maquina
+                      ? t(
+                          `Repuestos para ${categoria.nome.toLowerCase()} destacados`,
+                          `Peças para ${categoria.categoria.toLowerCase()} em destaque`,
+                        )
+                      : `${categoria ? nomeCat(categoria, idioma) : ""} ${t("destacados", "em destaque")}`}
               </h2>
               <a href={lojaUrl} className="text-sm font-bold text-primary hover:underline">
                 {t("Ver todos →", "Ver todas →")}

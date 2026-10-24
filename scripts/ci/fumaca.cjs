@@ -13,6 +13,8 @@ const PAGINAS = [
   ["/repuestos", 200, ["John Deere"]],
   ["/repuestos/john-deere", 200, ["John Deere"]],
   ["/repuestos/filtros", 200, ["Filtros"]],
+  ["/pt/repuestos/cosechadoras", 200, ["colheitadeiras"]],
+  ["/repuestos/radiadores", 200, ["Radiadores"]],
   ["/repuestos-agricolas", 200, ["Los 19 departamentos"]],
   ["/repuestos-agricolas/rocha", 200, ["Repuestos agrícolas en Rocha"]],
   ["/pt/repuestos-agricolas", 200, ["Paraná"]],

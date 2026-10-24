@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { SITE_URL } from "@/lib/site";
 import { SiteHeader } from "@/components/SiteHeader";
-import { MARCAS_SEO, CATEGORIAS_SEO } from "@/lib/seo-paginas";
+import { MARCAS_SEO, CATEGORIAS_SEO, MAQUINAS_SEO, PECAS_SEO } from "@/lib/seo-paginas";
 import { comPrefixo, linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 
 // /repuestos: índice das páginas por marca e por categoria (porta de entrada para o Google)
@@ -110,6 +110,33 @@ function IndiceRepuestos() {
               ))}
             </div>
           </section>
+          {/* Por máquina e por tipo de peça (buscas como "peças para colheitadeira", "radiador para trator") */}
+          {[
+            { titulo: t("Por máquina", "Por máquina"), itens: MAQUINAS_SEO },
+            { titulo: t("Por tipo de repuesto", "Por tipo de peça"), itens: PECAS_SEO },
+          ].map((g) => (
+            <section key={g.titulo}>
+              <h2 className="text-xl font-extrabold text-zinc-900 md:text-2xl">{g.titulo}</h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {g.itens.map((c) => (
+                  <a
+                    key={c.slug}
+                    href={href(`/repuestos/${c.slug}`)}
+                    className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-black/10 hover:text-primary hover:ring-primary/40"
+                  >
+                    {c.maquina
+                      ? t(
+                          `Repuestos para ${c.nome.toLowerCase()}`,
+                          `Peças para ${c.categoria.toLowerCase()}`,
+                        )
+                      : pt
+                        ? c.categoria
+                        : c.nome}
+                  </a>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       </main>
     </div>

@@ -54,7 +54,7 @@ export async function indiceSitemap() {
 
 export async function sitemapParte(arquivo: string): Promise<string | null> {
   if (arquivo === "paginas.xml") {
-    const { MARCAS_SEO, CATEGORIAS_SEO } = await import("./seo-paginas");
+    const { MARCAS_SEO, CATEGORIAS_SEO, MAQUINAS_SEO, PECAS_SEO } = await import("./seo-paginas");
     const { LOCAIS_SEO, idiomaDoLocal } = await import("./locais-seo");
     const { buscarSkus } = await import("./busca-catalogo.server");
     // Marca + categoria só quando tem peças (página vazia não vale a pena indexar)
@@ -72,6 +72,9 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
       ),
       ...CATEGORIAS_SEO.map((c) =>
         url(`/repuestos/${c.slug}`, "<changefreq>weekly</changefreq><priority>0.8</priority>"),
+      ),
+      ...[...MAQUINAS_SEO, ...PECAS_SEO].map((c) =>
+        url(`/repuestos/${c.slug}`, "<changefreq>weekly</changefreq><priority>0.9</priority>"),
       ),
       ...combos.map((u) => url(u, "<priority>0.7</priority>")),
       url(`/repuestos-agricolas`, "<changefreq>weekly</changefreq><priority>0.8</priority>"),
