@@ -610,7 +610,18 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
               <p className="mb-1 text-xs font-bold uppercase text-zinc-500">Formas de pagamento</p>
               <div className="flex flex-wrap gap-3 pt-2">
                 {METODOS[pais].map((m) => (
-                  <label key={m} className="flex items-center gap-1.5 text-sm">
+                  <label
+                    key={m}
+                    className={cn(
+                      "flex items-center gap-1.5 text-sm",
+                      m !== "STRIPE" && integ.data && !integ.data.configurado && "opacity-50",
+                    )}
+                    title={
+                      m !== "STRIPE" && integ.data && !integ.data.configurado
+                        ? "dLocal ainda não configurada: o cliente não consegue pagar por aqui"
+                        : undefined
+                    }
+                  >
                     <input
                       type="checkbox"
                       checked={metodos.includes(m)}
@@ -620,6 +631,9 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
                       )}
                     />
                     {ROTULO_METODO[m][pais === "BR" ? 1 : 0]}
+                    {m !== "STRIPE" && integ.data && !integ.data.configurado && (
+                      <span className="text-xs text-zinc-500">(dLocal não configurada)</span>
+                    )}
                   </label>
                 ))}
               </div>
@@ -848,6 +862,22 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
               <p className="text-2xl font-black text-primary">
                 {fmtValor(Math.max(total, 0), moeda)}
               </p>
+              {/* Conta Stripe brasileira: pelo Stripe o cliente paga em reais (convertido na hora) */}
+              {pais === "UY" &&
+                metodos.includes("STRIPE") &&
+                integ.data?.stripe.moeda === "BRL" &&
+                integ.data.stripe.cotacaoReal &&
+                total > 0 && (
+                  <p className="mt-1 text-xs text-zinc-600">
+                    Pelo Stripe:{" "}
+                    <b>{fmtValor(Math.ceil(total / integ.data.stripe.cotacaoReal), "BRL")}</b> (R$ 1
+                    = $U{" "}
+                    {integ.data.stripe.cotacaoReal.toLocaleString("pt-BR", {
+                      maximumFractionDigits: 2,
+                    })}
+                    , cotação de Admin → Preços)
+                  </p>
+                )}
             </div>
           </div>
 

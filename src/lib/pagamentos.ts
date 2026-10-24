@@ -72,6 +72,9 @@ export const statusIntegracaoFn = createServerFn({ method: "GET" }).handler(asyn
       ambiente: st.ambienteStripe(),
       aviso: st.avisoStripeConfigurado(),
       urlAviso: `${SITE_URL}/api/public/stripe/webhook`,
+      // Conta brasileira: cobra em R$; o admin vê quanto o link em $U vira em reais
+      moeda: st.moedaContaStripe(),
+      cotacaoReal: await (await import("./cambio.server")).cotacaoReal().catch(() => null),
     },
   };
 });
