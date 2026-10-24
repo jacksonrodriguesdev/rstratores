@@ -507,7 +507,7 @@ export const REMETENTE_PADRAO: Remetente = {
   nome: "AGRO PARTS",
   endereco: "",
   cidade: "Chuy, Rocha — Uruguay",
-  telefone: "+55 53 99942-8130",
+  telefone: "+55 53 99183-1101",
   doc: "",
 };
 export async function lerRemetente(): Promise<Remetente> {

@@ -971,8 +971,8 @@ export async function gerarTexto(o: OpcoesTexto): Promise<HTMLCanvasElement> {
   const rod =
     o.rodape ??
     (o.idioma === "pt"
-      ? "agropartsuy.com/pt · WhatsApp +55 53 99942-8130"
-      : "agropartsuy.com · WhatsApp +55 53 99942-8130");
+      ? "agropartsuy.com/pt · WhatsApp +55 53 99183-1101"
+      : "agropartsuy.com · WhatsApp +55 53 99183-1101");
   g.font = "800 26px Archivo";
   g.fillStyle = cor.sub;
   g.textAlign = "center";

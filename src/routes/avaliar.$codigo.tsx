@@ -326,7 +326,7 @@ function PaginaAvaliar() {
               </button>
             </div>
             <a
-              href="https://wa.me/5553999428130"
+              href="https://wa.me/5553991831101"
               className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:underline"
             >
               <MessageCircle className="h-4 w-4" />{" "}

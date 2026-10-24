@@ -23,7 +23,7 @@ export type PecaTexto = {
   preco: { uyu: string; brl: string | null; desconto: number } | null;
 };
 
-export const WHATSAPP = "5553999428130";
+export const WHATSAPP = "5553991831101";
 export const SITE = "https://agropartsuy.com";
 export const linkPeca = (sku: string, idioma: Idioma) =>
   `${SITE}${idioma === "pt" ? "/pt" : ""}/produto/${encodeURIComponent(sku)}`;
@@ -332,8 +332,8 @@ export function roteiroReels(tema: string, idioma: Idioma) {
 export const RESPOSTAS: Array<{ k: string; es: string; pt: string }> = [
   {
     k: "Preço",
-    es: "¡Hola! 👋 Te pasamos el precio por WhatsApp: escribinos al +55 53 99942-8130 con el código de la pieza.",
-    pt: "Olá! 👋 Passamos o preço pelo WhatsApp: chame no +55 53 99942-8130 com o código da peça.",
+    es: "¡Hola! 👋 Te pasamos el precio por WhatsApp: escribinos al +55 53 99183-1101 con el código de la pieza.",
+    pt: "Olá! 👋 Passamos o preço pelo WhatsApp: chame no +55 53 99183-1101 com o código da peça.",
   },
   {
     k: "Tem/hay?",

@@ -383,7 +383,7 @@ export function PrimeiroComentario() {
   const [p, setP] = useState<any>(null);
   const [idioma, setIdioma] = useState<Idioma>("es");
   const t = p
-    ? `${idioma === "pt" ? "📲 Peça pelo WhatsApp: +55 53 99942-8130" : "📲 Cotizá por WhatsApp: +55 53 99942-8130"}\n🔗 ${linkPeca(p.sku, idioma)}\n.\n.\n${hashtags(p, idioma).join(" ")}`
+    ? `${idioma === "pt" ? "📲 Peça pelo WhatsApp: +55 53 99183-1101" : "📲 Cotizá por WhatsApp: +55 53 99183-1101"}\n🔗 ${linkPeca(p.sku, idioma)}\n.\n.\n${hashtags(p, idioma).join(" ")}`
     : "";
   return (
     <Card className="space-y-3 p-4">

@@ -81,7 +81,7 @@ import assert from "node:assert/strict";
   assert.ok(tx.hashtags({ marca: "Massey Ferguson" }, "es").includes("#MasseyFerguson"));
   const ruim = tx.verificarLegenda("Envio para todo o Brasil com o melhor preço");
   assert.equal(ruim.filter((v) => !v.ok).length >= 2, true, "verificador pega frases proibidas");
-  assert.match(tx.linkWhatsApp("Hola"), /^https:\/\/wa\.me\/5553999428130\?text=Hola$/);
+  assert.match(tx.linkWhatsApp("Hola"), /^https:\/\/wa\.me\/5553991831101\?text=Hola$/);
   assert.match(
     tx.linkUtm("/loja", { fonte: "instagram", meio: "bio", campanha: "pre-black" }),
     /utm_source=instagram&utm_medium=bio&utm_campaign=pre-black/,
