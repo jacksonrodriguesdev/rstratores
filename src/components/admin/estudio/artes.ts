@@ -53,7 +53,7 @@ const T = {
 
 // ---------------------------------------------------------------- recursos
 let fontes: Promise<void> | null = null;
-function carregarFontes() {
+export function carregarFontes() {
   fontes ??= (async () => {
     if (!document.getElementById("estudio-fontes")) {
       const l = document.createElement("link");
@@ -79,7 +79,7 @@ function carregarFontes() {
   return fontes;
 }
 const cacheImg = new Map<string, Promise<HTMLImageElement | HTMLCanvasElement>>();
-function imagem(src: string): Promise<HTMLImageElement> {
+export function imagem(src: string): Promise<HTMLImageElement> {
   return new Promise((ok, erro) => {
     const im = new Image();
     im.onload = () => ok(im);
@@ -153,8 +153,8 @@ function recortar(im: HTMLImageElement): HTMLCanvasElement {
 }
 
 // ---------------------------------------------------------------- utilidades de desenho
-type Ctx = CanvasRenderingContext2D;
-function quebrar(g: Ctx, texto: string, largura: number) {
+export type Ctx = CanvasRenderingContext2D;
+export function quebrar(g: Ctx, texto: string, largura: number) {
   const linhas: string[] = [];
   let atual = "";
   for (const p of texto.split(/\s+/)) {
@@ -168,7 +168,7 @@ function quebrar(g: Ctx, texto: string, largura: number) {
   return linhas;
 }
 // Escreve um texto em até N linhas, diminuindo a letra até caber
-function bloco(
+export function bloco(
   g: Ctx,
   texto: string,
   x: number,
@@ -199,11 +199,11 @@ function bloco(
   ls.forEach((l, i) => g.fillText(l, x, y + i * lh));
   return y + ls.length * lh;
 }
-function retangulo(g: Ctx, x: number, y: number, w: number, h: number, r: number) {
+export function retangulo(g: Ctx, x: number, y: number, w: number, h: number, r: number) {
   g.beginPath();
   g.roundRect(x, y, w, h, r);
 }
-function contem(
+export function contem(
   g: Ctx,
   img: CanvasImageSource & { width: number; height: number },
   x: number,
@@ -288,7 +288,7 @@ function moeda(g: Ctx, x: number, y: number, r: number, topo: string, valor: str
   while (g.measureText(valor).width > r * 1.55 && (tv -= 2) > 10);
   g.fillText(valor, x, y + r * 0.12);
 }
-async function logo(
+export async function logo(
   g: Ctx,
   x: number,
   y: number,
@@ -320,7 +320,7 @@ async function logo(
   );
 }
 // Valor grande: «$U 1.360» ou «R$ 196,63»
-function preco(
+export function preco(
   g: Ctx,
   p: NonNullable<ProdutoArte["preco"]>,
   idioma: "es" | "pt",
@@ -982,7 +982,7 @@ export async function gerarTexto(o: OpcoesTexto): Promise<HTMLCanvasElement> {
 }
 
 // ================================================================ ferramentas de imagem
-async function arquivoParaImagem(arq: Blob): Promise<HTMLImageElement> {
+export async function arquivoParaImagem(arq: Blob): Promise<HTMLImageElement> {
   const url = URL.createObjectURL(arq);
   try {
     return await imagem(url);

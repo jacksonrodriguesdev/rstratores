@@ -28,6 +28,7 @@ import {
   MessagesSquare,
   PanelTop,
   QrCode,
+  Sprout,
   Search,
   ShieldCheck,
   Sparkles,
@@ -52,6 +53,7 @@ import { ArteTexto, Carrossel } from "./ArtesTexto";
 import { EstudioCtx, type Midia, type TipoPost } from "./comum";
 import { Horarios, Orcamento, PainelRecomendacoes } from "./Estudio";
 import * as F from "./Ferramentas";
+import { LinhaCampo } from "./LinhaCampo";
 
 type Grupo = "Criar" | "Textos" | "Imagem" | "Planejar" | "Links" | "Analisar" | "Anunciar";
 type Ferramenta = {
@@ -63,6 +65,14 @@ type Ferramenta = {
   destaque?: boolean;
 };
 export const FERRAMENTAS: Ferramenta[] = [
+  {
+    id: "campo",
+    nome: "Linha Campo (nova)",
+    desc: "Posts e stories com peças com foto, frases da AGRO PARTS e 7 cores para misturar",
+    grupo: "Criar",
+    icone: Sprout,
+    destaque: true,
+  },
   {
     id: "importar",
     nome: "Importar campanha pronta",
@@ -512,6 +522,8 @@ function Abrir({ id, usarNoPost, data }: { id: string; usarNoPost: any; data: an
       return <F.RemoverFundo />;
     case "formato":
       return <F.AjustarFormato />;
+    case "campo":
+      return <LinhaCampo />;
     case "moldura":
       return <F.Moldura />;
     case "grade":
