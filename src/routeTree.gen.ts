@@ -63,6 +63,7 @@ import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
 import { Route as GuiasSlugRouteImport } from './routes/guias.$slug'
 import { Route as PagarCodigoRouteImport } from './routes/pagar.$codigo'
+import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
 import { Route as RepuestosAgricolasLocalRouteImport } from './routes/repuestos-agricolas.$local'
@@ -391,6 +392,11 @@ const GuiasSlugRoute = GuiasSlugRouteImport.update({
 const PagarCodigoRoute = PagarCodigoRouteImport.update({
   id: '/pagar/$codigo',
   path: '/pagar/$codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidoCodigoRoute = PedidoCodigoRouteImport.update({
+  id: '/pedido/$codigo',
+  path: '/pedido/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutoSkuRoute = ProdutoSkuRouteImport.update({
@@ -748,6 +754,7 @@ export interface FileRoutesByFullPath {
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
+  '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
@@ -862,6 +869,7 @@ export interface FileRoutesByTo {
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
+  '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
@@ -978,6 +986,7 @@ export interface FileRoutesById {
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
+  '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
@@ -1095,6 +1104,7 @@ export interface FileRouteTypes {
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/pagar/$codigo'
+    | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
@@ -1209,6 +1219,7 @@ export interface FileRouteTypes {
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/pagar/$codigo'
+    | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
@@ -1324,6 +1335,7 @@ export interface FileRouteTypes {
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/pagar/$codigo'
+    | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
     | '/repuestos/$slug'
@@ -1409,6 +1421,7 @@ export interface RootRouteChildren {
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
   PagarCodigoRoute: typeof PagarCodigoRoute
+  PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
@@ -1832,6 +1845,13 @@ declare module '@tanstack/react-router' {
       path: '/pagar/$codigo'
       fullPath: '/pagar/$codigo'
       preLoaderRoute: typeof PagarCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedido/$codigo': {
+      id: '/pedido/$codigo'
+      path: '/pedido/$codigo'
+      fullPath: '/pedido/$codigo'
+      preLoaderRoute: typeof PedidoCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produto/$sku': {
@@ -2437,6 +2457,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,
   PagarCodigoRoute: PagarCodigoRoute,
+  PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,

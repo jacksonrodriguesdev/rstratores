@@ -37,6 +37,7 @@ import {
   salvarVendaFn,
 } from "@/lib/avaliacoes";
 import { cn } from "@/lib/utils";
+import { EtapaPedido } from "@/components/admin/EtapaPedido";
 
 export const Route = createFileRoute("/admin/vendas")({ component: PaginaVendas });
 
@@ -204,7 +205,7 @@ function PaginaVendas() {
                 <th className="p-3">Cliente</th>
                 <th className="p-3">Peças</th>
                 <th className="p-3 text-right">Total</th>
-                <th className="p-3">Situação</th>
+                <th className="p-3">Etapa do pedido</th>
                 <th className="p-3">Rastreio</th>
                 <th className="p-3">Avaliação</th>
                 <th className="p-3" />
@@ -248,11 +249,7 @@ function PaginaVendas() {
                     {dinheiro(v.total, v.moeda)}
                   </td>
                   <td className="p-3">
-                    <span
-                      className={cn("rounded px-2 py-0.5 text-xs font-semibold", STATUS[v.status])}
-                    >
-                      {v.status}
-                    </span>
+                    <EtapaPedido v={v} />
                   </td>
                   <td className="p-3">
                     <Rastreio v={v} />

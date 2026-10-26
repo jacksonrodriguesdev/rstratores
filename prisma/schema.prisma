@@ -972,11 +972,59 @@ model vendas {
   taxa_pagamento   Float?
   frete_custo      Float? // frete e embalagem pagos pela loja
   cotacao_brl      Float? // R$ 1 = $U x no dia da venda (total em reais)
+  etapa            String    @default("AGUARDANDO") @db.VarChar(20) // acompanhamento do pedido (pedidos-comum.ts)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
   @@index([created_at])
   @@index([user_id])
+}
+
+// Indique um amigo: cada cliente tem um código (que também é um cupom de primeira compra para o
+// amigo). Quando um link pago usa o código, quem indicou ganha um cupom de prêmio.
+model indicacoes {
+  id         Int      @id @default(autoincrement())
+  user_id    Int      @unique
+  codigo     String   @unique @db.VarChar(40)
+  cliques    Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model indicacao_premios {
+  id             Int      @id @default(autoincrement())
+  indicacao_id   Int
+  link_id        Int      @unique
+  indicado_email String?  @db.VarChar(191)
+  cupom          String   @db.VarChar(40)
+  created_at     DateTime @default(now())
+
+  @@index([indicacao_id])
+}
+
+// Acompanhamento do pedido: cada troca de etapa feita no admin (e se o cliente foi avisado)
+model venda_etapas {
+  id         Int      @id @default(autoincrement())
+  venda_id   Int
+  etapa      String   @db.VarChar(20)
+  nota       String?  @db.Text
+  email      Boolean  @default(false) // e-mail enviado ao cliente
+  created_at DateTime @default(now())
+
+  @@index([venda_id])
+}
+
+// Sininho do site: avisos para o cliente logado (etapas do pedido etc.)
+model notificacoes {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  titulo     String   @db.VarChar(200)
+  texto      String?  @db.Text
+  link       String?  @db.VarChar(300)
+  lida       Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@index([user_id, lida])
 }
 
 // Despesas do Financeiro: fixas (todo mês, de mes até mes_fim) ou de um mês só
@@ -1010,6 +1058,7 @@ model avaliacoes {
   resposta    String?   @db.Text
   com_cupom   Boolean   @default(false)
   verificada  Boolean   @default(false)
+  fotos       String?   @db.Text // JSON: fotos da peça instalada (uploads/avaliacoes/<venda>/...)
   aprovada_em DateTime?
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt

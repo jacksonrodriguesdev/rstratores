@@ -240,6 +240,11 @@ export async function vendaDoLink(linkId: number) {
         },
       });
       await completarFinanceiro(v.id);
+      // Acompanhamento: pago = pedido feito (aviso no sininho; o e-mail do pagamento já foi)
+      const { mudarEtapa } = await import("./pedidos.server");
+      await mudarEtapa(v.id, "PEDIDO_FEITO", { email: false }).catch((e) =>
+        console.error("etapa do pedido:", e),
+      );
       return v.id;
     } catch (e: any) {
       if (!String(e?.code).includes("P2002")) throw e;

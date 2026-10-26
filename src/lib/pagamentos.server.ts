@@ -862,6 +862,9 @@ async function posVenda(linkId: number) {
   if (link.cupom) {
     const { contarUsoCupom } = await import("./campanha.server");
     await contarUsoCupom(link.cupom).catch((e) => console.error("uso do cupom:", e));
+    // Código de indicação de um amigo: prêmio para quem indicou
+    const { premiarIndicacao } = await import("./indicacoes.server");
+    await premiarIndicacao(link.id).catch((e) => console.error("prêmio da indicação:", e));
   }
 }
 

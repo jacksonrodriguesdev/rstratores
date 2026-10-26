@@ -22,6 +22,7 @@ const COLUNAS_FINANCEIRO: Array<[string, string]> = [
   ["taxa_pagamento", "DOUBLE NULL"],
   ["frete_custo", "DOUBLE NULL"],
   ["cotacao_brl", "DOUBLE NULL"],
+  ["etapa", "VARCHAR(20) NOT NULL DEFAULT 'AGUARDANDO'"],
 ];
 const SQL_VENDAS = `CREATE TABLE IF NOT EXISTS \`vendas\` (
   \`id\` INTEGER NOT NULL AUTO_INCREMENT,
@@ -90,6 +91,29 @@ const SQL_DESPESAS = `CREATE TABLE IF NOT EXISTS \`despesas\` (
   INDEX \`despesas_mes_idx\`(\`mes\`),
   PRIMARY KEY (\`id\`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+const SQL_PEDIDOS = [
+  `CREATE TABLE IF NOT EXISTS \`venda_etapas\` (
+  \`id\` INTEGER NOT NULL AUTO_INCREMENT,
+  \`venda_id\` INTEGER NOT NULL,
+  \`etapa\` VARCHAR(20) NOT NULL,
+  \`nota\` TEXT NULL,
+  \`email\` BOOLEAN NOT NULL DEFAULT false,
+  \`created_at\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  INDEX \`venda_etapas_venda_id_idx\`(\`venda_id\`),
+  PRIMARY KEY (\`id\`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+  `CREATE TABLE IF NOT EXISTS \`notificacoes\` (
+  \`id\` INTEGER NOT NULL AUTO_INCREMENT,
+  \`user_id\` INTEGER NOT NULL,
+  \`titulo\` VARCHAR(200) NOT NULL,
+  \`texto\` TEXT NULL,
+  \`link\` VARCHAR(300) NULL,
+  \`lida\` BOOLEAN NOT NULL DEFAULT false,
+  \`created_at\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  INDEX \`notificacoes_user_id_lida_idx\`(\`user_id\`, \`lida\`),
+  PRIMARY KEY (\`id\`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+];
 let tabelas: Promise<void> | null = null;
 export function garantirTabelasAvaliacoes() {
   tabelas ??= (async () => {
@@ -107,6 +131,14 @@ export function garantirTabelasAvaliacoes() {
         "ALTER TABLE `vendas` ADD UNIQUE INDEX `vendas_link_id_key`(`link_id`)",
       );
     await prisma.$executeRawUnsafe(SQL_DESPESAS);
+    // Fotos da peça instalada na avaliação
+    const colsAv = await prisma.$queryRaw<Array<{ c: string }>>`
+      SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'avaliacoes'`;
+    if (!colsAv.some((x) => x.c === "fotos"))
+      await prisma.$executeRawUnsafe("ALTER TABLE `avaliacoes` ADD COLUMN `fotos` TEXT NULL");
+    // Acompanhamento do pedido e sininho de notificações
+    for (const s of SQL_PEDIDOS) await prisma.$executeRawUnsafe(s);
     const { garantirTabelasCampanha } = await import("./campanha.server");
     await garantirTabelasCampanha();
   })().catch((e) => {
@@ -239,6 +271,8 @@ export async function salvarVenda(d: DadosVenda, id?: number) {
   for (let t = 0; t < 5; t++) {
     try {
       const v = await prisma.vendas.create({ data: { ...dados, codigo: novoCodigo() } });
+      // Primeira etapa do acompanhamento (sem aviso: o admin avança quando confirmar)
+      await prisma.venda_etapas.create({ data: { venda_id: v.id, etapa: "AGUARDANDO" } });
       return paraVenda(await completarFinanceiro(v.id));
     } catch (e: any) {
       if (!String(e?.code).includes("P2002")) throw e; // código repetido: tenta outro
@@ -610,14 +644,19 @@ export async function salvarRastreio(id: number, rastreio: string, transportador
     String(rastreio ?? "")
       .trim()
       .slice(0, 80) || null;
-  return paraVenda(
-    await prisma.vendas.update({
-      where: { id },
-      data: {
-        rastreio: codigo,
-        ...(transportadora !== undefined && { transportadora: txt(transportadora, 80) }),
-        ...(codigo && v.status === "ABERTA" && { status: "ENVIADA" }),
-      },
-    }),
-  );
+  const atual = await prisma.vendas.update({
+    where: { id },
+    data: {
+      rastreio: codigo,
+      ...(transportadora !== undefined && { transportadora: txt(transportadora, 80) }),
+      ...(codigo && v.status === "ABERTA" && { status: "ENVIADA" }),
+    },
+  });
+  // Rastreio novo: o pedido passa para «entregue à transportadora» e o cliente é avisado
+  const { indiceEtapa } = await import("./pedidos-comum");
+  if (codigo && v.status !== "CANCELADA" && indiceEtapa(v.etapa) < indiceEtapa("DESPACHADO")) {
+    const { mudarEtapa } = await import("./pedidos.server");
+    return paraVenda((await mudarEtapa(id, "DESPACHADO")).venda);
+  }
+  return paraVenda(atual);
 }

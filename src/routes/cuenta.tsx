@@ -18,6 +18,7 @@ import {
   Eye,
   Sparkles,
   ShoppingBag,
+  Gift,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -29,11 +30,14 @@ import { cn } from "@/lib/utils";
 import { tr, useT, type Idioma } from "@/lib/idioma";
 import { minhasComprasFn } from "@/lib/pagamentos";
 import { STATUS_LINK, fmtValor } from "@/lib/pagamentos-comum";
+import { IndicarAmigo } from "@/components/IndicarAmigo";
+import { MeusPedidos } from "@/components/MeusPedidos";
 
 export const Route = createFileRoute("/cuenta")({
   validateSearch: z.object({
     completar: z.coerce.number().optional(),
     redirect: z.string().optional(),
+    aba: z.string().optional(),
   }),
   loader: async () => {
     const perfil = await getPerfilFn();
@@ -57,16 +61,19 @@ export const Route = createFileRoute("/cuenta")({
 
 const ABAS = [
   { id: "datos", rotulo: ["Mis datos", "Meus dados"], icone: User },
-  { id: "compras", rotulo: ["Mis compras", "Minhas compras"], icone: ShoppingBag },
+  { id: "compras", rotulo: ["Mis pedidos", "Meus pedidos"], icone: ShoppingBag },
   { id: "seguridad", rotulo: ["Seguridad", "Segurança"], icone: Lock },
   { id: "catalogos", rotulo: ["Mis catálogos", "Meus catálogos"], icone: BookOpen },
+  { id: "amigos", rotulo: ["Recomendá y ganá", "Indique e ganhe"], icone: Gift },
 ] as const;
 type Aba = (typeof ABAS)[number]["id"];
 
 function CuentaPage() {
   const perfil = Route.useLoaderData();
-  const { completar, redirect: destino } = Route.useSearch();
-  const [aba, setAba] = useState<Aba>("datos");
+  const { completar, redirect: destino, aba: abaInicial } = Route.useSearch();
+  const [aba, setAba] = useState<Aba>(
+    ABAS.some((a) => a.id === abaInicial) ? (abaInicial as Aba) : "datos",
+  );
   const { t, href } = useT();
   const iniciais = (perfil.nome_completo.trim() || perfil.email)
     .split(/\s+/)
@@ -233,9 +240,17 @@ function CuentaPage() {
           </nav>
           <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-8">
             {aba === "datos" && <Dados perfil={perfil} destino={completar ? destino : undefined} />}
-            {aba === "compras" && <MinhasCompras />}
+            {aba === "compras" && (
+              <>
+                <MeusPedidos />
+                <div className="mt-8">
+                  <MinhasCompras />
+                </div>
+              </>
+            )}
             {aba === "seguridad" && <Seguranca perfil={perfil} />}
             {aba === "catalogos" && <MeusCatalogos perfil={perfil} />}
+            {aba === "amigos" && <IndicarAmigo />}
           </div>
         </div>
       </main>

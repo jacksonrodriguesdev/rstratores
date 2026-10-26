@@ -30,6 +30,8 @@ import { PopupAcesso } from "@/components/PopupAcesso";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { SugestaoIdioma } from "@/components/SugestaoIdioma";
+import { IndicacaoAmigo } from "@/components/IndicacaoAmigo";
+import { FotoPiezaModal } from "@/components/FotoPieza";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -253,8 +255,8 @@ function RootComponent() {
   const pathname = useRouterState({ select: (st) => st.location.pathname });
   // Etiqueta de envio: página de impressão, sem nada do site em volta
   const etiqueta = /^(\/pt)?\/etiqueta\//.test(pathname);
-  // Avaliação pelo QR: sem pop-up de cadastro nem sugestão de idioma por cima do formulário
-  const avaliar = /^(\/pt)?\/avaliar\//.test(pathname);
+  // Avaliação pelo QR e acompanhamento do pedido: sem pop-up de cadastro nem sugestão de idioma
+  const avaliar = /^(\/pt)?\/(avaliar|pedido)\//.test(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -269,6 +271,8 @@ function RootComponent() {
               <VisitTracker />
               {!avaliar && <PopupAcesso />}
               {!avaliar && <SugestaoIdioma />}
+              {!avaliar && <IndicacaoAmigo />}
+              {!avaliar && <FotoPiezaModal />}
             </>
           )}
           <CartDrawer />

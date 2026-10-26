@@ -37,6 +37,7 @@ import { useSegment } from "@/components/SegmentContext";
 import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useQuery } from "@tanstack/react-query";
 import { getSessionFn } from "@/lib/user-auth";
+import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import { useCart } from "@/components/CartContext";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { MONTADORAS, INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
@@ -374,6 +375,8 @@ export function SiteHeader() {
                 </span>
               </Link>
             )}
+
+            {user && <SinoNotificacoes />}
 
             <button
               onClick={() => setIsCartOpen(true)}

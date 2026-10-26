@@ -6,6 +6,7 @@ import { PHONE } from "@/lib/whatsapp";
 import { nomeEs } from "@/lib/pecas-es";
 import { pedirPrecoWhatsapp } from "@/lib/pedir-cadastro";
 import { useT } from "@/lib/idioma";
+import { linhaAmigo } from "@/components/IndicacaoAmigo";
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, clearCart, marcarEnviado } =
@@ -25,7 +26,7 @@ export function CartDrawer() {
       const exibido = nome(i);
       return `• ${i.quantity}x ${exibido}${exibido !== i.name ? ` (${i.name})` : ""} — Cód: ${i.codigo || i.sku}`;
     });
-    const message = `${t("¡Hola! Quiero cotizar estos repuestos:", "Olá! Quero orçamento destas peças (cliente do Brasil):")}\n\n${lines.join("\n")}`;
+    const message = `${t("¡Hola! Quiero cotizar estos repuestos:", "Olá! Quero orçamento destas peças (cliente do Brasil):")}\n\n${lines.join("\n")}${linhaAmigo(idioma === "pt")}`;
     const url = `https://api.whatsapp.com/send?phone=${PHONE}&text=${encodeURIComponent(message)}`;
     // O carrinho só é esvaziado quando o WhatsApp abre de fato
     setIsCartOpen(false);
