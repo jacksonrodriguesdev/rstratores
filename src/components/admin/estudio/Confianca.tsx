@@ -30,11 +30,11 @@ const NOMES: Record<Carrossel, string> = {
 const LEGENDA: Record<Carrossel, Record<Idioma, string>> = {
   armadilhas: {
     pt: "Peça barata demais, pressa para pagar, «serve em qualquer Massey»… Conhece essas armadilhas? 🪤\n\nNa AGRO PARTS você compra pelo código original, paga com cartão, PIX ou link seguro e recebe com nota fiscal em RS, SC e PR.\n\n📲 Peça pelo WhatsApp (link na bio)\n\n#AgroParts #MasseyFerguson #PecasAgricolas #PecasParaTrator #Agro #CompraSegura",
-    es: "Precio regalado, apuro para pagar, «sirve para cualquier Massey»… ¿Conocés estas trampas? 🪤\n\nEn AGRO PARTS comprás por código original, pagás con tarjeta, Abitab, Redpagos o link seguro y te llega por DAC a todo Uruguay.\n\n📲 Cotizá por WhatsApp (link en la bio)\n\n#AgroParts #MasseyFerguson #RepuestosAgricolas #RepuestosParaTractor #AgroUruguay #CompraSegura",
+    es: "Precio regalado, apuro para pagar, «sirve para cualquier Massey»… ¿Conocés estas trampas? 🪤\n\nEn AGRO PARTS comprás por código original, pagás con tarjeta, Abitab, Redpagos o link seguro.\n\n📲 Cotizá por WhatsApp (link en la bio)\n\n#AgroParts #MasseyFerguson #RepuestosAgricolas #RepuestosParaTractor #AgroUruguay #CompraSegura",
   },
   lupa: {
     pt: "Passamos a lupa no nosso site 🔍\n\nPeças para Massey Ferguson com código original, foto e preço, pagamento com cartão, PIX ou link seguro e envio para RS, SC e PR com nota fiscal.\n\n🌐 agropartsuy.com/pt\n📲 Peça pelo WhatsApp (link na bio)\n\n#AgroParts #MasseyFerguson #PecasAgricolas #PecasParaTrator #Agro",
-    es: "Le pasamos la lupa a nuestro sitio 🔍\n\nRepuestos para Massey Ferguson con código original, foto y precio, pago con tarjeta, Abitab, Redpagos o link seguro y envío por DAC a todo Uruguay.\n\n🌐 agropartsuy.com\n📲 Cotizá por WhatsApp (link en la bio)\n\n#AgroParts #MasseyFerguson #RepuestosAgricolas #RepuestosParaTractor #AgroUruguay",
+    es: "Le pasamos la lupa a nuestro sitio 🔍\n\nRepuestos para Massey Ferguson con código original, foto y precio, y pago con tarjeta, Abitab, Redpagos o link seguro.\n\n🌐 agropartsuy.com\n📲 Cotizá por WhatsApp (link en la bio)\n\n#AgroParts #MasseyFerguson #RepuestosAgricolas #RepuestosParaTractor #AgroUruguay",
   },
 };
 

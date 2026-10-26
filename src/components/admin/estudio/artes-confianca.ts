@@ -88,7 +88,7 @@ export const TEXTOS: Record<Carrossel, Record<Idioma, SlideTexto[]>> = {
         itens: [
           "código original de la pieza",
           "tarjeta, Abitab, Redpagos o link de pago",
-          "envío por DAC a todo Uruguay",
+          "precio y disponibilidad antes de pagar",
           "gente del campo por WhatsApp",
         ],
       },
@@ -117,7 +117,7 @@ export const TEXTOS: Record<Carrossel, Record<Idioma, SlideTexto[]>> = {
       { texto: "Repuestos para *Massey Ferguson* con código original." },
       { texto: "Cada pieza con *código, foto y precio* a la vista." },
       { texto: "Pagás como prefieras: *tarjeta, Abitab, Redpagos o link.*" },
-      { texto: "Despachamos por *DAC a todo Uruguay.*" },
+      { texto: "Te pasamos *precio y disponibilidad* antes de comprar." },
       { texto: "¿Dudas? *Gente del campo* te responde por WhatsApp." },
       {
         titulo: "Antes de comprar tu repuesto, confirmá:",
@@ -516,11 +516,11 @@ async function desenharSite(idioma: Idioma, produtos: ProdutoArte[]): Promise<Si
   caminhao(g, 76, envio.y + 70, 52, "#fff", verde);
   g.fillStyle = "#1f2a22";
   g.font = "900 24px Archivo";
-  g.fillText(pt ? "Envio para RS, SC e PR" : "Envío a todo Uruguay", 134, envio.y + 36);
+  g.fillText(pt ? "Envio para RS, SC e PR" : "Respuesta rápida", 134, envio.y + 36);
   g.fillStyle = "#6b7280";
   g.font = "500 18px Archivo";
   g.fillText(
-    pt ? "Correios ou transportadora, com nota" : "Despachamos por DAC, con seguimiento",
+    pt ? "Correios ou transportadora, com nota" : "Precio y disponibilidad por WhatsApp",
     134,
     envio.y + 74,
   );

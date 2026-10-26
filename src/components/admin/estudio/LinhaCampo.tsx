@@ -132,7 +132,7 @@ export const MODELOS: Modelo[] = [
         titulo: "¿Por qué comprar en *AGRO PARTS*?",
         itens: [
           "Pedí por código|Buscamos por el número original de la pieza",
-          "Envío a todo Uruguay|Despachamos por DAC hasta tu chacra",
+          "Pagás seguro|Tarjeta, Abitab, Redpagos o link de pago",
           "Gente del campo|Te atendemos por WhatsApp, sin vueltas",
         ],
       },
@@ -218,9 +218,9 @@ export const MODELOS: Modelo[] = [
     usa: ["produto", "botao"],
     padrao: {
       es: {
-        titulo: "Del galpón a *tu chacra*",
-        texto: "Pedís hoy por WhatsApp y despachamos por DAC a todo Uruguay.",
-        botao: "Envíos a todo Uruguay",
+        titulo: "La pieza justa *para tu tractor*",
+        texto: "Pedís hoy por WhatsApp y coordinamos tu pedido.",
+        botao: "Cotizá por WhatsApp",
       },
       pt: {
         titulo: "Do nosso estoque *até a sua lavoura*",
@@ -237,7 +237,7 @@ const FRASES: Record<Idioma, string[]> = {
     "Tu tractor *no puede parar*",
     "La pieza justa, *antes de la cosecha*",
     "Del campo, *para el campo*",
-    "Pedís por código, *te llega por DAC*",
+    "Pedís por código, *te respondemos rápido*",
     "Gente del campo atendiendo *gente del campo*",
     "Repuestos para *Massey Ferguson*",
     "El service hoy *evita la parada mañana*",
@@ -328,7 +328,7 @@ export function LinhaCampo() {
       "",
       pt
         ? "📲 Peça pelo WhatsApp (link na bio) · Envio para RS, SC e PR"
-        : "📲 Cotizá por WhatsApp (link en la bio) · Envíos por DAC a todo Uruguay",
+        : "📲 Cotizá por WhatsApp (link en la bio)",
       "",
       hashtags(
         { marca: produto?.marca ?? "Massey Ferguson", categoria: produto?.categoria ?? null },
