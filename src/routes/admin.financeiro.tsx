@@ -30,6 +30,13 @@ import {
   salvarTaxasFn,
 } from "@/lib/financeiro";
 import { cn } from "@/lib/utils";
+import {
+  CardsFinanceiros,
+  Cascata,
+  ComposicaoGastos,
+  EstiloFinanceiro,
+  GraficoRendimento,
+} from "@/components/admin/FinanceiroGraficos";
 
 export const Route = createFileRoute("/admin/financeiro")({ component: PaginaFinanceiro });
 
@@ -113,6 +120,7 @@ function PaginaFinanceiro() {
     queryKey: ["financeiro", mes],
     queryFn: () => relatorioFinanceiroFn({ data: { mes } }),
   });
+  const [foco, setFoco] = useState<string | null>(null);
   const t = data?.resumo.total;
 
   return (
@@ -187,30 +195,23 @@ function PaginaFinanceiro() {
 
       {data && t && (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Destaque
-              titulo="Faturamento"
-              valor={dinheiro(t.receita, "BRL")}
-              sub={`${t.vendas} venda(s) · ticket ${dinheiro(t.ticket, "BRL")}`}
-            />
-            <Destaque
-              titulo="Lucro bruto"
-              valor={dinheiro(t.lucroBruto, "BRL")}
-              sub={`margem ${pct(t.margemBruta)}`}
-              negativo={t.lucroBruto < 0}
-            />
-            <Destaque
-              titulo="Anúncios + despesas"
-              valor={dinheiro(t.anuncios + t.despesas, "BRL")}
-              sub={`anúncios ${dinheiro(t.anuncios, "BRL")}`}
-            />
-            <Destaque
-              titulo="Resultado do mês"
-              valor={dinheiro(t.resultado, "BRL")}
-              sub={`margem líquida ${pct(t.margemLiquida)}`}
-              negativo={t.resultado < 0}
-              forte
-            />
+          <EstiloFinanceiro />
+          <CardsFinanceiros meses={data.meses} foco={foco} focar={setFoco} />
+          <GraficoRendimento
+            meses={data.meses}
+            dias={data.dias}
+            mes={mes}
+            foco={foco}
+            limparFoco={() => setFoco(null)}
+            escolherMes={setMes}
+          />
+          <div className="grid gap-4 lg:grid-cols-5">
+            <div className="lg:col-span-3">
+              <Cascata m={data.meses[data.meses.length - 1]} />
+            </div>
+            <div className="lg:col-span-2">
+              <ComposicaoGastos m={data.meses[data.meses.length - 1]} />
+            </div>
           </div>
 
           <Demonstrativo r={data} />
@@ -231,24 +232,6 @@ function PaginaFinanceiro() {
       {despesa && <DialogoDespesa d={despesa} fechar={() => setDespesa(null)} />}
       {taxas && data && <DialogoTaxas inicial={data.taxas} fechar={() => setTaxas(false)} />}
     </div>
-  );
-}
-
-function Destaque(p: {
-  titulo: string;
-  valor: string;
-  sub: string;
-  negativo?: boolean;
-  forte?: boolean;
-}) {
-  return (
-    <Card className={cn("p-4", p.forte && "border-primary/40")}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {p.titulo} <span className="normal-case">(total em R$)</span>
-      </p>
-      <p className={cn("mt-1 text-2xl font-bold", p.negativo && "text-destructive")}>{p.valor}</p>
-      <p className="text-xs text-muted-foreground">{p.sub}</p>
-    </Card>
   );
 }
 
@@ -333,7 +316,7 @@ function Meses({ r, mes, escolher }: { r: Relatorio; mes: string; escolher: (m: 
   return (
     <Card className="overflow-hidden p-0">
       <div className="border-b p-3">
-        <h2 className="font-semibold">Últimos 12 meses (R$)</h2>
+        <h2 className="font-semibold">Tabela dos últimos 12 meses (R$)</h2>
         <p className="text-xs text-muted-foreground">Clique no mês para ver os detalhes.</p>
       </div>
       <div className="overflow-x-auto">

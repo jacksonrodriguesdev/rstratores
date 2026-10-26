@@ -377,6 +377,16 @@ async function gastoMeta(desde: string, ate: string) {
 }
 
 // ---------------------------------------------------------------- relatório
+// Último dia a mostrar: o fim do mês, ou hoje se for o mês atual
+function ultimoDia(mes: string) {
+  const [a, m] = mes.split("-").map(Number);
+  const fim = new Date(Date.UTC(a, m, 0)).getUTCDate();
+  return mes === mesAtual()
+    ? Number(
+        new Date().toLocaleDateString("en-CA", { timeZone: "America/Montevideo" }).slice(8, 10),
+      )
+    : fim;
+}
 export type VendaLinha = {
   id: number;
   codigo: string;
@@ -418,6 +428,7 @@ type Numeros = {
   despesas: number;
   resultado: number;
   semCusto: number; // itens sem custo (o lucro desses está alto demais)
+  vendaPecas: number; // valor de venda das peças (sem frete, com desconto)
 };
 const zero = (): Numeros => ({
   vendas: 0,
@@ -430,6 +441,7 @@ const zero = (): Numeros => ({
   despesas: 0,
   resultado: 0,
   semCusto: 0,
+  vendaPecas: 0,
 });
 function fechar(n: Numeros) {
   n.lucroBruto = n.receita - n.custoPecas - n.taxas - n.frete;
@@ -479,6 +491,10 @@ export async function relatorio(mes: string) {
     }
   >();
   const lista: VendaLinha[] = [];
+  const porDia = new Map<
+    number,
+    { receita: number; custos: number; lucroBruto: number; vendas: number }
+  >();
   const avisos: string[] = [];
   let semCotacao = 0;
 
@@ -503,6 +519,7 @@ export async function relatorio(mes: string) {
       n.taxas += f(taxa);
       n.frete += f(frete);
       n.semCusto += semCusto;
+      n.vendaPecas += f(v.total - v.desconto);
     };
     // O país soma na moeda dele (venda brasileira em $U é rara: converte)
     const moedaPais = pais === "BR" ? "BRL" : "UYU";
@@ -511,6 +528,15 @@ export async function relatorio(mes: string) {
     somar(b[pais], naMoedaPais);
     somar(b.total, brl);
     if (m === mes) {
+      const dia = Number(
+        v.created_at.toLocaleDateString("en-CA", { timeZone: "America/Montevideo" }).slice(8, 10),
+      );
+      const pd = porDia.get(dia) ?? { receita: 0, custos: 0, lucroBruto: 0, vendas: 0 };
+      pd.vendas++;
+      pd.receita += brl(receita);
+      pd.custos += brl(custoPecas + taxa + frete);
+      pd.lucroBruto += brl(receita - custoPecas - taxa - frete);
+      porDia.set(dia, pd);
       const ch = v.canal || (v.origem === "LINK" ? "LINK" : "SEM_CANAL");
       const me = v.metodo || "SEM_METODO";
       if (!canais.has(ch)) canais.set(ch, zero());
@@ -623,6 +649,17 @@ export async function relatorio(mes: string) {
     cotacoes: c,
     resumo: { UY: fechar(sel.UY), BR: fechar(sel.BR), total: fechar(sel.total) },
     meses: meses.map((m) => ({ mes: m, ...fechar(porMes.get(m)!.total) })),
+    // Dias do mês até hoje (R$): faturamento, custos das vendas e lucro bruto
+    dias: Array.from({ length: ultimoDia(mes) }, (_, i) => {
+      const x = porDia.get(i + 1);
+      return {
+        dia: i + 1,
+        vendas: x?.vendas ?? 0,
+        receita: r2(x?.receita ?? 0),
+        custos: r2(x?.custos ?? 0),
+        lucroBruto: r2(x?.lucroBruto ?? 0),
+      };
+    }),
     porCanal: tabela(canais),
     porMetodo: tabela(metodos),
     pecas: [...pecas.values()]
