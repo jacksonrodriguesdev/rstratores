@@ -28,6 +28,7 @@ import {
   MessagesSquare,
   PanelTop,
   QrCode,
+  ScanSearch,
   Sprout,
   Search,
   ShieldCheck,
@@ -54,6 +55,7 @@ import { EstudioCtx, type Midia, type TipoPost } from "./comum";
 import { Horarios, Orcamento, PainelRecomendacoes } from "./Estudio";
 import * as F from "./Ferramentas";
 import { LinhaCampo } from "./LinhaCampo";
+import { Confianca } from "./Confianca";
 
 type Grupo = "Criar" | "Textos" | "Imagem" | "Planejar" | "Links" | "Analisar" | "Anunciar";
 type Ferramenta = {
@@ -71,6 +73,14 @@ export const FERRAMENTAS: Ferramenta[] = [
     desc: "Posts e stories com peças com foto, frases da AGRO PARTS e 7 cores para misturar",
     grupo: "Criar",
     icone: Sprout,
+    destaque: true,
+  },
+  {
+    id: "confianca",
+    nome: "Carrosséis: armadilhas e lupa",
+    desc: "Golpes na compra de peças e o nosso site com lupa (Massey, pagamentos, envio)",
+    grupo: "Criar",
+    icone: ScanSearch,
     destaque: true,
   },
   {
@@ -522,6 +532,8 @@ function Abrir({ id, usarNoPost, data }: { id: string; usarNoPost: any; data: an
       return <F.RemoverFundo />;
     case "formato":
       return <F.AjustarFormato />;
+    case "confianca":
+      return <Confianca />;
     case "campo":
       return <LinhaCampo />;
     case "moldura":
