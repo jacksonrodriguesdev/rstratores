@@ -187,7 +187,7 @@ export const TIPOS_EMAIL: TipoBlocoEmail[] = [
     nome: "Faixa de aviso",
     desc: "Faixa fina com uma frase curta. Boa no topo: “ÚLTIMO DÍA”, “Envío gratis”…",
     icone: "Megaphone",
-    padrao: { texto: "🚚 Envíos a todo Uruguay por DAC", link: "", cor_fundo: "", cor_texto: "" },
+    padrao: { texto: "💬 Cotizá por WhatsApp", link: "", cor_fundo: "", cor_texto: "" },
     campos: [
       { k: "texto", rotulo: "Texto", tipo: "texto" },
       { k: "link", rotulo: "Link (opcional)", tipo: "link" },
@@ -442,7 +442,7 @@ export const TIPOS_EMAIL: TipoBlocoEmail[] = [
     icone: "BadgeCheck",
     padrao: {
       itens: [
-        { emoji: "🚚", titulo: "Envíos a todo Uruguay", texto: "Por DAC" },
+        { emoji: "🔎", titulo: "Código original", texto: "Compará antes de comprar" },
         { emoji: "💬", titulo: "Cotizá por WhatsApp", texto: "Te respondemos rápido" },
         { emoji: "🔍", titulo: "Buscá por código", texto: "El del fabricante" },
       ],
@@ -501,7 +501,7 @@ export const TIPOS_EMAIL: TipoBlocoEmail[] = [
       itens: [
         { titulo: "Elegí", texto: "Buscá la pieza por nombre o código en el sitio." },
         { titulo: "Pedí", texto: "Mandanos tu pedido por WhatsApp o desde el carrito." },
-        { titulo: "Recibí", texto: "Enviamos por DAC a todo Uruguay." },
+        { titulo: "Confirmá", texto: "Te pasamos precio y disponibilidad." },
       ],
     },
     campos: [

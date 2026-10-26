@@ -137,7 +137,7 @@ const BLOCK_TYPES = [
     id: "ENVIO_DAC",
     name: "Envios para o Uruguai (DAC)",
     icon: Truck,
-    desc: "Seção em espanhol: envio para todo o Uruguai pela DAC, com rastreio e WhatsApp.",
+    desc: "Só na versão em português (Sul do Brasil). Na versão do Uruguai não aparece.",
     recommend: "Logo da DAC em PNG com fundo transparente (cerca de 300 × 100px)",
   },
 ];

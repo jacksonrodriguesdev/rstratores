@@ -8,16 +8,13 @@ import { perguntasFrequentes } from "./seo-paginas";
 export type Pergunta = { p: string; r: string };
 export type GuiaSeo = { titulo: string; paragrafos: string[]; perguntas: Pergunta[] };
 
-const DEPARTAMENTOS =
-  "Montevideo, Canelones, Colonia, Soriano, Paysandú, Salto, Tacuarembó, Rivera, Cerro Largo, Treinta y Tres, Rocha, Maldonado, Lavalleja, Florida, Durazno, Flores, San José, Río Negro y Artigas";
-
 export const GUIAS_MARCA: Record<string, GuiaSeo> = {
   "massey-ferguson": {
     titulo: "Repuestos Massey Ferguson en Uruguay: cómo encontrar la pieza justa",
     paragrafos: [
       "Los tractores Massey Ferguson (MF) son de los más comunes en el campo uruguayo: muchos MF 265, 275, 283, 290 y 292 siguen trabajando todos los días en tambos, chacras y establecimientos ganaderos. Por eso armamos un catálogo de repuestos Massey Ferguson pensado para el productor y el taller: piezas de motor, transmisión, embrague, frenos, hidráulica, dirección, levante de tres puntos y filtros.",
       "Cada repuesto MF tiene su código original (por ejemplo, los terminados en M1, M91 o M92), así podés compararlo con la pieza que sacaste del tractor o con el catálogo de tu equipo. Si no encontrás el código, mandanos por WhatsApp una foto de la pieza, el modelo y el número de serie del tractor y te confirmamos la compatibilidad antes de comprar.",
-      `Enviamos repuestos Massey Ferguson a los 19 departamentos por DAC, con número de rastreo: ${DEPARTAMENTOS}.`,
+      "Cotizá tus repuestos Massey Ferguson por WhatsApp: te respondemos con precio y disponibilidad antes de comprar.",
     ],
     perguntas: [
       {
@@ -35,7 +32,7 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
     paragrafos: [
       "Trabajamos repuestos John Deere para tractores de las series 5000, 6000 y 7000 (5705, 5725, 6110J, 6405, 6605, 7505), cosechadoras y sembradoras. En el catálogo vas a encontrar filtros, rodamientos, juntas, retenes, piezas de motor, hidráulica, transmisión y bujes, cada uno con el código original de John Deere (por ejemplo, los que empiezan con AL, AH, AR, RE o CQ).",
       "Buscar por código es la forma más segura de acertar: copiá el número grabado en la pieza o en el catálogo de tu máquina y escribilo en el buscador. Si el código no aparece, escribinos por WhatsApp: muchas veces conseguimos el repuesto aunque no esté publicado.",
-      "Enviamos repuestos John Deere a todo Uruguay por DAC, con número de rastreo, y te pasamos el precio, la disponibilidad y el costo del envío antes de que confirmes la compra.",
+      "Te pasamos el precio y la disponibilidad de los repuestos John Deere por WhatsApp antes de que confirmes la compra.",
     ],
     perguntas: [
       {
@@ -53,7 +50,7 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
     paragrafos: [
       "Los tractores Agrale son muy usados en granjas, chacras, viñedos y quintas por su tamaño y su bajo consumo. Tenemos repuestos Agrale para los modelos 4100, 4118, 4230, 5075 y la serie BX: piezas de motor, transmisión, embrague, hidráulica, dirección y filtros.",
       "Como en todo el catálogo, cada repuesto Agrale lleva su código original. Si tenés la pieza vieja en la mano, buscá por el número grabado; si no, mandanos el modelo del tractor y una foto por WhatsApp y te decimos cuál es el repuesto correcto.",
-      `Hacemos envíos de repuestos Agrale a los 19 departamentos por DAC, con número de rastreo: ${DEPARTAMENTOS}.`,
+      "Cotizá tus repuestos Agrale por WhatsApp con el código de la pieza.",
     ],
     perguntas: [
       {
@@ -67,7 +64,7 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
     paragrafos: [
       "En Uruguay muchos todavía le dicen Valmet al tractor Valtra: es la misma marca. Tenemos repuestos Valtra y Valmet para los modelos 685, 785, 885, 985, BM, BH y la serie A, con motor Sisu / AGCO Power: kits de motor, juntas, bombas, filtros, rodamientos, piezas de transmisión y de levante.",
       "Buscá por el código original de la pieza o escribí «Valmet» o «Valtra» en el buscador: encontrás los mismos repuestos. Si tenés dudas, mandanos el modelo y el número de serie por WhatsApp.",
-      "Enviamos repuestos Valtra a todo Uruguay por DAC, con número de rastreo.",
+      "Cotizá tus repuestos Valtra por WhatsApp con el código de la pieza.",
     ],
     perguntas: [
       {
@@ -80,7 +77,7 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
     titulo: "Repuestos New Holland en Uruguay",
     paragrafos: [
       "Repuestos para tractores New Holland TL, TM, TS, TT, 7630, 8030 y la línea Ford New Holland, y para cosechadoras New Holland: filtros, juntas, rodamientos, piezas de motor, hidráulica, dirección, embrague y transmisión, cada una con su código original.",
-      "Buscá por el código de la pieza o por el modelo del tractor; si no lo encontrás, consultanos por WhatsApp. Enviamos a los 19 departamentos de Uruguay por DAC, con número de rastreo.",
+      "Buscá por el código de la pieza o por el modelo del tractor; si no lo encontrás, consultanos por WhatsApp.",
     ],
     perguntas: [
       {
@@ -93,7 +90,7 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
     titulo: "Repuestos Case IH en Uruguay",
     paragrafos: [
       "Repuestos para tractores Case IH Maxxum, Farmall, Puma y Magnum y para cosechadoras Axial-Flow: piezas de motor, transmisión, hidráulica, frenos y filtros, con el código original de cada pieza.",
-      "Te confirmamos la compatibilidad por WhatsApp antes de comprar y enviamos a todo Uruguay por DAC, con número de rastreo.",
+      "Te confirmamos la compatibilidad por WhatsApp antes de comprar.",
     ],
     perguntas: [],
   },
@@ -101,7 +98,7 @@ export const GUIAS_MARCA: Record<string, GuiaSeo> = {
     titulo: "Repuestos para tractores Ford en Uruguay",
     paragrafos: [
       "Los tractores Ford 4600, 5600, 6600, 6610, 7610 y 7630 siguen trabajando en muchos campos de Uruguay. Tenemos repuestos de motor, bomba hidráulica, embrague, frenos y transmisión para mantenerlos en marcha, con código original.",
-      "Consultanos por WhatsApp con el modelo y una foto de la pieza. Enviamos a todo Uruguay por DAC.",
+      "Consultanos por WhatsApp con el modelo y una foto de la pieza y te respondemos con precio y disponibilidad.",
     ],
     perguntas: [],
   },
@@ -113,7 +110,7 @@ export const GUIAS_CATEGORIA: Record<string, GuiaSeo> = {
     paragrafos: [
       "Tenemos repuestos para cosechadoras John Deere, New Holland, Case IH y Massey Ferguson: piezas de plataforma y cabezal, cilindro y cóncavo, sinfines, zarandas, correas, cadenas, rodamientos, juntas y filtros, cada uno con su código original.",
       "Antes de la zafra de soja, arroz o trigo, revisá rodamientos, correas y cadenas: son las piezas que más paran la cosechadora en plena cosecha. Buscá por el código grabado en la pieza o mandanos una foto por WhatsApp con el modelo de la máquina.",
-      "Enviamos a los 19 departamentos por DAC, con número de rastreo.",
+      "Te respondemos por WhatsApp con precio y disponibilidad.",
     ],
     perguntas: [
       {
@@ -126,7 +123,7 @@ export const GUIAS_CATEGORIA: Record<string, GuiaSeo> = {
     titulo: "Repuestos para sembradoras en Uruguay",
     paragrafos: [
       "Repuestos para sembradoras y plantadoras: bujes, discos de corte, cuchillas, dosificadores, engranajes, cadenas y rodamientos, con el código original de cada pieza.",
-      "Para no perder días de siembra, revisá la sembradora antes de la temporada y pedí los repuestos con tiempo. Enviamos a todo Uruguay por DAC.",
+      "Para no perder días de siembra, revisá la sembradora antes de la temporada y pedí los repuestos con tiempo.",
     ],
     perguntas: [],
   },
@@ -134,7 +131,7 @@ export const GUIAS_CATEGORIA: Record<string, GuiaSeo> = {
     titulo: "Repuestos para pulverizadores en Uruguay",
     paragrafos: [
       "Repuestos para pulverizadores Jacto y otras marcas: picos, filtros de línea, válvulas, bombas, membranas, mangueras y conexiones, con código original.",
-      "Mandanos el modelo del pulverizador o una foto de la pieza por WhatsApp y te confirmamos el repuesto correcto. Enviamos a todo Uruguay por DAC.",
+      "Mandanos el modelo del pulverizador o una foto de la pieza por WhatsApp y te confirmamos el repuesto correcto.",
     ],
     perguntas: [],
   },
@@ -143,7 +140,7 @@ export const GUIAS_CATEGORIA: Record<string, GuiaSeo> = {
     paragrafos: [
       "Tenemos filtros para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH, Ford y Agrale: filtros de aceite de motor, de combustible (gasoil) y sedimentadores, de aire (primario y de seguridad), hidráulicos y de transmisión.",
       "Para elegir el filtro correcto, buscá por el código original del filtro o por el código del filtro que tenés puesto. Si preferís, mandanos por WhatsApp el modelo del tractor y te armamos el kit de filtros para el service (aceite, combustible, aire e hidráulico).",
-      `Cambiar los filtros en los intervalos que indica el manual protege el motor, la bomba inyectora y el sistema hidráulico. Enviamos filtros a los 19 departamentos de Uruguay por DAC, con número de rastreo: ${DEPARTAMENTOS}.`,
+      `Cambiar los filtros en los intervalos que indica el manual protege el motor, la bomba inyectora y el sistema hidráulico. Cotizá tus filtros por WhatsApp con el código original.`,
     ],
     perguntas: [
       {
@@ -163,16 +160,16 @@ export const GUIA_INICIO: GuiaSeo = {
   titulo: "Repuestos para tractores en Uruguay, con envío a todo el país",
   paragrafos: [
     "AGRO PARTS es una tienda online de repuestos para tractores, cosechadoras y maquinaria agrícola en Uruguay, con base en Chuy, Rocha. Tenemos más de 49.000 repuestos con código original para Massey Ferguson, John Deere, Valtra, New Holland, Case IH, Ford y Agrale: filtros, rodamientos, juntas y retenes, piezas de motor, transmisión, hidráulica, frenos, embragues y piezas eléctricas.",
-    "Buscá por el código de la pieza, por la marca o por el tipo de repuesto, agregá lo que necesitás a tu cotización y envianos la lista por WhatsApp. Te respondemos con precio, disponibilidad y costo del envío, y despachamos por DAC a los 19 departamentos, con número de rastreo.",
+    "Buscá por el código de la pieza, por la marca o por el tipo de repuesto, agregá lo que necesitás a tu cotización y envianos la lista por WhatsApp. Te respondemos con precio y disponibilidad.",
   ],
   perguntas: [
     {
       p: "¿Dónde comprar repuestos para tractores en Uruguay?",
-      r: "En AGRO PARTS podés buscar entre más de 49.000 repuestos agrícolas, cotizar por WhatsApp y recibir el pedido por DAC en cualquier departamento de Uruguay.",
+      r: "En AGRO PARTS podés buscar entre más de 49.000 repuestos agrícolas, y cotizar por WhatsApp con el código de la pieza.",
     },
     {
-      p: "¿Hacen envíos a todo Uruguay?",
-      r: "Sí. Enviamos a los 19 departamentos por DAC, con número de rastreo. El costo del envío lo paga el cliente al recibir o al retirar en la agencia DAC.",
+      p: "¿Cómo pido un repuesto?",
+      r: "Buscá la pieza en el sitio o mandanos el código por WhatsApp. Te respondemos con precio y disponibilidad, sin compromiso.",
     },
     {
       p: "¿Cómo sé si el repuesto es el correcto para mi tractor?",
@@ -186,12 +183,12 @@ export const GUIA_ZONAS: GuiaSeo = {
   paragrafos: [
     "Somos una tienda de repuestos agrícolas en Uruguay para productores, contratistas y talleres: repuestos para tractores, cosechadoras, sembradoras y equipos de forraje de las marcas más usadas en el país, con el código original de cada pieza.",
     "Los repuestos agrícolas más pedidos son filtros (aceite, combustible, aire e hidráulico), rodamientos, retenes y juntas, piezas de transmisión y embrague, bombas y componentes hidráulicos, y piezas de motor. Elegí tu departamento o tu ciudad para ver las marcas más comunes de tu zona, o buscá directamente por código.",
-    `Despachamos por DAC a ${DEPARTAMENTOS}, con número de rastreo, y te confirmamos el precio, la disponibilidad y el envío por WhatsApp antes de la compra.`,
+    "Te confirmamos el precio y la disponibilidad por WhatsApp antes de la compra.",
   ],
   perguntas: [
     {
-      p: "¿Venden repuestos agrícolas para todo Uruguay?",
-      r: "Sí. Enviamos repuestos agrícolas a los 19 departamentos por DAC, con número de rastreo.",
+      p: "¿Cómo compro repuestos agrícolas?",
+      r: "Buscá por código en el sitio o mandanos tu lista por WhatsApp y te respondemos con precio y disponibilidad.",
     },
     {
       p: "¿Qué marcas de maquinaria agrícola atienden?",

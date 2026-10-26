@@ -79,7 +79,7 @@ export function SugestaoIdioma() {
         <p className="text-xs text-zinc-600">
           {paraPt
             ? "Veja o site em português, com preços em R$ e envio para o Sul do Brasil."
-            : "Mirá el sitio en español, con precios en $U y envíos por DAC."}
+            : "Mirá el sitio en español, con precios en $U."}
         </p>
       </div>
       <button

@@ -24,7 +24,7 @@ export const Route = createFileRoute("/cotizar")({
         {
           name: "description",
           content: t(
-            "Somos distribuidores de repuestos para tractores y cosechadoras en Uruguay. Pedí tu cotización gratis: te respondemos por WhatsApp. Envíos por DAC a los 19 departamentos.",
+            "Somos distribuidores de repuestos para tractores y cosechadoras en Uruguay. Pedí tu cotización gratis: te respondemos por WhatsApp.",
             "Peças para tratores e colheitadeiras no RS, SC e PR. Peça seu orçamento grátis: respondemos pelo WhatsApp. Envio para todo o Sul do Brasil.",
           ),
         },
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/cotizar")({
 const PASSOS = [
   ["Contanos qué necesitás", "Código, nombre de la pieza o una foto."],
   ["Te pasamos el precio", "Por WhatsApp, con disponibilidad y costo de envío."],
-  ["Recibilo en tu ciudad", "Despachamos por DAC con número de seguimiento."],
+  ["Coordinamos por WhatsApp", "Te pasamos precio y disponibilidad antes de confirmar."],
 ];
 const PASSOS_PT = [
   ["Conte o que precisa", "Código, nome da peça ou uma foto."],

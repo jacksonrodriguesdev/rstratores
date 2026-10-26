@@ -426,8 +426,8 @@ export function legendas(p: {
   const d = p.preco?.desconto ? ` con -${p.preco.desconto}%` : "";
   const dPt = p.preco?.desconto ? ` com -${p.preco.desconto}%` : "";
   const es = [
-    `🔧 ${p.nome}${m}${d}\n\nCódigo: ${p.codigo}${p.preco ? `\n💰 ${p.preco.uyu}` : ""}\n👉 agropartsuy.com/produto/${encodeURIComponent(p.sku)}\n\n🚚 Envíos por DAC a todo Uruguay · 💬 Cotizá por WhatsApp`,
-    `¿Buscás ${p.nome.toLowerCase()}${m}? 🚜\n\nLa tenemos${d}. Pedila con el código ${p.codigo} y te la mandamos por DAC a todo Uruguay.\n\n💬 Link en la bio`,
+    `🔧 ${p.nome}${m}${d}\n\nCódigo: ${p.codigo}${p.preco ? `\n💰 ${p.preco.uyu}` : ""}\n👉 agropartsuy.com/produto/${encodeURIComponent(p.sku)}\n\n💬 Cotizá por WhatsApp`,
+    `¿Buscás ${p.nome.toLowerCase()}${m}? 🚜\n\nLa tenemos${d}. Pedila con el código ${p.codigo} y te pasamos precio y disponibilidad.\n\n💬 Link en la bio`,
     `Que no se te pare el tractor en plena zafra 🌾\n\n${p.nome}${m} · Cód. ${p.codigo}${p.preco ? ` · ${p.preco.uyu}` : ""}\nCotizá por WhatsApp, respondemos rápido.`,
   ];
   const pt = [

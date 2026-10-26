@@ -161,7 +161,6 @@ function redigir(a: {
   const { local, cidade } = a;
   const p = { ...a.p, nome: nomeLimpo(a.p) };
   const para = p.marca ? ` para ${p.marca}` : "";
-  const ondeEnvio = cidade ? `a ${cidade}` : local ? `a ${local}` : "a todo Uruguay";
   const quem =
     local && local !== "Montevideo"
       ? `Productor de ${local}`
@@ -174,23 +173,23 @@ function redigir(a: {
   let titulo = "";
   if (a.angulo === "whatsapp") {
     texto = v
-      ? `🚜 ${quem ? `${quem}: ` : ""}¿necesitás ${p.nome}${para}? Mandanos el código ${p.codigo} por WhatsApp y te respondemos en minutos con precio y envío por DAC ${ondeEnvio}.`
-      : `💬 ${p.nome}${para} · Cód. ${p.codigo}\n\nEscribinos por WhatsApp: te confirmamos que sirve para tu máquina y te lo mandamos por DAC ${ondeEnvio}.`;
+      ? `🚜 ${quem ? `${quem}: ` : ""}¿necesitás ${p.nome}${para}? Mandanos el código ${p.codigo} por WhatsApp y te respondemos en minutos con precio y disponibilidad.`
+      : `💬 ${p.nome}${para} · Cód. ${p.codigo}\n\nEscribinos por WhatsApp: te confirmamos que sirve para tu máquina y te pasamos el precio.`;
     titulo = v ? "Pedila por WhatsApp" : corta(`${p.nome}`, 40);
   } else if (a.angulo === "codigo") {
     texto = v
-      ? `🔎 ¿Buscás el ${p.codigo}? Lo tenemos${para}.\n\n${p.nome}. Envío por DAC ${ondeEnvio}. Consultá stock por WhatsApp.`
-      : `Código ${p.codigo}${para}: ${p.nome}.\n\nVerificá el código en la pieza vieja o en el manual y pedila hoy. Envío ${ondeEnvio}.`;
+      ? `🔎 ¿Buscás el ${p.codigo}? Lo tenemos${para}.\n\n${p.nome}. Consultá stock por WhatsApp.`
+      : `Código ${p.codigo}${para}: ${p.nome}.\n\nVerificá el código en la pieza vieja o en el manual y pedila hoy por WhatsApp.`;
     titulo = corta(`Cód. ${p.codigo}${p.marca ? ` · ${p.marca}` : ""}`, 40);
   } else if (a.angulo === "oferta") {
     const camp = a.campanha ?? "Oferta";
     texto = v
-      ? `🖤 ${camp}${local ? ` en ${local}` : ""}: ${p.nome}${para} con -${p.desconto}%.\n\nCód. ${p.codigo} · Envío por DAC ${ondeEnvio}. Ofertas válidas hasta agotar stock.`
-      : `⚡ -${p.desconto}% en ${p.nome}${para}.\n\n${camp} en AGRO PARTS. Cód. ${p.codigo}. Pedila y te la mandamos ${ondeEnvio}.`;
+      ? `🖤 ${camp}${local ? ` en ${local}` : ""}: ${p.nome}${para} con -${p.desconto}%.\n\nCód. ${p.codigo}. Ofertas válidas hasta agotar stock.`
+      : `⚡ -${p.desconto}% en ${p.nome}${para}.\n\n${camp} en AGRO PARTS. Cód. ${p.codigo}. Pedila por WhatsApp.`;
     titulo = corta(`-${p.desconto}% · ${p.nome}`, 40);
   } else if (a.angulo === "temporada") {
     texto = v
-      ? `🌾 Que no se te pare la máquina ${ep.frase}. ${p.nome}${para} · Cód. ${p.codigo}.\n\nTenela a mano: envío por DAC ${ondeEnvio}.`
+      ? `🌾 Que no se te pare la máquina ${ep.frase}. ${p.nome}${para} · Cód. ${p.codigo}.\n\nTenela a mano: cotizá por WhatsApp.`
       : `${ep.nome === "siembra" ? "🌱" : ep.nome === "cosecha" ? "🌾" : "🔧"} ${quem ? `${quem}, ` : ""}preparate ${ep.para}: ${p.nome}${para}.\n\nCód. ${p.codigo}. Consultá por WhatsApp.`;
     titulo =
       ep.nome === "mantenimiento"
@@ -199,8 +198,8 @@ function redigir(a: {
   } else {
     const maq = (local && MAQUINA_ES[local]) || "tu tractor";
     texto = v
-      ? `🚜 Repuestos para ${maq}${local ? ` en ${local}` : ""}: ${p.nome}${para}.\n\nCód. ${p.codigo} · Envío por DAC ${ondeEnvio}.`
-      : `¿${maq.replace(/^tu /, "Tu ").replace(/^Tu taller/, "Tu taller")} necesita ${p.nome}? La tenemos${para}.\n\nCód. ${p.codigo}. Te la mandamos ${ondeEnvio}.`;
+      ? `🚜 Repuestos para ${maq}${local ? ` en ${local}` : ""}: ${p.nome}${para}.\n\nCód. ${p.codigo} · Cotizá por WhatsApp.`
+      : `¿${maq.replace(/^tu /, "Tu ").replace(/^Tu taller/, "Tu taller")} necesita ${p.nome}? La tenemos${para}.\n\nCód. ${p.codigo}. Cotizá por WhatsApp.`;
     titulo = corta(local ? `Repuestos en ${local}` : "Repuestos agrícolas", 40);
   }
   return { texto: maiuscula(texto), titulo: maiuscula(titulo) };
@@ -382,10 +381,7 @@ async function gerar(dias: number) {
           objetivo: angulo === "whatsapp" ? "WHATSAPP" : "TRAFEGO",
           texto,
           titulo,
-          descricao: corta(
-            `Cód. ${p.codigo} · Envío por DAC ${alvo.nome ? `a ${alvo.nome}` : "a todo Uruguay"}`,
-            90,
-          ),
+          descricao: corta(`Cód. ${p.codigo} · Cotizá por WhatsApp`, 90),
           link: `${SITE_URL}/produto/${encodeURIComponent(p.sku)}?utm_source=facebook&utm_medium=cpc&utm_campaign=prontos-${slug(alvo.nome ?? "uruguai")}&utm_content=${angulo}-${slug(p.sku)}`,
           botao:
             angulo === "oferta" ? "SHOP_NOW" : angulo === "codigo" ? "LEARN_MORE" : "GET_QUOTE",

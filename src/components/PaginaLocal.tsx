@@ -157,7 +157,10 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" />{" "}
-                {t(`Envío a ${nome} por DAC`, `Envio para ${nome} por Correios ou transportadora`)}
+                {t(
+                  `Cotizá desde ${nome} por WhatsApp`,
+                  `Envio para ${nome} por Correios ou transportadora`,
+                )}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-amber-300" />{" "}
@@ -316,7 +319,7 @@ export function PaginaZonas({ total }: { total: number }) {
             ),
           },
           {
-            titulo: t("Los 19 departamentos", "Os 19 departamentos"),
+            titulo: t("Departamentos", "Departamentos"),
             itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "departamento"),
           },
           {

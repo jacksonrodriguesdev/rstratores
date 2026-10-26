@@ -277,7 +277,7 @@ function CatalogoPage() {
             </h2>
             <p className="mt-2 text-sm text-zinc-600">
               {t(
-                "Buscalo en la tienda o mandanos el código por WhatsApp: te pasamos precio y te lo enviamos a todo Uruguay por DAC.",
+                "Buscalo en la tienda o mandanos el código por WhatsApp: te pasamos precio y disponibilidad.",
                 "Busque na loja ou mande o código pelo WhatsApp: passamos o preço e enviamos para todo o Sul do Brasil.",
               )}
             </p>

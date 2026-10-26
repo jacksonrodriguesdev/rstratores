@@ -108,7 +108,7 @@ export const MODELOS_EMAIL: ModeloEmail[] = [
     emoji: "🔥",
     tema: "black",
     assunto: "🔥 Empezó la Black Friday de AGRO PARTS",
-    preheader: "Descuentos en repuestos agrícolas hasta el lunes. Envíos a todo Uruguay.",
+    preheader: "Descuentos en repuestos agrícolas hasta el lunes.",
     publico: TODOS,
     blocos: () => {
       const d = bf();
@@ -194,7 +194,7 @@ export const MODELOS_EMAIL: ModeloEmail[] = [
     emoji: "🏷️",
     tema: "verde",
     assunto: "{{nombre}}, ofertas del mes en repuestos agrícolas 🚜",
-    preheader: "Precios especiales este mes. Envíos a todo Uruguay por DAC.",
+    preheader: "Precios especiales este mes. Cotizá por WhatsApp.",
     publico: TODOS,
     blocos: () => [
       novoBloco("HERO", {
@@ -224,7 +224,7 @@ export const MODELOS_EMAIL: ModeloEmail[] = [
         selo: "BIENVENIDA",
         titulo: "¡Hola {{nombre}}! Gracias por crear tu cuenta",
         texto:
-          "Somos AGRO PARTS: repuestos para tractores, cosechadoras y maquinaria agrícola, con envíos a todo Uruguay.",
+          "Somos AGRO PARTS: repuestos para tractores, cosechadoras y maquinaria agrícola, con código original.",
         botao: "Explorar repuestos",
         link: "/loja",
       }),

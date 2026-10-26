@@ -66,11 +66,11 @@ export function descricaoRepuestos(
   if (categoria?.busca && !categoria.maquina && !marca)
     return idioma === "pt"
       ? `${total ? `${fmt(total, idioma)} peças de ` : "Peças de "}${categoria.categoria.toLowerCase()} para tratores Massey Ferguson, Valtra, John Deere, New Holland e mais, com código original. Envio para RS, SC e PR com nota fiscal.`
-      : `${total ? `${fmt(total)} repuestos de ` : "Repuestos de "}${categoria.nome.toLowerCase()} para tractores Massey Ferguson, Valtra, John Deere, New Holland y más, con código original. Envío a todo Uruguay por DAC.`;
+      : `${total ? `${fmt(total)} repuestos de ` : "Repuestos de "}${categoria.nome.toLowerCase()} para tractores Massey Ferguson, Valtra, John Deere, New Holland y más, con código original. Cotizá por WhatsApp.`;
   if (categoria?.busca && !marca)
     return idioma === "pt"
       ? `${total ? `${fmt(total, idioma)} peças` : "Peças"} para ${categoria.categoria.toLowerCase()} John Deere, New Holland, Case IH, Massey Ferguson, Jacto e mais. Envio para RS, SC e PR com nota fiscal.`
-      : `${total ? `${fmt(total)} repuestos` : "Repuestos"} para ${categoria.nome.toLowerCase()} John Deere, New Holland, Case IH, Massey Ferguson, Jacto y más. Envío a todo Uruguay por DAC.`;
+      : `${total ? `${fmt(total)} repuestos` : "Repuestos"} para ${categoria.nome.toLowerCase()} John Deere, New Holland, Case IH, Massey Ferguson, Jacto y más. Cotizá por WhatsApp.`;
   if (idioma === "pt") {
     const qtd = total ? `${fmt(total, idioma)} peças` : "Peças";
     if (marca && categoria)
@@ -83,12 +83,12 @@ export function descricaoRepuestos(
   }
   const qtd = total ? `${fmt(total)} repuestos` : "Repuestos";
   if (marca && categoria)
-    return `${qtd} de ${categoria.nome.toLowerCase()} para tractores ${marca.marca}. Código original, envío a todo Uruguay por DAC y cotización por WhatsApp.`;
+    return `${qtd} de ${categoria.nome.toLowerCase()} para tractores ${marca.marca}. Código original y cotización por WhatsApp.`;
   if (marca)
-    return `${qtd} para tractores ${marca.marca} (${marca.modelos.split(",").slice(0, 4).join(",")}…). Envío a todo Uruguay por DAC. Cotizá por WhatsApp.`;
+    return `${qtd} para tractores ${marca.marca} (${marca.modelos.split(",").slice(0, 4).join(",")}…). Código original. Cotizá por WhatsApp.`;
   if (categoria)
-    return `${qtd} de ${categoria.nome.toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland y más. Envío a todo Uruguay por DAC.`;
-  return "Repuestos para tractores y cosechadoras con envío a todo Uruguay.";
+    return `${qtd} de ${categoria.nome.toLowerCase()} para Massey Ferguson, Valtra, John Deere, New Holland y más. Cotizá por WhatsApp.`;
+  return "Repuestos para tractores y cosechadoras con código original.";
 }
 
 const alvoDe = (
@@ -243,7 +243,7 @@ export function PaginaRepuestos({ marca, categoria, dados }: Props) {
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" />{" "}
-                {t("Envíos a todo Uruguay por DAC", "Envio para todo o Sul do Brasil")}
+                {t("Cotizá por WhatsApp", "Envio para todo o Sul do Brasil")}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-amber-300" />{" "}

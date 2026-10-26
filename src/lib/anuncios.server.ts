@@ -605,7 +605,7 @@ export async function criadorAnuncios(dias: number) {
         "Meta (Instagram/Facebook) com botão 'Enviar mensagem' no WhatsApp; vídeo curto ou carrossel de peças.",
       oferta: "Envío a todo el país / respuesta en minutos por WhatsApp",
       exemplo:
-        "¿Tractor parado? Mandanos el código o una foto de la pieza y te respondemos en minutos con precio y envío a todo Uruguay.",
+        "¿Tractor parado? Mandanos el código o una foto de la pieza y te respondemos en minutos con precio y disponibilidad.",
       idioma: "es",
     },
     {
@@ -821,7 +821,7 @@ export async function criadorAnuncios(dias: number) {
           `Repuestos ${m} para tractores y cosechadoras. Precio en pesos. Consultá por WhatsApp.`,
           90,
         ),
-        cabe("Mandanos el código o el modelo y te confirmamos si sirve. Envío a todo Uruguay.", 90),
+        cabe("Mandanos el código o el modelo y te confirmamos si sirve. Respuesta rápida.", 90),
         cabe(
           "Filtros, embragues, juntas, rodamientos, hidráulica y más. Respuesta en minutos.",
           90,
@@ -914,7 +914,7 @@ export async function criadorAnuncios(dias: number) {
     ],
     textos: [
       `🚜 ¿Tractor o cosechadora parada en plena ${mes >= 9 || mes <= 1 ? "siembra" : "zafra"}? Mandanos el código o una foto de la pieza por WhatsApp y te respondemos en minutos con precio y envío.`,
-      `Repuestos ${marcasTop.slice(0, 3).join(", ")} y más. Filtros, embragues, juntas, rodamientos e hidráulica. Envío a ${deptosAlvo[0]} y todo Uruguay. 📲 Escribinos.`,
+      `Repuestos ${marcasTop.slice(0, 3).join(", ")} y más. Filtros, embragues, juntas, rodamientos e hidráulica. 📲 Escribinos por WhatsApp.`,
     ],
     descricoes: ["Respuesta en minutos por WhatsApp"],
     link: utm("/loja", "facebook", "whatsapp interior"),
@@ -944,10 +944,10 @@ export async function criadorAnuncios(dias: number) {
     produtos: prod(pecasTop.slice(0, 4)),
     titulos: [cal.ideia, `Preparate: ${prox.ideia.toLowerCase()}`],
     textos: [
-      `${cal.ideia} 🌱 Tené a mano los repuestos antes de que la máquina pare: ${focoEs(cal.foco)}. Consultá precio por WhatsApp y recibilo en todo Uruguay.`,
+      `${cal.ideia} 🌱 Tené a mano los repuestos antes de que la máquina pare: ${focoEs(cal.foco)}. Consultá precio por WhatsApp.`,
       `Se viene: ${prox.ideia.toLowerCase()}. Revisá tu máquina ahora y evitá parar en plena zafra. Te cotizamos en minutos.`,
     ],
-    descricoes: ["Envío a todo Uruguay"],
+    descricoes: ["Cotizá por WhatsApp"],
     link: utm("/loja", "facebook", `temporada ${MESES[mes]}`),
     kpis: KPI_META,
     porque: `${MESES[mes]}: ${cal.safra}. Peças em foco: ${cal.foco}. Próximo mês: ${prox.safra}.`,
@@ -1075,7 +1075,7 @@ export async function criadorAnuncios(dias: number) {
     produtos: [],
     titulos: ["Precio distribuidor", "¿Tenés taller o repuestera?"],
     textos: [
-      "🔧 ¿Tenés taller o vendés repuestos agrícolas? Pasanos tu lista de códigos y te cotizamos todo junto con precio de distribuidor. Entregas en todo Uruguay.",
+      "🔧 ¿Tenés taller o vendés repuestos agrícolas? Pasanos tu lista de códigos y te cotizamos todo junto con precio de distribuidor.",
     ],
     descricoes: ["Cotización por lista"],
     link: utm("/cotizar", "facebook", "b2b distribuidor"),
@@ -1138,7 +1138,7 @@ export async function criadorAnuncios(dias: number) {
     {
       publico: "Geral (Uruguai)",
       idioma: "es",
-      titulo: "Repuestos para tu tractor, con precio en pesos y envío a todo Uruguay",
+      titulo: "Repuestos para tu tractor, con precio en pesos y código original",
       subtitulo: `Más de ${milhar(ofertaMarcas.reduce((a, o) => a + o._count._all, 0))} piezas para ${marcasTop.slice(0, 4).join(", ")} y más. Consultá por WhatsApp y te respondemos en minutos.`,
       botao: "Buscar mi repuesto",
     },
@@ -1177,7 +1177,7 @@ export async function criadorAnuncios(dias: number) {
       idioma: "es",
       titulo: "Repuestos agrícolas con atención de verdad",
       subtitulo:
-        "Te asesoramos por WhatsApp, te confirmamos la pieza y la enviamos a todo Uruguay. Mirá lo que dicen nuestros clientes.",
+        "Te asesoramos por WhatsApp, te confirmamos la pieza antes de comprar. Mirá lo que dicen nuestros clientes.",
       botao: "Hablar con un asesor",
     },
     {

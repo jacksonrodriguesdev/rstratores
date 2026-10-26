@@ -61,7 +61,7 @@ export const MARCAS_SEO: MarcaSeo[] = [
     modelos:
       "John Deere series 5000, 6000 y 7000 (5705, 5725, 6110J, 6405, 6605, 7505) y cosechadoras",
     texto:
-      "Repuestos para tractores y cosechadoras John Deere: filtros, rodamientos, juntas, piezas de motor, hidráulica y transmisión. Consultá precio y disponibilidad por WhatsApp y recibí en todo Uruguay.",
+      "Repuestos para tractores y cosechadoras John Deere: filtros, rodamientos, juntas, piezas de motor, hidráulica y transmisión. Consultá precio y disponibilidad por WhatsApp con el código de la pieza.",
     texto_pt:
       "Peças para tratores e colheitadeiras John Deere: filtros, rolamentos, juntas, peças de motor, hidráulica e transmissão. Consulte preço e disponibilidade pelo WhatsApp e receba em todo o Sul do Brasil.",
   },
@@ -353,8 +353,8 @@ export function perguntasFrequentes(alvo: string, idioma: "es" | "pt" = "es") {
     ];
   return [
     {
-      p: "¿Hacen envíos a todo Uruguay?",
-      r: "Sí. Enviamos a los 19 departamentos por DAC, con número de rastreo. El costo del envío lo paga el cliente al recibir o retirar en la agencia DAC.",
+      p: "¿Cómo pido un repuesto?",
+      r: "Buscá la pieza en el sitio o mandanos el código por WhatsApp. Te respondemos con precio y disponibilidad, sin compromiso.",
     },
     {
       p: `¿Cómo sé si el repuesto ${alvo} es el correcto para mi tractor?`,

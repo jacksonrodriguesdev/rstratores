@@ -32,7 +32,7 @@ export const Route = createFileRoute("/black-friday")({
           `Black Friday ${ano} em peças agrícolas | AGRO PARTS`,
         );
     const desc = t(
-      `Black Friday AGRO PARTS ${ano}: descuentos en repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere y New Holland. Envíos a todo Uruguay.`,
+      `Black Friday AGRO PARTS ${ano}: descuentos en repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere y New Holland. Cotizá por WhatsApp.`,
       `Black Friday AGRO PARTS ${ano}: descontos em peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere e New Holland. Envio para todo o Sul do Brasil.`,
     );
     // Evento de vendas (datas reais da campanha, ou da próxima)

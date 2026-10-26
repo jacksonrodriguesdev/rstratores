@@ -61,7 +61,7 @@ export const TIPOS_NOVOS: TipoBloco[] = [
     padrao: {
       itens: [
         {
-          texto: "🚚 Envíos a todo Uruguay por DAC",
+          texto: "💬 Cotizá por WhatsApp",
           texto_pt: "🚚 Envio para todo o Sul do Brasil",
         },
         {
@@ -158,7 +158,7 @@ export const TIPOS_NOVOS: TipoBloco[] = [
       titulo: "Repuestos para tractores con el código original",
       titulo_pt: "Peças para tratores com o código original",
       texto:
-        "Massey Ferguson, Valtra, John Deere, New Holland y más. Te confirmamos la pieza por WhatsApp y enviamos por DAC.",
+        "Massey Ferguson, Valtra, John Deere, New Holland y más. Te confirmamos la pieza por WhatsApp antes de comprar.",
       texto_pt:
         "Massey Ferguson, Valtra, John Deere, New Holland e mais. Confirmamos a peça pelo WhatsApp e enviamos para todo o Sul do Brasil.",
       botao1: "Ver catálogo",
@@ -249,11 +249,11 @@ export const TIPOS_NOVOS: TipoBloco[] = [
   {
     id: "HERO_NUMEROS",
     nome: "Hero com números",
-    desc: "Topo com título, botão e números de confiança (ex.: +49.000 peças, 19 departamentos).",
+    desc: "Topo com título, botão e números de confiança (ex.: +49.000 peças).",
     icone: "BarChart3",
     largura: "total",
     padrao: {
-      titulo: "Catálogo de repuestos agrícolas con envío a todo Uruguay",
+      titulo: "Catálogo de repuestos agrícolas con código original",
       titulo_pt: "Catálogo de peças agrícolas com envio para todo o Sul do Brasil",
       texto: "Atención por WhatsApp, código original y envío con seguimiento.",
       texto_pt: "Atendimento pelo WhatsApp, código original e envio com rastreio.",
@@ -513,7 +513,7 @@ export const TIPOS_NOVOS: TipoBloco[] = [
         {
           titulo: "Recibí en tu campo",
           titulo_pt: "Receba na sua fazenda",
-          texto: "Envío por DAC con seguimiento.",
+          texto: "Precio y disponibilidad por WhatsApp.",
           texto_pt: "Envio com código de rastreio.",
         },
       ],
@@ -545,9 +545,9 @@ export const TIPOS_NOVOS: TipoBloco[] = [
       titulo_pt: "Perguntas frequentes",
       perguntas: [
         {
-          p: "¿Hacen envíos a todo Uruguay?",
+          p: "¿Cómo pido un repuesto?",
           p_pt: "Vocês enviam para todo o Sul do Brasil?",
-          r: "Sí, enviamos por DAC a los 19 departamentos, con número de seguimiento.",
+          r: "Buscá la pieza en el sitio o mandanos el código por WhatsApp y te respondemos con precio y disponibilidad.",
           r_pt: "Sim, enviamos para todo o RS, SC e PR por Correios ou transportadora, com rastreio.",
         },
         {
@@ -588,7 +588,7 @@ export const TIPOS_NOVOS: TipoBloco[] = [
       titulo: "Repuestos agrícolas en Uruguay con envío a todo el país",
       titulo_pt: "Peças agrícolas com envio para todo o Sul do Brasil",
       texto:
-        "En **AGRO PARTS** encontrás repuestos para tractores y cosechadoras [Massey Ferguson](/repuestos/massey-ferguson), [Valtra](/repuestos/valtra), [John Deere](/repuestos/john-deere) y [New Holland](/repuestos/new-holland).\n\nCada pieza tiene su código original para que compres sin equivocarte, y te confirmamos la compatibilidad por WhatsApp antes de enviar por DAC.",
+        "En **AGRO PARTS** encontrás repuestos para tractores y cosechadoras [Massey Ferguson](/repuestos/massey-ferguson), [Valtra](/repuestos/valtra), [John Deere](/repuestos/john-deere) y [New Holland](/repuestos/new-holland).\n\nCada pieza tiene su código original para que compres sin equivocarte, y te confirmamos la compatibilidad por WhatsApp antes de comprar.",
       texto_pt:
         "Na **AGRO PARTS** você encontra peças para tratores e colheitadeiras [Massey Ferguson](/repuestos/massey-ferguson), [Valtra](/repuestos/valtra), [John Deere](/repuestos/john-deere) e [New Holland](/repuestos/new-holland).\n\nCada peça tem o código original para você comprar sem erro, e confirmamos a compatibilidade pelo WhatsApp antes de enviar.",
       recolher: true,

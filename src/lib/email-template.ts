@@ -123,9 +123,9 @@ export const PUBLICO_PADRAO: Publico = { tipo: "todos", departamentos: [], dias:
 
 export const CONTEUDO_PADRAO: ConteudoEmail = {
   destaque: "OFERTAS DEL MES",
-  titulo: "¡Hola {{nombre}}! Repuestos para tu tractor con envío a todo Uruguay",
+  titulo: "¡Hola {{nombre}}! Repuestos para tu tractor con precio especial",
   texto:
-    "Seleccionamos repuestos con **precio especial** para este mes.\n\nPedí tu cotización por WhatsApp y te respondemos con precio y disponibilidad. Enviamos por DAC a todo el país.",
+    "Seleccionamos repuestos con **precio especial** para este mes.\n\nPedí tu cotización por WhatsApp y te respondemos con precio y disponibilidad.",
   produtosTitulo: "Destacados del mes",
   produtos: [],
   botaoTexto: "Ver todos los repuestos",
@@ -335,7 +335,7 @@ ${c.botaoTexto && c.botaoUrl ? `<tr><td align="center" style="padding:22px 30px 
 ${c.whatsapp && d.whatsappUrl ? `<tr><td align="center" style="padding:12px 30px 4px">${botao("Cotizar por WhatsApp", d.whatsappUrl, "#25D366")}</td></tr>` : ""}
 ${d.anuncio && !c.semAnuncio ? anuncioHtml(d.anuncio, d, { cor }) : ""}
 <tr><td style="padding:26px 30px 30px;${fonte}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f7f2;border-radius:14px"><tr>
-<td style="padding:14px;font-size:13px;color:#3f3f46;text-align:center">🚚 Envíos por DAC a todo Uruguay &nbsp;·&nbsp; 💬 Atención por WhatsApp &nbsp;·&nbsp; 🔒 Sitio seguro</td>
+<td style="padding:14px;font-size:13px;color:#3f3f46;text-align:center">💬 Atención por WhatsApp &nbsp;·&nbsp; 🔒 Sitio seguro</td>
 </tr></table></td></tr>
 </table>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px"><tr><td style="padding:18px 20px;${fonte};font-size:12px;line-height:1.6;color:#71717a;text-align:center">
@@ -382,7 +382,7 @@ export function textoEmail(c: ConteudoEmail, d: DadosRender): string {
     partes.push(
       `${d.anuncio.titulo}${d.anuncio.texto ? `\n${d.anuncio.texto}` : ""}\n${linkAnuncio(d.anuncio, d)}`,
     );
-  partes.push("AGRO PARTS · Repuestos agrícolas · Envíos a todo Uruguay");
+  partes.push("AGRO PARTS · Repuestos agrícolas · Atención por WhatsApp");
   if (d.urlBaixa) partes.push(`Darme de baja: ${d.urlBaixa}`);
   return partes.filter((p) => p.trim()).join("\n\n");
 }

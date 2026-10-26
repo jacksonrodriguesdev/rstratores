@@ -70,12 +70,12 @@ export const TIPOS: DefTipo[] = [
     enviarAgora: true,
     config: { atrasoHoras: 0 },
     assunto: "¡Bienvenido a AGRO PARTS, {{nombre}}! 🚜",
-    preheader: "Catálogos, repuestos y envíos a todo Uruguay.",
+    preheader: "Catálogos y repuestos con código original.",
     conteudo: base({
       destaque: "BIENVENIDO",
       titulo: "¡Hola {{nombre}}, qué bueno tenerte en AGRO PARTS!",
       texto:
-        "Ya tenés acceso a **todos nuestros catálogos de tractores** y a miles de repuestos agrícolas.\n\nBuscá por código o por modelo y pedí tu cotización por WhatsApp. Enviamos por DAC a todo Uruguay.",
+        "Ya tenés acceso a **todos nuestros catálogos de tractores** y a miles de repuestos agrícolas.\n\nBuscá por código o por modelo y pedí tu cotización por WhatsApp.",
       // O código é trocado pelo cupom único de cada cliente (AGRO-XXXX) na hora do envio
       cupom: {
         codigo: "AGRO-XXXX",
@@ -128,8 +128,7 @@ export const TIPOS: DefTipo[] = [
     conteudo: base({
       destaque: "OFERTA",
       titulo: "{{nombre}}, estos repuestos entraron en oferta",
-      texto:
-        "Precios especiales **por tiempo limitado**. Pedí el tuyo por WhatsApp y te lo enviamos por DAC.",
+      texto: "Precios especiales **por tiempo limitado**. Pedí el tuyo por WhatsApp.",
       produtosTitulo: "En oferta",
       botaoTexto: "Ver todas las ofertas",
       botaoUrl: "/loja",
@@ -192,12 +191,12 @@ export const TIPOS: DefTipo[] = [
     enviarAgora: false,
     config: { horas: 24 },
     assunto: "{{nombre}}, tus repuestos te esperan",
-    preheader: "Te ayudamos con precio y envío a todo Uruguay.",
+    preheader: "Te ayudamos con precio y disponibilidad.",
     conteudo: base({
       destaque: "TU LISTA",
       titulo: "{{nombre}}, tus repuestos te esperan",
       texto:
-        "Vimos que armaste una lista y no llegaste a pedirla. **Te ayudamos** con precio, disponibilidad y envío a todo Uruguay.",
+        "Vimos que armaste una lista y no llegaste a pedirla. **Te ayudamos** con precio y disponibilidad.",
       produtosTitulo: "Tu lista",
       botaoTexto: "Ver más repuestos",
       botaoUrl: "/loja",
@@ -241,7 +240,7 @@ export const TIPOS: DefTipo[] = [
       destaque: "{{marca}}",
       titulo: "{{nombre}}, repuestos {{marca}} con precio especial",
       texto:
-        "Vimos que consultaste el catálogo de **{{marca}}**. Te dejamos repuestos de esa marca listos para enviar a todo Uruguay.",
+        "Vimos que consultaste el catálogo de **{{marca}}**. Te dejamos repuestos de esa marca con código original.",
       produtosTitulo: "Repuestos {{marca}}",
       botaoTexto: "Ver más de {{marca}}",
       botaoUrl: "/loja",

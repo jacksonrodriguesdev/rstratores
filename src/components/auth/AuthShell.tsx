@@ -77,7 +77,7 @@ export function AuthShell({
               ],
               [
                 Truck,
-                t("Tu dirección guardada para envíos por DAC", "Seu endereço salvo para os envios"),
+                t("Tu dirección guardada para tus pedidos", "Seu endereço salvo para os envios"),
               ],
               [
                 ShieldCheck,
@@ -98,7 +98,7 @@ export function AuthShell({
         </div>
         <p className="relative text-sm text-white/50">
           © {new Date().getFullYear()} AGRO PARTS ·{" "}
-          {t("Envíos a todo Uruguay", "Envio para todo o Sul do Brasil")}
+          {t("Atención por WhatsApp", "Envio para todo o Sul do Brasil")}
         </p>
       </aside>
 

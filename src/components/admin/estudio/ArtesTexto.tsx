@@ -37,7 +37,7 @@ const PADRAO: Record<
     texto:
       i === "pt"
         ? "Mande o código da peça e respondemos rápido. Envio para todo o RS."
-        : "Mandanos el código de la pieza y te respondemos rápido. Envíos por DAC a todo Uruguay.",
+        : "Mandanos el código de la pieza y te respondemos rápido.",
     formato: "feed",
   }),
   contagem: (i) => ({
@@ -397,7 +397,7 @@ export function Carrossel() {
         titulo: pt ? "Peça pelo WhatsApp" : "Cotizá por WhatsApp",
         texto: pt
           ? "Mande o código. Envio para todo o RS."
-          : "Mandanos el código. Envíos por DAC a todo Uruguay.",
+          : "Mandanos el código y te respondemos rápido.",
       }),
     );
     return slides.slice(0, 10);
@@ -408,7 +408,7 @@ export function Carrossel() {
       .map((i) => `▪️ ${pt ? i.nomePt : i.nome} · ${i.codigo}`)
       .join(
         "\n",
-      )}\n\n${pt ? "💬 Peça pelo WhatsApp · 🚚 Envio para todo o RS" : "💬 Cotizá por WhatsApp · 🚚 Envíos por DAC a todo Uruguay"}`;
+      )}\n\n${pt ? "💬 Peça pelo WhatsApp · 🚚 Envio para todo o RS" : "💬 Cotizá por WhatsApp"}`;
   return (
     <div className="space-y-4">
       <Card className="grid gap-3 p-4 md:grid-cols-3 xl:grid-cols-6">

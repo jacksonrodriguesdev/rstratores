@@ -157,7 +157,7 @@ export const Route = createFileRoute("/produto/$sku")({
               returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
               merchantReturnDays: 7,
               returnMethod: "https://schema.org/ReturnByMail",
-              // O cliente paga o envio da devolução direto na DAC (valor variável)
+              // O cliente paga o envio da devolução (valor variável)
               returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
             },
           },
@@ -511,7 +511,7 @@ function ProductDetail() {
                 <li className="flex items-center gap-2">
                   <Truck className="h-4 w-4 shrink-0 text-primary" />{" "}
                   {t(
-                    "Envío a todo Uruguay por DAC, con seguimiento",
+                    "Precio y disponibilidad por WhatsApp",
                     "Envio para RS, SC e PR por Correios ou transportadora, com rastreio",
                   )}
                 </li>

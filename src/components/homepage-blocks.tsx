@@ -450,8 +450,8 @@ export function FeaturesStripBlock({ config }: { config: string | null }) {
   const itens = [
     {
       icon: Truck,
-      titulo: t("Envíos a todo Uruguay", "Envio para todo o Sul do Brasil"),
-      texto: t("Por DAC, con número de rastreo", "Correios ou transportadora, com rastreio"),
+      titulo: t("Respuesta por WhatsApp", "Envio para todo o Sul do Brasil"),
+      texto: t("Precio y disponibilidad", "Correios ou transportadora, com rastreio"),
     },
     {
       icon: ShieldCheck,
@@ -766,16 +766,11 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
   );
 }
 
-// ENVÍOS A URUGUAY POR DAC (texto en español: público de Uruguay)
-// El logo de DAC lo sube el admin (Página Inicial > este bloque > imagen); sin logo, se muestra
-// el nombre en texto. No se copian imágenes del sitio de DAC.
-const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
-
-export function EnvioDacBlock({ config }: { config: string | null }) {
+// Bloco de envios: só na versão em português (Sul do Brasil: Correios ou transportadora, com
+// nota fiscal). Na versão do Uruguai o site não mostra informação de envio.
+export function EnvioDacBlock(_: { config: string | null }) {
   const { idioma } = useT();
-  // Versão em português (Sul do Brasil): envio por Correios ou transportadora, com nota fiscal
-  if (idioma === "pt") return <EnvioBrasilPt />;
-  return <EnvioDacUruguai config={config} />;
+  return idioma === "pt" ? <EnvioBrasilPt /> : null;
 }
 
 function EnvioBrasilPt() {
@@ -783,7 +778,7 @@ function EnvioBrasilPt() {
     {
       icon: MapPin,
       titulo: "Todo o Sul do Brasil",
-      texto: "Enviamos para os 19 departamentos.",
+      texto: "Enviamos para RS, SC e PR.",
     },
     {
       icon: Search,
@@ -836,133 +831,6 @@ function EnvioBrasilPt() {
             {vantagens.map((v) => (
               <div key={v.titulo} className="rounded-xl bg-white/10 p-3 backdrop-blur-sm md:p-4">
                 <v.icon className="h-6 w-6 text-emerald-200" />
-                <h3 className="mt-2 text-sm font-bold">{v.titulo}</h3>
-                <p className="mt-0.5 text-xs leading-snug text-white/80">{v.texto}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </Reveal>
-  );
-}
-
-function EnvioDacUruguai({ config }: { config: string | null }) {
-  const c = lerConfig(config);
-  // Imagem de fundo enviada em Admin > Banners > "Seção DAC (Uruguai)" (a primeira ativa)
-  const { data: fundos = [] } = useQuery({
-    queryKey: ["home_banners", "dac"],
-    queryFn: () => listActiveBanners("dac", "AGRICOLA"),
-  });
-  const fundo = fundos[0];
-  const urlFundo = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
-  const logo = c.image_path
-    ? c.image_path.startsWith("http") || c.image_path.startsWith("/")
-      ? c.image_path
-      : `/uploads/${c.image_path}`
-    : null;
-  const ventajas = [
-    { icon: MapPin, titulo: "Todo Uruguay", texto: "Enviamos a los 19 departamentos." },
-    {
-      icon: Search,
-      titulo: "Seguimiento en línea",
-      texto: "Con tu número de envío seguís el paquete en dac.com.uy.",
-    },
-    {
-      icon: PackageCheck,
-      titulo: "Embalaje cuidadoso",
-      texto: "Cada pieza se embala para viajar protegida.",
-    },
-    {
-      icon: MessageCircle,
-      titulo: "Te acompañamos",
-      texto: "Te confirmamos el despacho y el número de seguimiento por WhatsApp.",
-    },
-  ];
-
-  return (
-    <Reveal>
-      <section
-        id="envios-uruguay"
-        lang="es-UY"
-        className="relative scroll-mt-[calc(var(--altura-header,112px)+12px)] overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-blue-900 p-5 text-white shadow-sm md:p-10"
-      >
-        {fundo ? (
-          <>
-            <picture>
-              {fundo.image_path_mobile && (
-                <source media="(max-width: 767px)" srcSet={urlFundo(fundo.image_path_mobile)} />
-              )}
-              <img
-                decoding="async"
-                src={urlFundo(fundo.image_path)}
-                alt={fundo.titulo ?? ""}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            </picture>
-            {/* Camada azul: mantém o texto legível sobre qualquer foto */}
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-950/85 via-blue-900/70 to-blue-900/40 md:bg-gradient-to-r md:from-blue-950/90 md:via-blue-900/65 md:to-blue-900/10" />
-          </>
-        ) : (
-          <Truck className="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 text-white/5" />
-        )}
-        <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
-              <BandeiraUruguay className="h-3.5 w-5 rounded-sm" /> Envíos a todo Uruguay
-            </span>
-            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">
-              Recibí tus repuestos en cualquier punto de Uruguay
-            </h2>
-            <p className="mt-2 text-sm text-white/85 md:text-base">
-              Despachamos tu pedido por DAC, con seguimiento en línea desde que sale hasta que
-              llega.
-            </p>
-
-            <div className="mt-5 flex items-center gap-3">
-              <div className="flex h-14 min-w-28 items-center justify-center rounded-xl bg-white px-4 shadow-sm">
-                {logo ? (
-                  <img
-                    decoding="async"
-                    src={logo}
-                    alt="DAC"
-                    className="max-h-10 w-auto object-contain"
-                  />
-                ) : (
-                  <span className="text-2xl font-black tracking-tight text-blue-900">DAC</span>
-                )}
-              </div>
-              <span className="text-sm font-medium text-white/85">Envío por DAC</span>
-            </div>
-
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-              <a
-                href={DAC_RASTREO}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-blue-900 shadow transition active:scale-95"
-              >
-                <Search className="h-4 w-4" /> Rastrear mi envío
-              </a>
-              <a
-                data-livre="1"
-                href={whatsappContactUrl(
-                  "¡Hola! Quiero consultar el envío de repuestos a Uruguay por DAC.",
-                )}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"
-              >
-                <MessageCircle className="h-4 w-4" /> Consultar envío por WhatsApp
-              </a>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 md:gap-3">
-            {ventajas.map((v) => (
-              <div key={v.titulo} className="rounded-xl bg-white/10 p-3 backdrop-blur-sm md:p-4">
-                <v.icon className="h-6 w-6 text-sky-200" />
                 <h3 className="mt-2 text-sm font-bold">{v.titulo}</h3>
                 <p className="mt-0.5 text-xs leading-snug text-white/80">{v.texto}</p>
               </div>

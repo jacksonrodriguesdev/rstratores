@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { whatsappContactUrl } from "@/lib/whatsapp";
-import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
+import { BandeiraBrasil } from "@/components/Bandeiras";
 import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 
 // Página de ajuda: como comprar, envios, pagamento e perguntas frequentes.
@@ -28,8 +28,8 @@ const PREGUNTAS = {
       r: "Trabajamos con más de 49.000 repuestos. La mayoría ya tiene precio publicado; en los demás, el precio depende de la marca y la disponibilidad. Por WhatsApp te pasamos el precio final, el plazo y el costo de envío en el momento, sin compromiso.",
     },
     {
-      p: "¿Envían a todo Uruguay?",
-      r: "Sí. Despachamos por DAC a los 19 departamentos. Cuando sale tu pedido te enviamos el número de seguimiento para que lo rastrees en dac.com.uy.",
+      p: "¿Cómo hago el pedido?",
+      r: "Buscá la pieza en el sitio o mandanos el código por WhatsApp. Te respondemos con precio y disponibilidad, sin compromiso.",
     },
     {
       p: "¿Puedo pedir varios repuestos juntos?",
@@ -88,7 +88,7 @@ export const Route = createFileRoute("/ayuda")({
         {
           name: "description",
           content: t(
-            "Cómo comprar repuestos agrícolas en AGRO PARTS: cotización por WhatsApp, envíos a todo Uruguay por DAC, formas de pago y preguntas frecuentes.",
+            "Cómo comprar repuestos agrícolas en AGRO PARTS: cotización por WhatsApp, formas de pago y preguntas frecuentes.",
             "Como comprar peças agrícolas na AGRO PARTS: orçamento pelo WhatsApp, envio para todo o Sul do Brasil, formas de pagamento e perguntas frequentes.",
           ),
         },
@@ -132,7 +132,7 @@ const PASOS = {
     {
       icon: Truck,
       titulo: "Recibilo en tu casa",
-      texto: "Confirmás el pedido y lo despachamos por DAC con seguimiento.",
+      texto: "Confirmás el pedido y coordinamos todo por WhatsApp.",
     },
   ],
   pt: [
@@ -239,31 +239,7 @@ function AyudaPage() {
               frete é pago pelo cliente.
             </p>
           </Seccion>
-        ) : (
-          <Seccion id="envios" icon={Truck} titulo="Envíos a Uruguay">
-            <p className="flex items-center gap-2 font-semibold text-zinc-900">
-              <BandeiraUruguay className="h-4 w-6 rounded-sm" /> Enviamos a los 19 departamentos por
-              DAC.
-            </p>
-            <p>
-              Cuando tu pedido sale, te mandamos por WhatsApp el número de seguimiento. Con ese
-              número seguís el paquete en{" "}
-              <a
-                href="https://www.dac.com.uy/envios/rastrear"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="font-semibold text-primary underline"
-              >
-                dac.com.uy
-              </a>
-              .
-            </p>
-            <p>
-              El costo y el plazo de envío te los confirmamos junto con la cotización, según tu
-              localidad.
-            </p>
-          </Seccion>
-        )}
+        ) : null}
 
         <Seccion id="pagos" icon={CreditCard} titulo={t("Formas de pago", "Formas de pagamento")}>
           <p>

@@ -81,7 +81,7 @@ const MODELOS = [
     id: "recuperar",
     rotulo: "Retomar a lista",
     texto: (c: Carrinho, _d: number) =>
-      `¡Hola${primeiro(c.cliente?.nome) ? " " + primeiro(c.cliente?.nome) : ""}! 👋 Te escribimos de *AGRO PARTS*.\n\nVimos que armaste esta lista en nuestro sitio:\n${listaTexto(c)}\n\n¿Querés que te pasemos *precio y disponibilidad*? Enviamos a todo Uruguay por DAC 🚚`,
+      `¡Hola${primeiro(c.cliente?.nome) ? " " + primeiro(c.cliente?.nome) : ""}! 👋 Te escribimos de *AGRO PARTS*.\n\nVimos que armaste esta lista en nuestro sitio:\n${listaTexto(c)}\n\n¿Querés que te pasemos *precio y disponibilidad*?`,
   },
   {
     id: "desconto",
@@ -93,7 +93,7 @@ const MODELOS = [
     id: "frete",
     rotulo: "Envío sin costo",
     texto: (c: Carrinho, _d: number) =>
-      `¡Hola${primeiro(c.cliente?.nome) ? " " + primeiro(c.cliente?.nome) : ""}! Te escribe *AGRO PARTS*.\n\nPara tu lista de repuestos:\n${listaTexto(c)}\n\n🚚 Te ofrecemos el *envío por DAC sin costo* a ${c.cliente?.cidade || c.cliente?.departamento || "tu ciudad"}. ¿Lo coordinamos?`,
+      `¡Hola${primeiro(c.cliente?.nome) ? " " + primeiro(c.cliente?.nome) : ""}! Te escribe *AGRO PARTS*.\n\nPara tu lista de repuestos:\n${listaTexto(c)}\n\n🎁 Te ofrecemos el *envío sin costo*. ¿Lo coordinamos?`,
   },
   {
     id: "duvida",
@@ -714,7 +714,7 @@ function DialogEmail({
     setAssunto(`${primeiro(c.cliente?.nome) || "Hola"}, ¿te ayudamos con tus repuestos?`);
     setDestaque("");
     setMensagem(
-      "Vimos que armaste una lista de repuestos en nuestro sitio. **Te pasamos precio y disponibilidad** sin compromiso.\n\nRespondé este e-mail o escribinos por WhatsApp. Enviamos a todo Uruguay por DAC.",
+      "Vimos que armaste una lista de repuestos en nuestro sitio. **Te pasamos precio y disponibilidad** sin compromiso.\n\nRespondé este e-mail o escribinos por WhatsApp.",
     );
   }, [c]);
   if (!c) return null;

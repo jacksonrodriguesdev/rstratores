@@ -45,7 +45,7 @@ export function SiteFooter() {
           </Link>
           <p className="text-sm leading-relaxed">
             {t(
-              "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Enviamos a todo Uruguay por DAC.",
+              "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Cotizá por WhatsApp.",
               "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Enviamos para todo o RS, SC e PR por Correios ou transportadora.",
             )}
           </p>
@@ -84,7 +84,7 @@ export function SiteFooter() {
                 {t("Tienda online · Chuy, Rocha", "Loja online · RS, SC e PR")}
                 <br />
                 {t(
-                  "Atendemos por WhatsApp y enviamos por DAC a todo Uruguay.",
+                  "Atendemos por WhatsApp con precio y disponibilidad.",
                   "Atendemos pelo WhatsApp e enviamos para todo o RS, SC e PR por Correios ou transportadora.",
                 )}
               </span>
@@ -140,7 +140,7 @@ export function SiteFooter() {
           <ul className="space-y-3 text-sm">
             <li className="flex items-center gap-2">
               <Truck className="h-4 w-4 text-primary" />{" "}
-              {t("Envíos por DAC con rastreo", "Envio com código de rastreio")}
+              {t("Pago seguro", "Envio com código de rastreio")}
             </li>
             <li className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-primary" />{" "}
@@ -156,7 +156,7 @@ export function SiteFooter() {
               ) : (
                 <BandeiraUruguay className="h-3.5 w-5 rounded-[2px]" />
               )}{" "}
-              {t("Atendemos todo Uruguay", "Atendemos RS, SC e PR")}
+              {t("Atención por WhatsApp", "Atendemos RS, SC e PR")}
             </li>
           </ul>
           {(INSTAGRAM_URL || FACEBOOK_URL) && (

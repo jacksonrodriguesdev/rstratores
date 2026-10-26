@@ -15,7 +15,7 @@ const PAGINAS = [
   ["/repuestos/filtros", 200, ["Filtros"]],
   ["/pt/repuestos/cosechadoras", 200, ["colheitadeiras"]],
   ["/repuestos/radiadores", 200, ["Radiadores"]],
-  ["/repuestos-agricolas", 200, ["Los 19 departamentos"]],
+  ["/repuestos-agricolas", 200, ["Departamentos"]],
   ["/repuestos-agricolas/rocha", 200, ["Repuestos agrícolas en Rocha"]],
   ["/pt/repuestos-agricolas", 200, ["Paraná"]],
   ["/pt/repuestos-agricolas/pelotas", 200, ["Peças agrícolas em Pelotas"]],

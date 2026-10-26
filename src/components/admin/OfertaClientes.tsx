@@ -52,7 +52,7 @@ function mensagemPadrao(p: ProdutoOferta, preco: PrecoFinal | null) {
     "Tenemos una *oferta especial* para vos en AGRO PARTS:",
     [`🔧 *${p.nome}*`, `Cód. ${p.codigo}`, linhaPreco(preco)].filter(Boolean).join("\n"),
     `Ver y pedir: ${linkProduto(p.sku)}`,
-    "Enviamos por DAC a todo Uruguay. ¡Respondé este mensaje y te lo reservamos!",
+    "¡Respondé este mensaje y te lo reservamos!",
   ].join("\n\n");
 }
 
@@ -113,7 +113,7 @@ export function OfertaClientes({ aberto, aoFechar, clientes }: Props) {
     setAssunto(pr?.desconto ? `🔥 -${pr.desconto}% en ${produto.nome}` : `Oferta: ${produto.nome}`);
     setTitulo(`¡Hola {{nombre}}! Precio especial en ${produto.nome}`);
     setTexto(
-      `Por tiempo limitado, este repuesto tiene **precio especial** en AGRO PARTS${pr?.uyu ? `: **${fmtUYU(pr.uyu)}**` : ""}.\n\nPedilo por WhatsApp o desde el sitio. Enviamos por DAC a todo Uruguay.`,
+      `Por tiempo limitado, este repuesto tiene **precio especial** en AGRO PARTS${pr?.uyu ? `: **${fmtUYU(pr.uyu)}**` : ""}.\n\nPedilo por WhatsApp o desde el sitio.`,
     );
     setMsgWhats(mensagemPadrao(produto, pr));
   }, [produto, precoNovo, editado]);

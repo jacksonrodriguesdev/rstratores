@@ -86,7 +86,7 @@ export const CONFIG_PADRAO: ConfigCampanha = {
   selo: "BLACK",
   titulo: "Black Friday AGRO PARTS",
   titulo_pt: "Black Friday AGRO PARTS",
-  subtitulo: "Descuentos en repuestos para tractores y cosechadoras, con envío a todo Uruguay.",
+  subtitulo: "Descuentos en repuestos para tractores y cosechadoras, con código original.",
   subtitulo_pt: "Descontos em peças para tratores e colheitadeiras, com envio para todo o RS.",
   barra_pre: "Faltan para la BLACK FRIDAY",
   barra_pre_pt: "Faltam para a BLACK FRIDAY",

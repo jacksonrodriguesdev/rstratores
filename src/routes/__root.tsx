@@ -135,7 +135,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
       "AGRO PARTS — Peças para tratores no RS, SC e PR",
     );
     const resumo = t(
-      "Repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+      "Repuestos para tractores y cosechadoras. Cotizá por WhatsApp.",
       "Peças para tratores e colheitadeiras. Envio para RS, SC e PR por Correios ou transportadora. Orçamento pelo WhatsApp.",
     );
     return {
@@ -154,7 +154,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idio
         {
           name: "description",
           content: t(
-            "Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+            "Repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland, Case IH y Ford. Cotizá por WhatsApp.",
             "Peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Envio para RS, SC e PR por Correios ou transportadora. Orçamento pelo WhatsApp.",
           ),
         },

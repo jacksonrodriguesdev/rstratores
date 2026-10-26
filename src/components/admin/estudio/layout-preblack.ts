@@ -63,7 +63,7 @@ const TXT: Record<"es" | "pt", Textos> = {
     zap: "PEDILA POR WHATSAPP",
     zapSub: "Te respondemos en minutos con precio y envío",
     codTit: "¿BUSCÁS ESTE CÓDIGO?",
-    codSub: "Lo tenemos. Envío por DAC a todo Uruguay.",
+    codSub: "Lo tenemos. Cotizá por WhatsApp.",
   },
   pt: {
     pre: "PRÉ",

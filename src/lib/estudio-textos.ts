@@ -131,7 +131,7 @@ export function legenda(
     : "";
   const valor = o.preco === false ? null : pt ? p.preco?.brl : p.preco?.uyu;
   const link = linkPeca(p.sku, idioma).replace("https://", "");
-  const envio = pt ? "🚚 Envio para todo o RS" : "🚚 Envíos por DAC a todo Uruguay";
+  const envio = pt ? "🚚 Envio para todo o RS" : "💬 Cotizá por WhatsApp";
   const zap = pt ? "💬 Peça pelo WhatsApp" : "💬 Cotizá por WhatsApp";
   let t = "";
   if (tom === "direto")
@@ -323,7 +323,7 @@ export function roteiroReels(tema: string, idioma: Idioma) {
         `PROBLEMA (3–8 s): mostrá la pieza gastada o el síntoma (ruido, pérdida, humo)`,
         `SOLUCIÓN (8–15 s): la pieza nueva en la mano, girando despacio, con el código a la vista`,
         `PRUEBA (15–22 s): el empaque y la etiqueta con el código; stock en la estantería`,
-        `LLAMADA (22–30 s): «Pedila por WhatsApp con el código. Envíos por DAC a todo Uruguay.»`,
+        `LLAMADA (22–30 s): «Pedila por WhatsApp con el código.»`,
         `Texto en pantalla: el código grande · Música: tendencia en Reels · Duración: hasta 30 s`,
       ];
 }
@@ -342,7 +342,7 @@ export const RESPOSTAS: Array<{ k: string; es: string; pt: string }> = [
   },
   {
     k: "Envio",
-    es: "Enviamos por DAC a todo Uruguay. Escribinos por WhatsApp y te decimos el plazo. 📦",
+    es: "Escribinos por WhatsApp y coordinamos tu pedido. 📦",
     pt: "Enviamos para todo o RS. Chame no WhatsApp que informamos o prazo. 📦",
   },
   {
@@ -373,7 +373,7 @@ export const RESPOSTAS: Array<{ k: string; es: string; pt: string }> = [
 ];
 export const BIOS = {
   es: [
-    "🚜 Repuestos agrícolas · Valtra · Massey · John Deere · New Holland\n📦 Envíos por DAC a todo Uruguay\n💬 Cotizá por WhatsApp 👇",
+    "🚜 Repuestos agrícolas · Valtra · Massey · John Deere · New Holland\n🔎 Buscá por código original\n💬 Cotizá por WhatsApp 👇",
     "Repuestos para tu tractor 🔧\nBuscá por código en la web\n🚚 Todo Uruguay · 💬 WhatsApp 👇",
     "AGRO PARTS · Repuestos agrícolas\n⚙️ Miles de códigos en stock\n💛🖤 Pre Black Friday ya empezó 👇",
   ],

@@ -778,8 +778,8 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
             </div>
             {freteModo === "NA_CHEGADA" && (
               <p className="mt-1 text-xs text-zinc-500">
-                O frete não entra no valor do link. O cliente vê o aviso “paga ao receber (DAC /
-                transportadora)” na página e no e-mail.
+                O frete não entra no valor do link. O cliente vê o aviso “paga ao receber” na página
+                e no e-mail.
               </p>
             )}
           </div>
@@ -911,7 +911,7 @@ function NovoLink({ carrinhoId, fechar }: { carrinhoId?: number; fechar: (id?: n
                 onChange={(e) => setNotaCliente(e.target.value)}
                 rows={3}
                 className="mt-1 w-full rounded-md border px-3 py-2 text-sm font-normal"
-                placeholder="Ex.: Envío por DAC a Rocha incluido. Sale en 24 h."
+                placeholder="Ex.: Envío incluido. Sale en 24 h."
               />
             </label>
             <label className="text-sm font-semibold">

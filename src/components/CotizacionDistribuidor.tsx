@@ -37,8 +37,8 @@ export const VANTAGENS = [
   },
   {
     icon: Truck,
-    titulo: "Envíos a todo Uruguay",
-    texto: "Por DAC, a los 19 departamentos, con seguimiento.",
+    titulo: "Respuesta por WhatsApp",
+    texto: "Te pasamos precio y disponibilidad de toda tu lista.",
   },
   {
     icon: Wrench,

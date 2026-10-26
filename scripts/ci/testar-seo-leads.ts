@@ -51,7 +51,7 @@ async function main() {
     equivalentes: ["P550148", null as any],
   });
   assert.ok(d.includes("$U 1.420") || d.includes("$U 1420"), `preço: ${d}`);
-  assert.ok(d.includes("P550148") && d.includes("Uruguay") && d.length <= 160, `descrição: ${d}`);
+  assert.ok(d.includes("P550148") && !d.includes("DAC") && d.length <= 160, `descrição: ${d}`);
   // Português (Sul do Brasil): código na frente, preço em R$ e envio para RS, SC e PR
   const tPt = tituloPeca(peca, "pt");
   assert.ok(tPt.startsWith("30250100 · ") && tPt.length <= 60, `título pt: ${tPt}`);

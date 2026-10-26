@@ -356,7 +356,7 @@ function Dados({ perfil, destino }: { perfil: Perfil; destino?: string }) {
         </h3>
         <p className="text-sm text-zinc-500">
           {t(
-            "Para despachar por DAC sin tener que pedírtela cada vez.",
+            "Para tus pedidos, sin tener que pedírtela cada vez.",
             "Para enviar sem precisar pedir toda vez.",
           )}
         </p>

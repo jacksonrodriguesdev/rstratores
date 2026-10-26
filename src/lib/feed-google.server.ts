@@ -65,7 +65,7 @@ export async function feedGoogle(
         br
           ? `${titulo}. Peça agrícola${p.marca ? ` para ${p.marca}` : ""}, código ${p.codigo_fabricante || sku}. Envio para RS, SC e PR com nota fiscal.`
           : p.descricao_es ||
-              `${titulo}. Repuesto agrícola${p.marca ? ` para ${p.marca}` : ""}. Envíos a todo Uruguay por DAC.`,
+              `${titulo}. Repuesto agrícola${p.marca ? ` para ${p.marca}` : ""}. Código original. Cotizá por WhatsApp.`,
         5000,
       );
       const moeda = br ? "BRL" : "UYU";

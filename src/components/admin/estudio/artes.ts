@@ -37,7 +37,7 @@ const T = {
     veja: "Mirá el precio en agropartsuy.com",
     oferta: "¡Ofertas válidas hasta agotar stock!",
     desc: "DE DESCUENTO",
-    envio: "Envíos por DAC a todo Uruguay",
+    envio: "Cotizá por WhatsApp",
     zap: "Cotizá por WhatsApp",
   },
   pt: {

@@ -43,7 +43,6 @@ import { MONTADORAS, INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
 import { useCategoriasLoja } from "@/hooks/use-categorias-loja";
 import { cn } from "@/lib/utils";
 
-const DAC_RASTREO = "https://www.dac.com.uy/envios/rastrear";
 // Buscas rápidas: o termo em espanhol vira o termo em português na busca (src/lib/pecas-es.ts)
 const MAIS_BUSCADOS = {
   es: ["Retén", "Rodamiento", "Filtro", "Engranaje", "Bomba"],
@@ -54,7 +53,7 @@ const MAIS_BUSCADOS = {
 const AVISOS = {
   es: [
     { icon: ShieldCheck, texto: "Distribuidores de repuestos agrícolas en Uruguay" },
-    { icon: Truck, texto: "Enviamos a todo Uruguay por DAC" },
+    { icon: Truck, texto: "Cotizá por WhatsApp con el código de la pieza" },
     { icon: MessageCircle, texto: `Cotización rápida por WhatsApp · ${PHONE_DISPLAY}` },
     { icon: ShieldCheck, texto: "Repuestos para Massey, Valtra, John Deere, New Holland y más" },
     { icon: PackageSearch, texto: "Buscá por el código original de la pieza" },
@@ -198,18 +197,6 @@ export function SiteHeader() {
               <span className="truncate">{Aviso.texto}</span>
             </div>
             <div className="hidden shrink-0 items-center gap-4 md:flex">
-              {/* Rastreio da DAC: só na versão do Uruguai (no Brasil o código vai pelo WhatsApp) */}
-              {idioma === "es" && (
-                <a
-                  href={DAC_RASTREO}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="flex items-center gap-1.5 hover:text-white"
-                >
-                  <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
-                  {t("Rastrear envío", "Rastrear envio")}
-                </a>
-              )}
               <SeletorIdioma />
               {INSTAGRAM_URL && (
                 <a
@@ -540,7 +527,7 @@ export function SiteHeader() {
                 ) : (
                   <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
                 )}
-                {t("Envíos a todo Uruguay", "Envio para todo o Sul do Brasil")}
+                {t("Atención por WhatsApp", "Envio para todo o Sul do Brasil")}
               </a>
               <Link
                 to="/loja"

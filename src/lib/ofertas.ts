@@ -195,8 +195,8 @@ export const enviarOfertaFn = createServerFn({ method: "POST" })
           ),
           assunto: data.assunto,
           preheader: pr?.uyu
-            ? `${p.nome} por ${fmtUYU(pr.uyu)}. Envíos a todo Uruguay.`.slice(0, 200)
-            : "Envíos a todo Uruguay por DAC.",
+            ? `${p.nome} por ${fmtUYU(pr.uyu)}. Cotizá por WhatsApp.`.slice(0, 200)
+            : "Cotizá por WhatsApp.",
           conteudo: JSON.stringify(conteudo),
           publico: JSON.stringify(publico),
         },

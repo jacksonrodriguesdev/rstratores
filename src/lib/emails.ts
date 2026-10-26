@@ -224,7 +224,7 @@ export const criarCampanhaFn = createServerFn({ method: "POST" })
         : {
             nome: `Campanha ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Montevideo" })}`,
             assunto: "Ofertas del mes en repuestos agrícolas 🚜",
-            preheader: "Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+            preheader: "Cotizá por WhatsApp.",
             conteudo: JSON.stringify(CONTEUDO_PADRAO),
             publico: JSON.stringify(PUBLICO_PADRAO),
           },

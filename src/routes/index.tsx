@@ -19,8 +19,8 @@ import {
   PromoBannersDuplosBlock,
   CarouselMontadorasBlock,
   DepoimentosBlock,
-  NewsletterInstagramBlock,
   EnvioDacBlock,
+  NewsletterInstagramBlock,
   ParaVoceBlock,
 } from "@/components/homepage-blocks";
 import { CatalogosCtaBlock } from "@/components/home/CatalogosCta";
@@ -38,7 +38,7 @@ import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/component
 
 // Dados estruturados da loja: nome, logo, contato e a caixa de busca nos resultados do Google
 // Loja online, sem atendimento ao público em endereço fixo. Cada versão fala do seu país:
-// espanhol = Uruguai (Chuy, DAC); português = Sul do Brasil (RS, SC e PR, empresa brasileira).
+// espanhol = Uruguai (Chuy); português = Sul do Brasil (RS, SC e PR, empresa brasileira).
 const lojaLd = (idioma: Idioma) => ({
   "@context": "https://schema.org",
   "@type": "OnlineStore",
@@ -60,7 +60,7 @@ const lojaLd = (idioma: Idioma) => ({
       }
     : {
         description:
-          "Repuestos para tractores y maquinaria agrícola con envíos a todo Uruguay por DAC.",
+          "Repuestos para tractores y maquinaria agrícola con código original y atención por WhatsApp.",
         areaServed: { "@type": "Country", name: "Uruguay" },
         address: {
           "@type": "PostalAddress",
@@ -119,7 +119,7 @@ export const Route = createFileRoute("/")({
         {
           name: "description",
           content: t(
-            "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+            "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Cotizá por WhatsApp.",
             "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.",
           ),
         },
@@ -127,7 +127,7 @@ export const Route = createFileRoute("/")({
         {
           property: "og:description",
           content: t(
-            "Más de 49.000 repuestos para tractores y cosechadoras. Envíos a todo Uruguay por DAC. Cotizá por WhatsApp.",
+            "Más de 49.000 repuestos para tractores y cosechadoras. Cotizá por WhatsApp.",
             "Mais de 49.000 peças para tratores e colheitadeiras. Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.",
           ),
         },

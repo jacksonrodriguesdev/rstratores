@@ -874,15 +874,15 @@ export function descricaoPeca(p: PecaTexto, idioma: Idioma): string {
   const estoque = (p.estoque ?? 0) > 0;
   const envio: Par[] = [
     [
-      "Enviamos por DAC a los 19 departamentos de Uruguay, con seguimiento.",
+      "Te confirmamos precio y disponibilidad por WhatsApp.",
       "Enviamos para RS, SC e PR por Correios ou transportadora, com nota fiscal e rastreio.",
     ],
     [
-      "Envío a todo Uruguay por DAC: te pasamos el número de seguimiento.",
+      "Cotizá por WhatsApp con el código de la pieza.",
       "Envio para RS, SC e PR por Correios ou transportadora, com código de rastreio.",
     ],
     [
-      "Despachamos por DAC a cualquier punto de Uruguay.",
+      "Respondemos por WhatsApp con precio y disponibilidad.",
       "Despachamos para qualquer cidade do RS, SC e PR.",
     ],
   ];
@@ -1011,7 +1011,7 @@ function metaDescricaoPecaCodigo(p: PecaTexto, idioma: Idioma, extra: ExtraMeta)
   const situacao = [preco, estoque].filter(Boolean).join(", ");
   const final = pt
     ? "Envio para RS, SC e PR com nota fiscal. Orçamento pelo WhatsApp."
-    : "Envío a todo Uruguay por DAC. Cotizá por WhatsApp.";
+    : "Código original. Cotizá por WhatsApp.";
   const partes = (comEquiv: boolean) =>
     `${nome}${marcaTxt}, código ${codigo}${comEquiv && equiv.length ? ` (${pt ? "equivale a" : "equivale a"} ${equiv.join(", ")})` : ""}.${situacao ? ` ${situacao[0].toUpperCase()}${situacao.slice(1)}.` : ""} ${final}`;
   const completa = partes(true);
@@ -1036,14 +1036,11 @@ export function metaDescricaoPecaAntiga(p: PecaTexto, idioma: Idioma): string {
   const estoque = (p.estoque ?? 0) > 0;
   const fim: Par[] = [
     [
-      "Envío a todo Uruguay por DAC. Cotizá por WhatsApp.",
+      "Código original. Cotizá por WhatsApp.",
       "Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.",
     ],
     ["Consultá precio y envío por WhatsApp.", "Consulte preço e frete pelo WhatsApp."],
-    [
-      "Respuesta rápida por WhatsApp y envío por DAC.",
-      "Resposta rápida pelo WhatsApp e envio com rastreio.",
-    ],
+    ["Respuesta rápida por WhatsApp.", "Resposta rápida pelo WhatsApp e envio com rastreio."],
   ];
   const marcaTxt = marca && !sem(nome).includes(sem(marca)) ? ` ${marca}` : "";
   const codTxt = sem(nome).includes(sem(codigo)) ? "" : `, código ${codigo}`;

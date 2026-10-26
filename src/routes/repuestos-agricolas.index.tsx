@@ -13,12 +13,12 @@ export const Route = createFileRoute("/repuestos-agricolas/")({
     const n = (loaderData?.total ?? 0).toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
     const titulo = tr(
       idioma,
-      "Repuestos agrícolas en Uruguay | Envío a los 19 departamentos | AGRO PARTS",
+      "Repuestos agrícolas en Uruguay | Cotizá por WhatsApp | AGRO PARTS",
       "Peças agrícolas no RS, SC e PR | AGRO PARTS",
     );
     const desc = tr(
       idioma,
-      `Repuestos agrícolas en Uruguay: más de ${n} repuestos para tractores y cosechadoras Massey Ferguson, John Deere, Valtra, New Holland y más, con envío por DAC a los 19 departamentos. Cotizá por WhatsApp.`,
+      `Repuestos agrícolas en Uruguay: más de ${n} repuestos para tractores y cosechadoras Massey Ferguson, John Deere, Valtra, New Holland y más, con código original. Cotizá por WhatsApp.`,
       `Mais de ${n} peças para tratores e colheitadeiras com envio para RS, SC e PR. Escolha sua região.`,
     );
     return {

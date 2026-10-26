@@ -1092,7 +1092,7 @@ function Produtos({ d }: { d: CriadorAnuncios }) {
                   Abrir <ExternalLink className="h-3 w-3" />
                 </a>
                 <Copiar
-                  texto={`🚜 ${p.nome}${p.uyu ? ` — ${fmtUYU(p.uyu)}` : ""}. Consultá por WhatsApp, envío a todo Uruguay.`}
+                  texto={`🚜 ${p.nome}${p.uyu ? ` — ${fmtUYU(p.uyu)}` : ""}. Consultá por WhatsApp.`}
                   rotulo="Texto"
                 />
               </div>
@@ -1231,7 +1231,7 @@ function Palavras({ d }: { d: CriadorAnuncios }) {
         <b>Importante:</b> "mayor tienda / maior loja" funciona como <b>palavra-chave</b> (é o que o
         cliente digita), mas no <b>texto do anúncio</b> o Google exige comprovação de terceiros para
         superlativos ("el mayor", "el mejor"). No anúncio use fatos verificáveis: "+
-        {n(Math.floor(pecas / 1000) * 1000)} repuestos online", "Envío a todo Uruguay",
+        {n(Math.floor(pecas / 1000) * 1000)} repuestos online", "Cotizá por WhatsApp",
         "Distribuidores en Uruguay".
       </Card>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">

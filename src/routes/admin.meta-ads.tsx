@@ -1723,7 +1723,7 @@ function Criar({
               onChange={(e) => set({ texto: e.target.value })}
               rows={4}
               className="w-full rounded-md border bg-background p-2.5 text-sm"
-              placeholder="🖤 Pre Black Friday: -20% en todo el sitio. Repuestos para tu tractor con envío a todo Uruguay."
+              placeholder="🖤 Pre Black Friday: -20% en todo el sitio. Repuestos para tu tractor con código original."
             />
           </C>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -1738,7 +1738,7 @@ function Criar({
               <Input
                 value={f.descricao}
                 onChange={(e) => set({ descricao: e.target.value })}
-                placeholder="Envíos por DAC a todo Uruguay"
+                placeholder="Cotizá por WhatsApp"
               />
             </C>
             {f.objetivo === "TRAFEGO" && (

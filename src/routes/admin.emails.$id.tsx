@@ -268,7 +268,7 @@ function Formulario({ inicial, atualizar }: { inicial: Campanha; atualizar: () =
               <Input
                 value={preheader}
                 onChange={(e) => setPreheader(e.target.value)}
-                placeholder="Envíos a todo Uruguay por DAC"
+                placeholder="Cotizá por WhatsApp"
               />
             </div>
           </Secao>

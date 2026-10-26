@@ -306,7 +306,7 @@ export const emailCarrinhoFn = createServerFn({ method: "POST" })
         cor: "#0b7a3b",
       },
       String(data.assunto || "Tus repuestos te esperan").slice(0, 200),
-      "Te ayudamos con precio y envío a todo Uruguay.",
+      "Te ayudamos con precio y disponibilidad.",
       origemPublica(getRequest()),
       { id: c.user.id, email: c.user.email, nome: c.user.nome_completo },
       "carrinho",
