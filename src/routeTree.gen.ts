@@ -36,6 +36,7 @@ import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
 import { Route as AdminConstrutorRouteImport } from './routes/admin.construtor'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
+import { Route as AdminFinanceiroRouteImport } from './routes/admin.financeiro'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminGoogleRouteImport } from './routes/admin.google'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
@@ -255,6 +256,11 @@ const AdminConstrutorRoute = AdminConstrutorRouteImport.update({
 const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
   id: '/cotacoes',
   path: '/cotacoes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFinanceiroRoute = AdminFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFotosLoteRoute = AdminFotosLoteRouteImport.update({
@@ -717,6 +723,7 @@ export interface FileRoutesByFullPath {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -830,6 +837,7 @@ export interface FileRoutesByTo {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -945,6 +953,7 @@ export interface FileRoutesById {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -1061,6 +1070,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
+    | '/admin/financeiro'
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
@@ -1174,6 +1184,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
+    | '/admin/financeiro'
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
@@ -1288,6 +1299,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
+    | '/admin/financeiro'
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
@@ -1631,6 +1643,13 @@ declare module '@tanstack/react-router' {
       path: '/cotacoes'
       fullPath: '/admin/cotacoes'
       preLoaderRoute: typeof AdminCotacoesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/financeiro': {
+      id: '/admin/financeiro'
+      path: '/financeiro'
+      fullPath: '/admin/financeiro'
+      preLoaderRoute: typeof AdminFinanceiroRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/fotos-lote': {
@@ -2244,6 +2263,7 @@ interface AdminRouteChildren {
   AdminClientesRoute: typeof AdminClientesRoute
   AdminConstrutorRoute: typeof AdminConstrutorRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
+  AdminFinanceiroRoute: typeof AdminFinanceiroRoute
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminGoogleRoute: typeof AdminGoogleRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
@@ -2285,6 +2305,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClientesRoute: AdminClientesRoute,
   AdminConstrutorRoute: AdminConstrutorRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
+  AdminFinanceiroRoute: AdminFinanceiroRoute,
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminGoogleRoute: AdminGoogleRoute,
   AdminHomepageRoute: AdminHomepageRoute,

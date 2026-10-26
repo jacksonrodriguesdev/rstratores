@@ -59,6 +59,8 @@ type Form = {
   rastreio: string;
   observacao: string;
   status: string;
+  canal: string;
+  metodo: string;
 };
 const VAZIO: Form = {
   cliente_nome: "",
@@ -77,6 +79,8 @@ const VAZIO: Form = {
   rastreio: "",
   observacao: "",
   status: "ABERTA",
+  canal: "WHATSAPP",
+  metodo: "",
 };
 const STATUS: Record<string, string> = {
   ABERTA: "bg-sky-100 text-sky-800",
@@ -869,6 +873,42 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                   <option value="CANCELADA">Cancelada</option>
                 </select>
               </Campo>
+              <Campo r="Canal da venda">
+                <select
+                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                  value={f.canal}
+                  onChange={(e) => set({ canal: e.target.value })}
+                >
+                  <option value="">—</option>
+                  <option value="WHATSAPP">WhatsApp</option>
+                  <option value="SITE">Site</option>
+                  <option value="LINK">Link de pagamento</option>
+                  <option value="BALCAO">Balcão</option>
+                  <option value="TELEFONE">Telefone</option>
+                  <option value="MERCADOLIVRE">Mercado Livre</option>
+                  <option value="OUTRO">Outro</option>
+                </select>
+              </Campo>
+              <Campo r="Forma de pagamento">
+                <select
+                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                  value={f.metodo}
+                  onChange={(e) => set({ metodo: e.target.value })}
+                >
+                  <option value="">—</option>
+                  <option value="TRANSFERENCIA">Transferência</option>
+                  <option value="DINHEIRO">Dinheiro</option>
+                  <option value="PIX">PIX</option>
+                  <option value="CARTAO">Cartão</option>
+                  <option value="STRIPE">Stripe</option>
+                  <option value="ABITAB">Abitab</option>
+                  <option value="REDPAGOS">Redpagos</option>
+                  <option value="OUTRO">Outro</option>
+                </select>
+              </Campo>
+              <p className="self-end text-xs text-muted-foreground">
+                Custos e lucro desta venda: Admin → Financeiro.
+              </p>
               <Campo r="Observação interna" className="md:col-span-3">
                 <Textarea
                   rows={2}

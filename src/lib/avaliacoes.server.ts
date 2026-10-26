@@ -11,6 +11,18 @@ export const DESCONTO_AVALIACAO = 15;
 export const VALIDADE_CUPOM_DIAS = 60;
 
 // ---------------------------------------------------------------- tabelas
+// Colunas do Financeiro (Admin → Financeiro); entram também em tabelas já criadas
+const COLUNAS_FINANCEIRO: Array<[string, string]> = [
+  ["origem", "VARCHAR(10) NOT NULL DEFAULT 'MANUAL'"],
+  ["link_id", "INTEGER NULL"],
+  ["canal", "VARCHAR(20) NULL"],
+  ["metodo", "VARCHAR(20) NULL"],
+  ["frete_cobrado", "DOUBLE NOT NULL DEFAULT 0"],
+  ["desconto", "DOUBLE NOT NULL DEFAULT 0"],
+  ["taxa_pagamento", "DOUBLE NULL"],
+  ["frete_custo", "DOUBLE NULL"],
+  ["cotacao_brl", "DOUBLE NULL"],
+];
 const SQL_VENDAS = `CREATE TABLE IF NOT EXISTS \`vendas\` (
   \`id\` INTEGER NOT NULL AUTO_INCREMENT,
   \`codigo\` VARCHAR(24) NOT NULL,
@@ -33,9 +45,11 @@ const SQL_VENDAS = `CREATE TABLE IF NOT EXISTS \`vendas\` (
   \`status\` VARCHAR(20) NOT NULL DEFAULT 'ABERTA',
   \`cupom\` VARCHAR(40) NULL,
   \`avaliada_em\` DATETIME(3) NULL,
+${COLUNAS_FINANCEIRO.map(([c, d]) => `  \`${c}\` ${d},`).join("\n")}
   \`created_at\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   \`updated_at\` DATETIME(3) NOT NULL,
   UNIQUE INDEX \`vendas_codigo_key\`(\`codigo\`),
+  UNIQUE INDEX \`vendas_link_id_key\`(\`link_id\`),
   INDEX \`vendas_created_at_idx\`(\`created_at\`),
   INDEX \`vendas_user_id_idx\`(\`user_id\`),
   PRIMARY KEY (\`id\`)
@@ -62,12 +76,37 @@ const SQL_AVALIACOES = `CREATE TABLE IF NOT EXISTS \`avaliacoes\` (
   INDEX \`avaliacoes_venda_id_idx\`(\`venda_id\`),
   PRIMARY KEY (\`id\`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+const SQL_DESPESAS = `CREATE TABLE IF NOT EXISTS \`despesas\` (
+  \`id\` INTEGER NOT NULL AUTO_INCREMENT,
+  \`descricao\` VARCHAR(160) NOT NULL,
+  \`categoria\` VARCHAR(20) NOT NULL DEFAULT 'FIXA',
+  \`valor\` DOUBLE NOT NULL,
+  \`moeda\` VARCHAR(3) NOT NULL,
+  \`mes\` VARCHAR(7) NOT NULL,
+  \`recorrente\` BOOLEAN NOT NULL DEFAULT true,
+  \`mes_fim\` VARCHAR(7) NULL,
+  \`created_at\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  \`updated_at\` DATETIME(3) NOT NULL,
+  INDEX \`despesas_mes_idx\`(\`mes\`),
+  PRIMARY KEY (\`id\`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
 let tabelas: Promise<void> | null = null;
 export function garantirTabelasAvaliacoes() {
   tabelas ??= (async () => {
     const { prisma } = await import("./prisma");
     await prisma.$executeRawUnsafe(SQL_VENDAS);
     await prisma.$executeRawUnsafe(SQL_AVALIACOES);
+    const cols = await prisma.$queryRaw<Array<{ c: string }>>`
+      SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'vendas'`;
+    for (const [c, d] of COLUNAS_FINANCEIRO)
+      if (!cols.some((x) => x.c === c))
+        await prisma.$executeRawUnsafe(`ALTER TABLE \`vendas\` ADD COLUMN \`${c}\` ${d}`);
+    if (!cols.some((x) => x.c === "link_id"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `vendas` ADD UNIQUE INDEX `vendas_link_id_key`(`link_id`)",
+      );
+    await prisma.$executeRawUnsafe(SQL_DESPESAS);
     const { garantirTabelasCampanha } = await import("./campanha.server");
     await garantirTabelasCampanha();
   })().catch((e) => {
@@ -94,7 +133,15 @@ export function linkGoogle() {
 }
 
 // ---------------------------------------------------------------- vendas
-export type ItemVenda = { sku: string; codigo: string; nome: string; qtd: number; valor: number };
+// custo = custo unitário da peça na moeda da venda (Financeiro; vem do valor_compra se faltar)
+export type ItemVenda = {
+  sku: string;
+  codigo: string;
+  nome: string;
+  qtd: number;
+  valor: number;
+  custo?: number | null;
+};
 export type DadosVenda = {
   cliente_nome: string;
   cliente_email?: string | null;
@@ -112,6 +159,8 @@ export type DadosVenda = {
   rastreio?: string | null;
   observacao?: string | null;
   status?: string;
+  canal?: string | null;
+  metodo?: string | null;
 };
 const txt = (s: unknown, max: number) => {
   const t = String(s ?? "")
@@ -135,6 +184,11 @@ export function limparVenda(d: DadosVenda) {
         .slice(0, 200),
       qtd: Math.max(1, Math.min(9999, Math.round(Number(i.qtd) || 1))),
       valor: Math.max(0, Math.round((Number(i.valor) || 0) * 100) / 100),
+      ...(i.custo != null &&
+        String(i.custo) !== "" &&
+        Number.isFinite(Number(i.custo)) && {
+          custo: Math.max(0, Math.round(Number(i.custo) * 100) / 100),
+        }),
     }))
     .filter((i) => i.sku && i.nome)
     .slice(0, 50);
@@ -161,6 +215,8 @@ export function limparVenda(d: DadosVenda) {
     observacao: txt(d.observacao, 2000),
     ...(d.status &&
       ["ABERTA", "ENVIADA", "ENTREGUE", "CANCELADA"].includes(d.status) && { status: d.status }),
+    ...(d.canal !== undefined && { canal: txt(d.canal, 20)?.toUpperCase() ?? null }),
+    ...(d.metodo !== undefined && { metodo: txt(d.metodo, 20)?.toUpperCase() ?? null }),
   };
 }
 export const paraVenda = (r: any) => ({
@@ -175,10 +231,15 @@ export async function salvarVenda(d: DadosVenda, id?: number) {
   await garantirTabelasAvaliacoes();
   const { prisma } = await import("./prisma");
   const dados = limparVenda(d);
-  if (id) return paraVenda(await prisma.vendas.update({ where: { id }, data: dados }));
+  const { completarFinanceiro } = await import("./financeiro.server");
+  if (id) {
+    await prisma.vendas.update({ where: { id }, data: dados });
+    return paraVenda(await completarFinanceiro(id));
+  }
   for (let t = 0; t < 5; t++) {
     try {
-      return paraVenda(await prisma.vendas.create({ data: { ...dados, codigo: novoCodigo() } }));
+      const v = await prisma.vendas.create({ data: { ...dados, codigo: novoCodigo() } });
+      return paraVenda(await completarFinanceiro(v.id));
     } catch (e: any) {
       if (!String(e?.code).includes("P2002")) throw e; // código repetido: tenta outro
     }

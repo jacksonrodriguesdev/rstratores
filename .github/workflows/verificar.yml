@@ -105,6 +105,9 @@ jobs:
       - name: Links de pagamento (Stripe falso)
         run: npx tsx scripts/ci/testar-stripe.ts
 
+      - name: Financeiro (vendas, custos e lucro)
+        run: npx tsx scripts/ci/testar-financeiro.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

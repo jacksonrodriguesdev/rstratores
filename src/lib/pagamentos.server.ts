@@ -793,6 +793,10 @@ async function posVenda(linkId: number) {
   const valor = link.total / 100;
   const u = link.user;
 
+  // Vira venda (Admin → Vendas e Financeiro), com custo das peças e taxa do pagamento
+  const { vendaDoLink } = await import("./financeiro.server");
+  await vendaDoLink(link.id).catch((e) => console.error("venda do link:", e));
+
   // Carrinho de origem → "Venda fechada" (a compra vai para o Meta aqui, uma vez só)
   const carrinho = link.carrinho_id
     ? await prisma.carrinhos.findUnique({ where: { id: link.carrinho_id } })

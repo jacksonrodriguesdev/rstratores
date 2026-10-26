@@ -962,11 +962,37 @@ model vendas {
   status           String    @default("ABERTA") @db.VarChar(20) // ABERTA, ENVIADA, ENTREGUE, CANCELADA
   cupom            String?   @db.VarChar(40)
   avaliada_em      DateTime?
+  // Financeiro (valores na moeda da venda). Link pago vira venda sozinho (origem LINK).
+  origem           String    @default("MANUAL") @db.VarChar(10) // MANUAL, LINK
+  link_id          Int?      @unique
+  canal            String?   @db.VarChar(20) // WHATSAPP, SITE, LINK, BALCAO, TELEFONE, MERCADOLIVRE, OUTRO
+  metodo           String?   @db.VarChar(20) // STRIPE, CARTAO, PIX, ABITAB, REDPAGOS, TRANSFERENCIA, DINHEIRO, OUTRO
+  frete_cobrado    Float     @default(0)
+  desconto         Float     @default(0)
+  taxa_pagamento   Float?
+  frete_custo      Float? // frete e embalagem pagos pela loja
+  cotacao_brl      Float? // R$ 1 = $U x no dia da venda (total em reais)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
   @@index([created_at])
   @@index([user_id])
+}
+
+// Despesas do Financeiro: fixas (todo mês, de mes até mes_fim) ou de um mês só
+model despesas {
+  id         Int      @id @default(autoincrement())
+  descricao  String   @db.VarChar(160)
+  categoria  String   @default("FIXA") @db.VarChar(20) // FIXA, ANUNCIOS, PESSOAL, IMPOSTOS, OUTRA
+  valor      Float
+  moeda      String   @db.VarChar(3) // UYU (Uruguai) ou BRL (Brasil)
+  mes        String   @db.VarChar(7) // AAAA-MM (início)
+  recorrente Boolean  @default(true)
+  mes_fim    String?  @db.VarChar(7)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([mes])
 }
 
 // Avaliações de produtos (estrelas + comentário). Só aparecem no site depois de aprovadas.
