@@ -83,51 +83,83 @@ export async function mudarEtapa(vendaId: number, etapa: Etapa, o: OpcoesEtapa =
   return { venda: atual, email: enviado };
 }
 
-async function emailEtapa(
-  v: {
-    codigo: string;
-    cliente_nome: string;
-    cliente_email: string | null;
-    pais: string;
-    user_id: number | null;
-    transportadora: string | null;
-  },
+type VendaEmail = {
+  id: number;
+  codigo: string;
+  cliente_nome: string;
+  cliente_email: string | null;
+  pais: string;
+  transportadora: string | null;
+};
+
+// E-mail de uma etapa: a etapa nova em destaque e a linha do tempo completa
+// (✅ etapas já feitas com a data, ➡️ a atual, ⚪ as próximas). Transacional: sem link de baixa.
+export async function mensagemEtapa(
+  v: VendaEmail,
   etapa: Etapa,
   texto: string,
   link: string,
+  feitas: Array<{ etapa: string; quando: string }>,
 ) {
-  const { resendConfigurado, enviarUm, montarMensagem } = await import("./email.server");
-  if (!resendConfigurado() || !v.cliente_email) return false;
+  const { montarMensagem } = await import("./email.server");
   const { SITE_URL } = await import("./site");
   const idioma = idiomaDe(v.pais);
   const pt = idioma === "pt";
   const n = indiceEtapa(etapa);
-  // Linha do tempo em texto: ✅ feitas, ➡️ atual, ⚪ próximas
-  const linha = ETAPAS.map(
-    (e, i) =>
-      `${i < n ? "✅" : i === n ? "➡️" : "⚪"} ${i === n ? `**${nomeEtapa(e.id, idioma, v.transportadora)}**` : nomeEtapa(e.id, idioma, v.transportadora)}`,
-  ).join("\n");
+  const data = (s: string) =>
+    new Date(s).toLocaleDateString(pt ? "pt-BR" : "es-UY", {
+      day: "2-digit",
+      month: "2-digit",
+      timeZone: pt ? "America/Sao_Paulo" : "America/Montevideo",
+    });
+  const quando = (id: string) => [...feitas].reverse().find((h) => h.etapa === id)?.quando;
+  const linhas = ETAPAS.map((e, i) => {
+    const nome = nomeEtapa(e.id, idioma, v.transportadora);
+    if (i < n) {
+      const q = quando(e.id);
+      return `✅ ${nome}${q ? ` · ${data(q)}` : ""}`;
+    }
+    if (i === n) return `➡️ **${nome}** · ${pt ? "agora" : "ahora"}`;
+    return `⚪ ${nome}`;
+  });
+  const proxima = ETAPAS[n + 1];
   const nome = primeiro(v.cliente_nome);
   const titulo = nomeEtapa(etapa, idioma, v.transportadora);
-  const m = montarMensagem(
+  return montarMensagem(
     {
-      destaque: pt ? `PEDIDO ${v.codigo}` : `PEDIDO ${v.codigo}`,
+      destaque: `PEDIDO ${v.codigo}`,
       titulo: pt
         ? `${nome ? `${nome}, s` : "S"}eu pedido: ${titulo}`
         : `${nome ? `${nome}, t` : "T"}u pedido: ${titulo}`,
-      texto: `${texto}\n\n${linha}`,
+      texto: [
+        texto,
+        `**${pt ? "Como está o seu pedido" : "Cómo va tu pedido"}**\n${linhas.join("\n")}`,
+        proxima
+          ? pt
+            ? `Próxima etapa: **${nomeEtapa(proxima.id, idioma, v.transportadora)}**. Avisamos por aqui.`
+            : `Próximo paso: **${nomeEtapa(proxima.id, idioma, v.transportadora)}**. Te avisamos por acá.`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
       produtos: [],
       whatsapp: true,
       botaoTexto: pt ? "Acompanhar meu pedido" : "Seguir mi pedido",
       botaoUrl: link,
       cor: "#0b7a3b",
     },
-    pt ? `Pedido ${v.codigo}: ${titulo}` : `Pedido ${v.codigo}: ${titulo}`,
+    `Pedido ${v.codigo}: ${titulo}`,
     pt ? "Atualização do seu pedido na AGRO PARTS." : "Novedades de tu pedido en AGRO PARTS.",
     SITE_URL,
-    { id: v.user_id ?? undefined, email: v.cliente_email, nome: v.cliente_nome },
+    { email: v.cliente_email ?? "", nome: v.cliente_nome },
   );
-  await enviarUm(m);
+}
+
+async function emailEtapa(v: VendaEmail, etapa: Etapa, texto: string, link: string) {
+  const { resendConfigurado, enviarUm } = await import("./email.server");
+  if (!resendConfigurado() || !v.cliente_email) return false;
+  const feitas = (await linhaDoTempo(v.id)).map((h) => ({ etapa: h.etapa, quando: h.quando }));
+  await enviarUm(await mensagemEtapa(v, etapa, texto, link, feitas));
   return true;
 }
 
