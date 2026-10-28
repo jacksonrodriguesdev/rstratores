@@ -111,6 +111,9 @@ jobs:
       - name: Acompanhamento do pedido e indicação
         run: npx tsx scripts/ci/testar-pedidos.ts
 
+      - name: Peças na nova venda (preço e cadastro rápido)
+        run: npx tsx scripts/ci/testar-pecas-venda.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

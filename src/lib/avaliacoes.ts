@@ -81,6 +81,9 @@ export const buscarPecasVendaFn = createServerFn({ method: "GET" })
         foto: r.imagem_principal,
         uyu: p?.uyu ?? null,
         brl: p?.brl ?? null,
+        // Para editar no modal da venda (valores do cadastro, em R$)
+        custo: r.valor_compra ?? null,
+        precoBrl: r.preco_brl ?? null,
       };
     });
   });
@@ -192,4 +195,32 @@ export const salvarRastreioFn = createServerFn({ method: "POST" })
     await admin();
     const a = await import("./avaliacoes.server");
     return a.salvarRastreio(Number(data.id), String(data.rastreio ?? ""), data.transportadora);
+  });
+
+// ---------------------------------------------------------------- admin: peças na nova venda
+// Editar o preço de compra/venda da peça e cadastrar uma peça nova sem sair do modal
+export const salvarPrecoPecaFn = createServerFn({ method: "POST" })
+  .validator(
+    (d: { sku: string; custo?: number | string | null; venda?: number | string | null }) => d,
+  )
+  .handler(async ({ data }) => {
+    await admin();
+    const p = await import("./pecas-venda.server");
+    return p.salvarPrecoPeca(data);
+  });
+
+export const criarPecaRapidaFn = createServerFn({ method: "POST" })
+  .validator(
+    (d: {
+      codigo: string;
+      nome: string;
+      custo?: number | string | null;
+      venda?: number | string | null;
+      marca?: string | null;
+    }) => d,
+  )
+  .handler(async ({ data }) => {
+    await admin();
+    const p = await import("./pecas-venda.server");
+    return p.criarPecaRapida(data);
   });

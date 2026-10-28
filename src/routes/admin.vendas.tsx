@@ -38,6 +38,7 @@ import {
 } from "@/lib/avaliacoes";
 import { cn } from "@/lib/utils";
 import { EtapaPedido } from "@/components/admin/EtapaPedido";
+import { BotaoCadastroPeca, ResultadosPecas } from "@/components/admin/PecasVenda";
 
 export const Route = createFileRoute("/admin/vendas")({ component: PaginaVendas });
 
@@ -700,51 +701,29 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                   )}
                 </Button>
               </form>
-              {!!pecas?.length && qpBusca && (
-                <div className="max-h-52 overflow-y-auto rounded-md border p-1">
-                  {pecas.map((p) => (
-                    <button
-                      key={p.sku}
-                      type="button"
-                      onClick={() => {
-                        const valor = f.moeda === "BRL" ? (p.brl ?? 0) : (p.uyu ?? 0);
-                        set({
-                          itens: f.itens.some((i) => i.sku === p.sku)
-                            ? f.itens.map((i) => (i.sku === p.sku ? { ...i, qtd: i.qtd + 1 } : i))
-                            : [
-                                ...f.itens,
-                                {
-                                  sku: p.sku,
-                                  codigo: p.codigo,
-                                  nome: p.nome,
-                                  qtd: 1,
-                                  valor: Math.round(valor * 100) / 100,
-                                },
-                              ],
-                        });
-                      }}
-                      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-muted"
-                    >
-                      <Plus className="h-3.5 w-3.5 shrink-0 text-primary" />
-                      <span className="min-w-0 flex-1 truncate">
-                        <b>{p.codigo}</b> · {p.nome}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {f.moeda === "BRL"
-                          ? p.brl
-                            ? dinheiro(p.brl, "BRL")
-                            : "sem preço"
-                          : p.uyu
-                            ? dinheiro(p.uyu, "UYU")
-                            : "sem preço"}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {pecas && !pecas.length && qpBusca && (
-                <p className="text-xs text-muted-foreground">Nenhuma peça encontrada.</p>
-              )}
+              <ResultadosPecas
+                pecas={pecas}
+                busca={qpBusca}
+                moeda={f.moeda}
+                aoAdicionar={(p) => {
+                  const valor = f.moeda === "BRL" ? (p.brl ?? 0) : (p.uyu ?? 0);
+                  setF((x) => ({
+                    ...x,
+                    itens: x.itens.some((i) => i.sku === p.sku)
+                      ? x.itens.map((i) => (i.sku === p.sku ? { ...i, qtd: i.qtd + 1 } : i))
+                      : [
+                          ...x.itens,
+                          {
+                            sku: p.sku,
+                            codigo: p.codigo,
+                            nome: p.nome,
+                            qtd: 1,
+                            valor: Math.round(valor * 100) / 100,
+                          },
+                        ],
+                  }));
+                }}
+              />
               {!!f.itens.length && (
                 <div className="overflow-x-auto rounded-md border">
                   <table className="w-full text-sm">
@@ -763,6 +742,7 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                           <td className="p-2">
                             <p className="line-clamp-1 font-medium">{i.nome}</p>
                             <p className="text-xs text-muted-foreground">{i.codigo}</p>
+                            <BotaoCadastroPeca sku={i.sku} />
                           </td>
                           <td className="p-2">
                             <Input
