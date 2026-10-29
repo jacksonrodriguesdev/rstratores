@@ -152,6 +152,8 @@ export async function mensagemEtapa(
     pt ? "Atualização do seu pedido na AGRO PARTS." : "Novedades de tu pedido en AGRO PARTS.",
     SITE_URL,
     { email: v.cliente_email ?? "", nome: v.cliente_nome },
+    undefined,
+    { idioma },
   );
 }
 

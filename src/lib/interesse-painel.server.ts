@@ -180,7 +180,13 @@ export async function painelInteresse(dias: number) {
     }
 
   // Próxima rodada (sem enviar): quem receberia agora
-  let proximos: Array<{ id: number; nome: string; email: string; produtos: string[] }> = [];
+  let proximos: Array<{
+    id: number;
+    nome: string;
+    email: string;
+    produtos: string[];
+    idioma: "es" | "pt";
+  }> = [];
   const a = autos.find((x) => x.ativo) ?? autos[0];
   if (a) {
     const { selecionarInteresse } = await import("./automacoes.server");
@@ -200,6 +206,7 @@ export async function painelInteresse(dias: number) {
       nome: x.user.nome_completo,
       email: x.user.email,
       produtos: (x.produtos ?? []).map((p) => p.nome),
+      idioma: x.idioma ?? "es",
     }));
   }
 

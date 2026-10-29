@@ -275,6 +275,8 @@ async function avisarPremio(
     pt ? "Seu amigo comprou com a sua indicação." : "Tu amigo compró con tu recomendación.",
     SITE_URL,
     { id: dono.id, email: dono.email, nome: dono.nome_completo },
+    undefined,
+    { idioma },
   );
   await enviarUm(m);
 }

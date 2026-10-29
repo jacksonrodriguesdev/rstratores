@@ -918,6 +918,7 @@ async function emailsDaVenda(linkId: number) {
       SITE_URL,
       { email: link.user.email, nome: link.user.nome_completo },
       "pagamento",
+      { idioma: pt ? "pt" : "es" },
     );
     await enviarUm(m);
   }

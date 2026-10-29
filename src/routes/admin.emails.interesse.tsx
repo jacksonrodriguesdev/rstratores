@@ -388,6 +388,14 @@ function PaginaInteresse() {
                   <li key={p.id} className="text-sm">
                     <p className="flex items-center gap-1 font-semibold">
                       <Check className="h-3.5 w-3.5 text-primary" /> {p.nome}
+                      <span
+                        title={
+                          p.idioma === "pt" ? "Recebe em português (R$)" : "Recibe en español ($U)"
+                        }
+                        className="rounded bg-muted px-1 text-[10px] font-bold"
+                      >
+                        {p.idioma === "pt" ? "PT · R$" : "ES · $U"}
+                      </span>
                       <span className="font-normal text-muted-foreground">· {p.email}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">{p.produtos.join(" · ")}</p>

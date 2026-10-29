@@ -190,6 +190,8 @@ export async function enviarEmailCodigo(
     "Válido por 10 minutos.",
     origem,
     { email },
+    undefined,
+    { idioma },
   );
   return enviarUm(m);
 }

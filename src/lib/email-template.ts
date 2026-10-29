@@ -151,7 +151,12 @@ export type DadosRender = {
   agora?: number;
   // Anúncio que entra antes do rodapé (some se o conteúdo tiver semAnuncio)
   anuncio?: AnuncioEmail | null;
+  // Idioma do cliente: textos fixos do modelo e links do site (/pt para o Brasil)
+  idioma?: "es" | "pt";
 };
+
+// Texto fixo do modelo no idioma do cliente
+const tx = (d: DadosRender, es: string, pt: string) => (d.idioma === "pt" ? pt : es);
 
 // Link do anúncio: UTM da campanha + utm_content=anuncio-<id> (o clique é contado no anúncio)
 export function linkAnuncio(a: AnuncioEmail, d: DadosRender) {
@@ -208,7 +213,9 @@ export function urlAbsoluta(u: string | null | undefined, origem: string) {
 
 // Links para o próprio site levam UTM, para a campanha aparecer no painel de Visitantes
 export function comUtm(u: string, d: DadosRender) {
-  const abs = urlAbsoluta(u, d.origem);
+  const caminho =
+    d.idioma === "pt" && /^\/(?!pt(\/|$)|uploads\/|email\/|api\/)/.test(u) ? `/pt${u}` : u;
+  const abs = urlAbsoluta(caminho, d.origem);
   if (!abs.startsWith(d.origem) || !d.campanha) return abs;
   const url = new URL(abs);
   url.searchParams.set("utm_source", "email");
@@ -273,7 +280,7 @@ ${
 <p style="margin:2px 0 0;font-size:22px;font-weight:800;color:${p.precoDe ? "#dc2626" : "#18181b"}">${esc(p.preco)}</p>`
     : ""
 }
-<p style="margin:10px 0 0"><a href="${esc(link)}" style="font-size:13px;font-weight:800;color:${cor};text-decoration:none">${p.preco ? "Pedir ahora" : "Cotizar"} &rarr;</a></p>
+<p style="margin:10px 0 0"><a href="${esc(link)}" style="font-size:13px;font-weight:800;color:${cor};text-decoration:none">${p.preco ? tx(d, "Pedir ahora", "Pedir agora") : tx(d, "Cotizar", "Orçamento")} &rarr;</a></p>
 </td></tr></table></td>`;
 }
 
@@ -297,7 +304,7 @@ export function renderEmail(c: ConteudoEmail, d: DadosRender): string {
   }
 
   return `<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+<html lang="${d.idioma === "pt" ? "pt-BR" : "es"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
 <title>${esc(titulo)}</title></head>
 <body style="margin:0;padding:0;background:#eef1ea">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(preheader)}&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;</div>
@@ -307,7 +314,7 @@ export function renderEmail(c: ConteudoEmail, d: DadosRender): string {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td><a href="${esc(comUtm("/", d))}" style="text-decoration:none"><img src="${esc(d.origem)}/logo.png" alt="AGRO PARTS" width="40" height="40" style="display:inline-block;vertical-align:middle;border:0;border-radius:8px">
 <span style="${fonte};font-size:19px;font-weight:800;color:#ffffff;vertical-align:middle;margin-left:8px">AGRO PARTS</span></a></td>
-<td align="right" style="${fonte};font-size:12px;color:#a7d7b6">Repuestos agrícolas · Uruguay</td>
+<td align="right" style="${fonte};font-size:12px;color:#a7d7b6">${tx(d, "Repuestos agrícolas · Uruguay", "Peças agrícolas · Sul do Brasil")}</td>
 </tr></table></td></tr>
 ${cab ? `<tr><td>${c.cabecalhoLink ? `<a href="${esc(comUtm(c.cabecalhoLink, d))}">` : ""}<img src="${esc(cab)}" alt="${esc(titulo)}" width="600" style="display:block;width:100%;height:auto;border:0">${c.cabecalhoLink ? "</a>" : ""}</td></tr>` : ""}
 <tr><td style="padding:30px 30px 10px;${fonte}">
@@ -319,7 +326,7 @@ ${
   c.cupom?.codigo
     ? `<tr><td style="padding:4px 30px 10px;${fonte}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px dashed ${cor};border-radius:16px;background:#fffbeb"><tr><td align="center" style="padding:20px 16px">
 ${c.cupom.texto ? `<p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#3f3f46">${esc(c.cupom.texto)}</p>` : ""}
-<p style="margin:0;font-size:12px;font-weight:800;letter-spacing:2px;color:#71717a">TU CÓDIGO</p>
+<p style="margin:0;font-size:12px;font-weight:800;letter-spacing:2px;color:#71717a">${tx(d, "TU CÓDIGO", "SEU CÓDIGO")}</p>
 <p style="margin:6px 0 0;font-family:'Courier New',monospace;font-size:32px;font-weight:800;letter-spacing:4px;color:${cor}">${esc(c.cupom.codigo)}</p>
 ${c.cupom.validade ? `<p style="margin:8px 0 0;font-size:12px;color:#71717a">Válido ${esc(c.cupom.validade)}</p>` : ""}
 </td></tr></table></td></tr>`
@@ -332,15 +339,15 @@ ${
     : ""
 }
 ${c.botaoTexto && c.botaoUrl ? `<tr><td align="center" style="padding:22px 30px 6px">${botao(c.botaoTexto, comUtm(c.botaoUrl, d), cor)}</td></tr>` : ""}
-${c.whatsapp && d.whatsappUrl ? `<tr><td align="center" style="padding:12px 30px 4px">${botao("Cotizar por WhatsApp", d.whatsappUrl, "#25D366")}</td></tr>` : ""}
+${c.whatsapp && d.whatsappUrl ? `<tr><td align="center" style="padding:12px 30px 4px">${botao(tx(d, "Cotizar por WhatsApp", "Pedir pelo WhatsApp"), d.whatsappUrl, "#25D366")}</td></tr>` : ""}
 ${d.anuncio && !c.semAnuncio ? anuncioHtml(d.anuncio, d, { cor }) : ""}
 <tr><td style="padding:26px 30px 30px;${fonte}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f7f2;border-radius:14px"><tr>
-<td style="padding:14px;font-size:13px;color:#3f3f46;text-align:center">💬 Atención por WhatsApp &nbsp;·&nbsp; 🔒 Sitio seguro</td>
+<td style="padding:14px;font-size:13px;color:#3f3f46;text-align:center">💬 ${tx(d, "Atención por WhatsApp", "Atendimento pelo WhatsApp")} &nbsp;·&nbsp; 🔒 ${tx(d, "Sitio seguro", "Site seguro")}</td>
 </tr></table></td></tr>
 </table>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px"><tr><td style="padding:18px 20px;${fonte};font-size:12px;line-height:1.6;color:#71717a;text-align:center">
-Recibís este e-mail porque tenés una cuenta en <a href="${esc(comUtm("/", d))}" style="color:#71717a">AGRO PARTS</a>.${d.enderecoRodape ? `<br>${esc(d.enderecoRodape)}` : ""}
-${d.urlBaixa ? `<br><a href="${esc(d.urlBaixa)}" style="color:#71717a;text-decoration:underline">Darme de baja de estos e-mails</a>` : ""}
+${tx(d, "Recibís este e-mail porque tenés una cuenta en", "Você recebe este e-mail porque tem uma conta na")} <a href="${esc(comUtm("/", d))}" style="color:#71717a">AGRO PARTS</a>.${d.enderecoRodape ? `<br>${esc(d.enderecoRodape)}` : ""}
+${d.urlBaixa ? `<br><a href="${esc(d.urlBaixa)}" style="color:#71717a;text-decoration:underline">${tx(d, "Darme de baja de estos e-mails", "Não quero mais receber estes e-mails")}</a>` : ""}
 </td></tr></table>
 </td></tr></table>
 </body></html>`;
@@ -358,7 +365,7 @@ export function textoEmail(c: ConteudoEmail, d: DadosRender): string {
     partes.push(
       [
         c.cupom.texto,
-        `Tu código: ${c.cupom.codigo}`,
+        `${tx(d, "Tu código", "Seu código")}: ${c.cupom.codigo}`,
         c.cupom.validade ? `Válido ${c.cupom.validade}` : "",
       ]
         .filter(Boolean)
@@ -371,18 +378,25 @@ export function textoEmail(c: ConteudoEmail, d: DadosRender): string {
         c.produtos
           .map(
             (p) =>
-              `- ${p.quantidade ? p.quantidade + "x " : ""}${p.nome}${p.codigo ? ` (Cód: ${p.codigo})` : ""}${p.preco ? ` · ${p.precoDe ? `antes ${p.precoDe}, ahora ` : ""}${p.preco}` : ""}: ${comUtm(`/produto/${encodeURIComponent(p.sku)}`, d)}`,
+              `- ${p.quantidade ? p.quantidade + "x " : ""}${p.nome}${p.codigo ? ` (Cód: ${p.codigo})` : ""}${p.preco ? ` · ${p.precoDe ? `${tx(d, "antes", "antes")} ${p.precoDe}, ${tx(d, "ahora", "agora")} ` : ""}${p.preco}` : ""}: ${comUtm(`/produto/${encodeURIComponent(p.sku)}`, d)}`,
           )
           .join("\n"),
     );
   }
   if (c.botaoTexto && c.botaoUrl) partes.push(`${c.botaoTexto}: ${comUtm(c.botaoUrl, d)}`);
-  if (c.whatsapp && d.whatsappUrl) partes.push(`Cotizar por WhatsApp: ${d.whatsappUrl}`);
+  if (c.whatsapp && d.whatsappUrl)
+    partes.push(`${tx(d, "Cotizar por WhatsApp", "Pedir pelo WhatsApp")}: ${d.whatsappUrl}`);
   if (d.anuncio && !c.semAnuncio)
     partes.push(
       `${d.anuncio.titulo}${d.anuncio.texto ? `\n${d.anuncio.texto}` : ""}\n${linkAnuncio(d.anuncio, d)}`,
     );
-  partes.push("AGRO PARTS · Repuestos agrícolas · Atención por WhatsApp");
-  if (d.urlBaixa) partes.push(`Darme de baja: ${d.urlBaixa}`);
+  partes.push(
+    tx(
+      d,
+      "AGRO PARTS · Repuestos agrícolas · Atención por WhatsApp",
+      "AGRO PARTS · Peças agrícolas · Atendimento pelo WhatsApp",
+    ),
+  );
+  if (d.urlBaixa) partes.push(`${tx(d, "Darme de baja", "Cancelar os e-mails")}: ${d.urlBaixa}`);
   return partes.filter((p) => p.trim()).join("\n\n");
 }

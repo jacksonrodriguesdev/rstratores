@@ -30,12 +30,15 @@ import assert from "node:assert/strict";
         recebe_emails: true,
       } as any,
     });
-  const [quieto, falou, navegando] = await Promise.all([
+  const [quieto, falou, navegando, gaucho] = await Promise.all([
     novo("quieto"),
     novo("falou"),
     novo("navegando"),
+    novo("gaucho"),
   ]);
-  const users = [quieto.id, falou.id, navegando.id];
+  // Cliente do Brasil: navega pelo site em português (/pt) → e-mail em português, preço em R$
+  await prisma.users.update({ where: { id: gaucho.id }, data: { pais: "Brasil" } as any });
+  const users = [quieto.id, falou.id, navegando.id, gaucho.id];
   const auto = await prisma.email_automacoes.create({
     data: {
       tipo: "interesse_sem_pedido",
@@ -60,6 +63,7 @@ import assert from "node:assert/strict";
         },
         { path: "/produto/CI-003", user_id: falou.id, created_at: antes },
         { path: "/produto/CI-004", user_id: navegando.id, created_at: new Date(Date.now() - H) },
+        { path: "/pt/produto/CI-001", user_id: gaucho.id, created_at: antes },
       ],
     });
     await prisma.site_eventos.create({
@@ -84,6 +88,15 @@ import assert from "node:assert/strict";
       "a mais vista primeiro",
     );
     assert.ok(meu.whatsappTexto?.includes("CI-002"));
+    assert.equal(meu.idioma, "es", "Uruguai: espanhol");
+    const br = envios.find((e) => e.user.id === gaucho.id)!;
+    assert.ok(br, "cliente do Brasil recebe");
+    assert.equal(br.idioma, "pt", "Brasil: português");
+    assert.ok(
+      br.produtos!.every((p) => !p.preco || p.preco.includes("R$")),
+      "preço em R$",
+    );
+    assert.ok(br.whatsappTexto?.startsWith("Olá"), "WhatsApp em português");
 
     // Envio feito há 2 h, com cupom; depois o cliente chamou no WhatsApp e comprou
     await prisma.email_envios.create({

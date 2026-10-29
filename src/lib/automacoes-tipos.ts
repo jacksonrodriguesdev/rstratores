@@ -51,6 +51,8 @@ export type DefTipo = {
   assunto: string;
   preheader: string;
   conteudo: Partial<ConteudoEmail>;
+  // Versão em português (clientes do Sul do Brasil), quando o tipo já sabe o idioma do cliente
+  pt?: { assunto: string; preheader: string; conteudo: Partial<ConteudoEmail> };
 };
 
 const base = (c: Partial<ConteudoEmail>): Partial<ConteudoEmail> => ({
@@ -93,6 +95,18 @@ export const TIPOS: DefTipo[] = [
       botaoUrl: "/loja",
       cabecalho: "/email/automacoes/interesse_sem_pedido.jpg",
     }),
+    pt: {
+      assunto: "{{nombre}}, preparamos uma proposta para as suas peças",
+      preheader: "As peças que você viu na AGRO PARTS, com um desconto exclusivo para você.",
+      conteudo: {
+        destaque: "PROPOSTA EXCLUSIVA",
+        titulo: "{{nombre}}, queremos ajudar você a conseguir estas peças",
+        texto:
+          "Vimos que você consultou estas peças na AGRO PARTS. Preparamos um **desconto exclusivo para você** e estamos prontos para negociar: chame a gente no WhatsApp e passamos o preço final, a disponibilidade e a melhor condição que pudermos oferecer.",
+        produtosTitulo: "As peças que você consultou",
+        botaoTexto: "Ver as peças",
+      },
+    },
   },
   {
     tipo: "boas_vindas",

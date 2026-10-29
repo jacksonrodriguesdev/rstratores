@@ -39,10 +39,12 @@ type Envio = {
   botaoUrl?: string;
   // Cupom exclusivo deste cliente (peças vistas sem orçamento)
   cupom?: { codigo: string; texto: string; validade: string };
+  // Idioma do cliente (pt = Sul do Brasil): textos, preços em R$ e links /pt
+  idioma?: "es" | "pt";
 };
 
 // Cupom exclusivo de uso único (peças vistas sem orçamento)
-async function cupomExclusivo(pct: number, dias: number, nome: string) {
+async function cupomExclusivo(pct: number, dias: number, nome: string, idioma: "es" | "pt" = "es") {
   const { prisma } = await import("./prisma");
   const { novoCodigo } = await import("./avaliacoes.server");
   for (let t = 0; t < 5; t++) {
@@ -64,8 +66,11 @@ async function cupomExclusivo(pct: number, dias: number, nome: string) {
       });
       return {
         codigo,
-        texto: `${pct}% de descuento en estos repuestos`,
-        validade: `por ${dias} días`,
+        texto:
+          idioma === "pt"
+            ? `${pct}% de desconto nestas peças`
+            : `${pct}% de descuento en estos repuestos`,
+        validade: idioma === "pt" ? `por ${dias} dias` : `por ${dias} días`,
       };
     } catch (e: any) {
       if (!String(e?.code).includes("P2002")) throw e;
@@ -147,8 +152,11 @@ export async function produtosEmail(
   skus: string[],
   qtd: Map<string, number> = new Map(),
   antes: Map<string, number> = new Map(),
+  idioma: "es" | "pt" = "es", // pt: nome em português e preço em R$ (clientes do Brasil)
 ): Promise<ProdutoEmail[]> {
   if (!skus.length) return [];
+  const brl = (v: number) =>
+    `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const { prisma } = await import("./prisma");
   const { configPrecos } = await import("./precos.server");
   const { precoVenda, fmtUYU } = await import("./precos");
@@ -170,12 +178,19 @@ export async function produtosEmail(
         r.imagem_principal && !fotoInvalida(r.imagem_principal) ? r.imagem_principal : null;
       return {
         sku: r.sku.trim(),
-        nome: nomeProduto(r as any),
+        nome: idioma === "pt" ? r.nome.trim() : nomeProduto(r as any),
         codigo: (r.codigo_fabricante || r.sku).trim(),
         imagem: img,
         quantidade: qtd.get(r.sku.trim()),
-        preco: pr?.uyu ? fmtUYU(pr.uyu) : null,
-        precoDe: pr?.deUyu ? fmtUYU(pr.deUyu) : null,
+        preco: idioma === "pt" ? (pr?.brl ? brl(pr.brl) : null) : pr?.uyu ? fmtUYU(pr.uyu) : null,
+        precoDe:
+          idioma === "pt"
+            ? pr?.deBrl
+              ? brl(pr.deBrl)
+              : null
+            : pr?.deUyu
+              ? fmtUYU(pr.deUyu)
+              : null,
         selo: pr?.desconto ? `-${pr.desconto}%` : null,
       };
     });
@@ -336,23 +351,30 @@ export async function selecionarInteresse(
     const u = porEmail.get((v.cliente_email ?? "").toLowerCase());
     if (u) pediram.add(u);
   }
+  const { idiomasDosClientes } = await import("./idioma-cliente.server");
+  const idiomas = await idiomasDosClientes(candidatos.filter((u) => !pediram.has(u)));
   const envios: Envio[] = [];
   for (const uid of candidatos) {
     if (pediram.has(uid)) continue;
+    const idioma = idiomas.get(uid) ?? "es";
     const skus = [...porCliente.get(uid)!.entries()]
       .sort((a, b) => b[1].vezes - a[1].vezes || b[1].ultima - a[1].ultima)
       .map(([s]) => s)
       .slice(0, cfg.maxProdutos ?? 6);
-    const produtos = await produtosEmail(skus);
+    const produtos = await produtosEmail(skus, undefined, undefined, idioma);
     if (!produtos.length) continue;
+    const lista = produtos.map((p) => `• ${p.nome} (Cód. ${p.codigo})`).join("\n");
     envios.push({
       user: ok.get(uid)!,
       chave: `interesse:${[...skus].sort().join(",")}`.slice(0, 150),
       produtos,
+      idioma,
       vars: { repuesto: produtos[0].nome },
-      whatsappTexto: `¡Hola! Recibí el e-mail de AGRO PARTS y quiero negociar estos repuestos:\n${produtos
-        .map((p) => `• ${p.nome} (Cód. ${p.codigo})`)
-        .join("\n")}`,
+      ...(idioma === "pt" && { botaoUrl: "/loja" }),
+      whatsappTexto:
+        idioma === "pt"
+          ? `Olá! Recebi o e-mail da AGRO PARTS e quero negociar estas peças:\n${lista}`
+          : `¡Hola! Recibí el e-mail de AGRO PARTS y quiero negociar estos repuestos:\n${lista}`,
     });
   }
   return envios;
@@ -766,7 +788,12 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
     const pct = Math.max(0, Math.min(50, Math.round(Number(cfg.descontoPct ?? 0))));
     if (pct > 0)
       for (const e of envios)
-        e.cupom = await cupomExclusivo(pct, cfg.validadeDias ?? 7, e.user.nome_completo);
+        e.cupom = await cupomExclusivo(
+          pct,
+          cfg.validadeDias ?? 7,
+          e.user.nome_completo,
+          e.idioma ?? "es",
+        );
   }
   for (let i = 0; i < envios.length; i += 50) {
     const lote = envios.slice(i, i + 50);
@@ -782,11 +809,14 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
         ...(pessoal && { cupon: pessoal }),
         ...(e.cupom && { validez: e.cupom.validade }),
       };
+      // Cliente do Brasil: textos da versão em português do tipo (quando houver)
+      const pt = e.idioma === "pt" && def.pt;
+      const baseIdioma = pt ? { ...base, ...def.pt!.conteudo } : base;
       const comCupom = e.cupom
-        ? { ...base, cupom: e.cupom }
+        ? { ...baseIdioma, cupom: e.cupom }
         : pessoal
-          ? { ...base, cupom: { ...base.cupom!, codigo: pessoal } }
-          : base;
+          ? { ...baseIdioma, cupom: { ...base.cupom!, codigo: pessoal } }
+          : baseIdioma;
       const conteudo = {
         ...aplicarVariaveis(comCupom, v),
         ...(def.produtos && { produtos: e.produtos ?? [] }),
@@ -794,19 +824,25 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
       };
       const codigoCupom = pessoal ?? base.cupom?.codigo;
       const whats = e.whatsappTexto
-        ? `${e.whatsappTexto}${e.cupom ? `\n\nMi cupón: ${e.cupom.codigo}` : ""}`
+        ? `${e.whatsappTexto}${e.cupom ? `\n\n${e.idioma === "pt" ? "Meu cupom" : "Mi cupón"}: ${e.cupom.codigo}` : ""}`
         : codigoCupom
           ? `¡Hola! Quiero usar mi cupón ${codigoCupom}`
           : null;
-      const pre = a.preheader ? trocarVariaveis(a.preheader, v) : null;
+      const preheader = pt ? def.pt!.preheader : a.preheader;
+      const pre = preheader ? trocarVariaveis(preheader, v) : null;
       return montarMensagem(
         conteudo,
-        trocarVariaveis(a.assunto, v),
+        trocarVariaveis(pt ? def.pt!.assunto : a.assunto, v),
         pre,
         origem,
         { id: e.user.id, email: e.user.email, nome: e.user.nome_completo },
         tag,
-        { ...(whats && { whatsappUrl: wa(whats) }), anuncio: escolhidos[k] },
+        {
+          ...(whats && { whatsappUrl: wa(whats) }),
+          // Anúncios do e-mail são do Uruguai: não vão para clientes do Brasil
+          anuncio: e.idioma === "pt" ? null : escolhidos[k],
+          idioma: e.idioma ?? "es",
+        },
       );
     });
     try {
