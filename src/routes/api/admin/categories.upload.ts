@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import * as fs from "fs/promises";
-import * as path from "path";
 
+// Imagem da categoria (até 5 MB). Formatos: src/lib/upload-imagem.server.ts.
 export const Route = createFileRoute("/api/admin/categories/upload")({
   server: {
     handlers: {
@@ -14,30 +13,15 @@ export const Route = createFileRoute("/api/admin/categories/upload")({
           const file = formData.get("file") as File;
 
           if (!file) {
-            return new Response(JSON.stringify({ error: "Missing file" }), { status: 400 });
+            return Response.json({ error: "Missing file" }, { status: 400 });
           }
 
-          const ext = file.name.split(".").pop()?.toLowerCase() || "";
-          if (!["jpg", "jpeg", "png", "webp", "avif"].includes(ext)) {
-            return Response.json({ error: "Use imagem JPG, PNG, WEBP ou AVIF" }, { status: 400 });
-          }
-          if (file.size > 5 * 1024 * 1024) {
-            return Response.json({ error: "Imagem maior que 5 MB" }, { status: 400 });
-          }
-          const buffer = Buffer.from(await file.arrayBuffer());
-          const relativePath = `categorias/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-          const { caminhoUpload } = await import("@/lib/uploads.server");
-          const dest = caminhoUpload(relativePath);
-          await fs.mkdir(path.dirname(dest), { recursive: true });
-          await fs.writeFile(dest, buffer);
-
-          return new Response(JSON.stringify({ path: relativePath }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          const { gravarImagem } = await import("@/lib/upload-imagem.server");
+          const r = await gravarImagem(file, "categorias", 5);
+          if ("erro" in r) return Response.json({ error: r.erro }, { status: 400 });
+          return Response.json({ path: r.path });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          return Response.json({ error: err.message }, { status: 500 });
         }
       },
     },

@@ -129,6 +129,9 @@ jobs:
       - name: Captação (avisos de preço e visitantes quentes)
         run: npx tsx scripts/ci/testar-captura.ts
 
+      - name: Envio de imagens (JFIF, AVIF, HEIC…)
+        run: npx tsx scripts/ci/testar-upload-imagem.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

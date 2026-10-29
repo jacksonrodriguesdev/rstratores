@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import * as fs from "fs/promises";
-import * as path from "path";
 
+// Imagem de banner (site e página inicial). Aceita JPG, JFIF, PNG, WEBP, AVIF e GIF (HEIC/BMP/
+// TIFF chegam já convertidos pelo navegador): src/lib/upload-imagem.server.ts.
 export const Route = createFileRoute("/api/admin/banners/upload")({
   server: {
     handlers: {
@@ -15,40 +15,19 @@ export const Route = createFileRoute("/api/admin/banners/upload")({
           const kind = formData.get("kind") as string;
 
           if (!file || !kind) {
-            return new Response(JSON.stringify({ error: "Missing file or kind" }), { status: 400 });
+            return Response.json({ error: "Missing file or kind" }, { status: 400 });
           }
 
           // `kind` vira parte do caminho: só tipos conhecidos, para não gravar fora de uploads/site
           if (!["hero", "duplo", "strip", "dac"].includes(kind)) {
-            return new Response(JSON.stringify({ error: "Tipo de banner inválido" }), {
-              status: 400,
-            });
+            return Response.json({ error: "Tipo de banner inválido" }, { status: 400 });
           }
-          const ext = file.name.split(".").pop()?.toLowerCase() || "";
-          if (!["jpg", "jpeg", "png", "webp", "avif"].includes(ext)) {
-            return new Response(JSON.stringify({ error: "Use imagem JPG, PNG, WEBP ou AVIF" }), {
-              status: 400,
-            });
-          }
-          if (file.size > 8 * 1024 * 1024) {
-            return new Response(JSON.stringify({ error: "Imagem maior que 8 MB" }), {
-              status: 400,
-            });
-          }
-          const buffer = Buffer.from(await file.arrayBuffer());
-          const relativePath = `site/${kind}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-          const { caminhoUpload } = await import("@/lib/uploads.server");
-          const dest = caminhoUpload(relativePath);
-          await fs.mkdir(path.dirname(dest), { recursive: true });
-          await fs.writeFile(dest, buffer);
-
-          return new Response(JSON.stringify({ path: relativePath }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          const { gravarImagem } = await import("@/lib/upload-imagem.server");
+          const r = await gravarImagem(file, `site/${kind}`, 8);
+          if ("erro" in r) return Response.json({ error: r.erro }, { status: 400 });
+          return Response.json({ path: r.path });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          return Response.json({ error: err.message }, { status: 500 });
         }
       },
     },

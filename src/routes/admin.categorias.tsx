@@ -37,6 +37,7 @@ import {
 } from "@/lib/categories";
 import { getStats } from "@/lib/products";
 import { CATEGORIAS } from "@/lib/navegacao";
+import { ACEITA_IMAGEM } from "@/lib/formatos-imagem";
 
 const searchSchema = z.object({
   linha: z.enum(["AGRICOLA", "AUTOMOTIVA"]).optional().default("AGRICOLA"),
@@ -405,7 +406,7 @@ function DialogoCategoria({
                   <Upload className="h-4 w-4" /> {previa ? "Trocar imagem" : "Escolher imagem"}
                   <input
                     type="file"
-                    accept="image/jpeg,image/png,image/webp"
+                    accept={ACEITA_IMAGEM}
                     className="hidden"
                     onChange={(e) =>
                       setForm((p) => ({ ...p, imageFile: e.target.files?.[0] || null }))

@@ -32,6 +32,8 @@ import {
   type BannerKind,
 } from "@/lib/banners";
 import { cn } from "@/lib/utils";
+import { ACEITA_IMAGEM } from "@/lib/formatos-imagem";
+import { prepararImagem } from "@/lib/imagem-cliente";
 
 export const Route = createFileRoute("/admin/banners")({
   component: BannersPage,
@@ -429,12 +431,18 @@ function BotaoArquivo({
       <input
         ref={ref}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/avif"
+        accept={ACEITA_IMAGEM}
         className="hidden"
-        onChange={(e) => {
+        onChange={async (e) => {
           const f = e.target.files?.[0];
-          if (f) onFile(f);
           e.target.value = "";
+          if (!f) return;
+          // HEIC/BMP/TIFF viram WEBP já na escolha (a prévia funciona e o envio é o mesmo)
+          try {
+            onFile(await prepararImagem(f));
+          } catch (err: any) {
+            toast.error(err?.message ?? "Imagem inválida");
+          }
         }}
       />
       <Button size="sm" variant="outline" disabled={disabled} onClick={() => ref.current?.click()}>

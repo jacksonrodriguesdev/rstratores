@@ -92,8 +92,9 @@ export async function listActiveBanners(kind: BannerKind, linha?: string): Promi
 // Admin API calls (client-side only)
 
 export async function uploadBannerImage(file: File, kind: BannerKind): Promise<string> {
+  const { prepararImagem } = await import("./imagem-cliente");
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", await prepararImagem(file));
   formData.append("kind", kind);
   const res = await fetch("/api/admin/banners/upload", {
     method: "POST",

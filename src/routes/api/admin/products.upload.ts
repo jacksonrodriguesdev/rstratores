@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import * as fs from "fs/promises";
-import * as path from "path";
 
+// Fotos das peças (até 15 MB cada; o admin já reduz no navegador antes de enviar). Aceita JPG,
+// JFIF, PNG, WEBP, AVIF e GIF (HEIC/BMP/TIFF chegam convertidos): src/lib/upload-imagem.server.ts.
 export const Route = createFileRoute("/api/admin/products/upload")({
   server: {
     handlers: {
@@ -14,43 +14,20 @@ export const Route = createFileRoute("/api/admin/products/upload")({
           const files = formData.getAll("files") as File[];
 
           if (!files || files.length === 0) {
-            return new Response(JSON.stringify({ error: "No files uploaded" }), { status: 400 });
+            return Response.json({ error: "No files uploaded" }, { status: 400 });
           }
 
+          const { gravarImagem } = await import("@/lib/upload-imagem.server");
           const uploadedPaths: string[] = [];
-
           for (const file of files) {
-            const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-            // Só imagens, até 15 MB cada (o admin já reduz no navegador antes de enviar)
-            if (!["jpg", "jpeg", "png", "webp", "avif", "gif"].includes(ext)) {
-              return Response.json(
-                { error: `Arquivo não é imagem: ${file.name}` },
-                { status: 400 },
-              );
-            }
-            if (file.size > 15 * 1024 * 1024) {
-              return Response.json(
-                { error: `Imagem maior que 15 MB: ${file.name}` },
-                { status: 400 },
-              );
-            }
-            const buffer = Buffer.from(await file.arrayBuffer());
-            const relativePath = `produtos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-            const { caminhoUpload } = await import("@/lib/uploads.server");
-            const dest = caminhoUpload(relativePath);
-            await fs.mkdir(path.dirname(dest), { recursive: true });
-            await fs.writeFile(dest, buffer);
-
-            uploadedPaths.push(relativePath);
+            const r = await gravarImagem(file, "produtos", 15);
+            if ("erro" in r) return Response.json({ error: r.erro }, { status: 400 });
+            uploadedPaths.push(r.path);
           }
 
-          return new Response(JSON.stringify({ paths: uploadedPaths }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          return Response.json({ paths: uploadedPaths });
         } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          return Response.json({ error: err.message }, { status: 500 });
         }
       },
     },

@@ -7,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { casarFotosFn, adicionarFotosFn, type Casamento } from "@/lib/produtos-admin";
-import { enviarFotos } from "@/lib/imagem-cliente";
+import { enviarFotos, prepararImagem } from "@/lib/imagem-cliente";
 import { cn } from "@/lib/utils";
+import { ACEITA_IMAGEM, precisaConverter } from "@/lib/formatos-imagem";
 
 // Fotos em lote: o nome do arquivo diz de qual peça é (código original ou SKU).
 // "3136019.jpg", "3136019-2.jpg", "3136019 (3).jpg" -> peça 3136019. Confere antes de enviar.
@@ -37,7 +38,18 @@ function FotosLote() {
     if (!files?.length) return;
     setLendo(true);
     try {
-      const lista = [...files].filter((f) => f.type.startsWith("image/"));
+      // HEIC (iPhone) chega sem tipo no Windows: entra pela extensão e vira WEBP já aqui
+      // (a prévia funciona); o nome continua o mesmo, só muda a extensão
+      const lista = await Promise.all(
+        [...files]
+          .filter(
+            (f) =>
+              f.type.startsWith("image/") ||
+              precisaConverter(f) ||
+              /\.(jfif|jpe|pjpeg|pjp|avif)$/i.test(f.name),
+          )
+          .map((f) => (precisaConverter(f) ? prepararImagem(f, 2000) : f)),
+      );
       const r = await casarFotosFn({ data: { nomes: lista.map((f) => f.name) } });
       setItens(
         r.map((c, i) => ({
@@ -121,7 +133,7 @@ function FotosLote() {
         <input
           ref={arq}
           type="file"
-          accept="image/*"
+          accept={ACEITA_IMAGEM}
           multiple
           className="hidden"
           onChange={(e) => escolher(e.target.files)}

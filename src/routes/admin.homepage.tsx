@@ -39,6 +39,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { BannerImage } from "@/components/BannerImage";
+import { prepararImagem } from "@/lib/imagem-cliente";
+import { ACEITA_IMAGEM } from "@/lib/formatos-imagem";
 
 export const Route = createFileRoute("/admin/homepage")({
   component: AdminHomepage,
@@ -354,10 +356,13 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
         const newPaths: string[] = [];
         for (let i = 0; i < files.length; i++) {
           const formData = new FormData();
-          formData.append("file", files[i]);
+          formData.append("file", await prepararImagem(files[i]));
           formData.append("kind", "hero");
           const res = await fetch("/api/admin/banners/upload", { method: "POST", body: formData });
-          if (!res.ok) throw new Error(`Falha no upload da imagem ${i + 1}`);
+          if (!res.ok)
+            throw new Error(
+              (await res.json().catch(() => null))?.error || `Falha no upload da imagem ${i + 1}`,
+            );
           const { path } = await res.json();
           newPaths.push(path);
         }
@@ -366,10 +371,11 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
       } else {
         // Single upload
         const formData = new FormData();
-        formData.append("file", files[0]);
+        formData.append("file", await prepararImagem(files[0]));
         formData.append("kind", "strip");
         const res = await fetch("/api/admin/banners/upload", { method: "POST", body: formData });
-        if (!res.ok) throw new Error("Falha no upload");
+        if (!res.ok)
+          throw new Error((await res.json().catch(() => null))?.error || "Falha no upload");
         const { path } = await res.json();
         setImagePath(path);
         toast.success("Imagem carregada. Clique em Salvar para aplicar.");
@@ -673,7 +679,7 @@ function BlockRow({ block, onChange }: { block: HomepageBlock; onChange: () => v
                     <div className="flex gap-2 items-center">
                       <Input
                         type="file"
-                        accept="image/*"
+                        accept={ACEITA_IMAGEM}
                         onChange={handleUpload}
                         disabled={uploading}
                       />

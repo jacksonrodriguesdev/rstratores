@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { CORES_MARCA, type Campo } from "@/lib/blocos-home";
 import { reduzirImagem } from "@/lib/imagem-cliente";
 import { cn } from "@/lib/utils";
+import { ACEITA_IMAGEM } from "@/lib/formatos-imagem";
 
 // Quem usa o formulário pode trocar o envio de imagens (os e-mails não aceitam WEBP)
 export type EnviarImagem = (arq: File) => Promise<string>;
@@ -278,7 +279,7 @@ function CampoImagem({ valor, aoMudar }: { valor: any; aoMudar: (v: string) => v
         Enviar
         <input
           type="file"
-          accept={ctx.aceita ?? "image/jpeg,image/png,image/webp,image/avif"}
+          accept={ctx.aceita ?? ACEITA_IMAGEM}
           className="hidden"
           onChange={(e) => e.target.files?.[0] && enviar(e.target.files[0])}
         />

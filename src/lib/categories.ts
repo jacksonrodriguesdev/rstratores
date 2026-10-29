@@ -76,13 +76,15 @@ export async function deleteCategory(id: number, moverPara?: number | null) {
 }
 
 export async function uploadCategoryImage(file: File): Promise<string> {
+  const { prepararImagem } = await import("./imagem-cliente");
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", await prepararImagem(file, 1600));
   const res = await fetch("/api/admin/categories/upload", {
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to upload image");
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => null))?.error || "Falha ao enviar a imagem");
   const { path } = await res.json();
   return path;
 }

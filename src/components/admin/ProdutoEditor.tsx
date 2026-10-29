@@ -39,6 +39,7 @@ import { nomeEs } from "@/lib/pecas-es";
 import { MONTADORAS } from "@/lib/navegacao";
 import { fotoInvalida } from "@/lib/fotos";
 import { cn } from "@/lib/utils";
+import { ACEITA_IMAGEM } from "@/lib/formatos-imagem";
 
 // Editor completo de uma peça: dados, preço (R$ e $U), peso/medidas e fotos.
 // Usado no diálogo da central de produtos e no modo "precificar uma a uma".
@@ -341,7 +342,7 @@ export function ProdutoEditor({
         <input
           ref={arq}
           type="file"
-          accept="image/*"
+          accept={ACEITA_IMAGEM}
           multiple
           className="hidden"
           onChange={(e) => enviar(e.target.files)}
