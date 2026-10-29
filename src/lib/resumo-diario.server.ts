@@ -634,11 +634,21 @@ export async function garantirDias(fechados: string[], jaProntos?: Set<string>) 
 }
 const emCalculo = new Map<string, Promise<ResumoDia>>();
 
+// Dias de `de` até `ate` (AAAA-MM-DD, horário do Uruguai), inclusive
+export function diasEntre(de: string, ate: string) {
+  const out: string[] = [];
+  for (let t = Date.parse(`${de}T12:00:00Z`); t <= Date.parse(`${ate}T12:00:00Z`); t += 24 * H)
+    out.push(new Date(t).toISOString().slice(0, 10));
+  return out;
+}
+
 // Resumos dos últimos `dias` dias (o último é hoje). Dias fechados que faltam são calculados e salvos.
-export async function resumosDoPeriodo(dias: number): Promise<ResumoDia[]> {
+export const resumosDoPeriodo = (dias: number) => resumosDosDias(diasAte(dias));
+
+// Resumos de uma lista de dias (dias futuros saem vazios)
+export async function resumosDosDias(lista: string[]): Promise<ResumoDia[]> {
   await eventosProntos();
   await (await import("./limpeza-estatisticas.server")).limparEstatisticas();
-  const lista = diasAte(dias);
   const hoje = hojeLocal();
   const fechados = lista.filter((d) => d < hoje);
   const salvos = fechados.length
