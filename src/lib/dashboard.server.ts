@@ -219,11 +219,18 @@ async function periodo(dias: string[], detalhes: boolean) {
     p.conversoes += a.conversoes;
   }
 
-  for (const [d, n] of emails) serie.get(d) && (serie.get(d)!.emails = n);
-  for (const [d, n] of abertos) serie.get(d) && (serie.get(d)!.abertos = n);
-  for (const [d, n] of cliques) serie.get(d) && (serie.get(d)!.cliques = n);
-  for (const [d, n] of cotacoesSite) serie.get(d) && (serie.get(d)!.cotacoes = n);
-  for (const [d, n] of contatos) serie.get(d) && (serie.get(d)!.contatos = n);
+  // Contagens por dia que vêm direto do MySQL
+  const colocar = (m: Map<string, number>, k: Chave) => {
+    for (const [d, n] of m) {
+      const x = serie.get(d);
+      if (x) x[k] = n;
+    }
+  };
+  colocar(emails, "emails");
+  colocar(abertos, "abertos");
+  colocar(cliques, "cliques");
+  colocar(cotacoesSite, "cotacoes");
+  colocar(contatos, "contatos");
 
   const lista = [...serie.values()].map((s) => {
     for (const k of CHAVES) (s as any)[k] = r2((s as any)[k]);
