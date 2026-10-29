@@ -61,6 +61,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CampanhasProntas } from "@/components/admin/meta/CampanhasProntas";
 import { AnunciosProntos } from "@/components/admin/meta/AnunciosProntos";
+import { CatalogoMeta } from "@/components/admin/meta/CatalogoMeta";
 import { DEPTOS as DEPTOS_UY } from "@/lib/locais-anuncio";
 
 type BuscaMeta = { aba?: string; local?: string };
@@ -82,6 +83,7 @@ const ABAS = [
   ["anuncios", "Anúncios", ImageIcon],
   ["publico", "Público e cidades", MapPin],
   ["leads", "Leads", Users],
+  ["catalogo", "Catálogo", ShoppingBag],
   ["criar", "Criar anúncio", Rocket],
   ["conta", "Conta e saldo", Wallet],
 ] as const;
@@ -202,6 +204,7 @@ function MetaAds() {
           {aba === "anuncios" && <Anuncios dias={dias} din={din} />}
           {aba === "publico" && <Publico dias={dias} din={din} />}
           {aba === "leads" && <Leads />}
+          {aba === "catalogo" && <CatalogoMeta dias={dias} />}
           {aba === "criar" && (
             <Criar moeda={moeda} aoCriar={() => setAba("campanhas")} localInicial={busca.local} />
           )}

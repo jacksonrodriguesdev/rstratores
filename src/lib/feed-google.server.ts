@@ -2,6 +2,9 @@
 // Shopping do Google. Um por país, cada um na língua e na moeda da sua versão do site:
 //   /feeds/google-merchant.xml    → Uruguai (espanhol, $U, links /produto/...)
 //   /feeds/google-merchant-br.xml → Sul do Brasil (português, R$, links /pt/produto/...)
+// O mesmo feed serve ao catálogo do Meta (anúncios que mostram a peça que a pessoa viu):
+//   /feeds/meta-catalogo.xml      → Uruguai, com os valores que o Meta aceita (disponibilidade,
+//   marca sempre preenchida) e utm próprio. Os códigos (g:id) são os mesmos do Pixel (ViewContent).
 // Só entram peças com preço e foto, e só quando "mostrar preços no site" está ligado (o Google
 // confere se o preço do feed é o da página).
 import { SITE_URL } from "./site";
@@ -15,16 +18,21 @@ const urlImagem = (p: string) =>
 
 const cache: Record<string, { xml: string; itens: number; em: number }> = {};
 
+export type DestinoFeed = "google" | "meta";
+
 export async function feedGoogle(
   pais: "UY" | "BR" = "UY",
+  destino: DestinoFeed = "google",
 ): Promise<{ xml: string; itens: number }> {
-  const c = cache[pais];
+  const chave = `${destino}_${pais}`;
+  const meta = destino === "meta";
+  const c = cache[chave];
   if (c && Date.now() - c.em < 60 * 60 * 1000) return c;
   const br = pais === "BR";
   const { prisma } = await import("./prisma");
   const { configPrecos } = await import("./precos.server");
   const { precoVenda } = await import("./precos");
-  const { categoriaEs } = await import("./pecas-es");
+  const { categoriaEs, nomeProduto } = await import("./pecas-es");
   const cfg = await configPrecos();
   const itens: string[] = [];
   if (cfg.mostrar) {
@@ -60,7 +68,8 @@ export async function feedGoogle(
       const cheio = br ? pr?.deBrl : pr?.deUyu;
       if (!atual || !p.imagem_principal || fotoInvalida(p.imagem_principal)) continue;
       const sku = p.sku.trim();
-      const titulo = limpo(br ? p.nome : p.nome_es || p.nome, 150);
+      // Uruguai: nome em espanhol (o traduzido pelo glossário quando não há nome_es), como no site
+      const titulo = limpo(br ? p.nome : nomeProduto(p), 150);
       const desc = limpo(
         br
           ? `${titulo}. Peça agrícola${p.marca ? ` para ${p.marca}` : ""}, código ${p.codigo_fabricante || sku}. Envio para RS, SC e PR com nota fiscal.`
@@ -75,18 +84,26 @@ export async function feedGoogle(
         `<g:title>${esc(titulo)}</g:title>`,
         `<g:description>${esc(desc)}</g:description>`,
         // utm: as visitas e os pedidos que vêm do Shopping aparecem separados no painel
-        `<g:link>${SITE_URL}${br ? "/pt" : ""}/produto/${encodeURIComponent(sku)}?utm_source=google_shopping&amp;utm_medium=shopping&amp;utm_campaign=merchant_${br ? "br" : "uy"}</g:link>`,
+        meta
+          ? `<g:link>${SITE_URL}${br ? "/pt" : ""}/produto/${encodeURIComponent(sku)}?utm_source=facebook&amp;utm_medium=catalogo&amp;utm_campaign=catalogo_meta_${br ? "br" : "uy"}</g:link>`
+          : `<g:link>${SITE_URL}${br ? "/pt" : ""}/produto/${encodeURIComponent(sku)}?utm_source=google_shopping&amp;utm_medium=shopping&amp;utm_campaign=merchant_${br ? "br" : "uy"}</g:link>`,
         `<g:image_link>${esc(urlImagem(p.imagem_principal))}</g:image_link>`,
         `<g:condition>new</g:condition>`,
         // Sem estoque: pedido por encomenda (chega em uns dias)
+        // (o Meta não aceita "backorder": usa "available for order")
         p.estoque > 0
-          ? `<g:availability>in_stock</g:availability>`
-          : `<g:availability>backorder</g:availability><g:availability_date>${disponivelEm}</g:availability_date>`,
+          ? `<g:availability>${meta ? "in stock" : "in_stock"}</g:availability>`
+          : meta
+            ? `<g:availability>available for order</g:availability>`
+            : `<g:availability>backorder</g:availability><g:availability_date>${disponivelEm}</g:availability_date>`,
         `<g:price>${preco.toFixed(2)} ${moeda}</g:price>`,
         ...(cheio && cheio > atual
           ? [`<g:sale_price>${atual.toFixed(2)} ${moeda}</g:sale_price>`]
           : []),
-        ...(p.marca ? [`<g:brand>${esc(limpo(p.marca, 70))}</g:brand>`] : []),
+        // Marca: obrigatória no Meta (sem ela, a peça leva o nome da loja)
+        ...(p.marca || meta
+          ? [`<g:brand>${esc(limpo(p.marca || p.fabricante || "AGRO PARTS", 70))}</g:brand>`]
+          : []),
         `<g:mpn>${esc(limpo(p.codigo_fabricante || sku, 70))}</g:mpn>`,
         ...(p.categoria
           ? [
@@ -95,6 +112,11 @@ export async function feedGoogle(
           : []),
         // Peças e acessórios de veículos (taxonomia do Google)
         `<g:google_product_category>5613</g:google_product_category>`,
+        // Meta: categoria para montar conjuntos de produtos (ex.: só filtros, só hidráulica)
+        ...(meta && p.categoria
+          ? [`<g:custom_label_0>${esc(limpo(categoriaEs(p.categoria), 100))}</g:custom_label_0>`]
+          : []),
+        ...(meta && cheio && cheio > atual ? [`<g:custom_label_1>oferta</g:custom_label_1>`] : []),
       ];
       itens.push(`<item>${campos.join("")}</item>`);
     }
@@ -109,6 +131,6 @@ ${itens.join("\n")}
 </channel>
 </rss>
 `;
-  cache[pais] = { xml, itens: itens.length, em: Date.now() };
-  return cache[pais];
+  cache[chave] = { xml, itens: itens.length, em: Date.now() };
+  return cache[chave];
 }

@@ -324,3 +324,12 @@ export const anunciosProntosFn = createServerFn({ method: "GET" })
       };
     return { ...(await buscarProntos(data, 30)), orcamento: memoOrc.diario };
   });
+
+// Catálogo do Meta: feed, Pixel, público de remarketing e retorno (aba Catálogo)
+export const catalogoMetaFn = createServerFn({ method: "GET" })
+  .validator((d: { dias?: number }) => ({ dias: Math.min(90, Math.max(7, Number(d?.dias) || 30)) }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { painelCatalogoMeta } = await import("./catalogo-meta.server");
+    return painelCatalogoMeta(data.dias);
+  });
