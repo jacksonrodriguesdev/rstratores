@@ -1069,3 +1069,29 @@ model avaliacoes {
   @@index([status, created_at])
   @@index([venda_id])
 }
+
+// Contato pelo WhatsApp (pop-up): só o celular, sem conta. Cupom de boas-vindas próprio.
+// Criada também por garantirTabelaContatos() (src/lib/contato-whatsapp.server.ts).
+model contatos_whatsapp {
+  id             Int       @id @default(autoincrement())
+  telefone       String    @unique @db.VarChar(20)
+  nome           String?   @db.VarChar(120)
+  cupom          String?   @unique @db.VarChar(20)
+  cupom_usado_em DateTime?
+  idioma         String    @default("es") @db.VarChar(2)
+  motivo         String?   @db.VarChar(20)
+  pagina         String?   @db.VarChar(300)
+  interesse      String?   @db.Text // JSON: códigos das peças / termos buscados
+  visitor_id     String?   @db.VarChar(64)
+  fonte          String?   @db.VarChar(40)
+  utm_campaign   String?   @db.VarChar(150)
+  cidade         String?   @db.VarChar(191)
+  vezes          Int       @default(1)
+  status         String    @default("NOVO") @db.VarChar(20)
+  nota           String?   @db.Text
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now())
+
+  @@index([visitor_id])
+  @@index([created_at])
+}

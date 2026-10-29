@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { painelPopupFn, salvarPopupFn, marcarCupomFn } from "@/lib/acesso";
 import { numeroWhatsapp } from "@/components/admin/OfertaClientes";
+import { ContatosWhatsapp } from "@/components/admin/ContatosWhatsapp";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/popup")({
@@ -73,6 +74,13 @@ function PopupAdmin() {
   const cards = [
     { label: "Viram o pop-up", valor: s?.vistos, icon: Eye, cor: "text-sky-700 bg-sky-50" },
     { label: "Fecharam", valor: s?.fechados, icon: X, cor: "text-zinc-600 bg-zinc-100" },
+    {
+      label: "Deixaram o WhatsApp",
+      valor: s?.whatsapp,
+      sub: s && `${pct(s.whatsapp, s.vistos)} de quem viu`,
+      icon: MessageCircle,
+      cor: "text-[#128C4B] bg-[#e9f9ef]",
+    },
     { label: "Pediram código", valor: s?.codigos, icon: Mail, cor: "text-amber-700 bg-amber-50" },
     {
       label: "Contas criadas",
@@ -104,8 +112,8 @@ function PopupAdmin() {
             <Sparkles className="h-6 w-6 text-primary" /> Pop-up de cadastro
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            “Entrá y ganá”: aparece para quem não está logado e oferece os catálogos + desconto na
-            primeira compra.
+            Aparece para quem não está logado. A pessoa escolhe: deixar só o WhatsApp (sem conta) ou
+            criar a conta com o e-mail. Os dois ganham o desconto na primeira compra.
           </p>
         </div>
         <Button variant="outline" asChild>
@@ -115,7 +123,7 @@ function PopupAdmin() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
         {cards.map((c) => (
           <Card key={c.label} className="p-4">
             <span className={cn("flex h-9 w-9 items-center justify-center rounded-lg", c.cor)}>
@@ -140,14 +148,57 @@ function PopupAdmin() {
                 Pop-up ligado no site{" "}
                 <Switch checked={cfg.ativo} onCheckedChange={(v) => setCfg({ ...cfg, ativo: v })} />
               </label>
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground">Quando aparece</p>
+                {(
+                  [
+                    [
+                      "interesse",
+                      "Quando mostra interesse (recomendado)",
+                      "Na 2ª peça aberta na visita, depois de 40 s numa peça ou quando o mouse sai da página (computador). Não incomoda quem só está chegando.",
+                    ],
+                    [
+                      "tempo",
+                      "Depois de alguns segundos",
+                      "Aparece para todos, N segundos depois de chegar.",
+                    ],
+                  ] as const
+                ).map(([id, rotulo, ajuda]) => (
+                  <label
+                    key={id}
+                    className={cn(
+                      "flex cursor-pointer gap-2.5 rounded-lg border p-3 text-sm",
+                      cfg.modo === id && "border-primary bg-primary/5",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="modo"
+                      checked={cfg.modo === id}
+                      onChange={() => setCfg({ ...cfg, modo: id })}
+                      className="mt-0.5 accent-[hsl(var(--primary))]"
+                    />
+                    <span>
+                      <span className="font-semibold">{rotulo}</span>
+                      <span className="block text-xs text-muted-foreground">{ajuda}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                <label className="text-xs font-semibold text-muted-foreground">
+                <label
+                  className={cn(
+                    "text-xs font-semibold text-muted-foreground",
+                    cfg.modo === "interesse" && "opacity-50",
+                  )}
+                >
                   Aparece depois de
                   <span className="mt-1 flex items-center gap-2">
                     <Input
                       type="number"
                       min={1}
                       max={120}
+                      disabled={cfg.modo === "interesse"}
                       value={cfg.segundos}
                       onChange={(e) => setCfg({ ...cfg, segundos: Number(e.target.value) })}
                     />{" "}
@@ -194,10 +245,11 @@ function PopupAdmin() {
                 Salvar
               </Button>
               <p className="text-xs text-muted-foreground">
-                Quem fecha o pop-up vê de novo na próxima visita; quem entra ou se cadastra, nunca
-                mais. Toda cotação (WhatsApp de preço e cotização, carrinho, pedido rápido e
-                formulários) exige cadastro enquanto o pop-up estiver ligado; desligado, o WhatsApp
-                abre direto. O WhatsApp do rodapé e o das dúvidas de envio ficam sempre livres. Não
+                Quem fecha o pop-up vê de novo na próxima visita; quem entra, se cadastra ou deixa o
+                WhatsApp, nunca mais. Pedir preço pelo WhatsApp exige o contato (celular ou conta)
+                enquanto o pop-up estiver ligado; quem já deixou o celular, ou com o pop-up
+                desligado, o WhatsApp abre direto. Catálogos e o formulário de cotação pedem conta
+                (e-mail). O WhatsApp do rodapé e o das dúvidas de envio ficam sempre livres. Não
                 aparece no admin, no login/cadastro, em Mi cuenta nem dentro do leitor de catálogos.
                 O e-mail de boas-vindas (Automações) leva o mesmo cupom único.
               </p>
@@ -286,6 +338,7 @@ function PopupAdmin() {
           </div>
         </Card>
       </div>
+      <ContatosWhatsapp />
     </div>
   );
 }

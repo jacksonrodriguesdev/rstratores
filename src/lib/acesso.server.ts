@@ -8,6 +8,9 @@ const MINUTO = 60_000;
 // ---------- Configuração do pop-up (tabela configuracoes, chaves popup_*) ----------
 export const POPUP_PADRAO = {
   popup_ativo: "1",
+  // interesse: abre na 2ª peça vista, depois de 40 s numa peça ou quando ameaça sair (computador);
+  // tempo: abre N segundos depois de chegar
+  popup_modo: "interesse",
   popup_segundos: "5",
   popup_desconto: "15",
   popup_titulo: "Ingresá para ver precios y cotizar",
@@ -25,8 +28,10 @@ const PADRAO_ANTIGO: Record<string, string[]> = {
     "Catálogos de piezas, precios por WhatsApp, pedido rápido por lista y {{descuento}}% OFF en tu primera compra.",
   ],
 };
+export type ModoPopup = "interesse" | "tempo";
 export type ConfigPopup = {
   ativo: boolean;
+  modo: ModoPopup;
   segundos: number;
   desconto: number;
   titulo: string;
@@ -44,6 +49,7 @@ export async function configPopup(): Promise<ConfigPopup> {
   };
   return {
     ativo: v.popup_ativo === "1",
+    modo: v.popup_modo === "tempo" ? "tempo" : "interesse",
     segundos: Math.min(120, Math.max(1, Number(v.popup_segundos) || 8)),
     desconto: Math.min(90, Math.max(1, Number(v.popup_desconto) || 15)),
     titulo: v.popup_titulo,
@@ -55,6 +61,7 @@ export async function salvarConfigPopup(c: ConfigPopup) {
   const { prisma } = await import("./prisma");
   const valores: Record<string, string> = {
     popup_ativo: c.ativo ? "1" : "0",
+    popup_modo: c.modo === "tempo" ? "tempo" : "interesse",
     popup_segundos: String(Math.min(120, Math.max(1, Math.round(c.segundos) || 8))),
     popup_desconto: String(Math.min(90, Math.max(1, Math.round(c.desconto) || 15))),
     popup_titulo: String(c.titulo || POPUP_PADRAO.popup_titulo).slice(0, 200),

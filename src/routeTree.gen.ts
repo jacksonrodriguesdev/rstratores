@@ -92,6 +92,7 @@ import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicAvaliacaoFotoRouteImport } from './routes/api/public/avaliacao-foto'
 import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carrinho'
+import { Route as ApiPublicContatoWhatsappRouteImport } from './routes/api/public/contato-whatsapp'
 import { Route as ApiPublicEmailBajaRouteImport } from './routes/api/public/email-baja'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend-webhook'
@@ -541,6 +542,12 @@ const ApiPublicCarrinhoRoute = ApiPublicCarrinhoRouteImport.update({
   path: '/api/public/carrinho',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicContatoWhatsappRoute =
+  ApiPublicContatoWhatsappRouteImport.update({
+    id: '/api/public/contato-whatsapp',
+    path: '/api/public/contato-whatsapp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEmailBajaRoute = ApiPublicEmailBajaRouteImport.update({
   id: '/api/public/email-baja',
   path: '/api/public/email-baja',
@@ -796,6 +803,7 @@ export interface FileRoutesByFullPath {
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
+  '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
@@ -913,6 +921,7 @@ export interface FileRoutesByTo {
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
+  '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
@@ -1032,6 +1041,7 @@ export interface FileRoutesById {
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
+  '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
@@ -1152,6 +1162,7 @@ export interface FileRouteTypes {
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/carrinho'
+    | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
@@ -1269,6 +1280,7 @@ export interface FileRouteTypes {
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/carrinho'
+    | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
@@ -1387,6 +1399,7 @@ export interface FileRouteTypes {
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/carrinho'
+    | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
@@ -1468,6 +1481,7 @@ export interface RootRouteChildren {
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicAvaliacaoFotoRoute: typeof ApiPublicAvaliacaoFotoRoute
   ApiPublicCarrinhoRoute: typeof ApiPublicCarrinhoRoute
+  ApiPublicContatoWhatsappRoute: typeof ApiPublicContatoWhatsappRoute
   ApiPublicEmailBajaRoute: typeof ApiPublicEmailBajaRoute
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
@@ -2075,6 +2089,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCarrinhoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/contato-whatsapp': {
+      id: '/api/public/contato-whatsapp'
+      path: '/api/public/contato-whatsapp'
+      fullPath: '/api/public/contato-whatsapp'
+      preLoaderRoute: typeof ApiPublicContatoWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/email-baja': {
       id: '/api/public/email-baja'
       path: '/api/public/email-baja'
@@ -2521,6 +2542,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicAvaliacaoFotoRoute: ApiPublicAvaliacaoFotoRoute,
   ApiPublicCarrinhoRoute: ApiPublicCarrinhoRoute,
+  ApiPublicContatoWhatsappRoute: ApiPublicContatoWhatsappRoute,
   ApiPublicEmailBajaRoute: ApiPublicEmailBajaRoute,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,

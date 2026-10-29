@@ -129,6 +129,7 @@ export const painelPopupFn = createServerFn({ method: "GET" })
         fechados: n("fechado"),
         codigos: n("codigo"),
         cadastros: n("cadastro"),
+        whatsapp: n("whatsapp"),
         logins: n("login"),
         cupons: total,
         usados,
@@ -163,5 +164,32 @@ export const marcarCupomFn = createServerFn({ method: "POST" })
       where: { id: data.id },
       data: { cupom_usado_em: data.usado ? new Date() : null },
     });
+    return { ok: true };
+  });
+
+// Contatos que deixaram só o WhatsApp no pop-up (sem conta)
+export const contatosWhatsappFn = createServerFn({ method: "GET" })
+  .validator((d: { busca?: string }) => ({
+    busca: String(d?.busca ?? "")
+      .trim()
+      .slice(0, 60),
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { listarContatos } = await import("./contato-whatsapp.server");
+    return listarContatos(data.busca);
+  });
+
+export const atualizarContatoFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number; status?: string; nota?: string | null; usado?: boolean }) => ({
+    id: Number(d?.id) || 0,
+    status: d?.status ? String(d.status) : undefined,
+    nota: d?.nota === undefined ? undefined : d.nota === null ? null : String(d.nota),
+    usado: d?.usado === undefined ? undefined : !!d.usado,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { atualizarContato } = await import("./contato-whatsapp.server");
+    await atualizarContato(data.id, data);
     return { ok: true };
   });

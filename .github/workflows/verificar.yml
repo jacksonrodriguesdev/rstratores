@@ -123,6 +123,9 @@ jobs:
       - name: E-mail de peças vistas sem orçamento
         run: npx tsx scripts/ci/testar-interesse-email.ts
 
+      - name: Contato pelo WhatsApp (pop-up)
+        run: npx tsx scripts/ci/testar-contato-whatsapp.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

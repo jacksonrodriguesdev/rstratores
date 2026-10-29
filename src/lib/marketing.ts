@@ -111,11 +111,13 @@ export function eventoPopup(acao: string, eventId?: string) {
   const ga: Record<string, [string, Record<string, string>]> = {
     visto: ["view_promotion", { promotion_name: "popup_acceso" }],
     cadastro: ["sign_up", { method: "popup" }],
+    whatsapp: ["sign_up", { method: "popup_whatsapp" }],
     login: ["login", { method: "popup" }],
   };
   try {
     if (ga[acao]) w()?.gtag?.("event", ga[acao][0], ga[acao][1]);
-    if (acao === "cadastro") {
+    // Deixou o WhatsApp no pop-up: conta como cadastro (sem conta, mas com contato)
+    if (acao === "cadastro" || acao === "whatsapp") {
       adsConversao("gadsCadastro");
       w()?.fbq?.("track", "CompleteRegistration", {}, eventId ? { eventID: eventId } : undefined);
     }

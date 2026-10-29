@@ -15,9 +15,11 @@ import {
   ShoppingCart,
   Ticket,
   MessageCircle,
+  Smartphone,
 } from "lucide-react";
 import { getSessionFn } from "@/lib/user-auth";
 import { getPopupFn, meuCupomFn, completarPerfilFn } from "@/lib/acesso";
+import { visitanteAtual } from "@/lib/visitante";
 import { DEPARTAMENTOS_UY, mascararCelularUY } from "@/lib/validacao-conta";
 import { registrarEvento } from "@/lib/eventos";
 import {
@@ -26,7 +28,7 @@ import {
   pedirPrecoWhatsapp,
   type PedidoCadastro,
 } from "@/lib/pedir-cadastro";
-import { PHONE } from "@/lib/whatsapp";
+import { PHONE, whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/idioma";
 
@@ -34,11 +36,14 @@ import { useT } from "@/lib/idioma";
 // segundos depois de abrir o site para quem não está logado — em toda visita, até se cadastrar —
 // e também num momento de interesse (carrinho, busca sem resultado, catálogo, pedir preço pelo
 // WhatsApp: pedirCadastro()). Pedir preço pelo WhatsApp exige conta: o WhatsApp só abre depois.
-// Pede só o e-mail: código de 6 dígitos → conta criada na hora com o cupom único de 15%.
-// Nome, departamento e celular ficam opcionais na tela final.
+// Duas formas: só o WhatsApp (celular, sem conta: ganha o cupom e o WhatsApp de preço abre na hora;
+// src/lib/contato-whatsapp.server.ts) ou o e-mail (código de 6 dígitos → conta criada na hora com o
+// cupom único). Nome, departamento e celular ficam opcionais na tela final da conta.
 const FECHADO = "popup_acceso_fechado"; // fechou nesta visita (sessionStorage: volta na próxima)
 const FEITO = "popup_acceso_ok"; // já entrou/cadastrou por aqui
 const CARRINHO_SESSAO = "popup_acceso_carrinho"; // já abriu pelo carrinho nesta sessão
+const CONTATO_WA = "popup_contato_wa"; // deixou o WhatsApp: o pedido de preço abre direto
+const PECAS_SESSAO = "popup_pecas_vistas"; // peças abertas nesta visita (modo "interesse")
 const OCULTAR = [
   /^\/admin/,
   /^\/login/,
@@ -65,7 +70,49 @@ const gravar = (k: string, v: string, store: "local" | "sessao" = "local") => {
 };
 
 type Etapa = "inicio" | "codigo" | "senha" | "ok";
-type Resultado = { nome: string; cupom: string | null; usado?: boolean; novo?: boolean };
+type Canal = "whatsapp" | "email";
+type Resultado = {
+  nome: string;
+  cupom: string | null;
+  usado?: boolean;
+  novo?: boolean;
+  whatsapp?: boolean; // deixou só o celular (sem conta)
+};
+
+// Código da peça na mensagem do WhatsApp ("Código: X"), para saber o que a pessoa queria
+const pecaDoLink = (url?: string) => {
+  try {
+    const txt = new URL(url ?? "").searchParams.get("text") ?? "";
+    return [...txt.matchAll(/C[óo]d(?:igo)?:\s*([^\s\n]+)/g)].map((m) => m[1]).join(",") || null;
+  } catch {
+    return null;
+  }
+};
+// Cupom no fim da mensagem do WhatsApp: a equipe já vê o desconto na conversa
+const comCupom = (url: string, cupom: string | null | undefined, rotulo: string) => {
+  if (!cupom) return url;
+  try {
+    const u = new URL(url);
+    const atual = u.searchParams.get("text") ?? "";
+    u.searchParams.delete("text");
+    // encodeURIComponent (espaço = %20), igual aos outros links do site
+    const texto = encodeURIComponent(`${atual}\n\n${rotulo}: ${cupom}`.trim());
+    return `${u.toString()}${u.search ? "&" : "?"}text=${texto}`;
+  } catch {
+    return url;
+  }
+};
+const aceitaWhatsapp = (m?: string) => m !== "catalogo" && m !== "cotizacao";
+// Máscara do celular brasileiro: (53) 99999-9999
+const mascararCelularBR = (e: string) => {
+  let d = (e || "").replace(/\D/g, "");
+  if (d.startsWith("55") && d.length > 11) d = d.slice(2);
+  d = d.slice(0, 11);
+  if (d.length <= 2) return d;
+  const resto = d.slice(2);
+  const corte = resto.length > 8 ? 5 : 4;
+  return `(${d.slice(0, 2)}) ${resto.slice(0, corte)}${resto.length > corte ? `-${resto.slice(corte)}` : ""}`;
+};
 const inputCls =
   "h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-900 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15";
 
@@ -86,6 +133,8 @@ export function PopupAcesso() {
   const [aberto, setAberto] = useState(false);
   const [pedido, setPedido] = useState<PedidoCadastro | null>(null);
   const [etapa, setEtapa] = useState<Etapa>("inicio");
+  const [canal, setCanal] = useState<Canal>("whatsapp");
+  const [celular, setCelular] = useState("");
   const [email, setEmail] = useState("");
   const [codigo, setCodigo] = useState("");
   const [senha, setSenha] = useState("");
@@ -162,9 +211,52 @@ export function PopupAcesso() {
     return () => clearTimeout(t);
   }, [cfg]);
 
-  // Abre N segundos depois de chegar, só para quem não está logado
+  // Modo "interesse": abre quando a pessoa mostra interesse, nunca de cara.
+  // Gatilhos: abriu a 2ª peça nesta visita; ficou 40 s numa peça; no computador, o mouse saiu
+  // pelo topo da janela (ia fechar a aba ou trocar de site) depois de 10 s no site.
+  const pecasNaVisita = useRef(0);
   useEffect(() => {
-    if (!cfg?.ativo || !isFetched || sessao) return;
+    if (!/^(\/pt)?\/produto\//.test(location.pathname)) return;
+    const n = Number(ler(PECAS_SESSAO, "sessao") || 0) + 1;
+    gravar(PECAS_SESSAO, String(n), "sessao");
+    pecasNaVisita.current = n;
+  }, [location.pathname]);
+  useEffect(() => {
+    if (!cfg?.ativo || cfg.modo !== "interesse" || !isFetched || sessao) return;
+    if (ler(FEITO) || ler(FECHADO, "sessao")) return;
+    const abrir = (gatilho: string) => {
+      const s = estado.current;
+      if (s.aberto || s.sessao || ler(FEITO) || ler(FECHADO, "sessao")) return;
+      if (!permitido(caminho.current)) return;
+      setPedido(null);
+      setEtapa("inicio");
+      setCanal("whatsapp");
+      setAberto(true);
+      registrarEvento("popup", `visto:${gatilho}`);
+    };
+    const naPeca = () => /^(\/pt)?\/produto\//.test(caminho.current);
+    // 2ª peça: espera 4 s na página (a pessoa vê a peça antes do pop-up)
+    const t2 =
+      naPeca() && pecasNaVisita.current >= 2 ? setTimeout(() => abrir("2a_peca"), 4000) : null;
+    const t40 = naPeca() ? setTimeout(() => abrir("40s_peca"), 40_000) : null;
+    const chegou = performance.now();
+    const saida = (e: MouseEvent) => {
+      if (e.clientY > 0 || e.relatedTarget) return;
+      if (performance.now() - chegou < 10_000) return;
+      abrir("saida");
+    };
+    const computador = window.matchMedia?.("(pointer: fine)").matches;
+    if (computador) document.addEventListener("mouseout", saida);
+    return () => {
+      if (t2) clearTimeout(t2);
+      if (t40) clearTimeout(t40);
+      document.removeEventListener("mouseout", saida);
+    };
+  }, [cfg, isFetched, sessao, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Modo "tempo": abre N segundos depois de chegar, só para quem não está logado
+  useEffect(() => {
+    if (!cfg?.ativo || cfg.modo === "interesse" || !isFetched || sessao) return;
     if (ler(FEITO)) return;
     // Fechou nesta visita: só volta na próxima
     if (ler(FECHADO, "sessao")) return;
@@ -226,9 +318,16 @@ export function PopupAcesso() {
         else if (p.destino) window.location.href = p.destino;
         return;
       }
-      // Pop-up desligado no admin: o WhatsApp não exige cadastro
-      if (p.motivo === "whatsapp" && p.destino && !c?.ativo) {
-        abrirWhatsapp(p.destino, p.aoAbrir);
+      // Pop-up desligado no admin, ou o aparelho já deixou o WhatsApp: abre direto
+      if (p.motivo === "whatsapp" && p.destino && (!c?.ativo || ler(CONTATO_WA))) {
+        // Quem deixou o WhatsApp: o cupom vai no fim da mensagem
+        const cupom = ler(CONTATO_WA);
+        abrirWhatsapp(
+          cupom && cupom !== "1"
+            ? comCupom(p.destino, cupom, t("Mi cupón", "Meu cupom"))
+            : p.destino,
+          p.aoAbrir,
+        );
         return;
       }
       // Formulário de cotação com o pop-up desligado: cadastro pela página
@@ -251,6 +350,8 @@ export function PopupAcesso() {
       setPedido(p);
       setErro(null);
       setEtapa("inicio");
+      // Catálogo e formulário de cotação precisam de conta (e-mail); o resto aceita o WhatsApp
+      setCanal(p.email || !aceitaWhatsapp(p.motivo) ? "email" : "whatsapp");
       if (p.email) setEmail(p.email);
       setAberto(true);
       registrarEvento("popup", `visto:${p.motivo}`);
@@ -283,22 +384,41 @@ export function PopupAcesso() {
   const comDesconto = (x: string) => x.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
   // Textos curtos: o pop-up só convida a entrar (ou criar conta) para consultar preços e cotar
   const titulo =
-    motivo === "whatsapp" || motivo === "cotizacao"
-      ? t("Registrate para cotizar", "Cadastre-se para fazer seu orçamento")
-      : motivo === "carrinho"
-        ? t("Registrate para cotizar tu pedido", "Cadastre-se para orçar seu pedido")
-        : motivo === "busca"
-          ? termo
-            ? t(`¿No encontraste "${termo}"?`, `Não encontrou "${termo}"?`)
-            : t("¿No encontraste la pieza?", "Não encontrou a peça?")
-          : motivo === "catalogo"
-            ? t("Ingresá para abrir el catálogo", "Entre para abrir o catálogo")
-            : // O texto do admin (Pop-up de cadastro) é o do site em espanhol
-              idioma === "pt"
-              ? "Entre para ver preços e fazer orçamentos"
-              : comDesconto(cfg.titulo);
-  const subtitulo =
-    motivo === "busca"
+    canal === "whatsapp" && motivo === "whatsapp"
+      ? t("Recibí el precio por WhatsApp", "Receba o preço pelo WhatsApp")
+      : canal === "whatsapp" && !motivo
+        ? t(`${desconto}% OFF en tu primera compra`, `${desconto}% OFF na primeira compra`)
+        : motivo === "whatsapp" || motivo === "cotizacao"
+          ? t("Registrate para cotizar", "Cadastre-se para fazer seu orçamento")
+          : motivo === "carrinho"
+            ? t("Registrate para cotizar tu pedido", "Cadastre-se para orçar seu pedido")
+            : motivo === "busca"
+              ? termo
+                ? t(`¿No encontraste "${termo}"?`, `Não encontrou "${termo}"?`)
+                : t("¿No encontraste la pieza?", "Não encontrou a peça?")
+              : motivo === "catalogo"
+                ? t("Ingresá para abrir el catálogo", "Entre para abrir o catálogo")
+                : // O texto do admin (Pop-up de cadastro) é o do site em espanhol
+                  idioma === "pt"
+                  ? "Entre para ver preços e fazer orçamentos"
+                  : comDesconto(cfg.titulo);
+  const porWhatsapp = canal === "whatsapp" && aceitaWhatsapp(motivo);
+  const subtitulo = porWhatsapp
+    ? motivo === "busca"
+      ? t(
+          "Dejá tu WhatsApp y te avisamos apenas llegue.",
+          "Deixe seu WhatsApp e avisamos assim que chegar.",
+        )
+      : motivo === "whatsapp"
+        ? t(
+            `Dejá tu WhatsApp y abrimos el chat con la pieza. Además: ${desconto}% OFF en tu primera compra.`,
+            `Deixe seu WhatsApp e abrimos a conversa com a peça. E mais: ${desconto}% OFF na primeira compra.`,
+          )
+        : t(
+            "Dejá tu WhatsApp: te pasamos precios y confirmamos si la pieza sirve para tu tractor. Sin crear cuenta.",
+            "Deixe seu WhatsApp: passamos preços e confirmamos se a peça serve no seu trator. Sem criar conta.",
+          )
+    : motivo === "busca"
       ? t(
           "Dejá tu e-mail y te avisamos apenas llegue.",
           "Deixe seu e-mail e avisamos assim que chegar.",
@@ -375,6 +495,33 @@ export function PopupAcesso() {
     await terminar({ nome: r?.nome ?? "", cupom: r?.cupom ?? null, usado: r?.usado }, "login");
   });
 
+  // Só o celular: sem conta, ganha o cupom e o WhatsApp de preço passa a abrir direto
+  const enviarWhatsapp = acao(async () => {
+    const interesse =
+      motivo === "whatsapp"
+        ? pecaDoLink(pedido?.destino)
+        : motivo === "busca"
+          ? (termo ?? null)
+          : // Numa peça: o código dela; em outra página: o endereço
+            decodeURIComponent(
+              location.pathname.match(/^(?:\/pt)?\/produto\/([^/]+)/)?.[1] ?? "",
+            ) || location.pathname;
+    const j = await post("/api/public/contato-whatsapp", {
+      telefone: celular,
+      motivo: motivo ?? cfg.modo,
+      pagina: location.pathname,
+      interesse,
+      visitorId: visitanteAtual().visitorId,
+      site: (document.getElementById("popup-site") as HTMLInputElement | null)?.value,
+    });
+    // Guarda o cupom (ainda não usado) para ir nas próximas mensagens do WhatsApp
+    gravar(CONTATO_WA, j.cupom && !j.usado ? j.cupom : "1");
+    gravar(FEITO, "1");
+    registrarEvento("popup", "whatsapp");
+    setResultado({ nome: j.nome ?? "", cupom: j.cupom, usado: j.usado, whatsapp: true });
+    setEtapa("ok");
+  });
+
   const googleUrl = () => {
     // O destino do WhatsApp é externo: volta para a página atual
     const destinoInterno = pedido?.destino?.startsWith("/") ? pedido.destino : null;
@@ -394,7 +541,12 @@ export function PopupAcesso() {
   const continuar = () => {
     setAberto(false);
     if (pedido?.motivo === "whatsapp" && pedido.destino)
-      abrirWhatsapp(pedido.destino, pedido.aoAbrir);
+      abrirWhatsapp(
+        resultado?.usado
+          ? pedido.destino
+          : comCupom(pedido.destino, resultado?.cupom, t("Mi cupón", "Meu cupom")),
+        pedido.aoAbrir,
+      );
     else if (pedido?.destino) window.location.href = pedido.destino;
     setPedido(null);
   };
@@ -443,12 +595,22 @@ export function PopupAcesso() {
                 {primeiroNome ? `, ${primeiroNome}` : ""}!
               </h2>
               <p className="mt-1 text-zinc-600">
-                {motivo === "busca" ? (
+                {resultado.whatsapp && motivo !== "busca" && motivo !== "whatsapp" ? (
+                  t(
+                    "Guardamos tu WhatsApp. Cuando pidas un precio, abrimos el chat directo.",
+                    "Salvamos seu WhatsApp. Quando pedir um preço, abrimos a conversa direto.",
+                  )
+                ) : motivo === "busca" ? (
                   <>
-                    {t(
-                      "Te avisamos por e-mail apenas llegue",
-                      "Avisamos por e-mail assim que chegar",
-                    )}
+                    {resultado.whatsapp
+                      ? t(
+                          "Te avisamos por WhatsApp apenas llegue",
+                          "Avisamos pelo WhatsApp assim que chegar",
+                        )
+                      : t(
+                          "Te avisamos por e-mail apenas llegue",
+                          "Avisamos por e-mail assim que chegar",
+                        )}
                     {termo ? (
                       <>
                         {" "}
@@ -497,10 +659,15 @@ export function PopupAcesso() {
                     )}
                   </button>
                   <p className="mt-2 text-xs text-zinc-500">
-                    {t(
-                      "Mencioná el código al pedir por WhatsApp. También lo encontrás en Mi cuenta.",
-                      "Informe o código ao pedir pelo WhatsApp. Ele também fica em Minha conta.",
-                    )}
+                    {resultado.whatsapp
+                      ? t(
+                          "Va solo en tu mensaje de WhatsApp. Guardalo por las dudas.",
+                          "Ele vai sozinho na sua mensagem do WhatsApp. Guarde por via das dúvidas.",
+                        )
+                      : t(
+                          "Mencioná el código al pedir por WhatsApp. También lo encontrás en Mi cuenta.",
+                          "Informe o código ao pedir pelo WhatsApp. Ele também fica em Minha conta.",
+                        )}
                   </p>
                 </div>
               )}
@@ -596,6 +763,37 @@ export function PopupAcesso() {
                   >
                     <BookOpen className="h-5 w-5" /> {t("Abrir el catálogo", "Abrir o catálogo")}
                   </button>
+                ) : resultado.whatsapp ? (
+                  <>
+                    {/* Sem conta: o catálogo pediria o e-mail; o próximo passo é a conversa */}
+                    <button
+                      onClick={() => {
+                        setAberto(false);
+                        abrirWhatsapp(
+                          comCupom(
+                            whatsappContactUrl(
+                              t(
+                                "¡Hola! Busco un repuesto para mi tractor.",
+                                "Olá! Procuro uma peça para o meu trator.",
+                              ),
+                            ),
+                            resultado.usado ? null : resultado.cupom,
+                            t("Mi cupón", "Meu cupom"),
+                          ),
+                        );
+                      }}
+                      className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#25D366] font-bold text-white hover:bg-[#1EBE57]"
+                    >
+                      <MessageCircle className="h-5 w-5" />{" "}
+                      {t("Hablar por WhatsApp", "Falar no WhatsApp")}
+                    </button>
+                    <button
+                      onClick={continuar}
+                      className="h-12 rounded-xl border font-semibold text-zinc-700 hover:bg-zinc-50"
+                    >
+                      {t("Seguir navegando", "Continuar navegando")}
+                    </button>
+                  </>
                 ) : (
                   <>
                     <a
@@ -664,93 +862,204 @@ export function PopupAcesso() {
 
               {etapa === "inicio" && (
                 <>
-                  <form
-                    onSubmit={
-                      cfg.codigo
-                        ? pedirCodigo
-                        : (e) => {
-                            e.preventDefault();
-                            setEtapa("senha");
-                          }
-                    }
-                    className="mt-4 space-y-3"
-                  >
-                    <input
-                      ref={primeiroCampo}
-                      type="email"
-                      required
-                      autoComplete="email"
-                      inputMode="email"
-                      placeholder={t("tu@email.com", "seu@email.com")}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={inputCls}
-                    />
-                    <button
-                      disabled={ocupado}
-                      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-60"
+                  {aceitaWhatsapp(motivo) && (
+                    <div
+                      role="tablist"
+                      className="mt-4 grid grid-cols-2 gap-1 rounded-xl bg-zinc-100 p-1 text-sm font-bold"
                     >
-                      {ocupado ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Mail className="h-5 w-5" />
-                      )}{" "}
-                      {t("Continuar", "Continuar")}
-                    </button>
-                  </form>
-                  <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-400">
-                    {t("Al continuar aceptás la", "Ao continuar, você aceita a")}{" "}
-                    <a href={href("/ayuda") + "#privacidad"} target="_blank" className="underline">
-                      {t("política de privacidad", "política de privacidade")}
-                    </a>{" "}
-                    {t(
-                      "y recibir ofertas por e-mail. Te das de baja cuando quieras.",
-                      "e receber ofertas por e-mail. Você pode cancelar quando quiser.",
-                    )}
-                  </p>
-                  {cfg.google && (
-                    <>
-                      <div className="my-3 flex items-center gap-3 text-xs font-semibold uppercase text-zinc-400">
-                        <span className="h-px flex-1 bg-zinc-200" /> {t("o", "ou")}{" "}
-                        <span className="h-px flex-1 bg-zinc-200" />
-                      </div>
-                      <a
-                        href={googleUrl()}
-                        className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
-                          <path
-                            fill="#FFC107"
-                            d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"
-                          />
-                          <path
-                            fill="#FF3D00"
-                            d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
-                          />
-                          <path
-                            fill="#4CAF50"
-                            d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"
-                          />
-                          <path
-                            fill="#1976D2"
-                            d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"
-                          />
-                        </svg>
-                        {t("Continuar con Google", "Continuar com Google")}
-                      </a>
-                    </>
+                      {(
+                        [
+                          ["whatsapp", "WhatsApp", MessageCircle],
+                          ["email", "E-mail", Mail],
+                        ] as const
+                      ).map(([c, rotulo, Icone]) => (
+                        <button
+                          key={c}
+                          type="button"
+                          role="tab"
+                          aria-selected={canal === c}
+                          onClick={() => {
+                            setErro(null);
+                            setCanal(c);
+                            registrarEvento("popup", `aba:${c}`);
+                          }}
+                          className={cn(
+                            "flex h-10 items-center justify-center gap-1.5 rounded-lg transition",
+                            canal === c
+                              ? "bg-white text-zinc-900 shadow-sm"
+                              : "text-zinc-500 hover:text-zinc-800",
+                          )}
+                        >
+                          <Icone
+                            className={cn(
+                              "h-4 w-4",
+                              c === "whatsapp" && canal === c && "text-[#1EBE57]",
+                            )}
+                          />{" "}
+                          {rotulo}
+                        </button>
+                      ))}
+                    </div>
                   )}
-                  {cfg.codigo && (
-                    <button
-                      onClick={() => {
-                        setErro(null);
-                        setEtapa("senha");
-                      }}
-                      className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-                    >
-                      <KeyRound className="h-4 w-4" />{" "}
-                      {t("Ya tengo cuenta con contraseña", "Já tenho conta com senha")}
-                    </button>
+                  {porWhatsapp ? (
+                    <>
+                      <form onSubmit={enviarWhatsapp} className="mt-4 space-y-3">
+                        {/* Campo escondido: só robô preenche */}
+                        <input
+                          id="popup-site"
+                          name="site"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          className="hidden"
+                          aria-hidden="true"
+                        />
+                        <label className="relative block">
+                          <Smartphone className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" />
+                          <input
+                            ref={primeiroCampo}
+                            required
+                            type="tel"
+                            inputMode="tel"
+                            autoComplete="tel"
+                            aria-label={t("Tu celular con WhatsApp", "Seu celular com WhatsApp")}
+                            placeholder={idioma === "pt" ? "(53) 99999-9999" : "09X XXX XXX"}
+                            value={celular}
+                            onChange={(e) =>
+                              setCelular(
+                                idioma === "pt"
+                                  ? mascararCelularBR(e.target.value)
+                                  : mascararCelularUY(e.target.value),
+                              )
+                            }
+                            className={cn(inputCls, "pl-12 text-lg tracking-wide")}
+                          />
+                        </label>
+                        <button
+                          disabled={ocupado || celular.replace(/\D/g, "").length < 8}
+                          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] text-base font-bold text-white shadow-lg shadow-[#25D366]/30 hover:bg-[#1EBE57] disabled:opacity-60"
+                        >
+                          {ocupado ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <MessageCircle className="h-5 w-5" />
+                          )}{" "}
+                          {motivo === "whatsapp"
+                            ? t("Seguir al WhatsApp", "Ir para o WhatsApp")
+                            : motivo === "busca"
+                              ? t("Avisarme por WhatsApp", "Me avise pelo WhatsApp")
+                              : t("Quiero mi cupón", "Quero meu cupom")}
+                        </button>
+                      </form>
+                      <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-400">
+                        {t("Al continuar aceptás la", "Ao continuar, você aceita a")}{" "}
+                        <a
+                          href={href("/ayuda") + "#privacidad"}
+                          target="_blank"
+                          className="underline"
+                        >
+                          {t("política de privacidad", "política de privacidade")}
+                        </a>{" "}
+                        {t(
+                          "y que te escribamos por WhatsApp. Sin spam: nos pedís que paremos y paramos.",
+                          "e que falemos com você pelo WhatsApp. Sem spam: é só pedir para parar.",
+                        )}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <form
+                        onSubmit={
+                          cfg.codigo
+                            ? pedirCodigo
+                            : (e) => {
+                                e.preventDefault();
+                                setEtapa("senha");
+                              }
+                        }
+                        className="mt-4 space-y-3"
+                      >
+                        <input
+                          ref={primeiroCampo}
+                          type="email"
+                          required
+                          autoComplete="email"
+                          inputMode="email"
+                          placeholder={t("tu@email.com", "seu@email.com")}
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className={inputCls}
+                        />
+                        <button
+                          disabled={ocupado}
+                          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-60"
+                        >
+                          {ocupado ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <Mail className="h-5 w-5" />
+                          )}{" "}
+                          {t("Continuar", "Continuar")}
+                        </button>
+                      </form>
+                      <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-400">
+                        {t("Al continuar aceptás la", "Ao continuar, você aceita a")}{" "}
+                        <a
+                          href={href("/ayuda") + "#privacidad"}
+                          target="_blank"
+                          className="underline"
+                        >
+                          {t("política de privacidad", "política de privacidade")}
+                        </a>{" "}
+                        {t(
+                          "y recibir ofertas por e-mail. Te das de baja cuando quieras.",
+                          "e receber ofertas por e-mail. Você pode cancelar quando quiser.",
+                        )}
+                      </p>
+                      {cfg.google && (
+                        <>
+                          <div className="my-3 flex items-center gap-3 text-xs font-semibold uppercase text-zinc-400">
+                            <span className="h-px flex-1 bg-zinc-200" /> {t("o", "ou")}{" "}
+                            <span className="h-px flex-1 bg-zinc-200" />
+                          </div>
+                          <a
+                            href={googleUrl()}
+                            className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
+                          >
+                            <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
+                              <path
+                                fill="#FFC107"
+                                d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"
+                              />
+                              <path
+                                fill="#FF3D00"
+                                d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
+                              />
+                              <path
+                                fill="#4CAF50"
+                                d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"
+                              />
+                              <path
+                                fill="#1976D2"
+                                d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"
+                              />
+                            </svg>
+                            {t("Continuar con Google", "Continuar com Google")}
+                          </a>
+                        </>
+                      )}
+                      {cfg.codigo && (
+                        <button
+                          onClick={() => {
+                            setErro(null);
+                            setEtapa("senha");
+                          }}
+                          className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+                        >
+                          <KeyRound className="h-4 w-4" />{" "}
+                          {t("Ya tengo cuenta con contraseña", "Já tenho conta com senha")}
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               )}
