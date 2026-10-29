@@ -19,6 +19,39 @@ function redirecionarAlias(request: Request): Response | null {
   });
 }
 
+// Cabeçalhos de segurança em todas as respostas (páginas, APIs, arquivos):
+// - HSTS: o navegador passa a usar sempre https neste domínio (180 dias; sem subdomínios);
+// - nenhum outro site pode abrir o nosso dentro de uma moldura (golpe de clique escondido);
+// - o navegador não adivinha o tipo do arquivo (um upload não vira script);
+// - links para fora levam só o domínio, não o endereço completo;
+// - câmera, microfone e localização desligados (o site não usa).
+// Pagamentos (dLocal/Stripe) e prévias da Meta são iframes DE outros sites dentro do nosso: seguem
+// funcionando.
+const SEGURANCA: Record<string, string> = {
+  "Strict-Transport-Security": "max-age=15552000",
+  "X-Frame-Options": "SAMEORIGIN",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+};
+function comSeguranca(response: Response): Response {
+  let r = response;
+  for (const [k, v] of Object.entries(SEGURANCA)) {
+    if (r.headers.has(k)) continue;
+    try {
+      r.headers.set(k, v);
+    } catch {
+      // Cabeçalhos imutáveis (ex.: resposta de fetch repassada): copia a resposta
+      r = new Response(r.body, r);
+      r.headers.set(k, v);
+    }
+  }
+  // Moldura: também pela regra moderna (CSP), sem mexer na política que a CDN já envia
+  if (!r.headers.get("content-security-policy")?.includes("frame-ancestors"))
+    r.headers.append("Content-Security-Policy", "frame-ancestors 'self'");
+  return r;
+}
+
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
@@ -78,17 +111,19 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     iniciarAutomacoes();
     const alias = redirecionarAlias(request);
-    if (alias) return alias;
+    if (alias) return comSeguranca(alias);
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return comSeguranca(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      return comSeguranca(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };
