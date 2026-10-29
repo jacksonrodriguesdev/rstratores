@@ -117,6 +117,9 @@ jobs:
       - name: Ficha do cliente (viu e não pediu)
         run: npx tsx scripts/ci/testar-ficha-cliente.ts
 
+      - name: Fotos na avaliação
+        run: npx tsx scripts/ci/testar-fotos-avaliacao.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

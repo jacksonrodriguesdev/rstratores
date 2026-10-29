@@ -17,6 +17,7 @@ type Dados = {
     nota: number;
     comentario: string | null;
     resposta: string | null;
+    fotos?: string[];
     verificada: boolean;
     comCupom: boolean;
     quando: string;
@@ -136,6 +137,20 @@ export function AvaliacoesPeca({ dados }: { dados: Dados }) {
                   <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-zinc-700">
                     {r.comentario}
                   </p>
+                )}
+                {!!r.fotos?.length && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {r.fotos.map((p) => (
+                      <a key={p} href={`/uploads/${p}`} target="_blank" rel="noreferrer">
+                        <img
+                          src={`/uploads/${p}`}
+                          alt={t("Foto del cliente", "Foto do cliente")}
+                          loading="lazy"
+                          className="h-20 w-20 rounded-lg border object-cover hover:opacity-90"
+                        />
+                      </a>
+                    ))}
+                  </div>
                 )}
                 {r.comCupom && (
                   <p className="mt-1 text-[11px] text-muted-foreground">

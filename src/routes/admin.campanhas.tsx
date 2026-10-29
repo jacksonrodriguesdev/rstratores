@@ -36,6 +36,7 @@ import {
 } from "@/lib/campanhas";
 import { CONFIG_PADRAO } from "@/lib/campanha-comum";
 import { cn } from "@/lib/utils";
+import { AbaIndicacoes } from "@/components/admin/IndicacoesAdmin";
 
 // Admin → Campanhas e cupons: Black Friday (ou outra campanha) com pré-campanha, contagem, site em
 // preto e dourado, descontos por categoria/marca/peça e cupons (inclusive "mistério").
@@ -60,7 +61,7 @@ const dataBR = (v: string) =>
   new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
 function Campanhas() {
-  const [aba, setAba] = useState<"campanhas" | "cupons">("campanhas");
+  const [aba, setAba] = useState<"campanhas" | "cupons" | "indicacoes">("campanhas");
   return (
     <div className="space-y-5">
       <div>
@@ -73,7 +74,7 @@ function Campanhas() {
         </p>
       </div>
       <div className="flex gap-2">
-        {(["campanhas", "cupons"] as const).map((a) => (
+        {(["campanhas", "cupons", "indicacoes"] as const).map((a) => (
           <button
             key={a}
             onClick={() => setAba(a)}
@@ -82,11 +83,17 @@ function Campanhas() {
               aba === a ? "bg-primary text-white" : "bg-zinc-100 text-zinc-700",
             )}
           >
-            {a === "campanhas" ? "Campanhas" : "Cupons"}
+            {a === "campanhas" ? "Campanhas" : a === "cupons" ? "Cupons" : "Indique e ganhe"}
           </button>
         ))}
       </div>
-      {aba === "campanhas" ? <AbaCampanhas /> : <AbaCupons />}
+      {aba === "campanhas" ? (
+        <AbaCampanhas />
+      ) : aba === "cupons" ? (
+        <AbaCupons />
+      ) : (
+        <AbaIndicacoes />
+      )}
     </div>
   );
 }

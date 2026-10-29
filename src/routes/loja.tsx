@@ -40,6 +40,7 @@ import { listProducts, getFacets, type ListParams, type Product } from "@/lib/pr
 import { categoriaEs, categoriaFraseEs } from "@/lib/pecas-es";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { BotaoFotoPieza } from "@/components/FotoPieza";
 import { urlRepuestos } from "@/lib/seo-paginas";
 import { linksIdioma, comPrefixo, tr, useT, type Idioma } from "@/lib/idioma";
 
@@ -602,6 +603,7 @@ function EmptyState({ busca }: { busca: string }) {
       >
         <MessageCircle className="h-4 w-4" /> {t("Pedir por WhatsApp", "Pedir pelo WhatsApp")}
       </a>
+      <BotaoFotoPieza className="mt-3 flex items-center gap-2 rounded-full border-2 border-primary px-5 py-2 text-sm font-bold text-primary hover:bg-primary/5" />
     </div>
   );
 }

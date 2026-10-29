@@ -4,6 +4,7 @@ import * as path from "path";
 
 const ALLOWED_EXTS = ["pdf", "jpg", "jpeg", "png", "webp", "doc", "docx", "xls", "xlsx"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const TENTATIVAS = new Map<string, number[]>();
 
 export const Route = createFileRoute("/api/public/quotes")({
   server: {
@@ -11,7 +12,24 @@ export const Route = createFileRoute("/api/public/quotes")({
       POST: async ({ request }) => {
         const { prisma } = await import("@/lib/prisma");
         try {
+          // Limite por IP (o formulário fica no site inteiro: «Mandá una foto de la pieza»)
+          const ip =
+            request.headers.get("cf-connecting-ip") ||
+            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            "?";
+          const agora = Date.now();
+          const lista = (TENTATIVAS.get(ip) ?? []).filter((t) => agora - t < 10 * 60_000);
+          if (lista.length >= 6)
+            return Response.json(
+              { error: "Muitos envios seguidos. Tente de novo em alguns minutos." },
+              { status: 429 },
+            );
+          TENTATIVAS.set(ip, [...lista, agora]);
+          if (TENTATIVAS.size > 5000) TENTATIVAS.clear();
           const formData = await request.formData();
+          // Campo escondido: só robô preenche
+          if (String(formData.get("site") ?? "").trim())
+            return Response.json({ success: true, quote: null });
           const nome = formData.get("nome") as string;
           const endereco = formData.get("endereco") as string;
           const whatsapp = formData.get("whatsapp") as string;

@@ -8,6 +8,7 @@ import {
   ChevronDown,
   LayoutGrid,
   User,
+  Camera,
   ShoppingCart,
   Instagram,
   Facebook,
@@ -38,6 +39,7 @@ import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useQuery } from "@tanstack/react-query";
 import { getSessionFn } from "@/lib/user-auth";
 import { SinoNotificacoes } from "@/components/SinoNotificacoes";
+import { abrirFotoPieza } from "@/components/FotoPieza";
 import { useCart } from "@/components/CartContext";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { MONTADORAS, INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
@@ -297,6 +299,19 @@ export function SiteHeader() {
                 {isAgricola ? "Agrícola" : "Automotiva"}
               </button>
             )}
+
+            {/* Foto da peça (quem não sabe o código) */}
+            <button type="button" onClick={abrirFotoPieza} className={cn(acao, "hidden lg:flex")}>
+              <span className={icone}>
+                <Camera className="h-5 w-5" />
+              </span>
+              <span className="hidden leading-tight xl:block">
+                <span className="block text-[11px] text-white/65">
+                  {t("¿Sin código?", "Sem código?")}
+                </span>
+                <span className="block text-sm font-semibold">{t("Mandá foto", "Mande foto")}</span>
+              </span>
+            </button>
 
             {/* Cotação pelo WhatsApp (desktop) */}
             <a

@@ -3,7 +3,8 @@
 // O Google aparece depois, como convite (sem prêmio: a política do Google proíbe incentivo).
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Check, Copy, Gift, Loader2, MessageCircle, Star } from "lucide-react";
+import { Camera, Check, Copy, Gift, Loader2, MessageCircle, Star } from "lucide-react";
+import { reduzirImagem } from "@/lib/reduzir-imagem";
 import { SiteHeader } from "@/components/SiteHeader";
 import { GoogleLogo } from "@/components/home/GoogleReviews";
 import { enviarAvaliacoesFn, paginaAvaliacaoFn } from "@/lib/avaliacoes";
@@ -46,6 +47,26 @@ function PaginaAvaliar() {
   const [erro, setErro] = useState("");
   const [cupom, setCupom] = useState<string | null>(dados?.cupom ?? null);
   const [copiado, setCopiado] = useState(false);
+  // Fotos da peça instalada (até 4 por peça), enviadas na hora em que são escolhidas
+  const [fotos, setFotos] = useState<Record<string, string[]>>({});
+  const [subindo, setSubindo] = useState<string | null>(null);
+  const enviarFoto = async (sku: string, arq: File) => {
+    setErro("");
+    setSubindo(sku);
+    try {
+      const fd = new FormData();
+      fd.append("codigo", codigo);
+      fd.append("file", await reduzirImagem(arq));
+      const r = await fetch("/api/public/avaliacao-foto", { method: "POST", body: fd });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.path) throw new Error(j.error || "Falha");
+      setFotos((x) => ({ ...x, [sku]: [...(x[sku] ?? []), j.path].slice(0, 4) }));
+    } catch (e: any) {
+      setErro(e?.message ?? t("No se pudo subir la foto.", "Não foi possível enviar a foto."));
+    } finally {
+      setSubindo(null);
+    }
+  };
 
   if (!dados)
     return (
@@ -91,6 +112,7 @@ function PaginaAvaliar() {
             sku: i.sku,
             nota: notas[i.sku],
             comentario: coments[i.sku] || null,
+            fotos: fotos[i.sku] ?? [],
           })),
         },
       });
@@ -281,6 +303,61 @@ function PaginaAvaliar() {
                       )}
                       className="mt-2 w-full rounded-lg border bg-background p-3 text-sm"
                     />
+                  )}
+                  {!!n && (
+                    <div className="mt-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {(fotos[i.sku] ?? []).map((p) => (
+                          <span key={p} className="relative">
+                            <img
+                              src={`/uploads/${p}`}
+                              alt=""
+                              className="h-16 w-16 rounded-lg border object-cover"
+                            />
+                            <button
+                              type="button"
+                              aria-label={t("Quitar foto", "Tirar foto")}
+                              onClick={() =>
+                                setFotos((x) => ({
+                                  ...x,
+                                  [i.sku]: (x[i.sku] ?? []).filter((q) => q !== p),
+                                }))
+                              }
+                              className="absolute -right-1.5 -top-1.5 rounded-full bg-zinc-900 px-1.5 text-xs font-bold text-white"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                        {(fotos[i.sku] ?? []).length < 4 && (
+                          <label className="flex h-16 cursor-pointer items-center gap-1.5 rounded-lg border-2 border-dashed px-3 text-xs font-semibold text-zinc-600">
+                            {subindo === i.sku ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Camera className="h-4 w-4" />
+                            )}
+                            {t("Foto de la pieza instalada", "Foto da peça instalada")}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={!!subindo}
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                e.target.value = "";
+                                if (f) enviarFoto(i.sku, f);
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {t(
+                          "Opcional: una foto de la pieza en tu tractor ayuda a otros productores.",
+                          "Opcional: uma foto da peça no seu trator ajuda outros produtores.",
+                        )}
+                      </p>
+                    </div>
                   )}
                 </div>
               );

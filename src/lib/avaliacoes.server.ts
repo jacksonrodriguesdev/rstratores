@@ -380,7 +380,8 @@ export type EnvioAvaliacao = {
   nome: string;
   cidade?: string | null;
   idioma: "es" | "pt";
-  avaliacoes: Array<{ sku: string; nota: number; comentario?: string | null }>;
+  // fotos: caminhos devolvidos por /api/public/avaliacao-foto (até 4 por peça)
+  avaliacoes: Array<{ sku: string; nota: number; comentario?: string | null; fotos?: string[] }>;
 };
 export async function enviarAvaliacoes(e: EnvioAvaliacao) {
   await garantirTabelasAvaliacoes();
@@ -397,6 +398,7 @@ export async function enviarAvaliacoes(e: EnvioAvaliacao) {
       sku: a.sku,
       nota: Math.round(Number(a.nota)),
       comentario: txt(a.comentario, 2000),
+      fotos: fotosValidas(a.fotos, v.codigo),
     }));
   if (!lista.length)
     throw new Error(
@@ -472,6 +474,24 @@ async function emailCupom(
   });
 }
 
+// Fotos da avaliação: só as da pasta da própria compra (enviadas por /api/public/avaliacao-foto)
+function fotosValidas(lista: unknown, codigo: string) {
+  const padrao = new RegExp(`^avaliacoes/${codigo}/[a-z0-9-]+\\.(jpg|png|webp)$`);
+  const ok = (Array.isArray(lista) ? lista : [])
+    .map((p) => String(p ?? ""))
+    .filter((p) => padrao.test(p))
+    .slice(0, 4);
+  return ok.length ? JSON.stringify(ok) : null;
+}
+export const lerFotos = (s: string | null | undefined): string[] => {
+  try {
+    const v = JSON.parse(s || "[]");
+    return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
+  }
+};
+
 // ---------------------------------------------------------------- avaliações no site
 const nomePublico = (n: string) => {
   const [a, b] = n.trim().split(/\s+/);
@@ -499,6 +519,7 @@ export async function avaliacoesProduto(sku: string) {
       nota: r.nota,
       comentario: r.comentario,
       resposta: r.resposta,
+      fotos: lerFotos(r.fotos),
       verificada: r.verificada,
       comCupom: r.com_cupom,
       idioma: r.idioma,
@@ -539,6 +560,7 @@ export async function listarModeracao(status: string) {
       created_at: r.created_at.toISOString(),
       updated_at: r.updated_at.toISOString(),
       aprovada_em: r.aprovada_em?.toISOString() ?? null,
+      fotos: lerFotos(r.fotos),
       peca: pecas.find((p) => p.sku.trim() === r.sku.trim())?.nome ?? r.sku,
       foto: pecas.find((p) => p.sku.trim() === r.sku.trim())?.imagem_principal ?? null,
       venda: vendas.find((v) => v.id === r.venda_id) ?? null,

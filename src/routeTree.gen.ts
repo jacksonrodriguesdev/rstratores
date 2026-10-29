@@ -89,6 +89,7 @@ import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth.logout'
 import { Route as ApiAuthRapidoRouteImport } from './routes/api/auth.rapido'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
+import { Route as ApiPublicAvaliacaoFotoRouteImport } from './routes/api/public/avaliacao-foto'
 import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carrinho'
 import { Route as ApiPublicEmailBajaRouteImport } from './routes/api/public/email-baja'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
@@ -524,6 +525,11 @@ const ApiPublicAnalyticsRoute = ApiPublicAnalyticsRouteImport.update({
   path: '/api/public/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAvaliacaoFotoRoute = ApiPublicAvaliacaoFotoRouteImport.update({
+  id: '/api/public/avaliacao-foto',
+  path: '/api/public/avaliacao-foto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCarrinhoRoute = ApiPublicCarrinhoRouteImport.update({
   id: '/api/public/carrinho',
   path: '/api/public/carrinho',
@@ -781,6 +787,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
+  '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
@@ -896,6 +903,7 @@ export interface FileRoutesByTo {
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
+  '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
@@ -1013,6 +1021,7 @@ export interface FileRoutesById {
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
+  '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
@@ -1131,6 +1140,7 @@ export interface FileRouteTypes {
     | '/api/auth/rapido'
     | '/api/auth/register'
     | '/api/public/analytics'
+    | '/api/public/avaliacao-foto'
     | '/api/public/carrinho'
     | '/api/public/email-baja'
     | '/api/public/quotes'
@@ -1246,6 +1256,7 @@ export interface FileRouteTypes {
     | '/api/auth/rapido'
     | '/api/auth/register'
     | '/api/public/analytics'
+    | '/api/public/avaliacao-foto'
     | '/api/public/carrinho'
     | '/api/public/email-baja'
     | '/api/public/quotes'
@@ -1362,6 +1373,7 @@ export interface FileRouteTypes {
     | '/api/auth/rapido'
     | '/api/auth/register'
     | '/api/public/analytics'
+    | '/api/public/avaliacao-foto'
     | '/api/public/carrinho'
     | '/api/public/email-baja'
     | '/api/public/quotes'
@@ -1442,6 +1454,7 @@ export interface RootRouteChildren {
   ApiAuthRapidoRoute: typeof ApiAuthRapidoRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
+  ApiPublicAvaliacaoFotoRoute: typeof ApiPublicAvaliacaoFotoRoute
   ApiPublicCarrinhoRoute: typeof ApiPublicCarrinhoRoute
   ApiPublicEmailBajaRoute: typeof ApiPublicEmailBajaRoute
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
@@ -2029,6 +2042,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/avaliacao-foto': {
+      id: '/api/public/avaliacao-foto'
+      path: '/api/public/avaliacao-foto'
+      fullPath: '/api/public/avaliacao-foto'
+      preLoaderRoute: typeof ApiPublicAvaliacaoFotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/carrinho': {
       id: '/api/public/carrinho'
       path: '/api/public/carrinho'
@@ -2478,6 +2498,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthRapidoRoute: ApiAuthRapidoRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
+  ApiPublicAvaliacaoFotoRoute: ApiPublicAvaliacaoFotoRoute,
   ApiPublicCarrinhoRoute: ApiPublicCarrinhoRoute,
   ApiPublicEmailBajaRoute: ApiPublicEmailBajaRoute,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,

@@ -175,6 +175,28 @@ function ItemAvaliacao({ a }: { a: any }) {
               Só as estrelas, sem comentário.
             </p>
           )}
+          {!!a.fotos?.length && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {a.fotos.map((p: string) => (
+                <a
+                  key={p}
+                  href={`/uploads/${p}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Abrir foto (baixe para usar no Instagram)"
+                >
+                  <img
+                    src={`/uploads/${p}`}
+                    alt=""
+                    className="h-20 w-20 rounded-md border object-cover"
+                  />
+                </a>
+              ))}
+              <span className="self-end text-[11px] text-muted-foreground">
+                Fotos do cliente: aparecem na peça quando aprovada
+              </span>
+            </div>
+          )}
           {a.resposta && !abrir && (
             <p className="mt-2 rounded-md bg-muted/60 p-2 text-xs">
               <b>Sua resposta:</b> {a.resposta}

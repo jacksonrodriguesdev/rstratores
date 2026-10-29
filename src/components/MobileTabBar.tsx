@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Home, LayoutGrid, MessageCircle, ShoppingCart, User, Tractor, LogOut } from "lucide-react";
+import {
+  Camera,
+  Home,
+  LayoutGrid,
+  MessageCircle,
+  ShoppingCart,
+  User,
+  Tractor,
+  LogOut,
+} from "lucide-react";
+import { abrirFotoPieza } from "@/components/FotoPieza";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/components/CartContext";
 import { getSessionFn } from "@/lib/user-auth";
@@ -117,6 +127,26 @@ export function MobileTabBar() {
             <SheetTitle>{t("Categorías", "Categorias")}</SheetTitle>
           </SheetHeader>
           <SeletorIdioma variante="clara" className="justify-center pb-2" />
+          <button
+            type="button"
+            onClick={() => {
+              setSheet(null);
+              abrirFotoPieza();
+            }}
+            className="mx-4 mb-3 flex w-[calc(100%-2rem)] items-center gap-3 rounded-2xl bg-primary/10 p-3 text-left active:scale-[0.98]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+              <Camera className="h-5 w-5" />
+            </span>
+            <span className="text-sm">
+              <b className="block text-zinc-900">
+                {t("¿No sabés el código?", "Não sabe o código?")}
+              </b>
+              <span className="text-zinc-600">
+                {t("Mandá una foto de la pieza", "Mande uma foto da peça")}
+              </span>
+            </span>
+          </button>
           <div className="grid grid-cols-3 gap-2 px-4">
             {categorias.map((c) => (
               <Link
