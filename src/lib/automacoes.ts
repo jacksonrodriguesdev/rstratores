@@ -327,3 +327,14 @@ export const enviosAutomacaoFn = createServerFn({ method: "GET" })
       })),
     };
   });
+
+// Peças vistas sem orçamento: e-mails enviados, peças, cupons e respostas
+export const painelInteresseFn = createServerFn({ method: "GET" })
+  .validator((d: { dias?: number }) => ({
+    dias: Math.min(365, Math.max(1, Number(d?.dias) || 30)),
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const p = await import("./interesse-painel.server");
+    return p.painelInteresse(data.dias);
+  });

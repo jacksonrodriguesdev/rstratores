@@ -19,7 +19,8 @@ export type TipoAutomacao =
   | "busca_sem_resultado"
   | "catalogo_novo"
   | "data_especial"
-  | "aniversario";
+  | "aniversario"
+  | "interesse_sem_pedido";
 
 export type ConfigAutomacao = {
   atrasoHoras?: number; // boas-vindas: espera depois do cadastro
@@ -32,6 +33,8 @@ export type ConfigAutomacao = {
   alvo?: "marca" | "todos"; // catálogo novo: só quem abriu catálogos da marca, ou todo o público
   data?: string; // data especial: AAAA-MM-DD (horário de Montevidéu)
   hora?: number; // data especial: a partir desta hora
+  descontoPct?: number; // peças vistas: cupom exclusivo de N% para cada cliente (0 = sem cupom)
+  validadeDias?: number; // peças vistas: validade do cupom exclusivo
 };
 
 export type DefTipo = {
@@ -59,6 +62,38 @@ const base = (c: Partial<ConteudoEmail>): Partial<ConteudoEmail> => ({
 });
 
 export const TIPOS: DefTipo[] = [
+  {
+    tipo: "interesse_sem_pedido",
+    nome: "Peças vistas sem orçamento",
+    descricao:
+      "Quem viu peças no site e não pediu preço recebe essas mesmas peças, com fotos, um cupom exclusivo e o WhatsApp pronto para negociar.",
+    gatilho:
+      "N horas depois da última visita do cliente cadastrado, se ele viu peças e não mandou cotação, carrinho nem WhatsApp.",
+    cor: "#b45309",
+    emoji: "👀",
+    produtos: true,
+    enviarAgora: false,
+    config: {
+      horas: 24,
+      dias: 7,
+      intervaloDias: 14,
+      maxProdutos: 6,
+      descontoPct: 5,
+      validadeDias: 7,
+    },
+    assunto: "{{nombre}}, preparamos una propuesta para tus repuestos",
+    preheader: "Los repuestos que viste en AGRO PARTS, con un descuento exclusivo para vos.",
+    conteudo: base({
+      destaque: "PROPUESTA EXCLUSIVA",
+      titulo: "{{nombre}}, queremos ayudarte a conseguir estos repuestos",
+      texto:
+        "Vimos que estuviste consultando estos repuestos en AGRO PARTS. Preparamos un **descuento exclusivo para vos** y estamos listos para negociar: escribinos por WhatsApp y te pasamos precio final, disponibilidad y la mejor condición que podamos ofrecerte.",
+      produtosTitulo: "Los repuestos que consultaste",
+      botaoTexto: "Ver los repuestos",
+      botaoUrl: "/loja",
+      cabecalho: "/email/automacoes/interesse_sem_pedido.jpg",
+    }),
+  },
   {
     tipo: "boas_vindas",
     nome: "Boas-vindas",

@@ -611,6 +611,58 @@ function Gatilho({
       "Lista parada sem pedido há",
       <Numero valor={cfg.horas} min={1} aoMudar={(n) => setConf("horas", n)} sufixo="horas" />,
     );
+  if (tipo === "interesse_sem_pedido")
+    return (
+      <>
+        {linha(
+          "Enviar depois da última visita do cliente",
+          <Numero valor={cfg.horas} min={1} aoMudar={(n) => setConf("horas", n)} sufixo="horas" />,
+        )}
+        {linha(
+          "Peças vistas nos últimos",
+          <Numero valor={cfg.dias} min={1} aoMudar={(n) => setConf("dias", n)} sufixo="dias" />,
+        )}
+        {linha(
+          "Peças no e-mail (as mais vistas)",
+          <Numero
+            valor={cfg.maxProdutos}
+            min={1}
+            aoMudar={(n) => setConf("maxProdutos", Math.min(12, n))}
+            sufixo="peças"
+          />,
+        )}
+        {linha(
+          "Cupom exclusivo de desconto",
+          <Numero
+            valor={cfg.descontoPct}
+            aoMudar={(n) => setConf("descontoPct", Math.min(50, n))}
+            sufixo="% (0 = sem cupom)"
+          />,
+        )}
+        {linha(
+          "Validade do cupom",
+          <Numero
+            valor={cfg.validadeDias}
+            min={1}
+            aoMudar={(n) => setConf("validadeDias", n)}
+            sufixo="dias"
+          />,
+        )}
+        {linha(
+          "No máximo 1 e-mail por cliente a cada",
+          <Numero
+            valor={cfg.intervaloDias}
+            aoMudar={(n) => setConf("intervaloDias", n)}
+            sufixo="dias"
+          />,
+        )}
+        <p className="text-xs text-muted-foreground">
+          Só para quem não pediu nada no período (WhatsApp, cotação, carrinho, link de pagamento ou
+          venda). Cada cliente recebe o próprio cupom, de uso único. Acompanhe em E-mail marketing →
+          Peças vistas.
+        </p>
+      </>
+    );
   if (tipo === "catalogo_aberto")
     return (
       <>

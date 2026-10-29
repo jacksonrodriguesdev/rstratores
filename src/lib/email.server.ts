@@ -172,6 +172,16 @@ export function garantirColunasEmail() {
       await prisma.$executeRawUnsafe(
         "ALTER TABLE `email_campanhas` ADD COLUMN `agendado_para` DATETIME(3) NULL AFTER `enviado_em`",
       );
+    // Peças e cupom de cada envio (automação «peças vistas sem orçamento»)
+    const env = await prisma.$queryRaw<Array<{ c: string }>>`
+      SELECT COLUMN_NAME AS c FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'email_envios'`;
+    if (env.length && !env.some((x) => x.c === "produtos"))
+      await prisma.$executeRawUnsafe("ALTER TABLE `email_envios` ADD COLUMN `produtos` TEXT NULL");
+    if (env.length && !env.some((x) => x.c === "cupom"))
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `email_envios` ADD COLUMN `cupom` VARCHAR(40) NULL",
+      );
   })().catch((e) => {
     colunas = null;
     throw e;

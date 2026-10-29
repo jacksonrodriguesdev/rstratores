@@ -37,7 +37,42 @@ type Envio = {
   whatsappTexto?: string;
   vars?: Record<string, string>;
   botaoUrl?: string;
+  // Cupom exclusivo deste cliente (peças vistas sem orçamento)
+  cupom?: { codigo: string; texto: string; validade: string };
 };
+
+// Cupom exclusivo de uso único (peças vistas sem orçamento)
+async function cupomExclusivo(pct: number, dias: number, nome: string) {
+  const { prisma } = await import("./prisma");
+  const { novoCodigo } = await import("./avaliacoes.server");
+  for (let t = 0; t < 5; t++) {
+    const codigo = `OFERTA${novoCodigo(5)}`;
+    try {
+      await prisma.cupons.create({
+        data: {
+          codigo,
+          tipo: "PERCENT",
+          valor: pct,
+          moeda: "UYU",
+          descricao: `Oferta por repuestos vistos (${nome.split(" ")[0] || "cliente"})`,
+          descricao_pt: `Oferta por peças vistas (${nome.split(" ")[0] || "cliente"})`,
+          fim: new Date(Date.now() + dias * DIA),
+          max_usos: 1,
+          por_cliente: 1,
+          publico: false,
+        },
+      });
+      return {
+        codigo,
+        texto: `${pct}% de descuento en estos repuestos`,
+        validade: `por ${dias} días`,
+      };
+    } catch (e: any) {
+      if (!String(e?.code).includes("P2002")) throw e;
+    }
+  }
+  throw new Error("Não foi possível criar o cupom exclusivo.");
+}
 
 const lerJson = <T>(s: string, padrao: T): T => {
   try {
@@ -210,6 +245,119 @@ function itensDoCarrinho(json: string): ItemCarrinho[] {
   }
 }
 
+// ---------- Peças vistas sem orçamento ----------
+// Clientes cadastrados que abriram páginas de peças nos últimos N dias, cuja última visita foi há
+// mais de N horas (não manda enquanto ainda navega) e que no período não pediram nada: WhatsApp,
+// cotação, carrinho, link de pagamento ou venda. As peças do e-mail são as mais vistas por ele.
+const SKU_PAGINA = /^(?:\/pt)?\/produto\/([^/?#]+)/;
+export async function selecionarInteresse(
+  autoId: number,
+  cfg: ConfigAutomacao,
+  publico: Publico,
+  agora: number,
+): Promise<Envio[]> {
+  const { prisma } = await import("./prisma");
+  const { whereHumano } = await import("./rastreio.server");
+  const desde = new Date(agora - (cfg.dias ?? 7) * DIA);
+  const espera = agora - (cfg.horas ?? 24) * HORA;
+  const visitas = await prisma.site_visits.findMany({
+    where: {
+      user_id: { not: null },
+      created_at: { gte: desde },
+      OR: [{ path: { startsWith: "/produto/" } }, { path: { startsWith: "/pt/produto/" } }],
+      ...(whereHumano as any),
+    },
+    select: { user_id: true, path: true, created_at: true },
+    orderBy: { id: "desc" },
+    take: 20000,
+  });
+  // Peças vistas por cliente (vezes e última vez) e a última visita de cada um
+  const porCliente = new Map<number, Map<string, { vezes: number; ultima: number }>>();
+  const ultimaVisita = new Map<number, number>();
+  for (const v of visitas) {
+    const m = SKU_PAGINA.exec(v.path);
+    if (!m || !v.user_id) continue;
+    const sku = decodeURIComponent(m[1]).trim();
+    const t = v.created_at.getTime();
+    ultimaVisita.set(v.user_id, Math.max(ultimaVisita.get(v.user_id) ?? 0, t));
+    const pecas = porCliente.get(v.user_id) ?? new Map();
+    const x = pecas.get(sku) ?? { vezes: 0, ultima: 0 };
+    x.vezes++;
+    x.ultima = Math.max(x.ultima, t);
+    pecas.set(sku, x);
+    porCliente.set(v.user_id, pecas);
+  }
+  const ids = [...porCliente.keys()].filter((u) => (ultimaVisita.get(u) ?? 0) <= espera);
+  if (!ids.length) return [];
+  const ok = await elegiveis(publico);
+  const recentes = await jaRecebeu(autoId, [], new Date(agora - (cfg.intervaloDias ?? 14) * DIA));
+  const candidatos = ids.filter((u) => ok.has(u) && !recentes.has(String(u)));
+  if (!candidatos.length) return [];
+  // Quem pediu alguma coisa no período fica de fora
+  const emails = candidatos.map((u) => ok.get(u)!.email.toLowerCase());
+  const [eventos, carrinhos, links, vendas] = await Promise.all([
+    prisma.site_eventos.findMany({
+      where: {
+        user_id: { in: candidatos },
+        tipo: { in: ["whatsapp", "cotacao"] },
+        created_at: { gte: desde },
+      },
+      select: { user_id: true },
+    }),
+    prisma.carrinhos.findMany({
+      where: { user_id: { in: candidatos }, status: "ENVIADO", updated_at: { gte: desde } },
+      select: { user_id: true },
+    }),
+    prisma.links_pagamento.findMany({
+      where: {
+        created_at: { gte: desde },
+        OR: [{ user_id: { in: candidatos } }, { email_cliente: { in: emails } }],
+      },
+      select: { user_id: true, email_cliente: true },
+    }),
+    prisma.vendas.findMany({
+      where: {
+        created_at: { gte: desde },
+        OR: [{ user_id: { in: candidatos } }, { cliente_email: { in: emails } }],
+      },
+      select: { user_id: true, cliente_email: true },
+    }),
+  ]);
+  const pediram = new Set<number>();
+  for (const e of [...eventos, ...carrinhos]) if (e.user_id) pediram.add(e.user_id);
+  const porEmail = new Map(candidatos.map((u) => [ok.get(u)!.email.toLowerCase(), u]));
+  for (const l of links) {
+    if (l.user_id) pediram.add(l.user_id);
+    const u = porEmail.get((l.email_cliente ?? "").toLowerCase());
+    if (u) pediram.add(u);
+  }
+  for (const v of vendas) {
+    if (v.user_id) pediram.add(v.user_id);
+    const u = porEmail.get((v.cliente_email ?? "").toLowerCase());
+    if (u) pediram.add(u);
+  }
+  const envios: Envio[] = [];
+  for (const uid of candidatos) {
+    if (pediram.has(uid)) continue;
+    const skus = [...porCliente.get(uid)!.entries()]
+      .sort((a, b) => b[1].vezes - a[1].vezes || b[1].ultima - a[1].ultima)
+      .map(([s]) => s)
+      .slice(0, cfg.maxProdutos ?? 6);
+    const produtos = await produtosEmail(skus);
+    if (!produtos.length) continue;
+    envios.push({
+      user: ok.get(uid)!,
+      chave: `interesse:${[...skus].sort().join(",")}`.slice(0, 150),
+      produtos,
+      vars: { repuesto: produtos[0].nome },
+      whatsappTexto: `¡Hola! Recibí el e-mail de AGRO PARTS y quiero negociar estos repuestos:\n${produtos
+        .map((p) => `• ${p.nome} (Cód. ${p.codigo})`)
+        .join("\n")}`,
+    });
+  }
+  return envios;
+}
+
 // ---------- Gatilhos ----------
 async function gatilho(
   a: Automacao,
@@ -220,6 +368,9 @@ async function gatilho(
   const { prisma } = await import("./prisma");
   const tipo = a.tipo as TipoAutomacao;
   const desdeAtivo = a.ativado_em ?? new Date(agora);
+
+  if (tipo === "interesse_sem_pedido")
+    return { envios: await selecionarInteresse(a.id, cfg, publico, agora) };
 
   if (tipo === "boas_vindas" || (tipo === "cupom" && cfg.gatilho === "cadastro")) {
     const espera = tipo === "boas_vindas" ? (cfg.atrasoHoras ?? 0) * HORA : (cfg.dias ?? 7) * DIA;
@@ -609,24 +760,44 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
     const { garantirCupom } = await import("./acesso.server");
     for (const e of envios) if (!e.user.cupom) e.user.cupom = await garantirCupom(e.user.id);
   }
+  // Peças vistas: cupom exclusivo para cada cliente (se a automação tiver desconto)
+  if (a.tipo === "interesse_sem_pedido") {
+    const cfg = lerJson<ConfigAutomacao>(a.config, def.config);
+    const pct = Math.max(0, Math.min(50, Math.round(Number(cfg.descontoPct ?? 0))));
+    if (pct > 0)
+      for (const e of envios)
+        e.cupom = await cupomExclusivo(pct, cfg.validadeDias ?? 7, e.user.nome_completo);
+  }
   for (let i = 0; i < envios.length; i += 50) {
     const lote = envios.slice(i, i + 50);
     const escolhidos = lote.map((e) => mk.escolherAnuncio(anuncios, e.user.id));
     const msgs = lote.map((e, k) => {
       // Variáveis do cliente (marca, busca, catálogo, anos...) somadas às da automação
-      const pessoal = a.tipo === "boas_vindas" && base.cupom && e.user.cupom ? e.user.cupom : null;
-      const v = { ...vars, ...e.vars, ...(pessoal && { cupon: pessoal }) };
+      const pessoal =
+        e.cupom?.codigo ??
+        (a.tipo === "boas_vindas" && base.cupom && e.user.cupom ? e.user.cupom : null);
+      const v = {
+        ...vars,
+        ...e.vars,
+        ...(pessoal && { cupon: pessoal }),
+        ...(e.cupom && { validez: e.cupom.validade }),
+      };
+      const comCupom = e.cupom
+        ? { ...base, cupom: e.cupom }
+        : pessoal
+          ? { ...base, cupom: { ...base.cupom!, codigo: pessoal } }
+          : base;
       const conteudo = {
-        ...aplicarVariaveis(
-          pessoal ? { ...base, cupom: { ...base.cupom!, codigo: pessoal } } : base,
-          v,
-        ),
+        ...aplicarVariaveis(comCupom, v),
         ...(def.produtos && { produtos: e.produtos ?? [] }),
         ...(e.botaoUrl && { botaoUrl: e.botaoUrl }),
       };
       const codigoCupom = pessoal ?? base.cupom?.codigo;
-      const whats =
-        e.whatsappTexto ?? (codigoCupom ? `¡Hola! Quiero usar mi cupón ${codigoCupom}` : null);
+      const whats = e.whatsappTexto
+        ? `${e.whatsappTexto}${e.cupom ? `\n\nMi cupón: ${e.cupom.codigo}` : ""}`
+        : codigoCupom
+          ? `¡Hola! Quiero usar mi cupón ${codigoCupom}`
+          : null;
       const pre = a.preheader ? trocarVariaveis(a.preheader, v) : null;
       return montarMensagem(
         conteudo,
@@ -649,6 +820,8 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
           status: "ENVIADO",
           chave: e.chave,
           resend_id: ids[k] ?? null,
+          produtos: e.produtos?.length ? JSON.stringify(e.produtos.map((p) => p.sku)) : null,
+          cupom: e.cupom?.codigo ?? null,
         })),
       });
       await mk
@@ -678,6 +851,8 @@ export async function enviarAutomacao(a: Automacao, envios: Envio[]) {
           status: "FALHA",
           chave: e.chave,
           erro: String(err?.message ?? err).slice(0, 500),
+          produtos: e.produtos?.length ? JSON.stringify(e.produtos.map((p) => p.sku)) : null,
+          cupom: e.cupom?.codigo ?? null,
         })),
       });
       throw err;
@@ -734,6 +909,7 @@ export async function rodarAutomacoes(apenasId?: number) {
   try {
     const { prisma } = await import("./prisma");
     const { resendConfigurado } = await import("./email.server");
+    await (await import("./email.server")).garantirColunasEmail();
     await aplicarImagensAutomacoes();
     await detectarMudancasPreco();
     if (!resendConfigurado()) return { ocupado: false, resultados };

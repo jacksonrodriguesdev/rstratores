@@ -78,6 +78,7 @@ import { Route as AdminEmailsIdRouteImport } from './routes/admin.emails.$id'
 import { Route as AdminEmailsAnaliseRouteImport } from './routes/admin.emails.analise'
 import { Route as AdminEmailsAnunciosRouteImport } from './routes/admin.emails.anuncios'
 import { Route as AdminEmailsFunilRouteImport } from './routes/admin.emails.funil'
+import { Route as AdminEmailsInteresseRouteImport } from './routes/admin.emails.interesse'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
@@ -470,6 +471,11 @@ const AdminEmailsFunilRoute = AdminEmailsFunilRouteImport.update({
   path: '/emails/funil',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEmailsInteresseRoute = AdminEmailsInteresseRouteImport.update({
+  id: '/emails/interesse',
+  path: '/emails/interesse',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiAdminBannersRoute = ApiAdminBannersRouteImport.update({
   id: '/api/admin/banners',
   path: '/api/admin/banners',
@@ -776,6 +782,7 @@ export interface FileRoutesByFullPath {
   '/admin/emails/analise': typeof AdminEmailsAnaliseRoute
   '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
   '/admin/emails/funil': typeof AdminEmailsFunilRoute
+  '/admin/emails/interesse': typeof AdminEmailsInteresseRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -892,6 +899,7 @@ export interface FileRoutesByTo {
   '/admin/emails/analise': typeof AdminEmailsAnaliseRoute
   '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
   '/admin/emails/funil': typeof AdminEmailsFunilRoute
+  '/admin/emails/interesse': typeof AdminEmailsInteresseRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -1010,6 +1018,7 @@ export interface FileRoutesById {
   '/admin/emails/analise': typeof AdminEmailsAnaliseRoute
   '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
   '/admin/emails/funil': typeof AdminEmailsFunilRoute
+  '/admin/emails/interesse': typeof AdminEmailsInteresseRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -1129,6 +1138,7 @@ export interface FileRouteTypes {
     | '/admin/emails/analise'
     | '/admin/emails/anuncios'
     | '/admin/emails/funil'
+    | '/admin/emails/interesse'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1245,6 +1255,7 @@ export interface FileRouteTypes {
     | '/admin/emails/analise'
     | '/admin/emails/anuncios'
     | '/admin/emails/funil'
+    | '/admin/emails/interesse'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1362,6 +1373,7 @@ export interface FileRouteTypes {
     | '/admin/emails/analise'
     | '/admin/emails/anuncios'
     | '/admin/emails/funil'
+    | '/admin/emails/interesse'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1965,6 +1977,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmailsFunilRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/emails/interesse': {
+      id: '/admin/emails/interesse'
+      path: '/emails/interesse'
+      fullPath: '/admin/emails/interesse'
+      preLoaderRoute: typeof AdminEmailsInteresseRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/admin/banners': {
       id: '/api/admin/banners'
       path: '/api/admin/banners'
@@ -2328,6 +2347,7 @@ interface AdminRouteChildren {
   AdminEmailsAnaliseRoute: typeof AdminEmailsAnaliseRoute
   AdminEmailsAnunciosRoute: typeof AdminEmailsAnunciosRoute
   AdminEmailsFunilRoute: typeof AdminEmailsFunilRoute
+  AdminEmailsInteresseRoute: typeof AdminEmailsInteresseRoute
   AdminAutomacoesIndexRoute: typeof AdminAutomacoesIndexRoute
   AdminEmailsIndexRoute: typeof AdminEmailsIndexRoute
 }
@@ -2370,6 +2390,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEmailsAnaliseRoute: AdminEmailsAnaliseRoute,
   AdminEmailsAnunciosRoute: AdminEmailsAnunciosRoute,
   AdminEmailsFunilRoute: AdminEmailsFunilRoute,
+  AdminEmailsInteresseRoute: AdminEmailsInteresseRoute,
   AdminAutomacoesIndexRoute: AdminAutomacoesIndexRoute,
   AdminEmailsIndexRoute: AdminEmailsIndexRoute,
 }

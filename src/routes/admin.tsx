@@ -93,6 +93,7 @@ const GRUPOS: Grupo[] = [
         sub: [
           { to: "/admin/emails", label: "Campanhas" },
           { to: "/admin/automacoes", label: "Automações" },
+          { to: "/admin/emails/interesse", label: "Peças vistas (sem orçamento)" },
           { to: "/admin/emails/analise", label: "Análise" },
           { to: "/admin/emails/funil", label: "Funil e remarketing" },
           { to: "/admin/emails/anuncios", label: "Anúncios" },

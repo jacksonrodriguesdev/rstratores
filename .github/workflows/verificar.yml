@@ -120,6 +120,9 @@ jobs:
       - name: Fotos na avaliação
         run: npx tsx scripts/ci/testar-fotos-avaliacao.ts
 
+      - name: E-mail de peças vistas sem orçamento
+        run: npx tsx scripts/ci/testar-interesse-email.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

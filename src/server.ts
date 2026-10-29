@@ -65,6 +65,10 @@ let agendadorIniciado = false;
 function iniciarAutomacoes() {
   if (agendadorIniciado) return;
   agendadorIniciado = true;
+  // Colunas novas das tabelas de e-mail já no primeiro acesso (antes de qualquer tela ler os envios)
+  import("./lib/email.server")
+    .then((m) => m.garantirColunasEmail())
+    .catch((e) => console.error("colunas de e-mail", e));
   import("./lib/automacoes.server")
     .then((m) => m.iniciarAgendador())
     .catch((e) => console.error("automações", e));

@@ -457,6 +457,8 @@ model email_envios {
   erro        String?   @db.Text
   aberto_em   DateTime?
   clicado_em  DateTime?
+  produtos    String?   @db.Text // JSON: SKUs que foram no e-mail (automação de peças vistas)
+  cupom       String?   @db.VarChar(40) // cupom exclusivo criado para este envio
   created_at  DateTime  @default(now())
 
   campanha    email_campanhas? @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
