@@ -23,7 +23,17 @@ export default defineConfig(({ command }) => ({
         client: { files: ["**/server/**"], specifiers: ["server-only"] },
       },
     }),
-    ...(command === "build" ? [nitro({ preset: "node-server" })] : []),
+    // Passkeys (Face ID): a biblioteca vai inteira para .output/server/node_modules (sem empacotar):
+    // uma dependência dela (@peculiar/x509) precisa do reflect-metadata carregado antes, e o
+    // empacotador muda essa ordem
+    ...(command === "build"
+      ? [
+          nitro({
+            preset: "node-server",
+            traceDeps: ["@simplewebauthn/server*", "reflect-metadata"],
+          }),
+        ]
+      : []),
     viteReact(),
   ],
   css: { transformer: "lightningcss" },

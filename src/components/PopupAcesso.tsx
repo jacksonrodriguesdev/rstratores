@@ -20,6 +20,7 @@ import {
 import { getSessionFn } from "@/lib/user-auth";
 import { getPopupFn, meuCupomFn, completarPerfilFn } from "@/lib/acesso";
 import { visitanteAtual } from "@/lib/visitante";
+import { BotaoPasskey } from "@/components/auth/Passkey";
 import { DEPARTAMENTOS_UY, mascararCelularUY } from "@/lib/validacao-conta";
 import { registrarEvento } from "@/lib/eventos";
 import {
@@ -1066,6 +1067,13 @@ export function PopupAcesso() {
                       )}
                     </>
                   )}
+                  {/* Quem já ativou o Face ID / digital entra sem digitar nada */}
+                  <BotaoPasskey
+                    discreto
+                    className="mt-3"
+                    redirect={typeof window === "undefined" ? undefined : window.location.pathname}
+                    aoErro={setErro}
+                  />
                 </>
               )}
 

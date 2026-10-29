@@ -108,6 +108,15 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
     if (!ok) falhas.push(`track ${corpo.path}: ${r.status}`);
   }
 
+  // Face ID (passkeys): a biblioteca carrega no build de produção e gera o desafio
+  {
+    const r = await fetch(BASE + "/api/auth/passkey/opcoes", { method: "POST", headers: { "content-type": "application/json", host: "localhost:3999" }, body: JSON.stringify({ tipo: "login" }) });
+    const j = await r.json().catch(() => ({}));
+    const ok = r.status === 200 && !!j.opcoes?.challenge && !!j.token;
+    console.log(`${ok ? "✔" : "✘"} ${r.status} POST /api/auth/passkey/opcoes (login com Face ID)`);
+    if (!ok) falhas.push(`passkey opcoes: ${r.status} ${JSON.stringify(j)}`);
+  }
+
   // O evento foi para site_eventos (e não para site_visits)?
   if (process.env.DATABASE_URL) {
     const { PrismaClient } = require("@prisma/client");

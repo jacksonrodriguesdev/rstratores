@@ -11,6 +11,7 @@ import {
   inputCls,
 } from "@/components/auth/AuthShell";
 import { getConfigLoginFn } from "@/lib/conta";
+import { BotaoPasskey } from "@/components/auth/Passkey";
 import { whatsappContactUrl } from "@/lib/whatsapp";
 import { tr, useT, type Idioma } from "@/lib/idioma";
 
@@ -90,6 +91,13 @@ function LoginPage() {
         "Peça orçamento mais rápido e acesse os catálogos.",
       )}
     >
+      {/* Face ID / digital: some nos navegadores sem suporte */}
+      <BotaoPasskey
+        redirect={destino}
+        aoErro={setError}
+        className="mb-3"
+        depois={config.google ? undefined : <Separador />}
+      />
       {config.google && (
         <>
           <BotaoGoogle redirect={destino} />

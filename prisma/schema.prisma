@@ -1116,3 +1116,20 @@ model avisos_preco {
   @@index([status])
   @@index([sku])
 }
+
+// Entrar com Face ID / digital (passkeys, WebAuthn): só a chave pública de cada aparelho.
+// Criada também por garantirTabelaPasskeys() (src/lib/passkey.server.ts).
+model passkeys {
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  credential_id String    @unique @db.VarChar(255)
+  public_key    String    @db.Text
+  counter       BigInt    @default(0)
+  transports    String?   @db.VarChar(200)
+  aparelho      String?   @db.VarChar(120)
+  sincronizada  Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  usado_em      DateTime?
+
+  @@index([user_id])
+}

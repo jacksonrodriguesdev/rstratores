@@ -126,6 +126,8 @@ import { Route as ApiAdminProductsUploadRouteImport } from './routes/api/admin/p
 import { Route as ApiAdminQuotesIdRouteImport } from './routes/api/admin/quotes.$id'
 import { Route as ApiAuthCodigoVerificarRouteImport } from './routes/api/auth.codigo.verificar'
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
+import { Route as ApiAuthPasskeyOpcoesRouteImport } from './routes/api/auth.passkey.opcoes'
+import { Route as ApiAuthPasskeyVerificarRouteImport } from './routes/api/auth.passkey.verificar'
 import { Route as ApiPublicDlocalPagamentosRouteImport } from './routes/api/public/dlocal.pagamentos'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe.webhook'
 
@@ -721,6 +723,16 @@ const ApiAuthGoogleCallbackRoute = ApiAuthGoogleCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => ApiAuthGoogleRoute,
 } as any)
+const ApiAuthPasskeyOpcoesRoute = ApiAuthPasskeyOpcoesRouteImport.update({
+  id: '/api/auth/passkey/opcoes',
+  path: '/api/auth/passkey/opcoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthPasskeyVerificarRoute = ApiAuthPasskeyVerificarRouteImport.update({
+  id: '/api/auth/passkey/verificar',
+  path: '/api/auth/passkey/verificar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDlocalPagamentosRoute =
   ApiPublicDlocalPagamentosRouteImport.update({
     id: '/api/public/dlocal/pagamentos',
@@ -851,6 +863,8 @@ export interface FileRoutesByFullPath {
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
+  '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -971,6 +985,8 @@ export interface FileRoutesByTo {
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
+  '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1093,6 +1109,8 @@ export interface FileRoutesById {
   '/api/admin/quotes/$id': typeof ApiAdminQuotesIdRoute
   '/api/auth/codigo/verificar': typeof ApiAuthCodigoVerificarRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
+  '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1216,6 +1234,8 @@ export interface FileRouteTypes {
     | '/api/admin/quotes/$id'
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
+    | '/api/auth/passkey/opcoes'
+    | '/api/auth/passkey/verificar'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -1336,6 +1356,8 @@ export interface FileRouteTypes {
     | '/api/admin/quotes/$id'
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
+    | '/api/auth/passkey/opcoes'
+    | '/api/auth/passkey/verificar'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   id:
@@ -1457,6 +1479,8 @@ export interface FileRouteTypes {
     | '/api/admin/quotes/$id'
     | '/api/auth/codigo/verificar'
     | '/api/auth/google/callback'
+    | '/api/auth/passkey/opcoes'
+    | '/api/auth/passkey/verificar'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   fileRoutesById: FileRoutesById
@@ -1527,6 +1551,8 @@ export interface RootRouteChildren {
   ApiAdminInstagramConectarRoute: typeof ApiAdminInstagramConectarRoute
   ApiAdminInstagramUploadRoute: typeof ApiAdminInstagramUploadRoute
   ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
+  ApiAuthPasskeyOpcoesRoute: typeof ApiAuthPasskeyOpcoesRoute
+  ApiAuthPasskeyVerificarRoute: typeof ApiAuthPasskeyVerificarRoute
   ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
@@ -2352,6 +2378,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthGoogleCallbackRouteImport
       parentRoute: typeof ApiAuthGoogleRoute
     }
+    '/api/auth/passkey/opcoes': {
+      id: '/api/auth/passkey/opcoes'
+      path: '/api/auth/passkey/opcoes'
+      fullPath: '/api/auth/passkey/opcoes'
+      preLoaderRoute: typeof ApiAuthPasskeyOpcoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/passkey/verificar': {
+      id: '/api/auth/passkey/verificar'
+      path: '/api/auth/passkey/verificar'
+      fullPath: '/api/auth/passkey/verificar'
+      preLoaderRoute: typeof ApiAuthPasskeyVerificarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/dlocal/pagamentos': {
       id: '/api/public/dlocal/pagamentos'
       path: '/api/public/dlocal/pagamentos'
@@ -2605,6 +2645,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminInstagramConectarRoute: ApiAdminInstagramConectarRoute,
   ApiAdminInstagramUploadRoute: ApiAdminInstagramUploadRoute,
   ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
+  ApiAuthPasskeyOpcoesRoute: ApiAuthPasskeyOpcoesRoute,
+  ApiAuthPasskeyVerificarRoute: ApiAuthPasskeyVerificarRoute,
   ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }

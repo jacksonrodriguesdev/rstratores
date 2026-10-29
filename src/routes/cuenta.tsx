@@ -32,6 +32,7 @@ import { minhasComprasFn } from "@/lib/pagamentos";
 import { STATUS_LINK, fmtValor } from "@/lib/pagamentos-comum";
 import { IndicarAmigo } from "@/components/IndicarAmigo";
 import { MeusPedidos } from "@/components/MeusPedidos";
+import { PasskeysConta } from "@/components/auth/Passkey";
 
 export const Route = createFileRoute("/cuenta")({
   validateSearch: z.object({
@@ -491,83 +492,87 @@ function Seguranca({ perfil }: { perfil: Perfil }) {
     }
   };
   return (
-    <form onSubmit={salvar} className="max-w-md space-y-4">
-      <div>
-        <h2 className="text-xl font-extrabold text-zinc-900">
-          {perfil.temSenha
-            ? t("Cambiar contraseña", "Alterar senha")
-            : t("Crear una contraseña", "Criar uma senha")}
-        </h2>
-        <p className="text-sm text-zinc-500">
-          {perfil.temSenha
-            ? t(
-                "Usá al menos 8 caracteres, con letras y números.",
-                "Use pelo menos 8 caracteres, com letras e números.",
-              )
-            : t(
-                "Tu cuenta se creó con Google. Si querés, creá una contraseña para ingresar también con tu e-mail.",
-                "Sua conta foi criada sem senha. Se quiser, crie uma senha para entrar também com seu e-mail.",
-              )}
-        </p>
-      </div>
-      {perfil.google && (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
-          <ShieldCheck className="h-4 w-4" />{" "}
-          {t("Cuenta vinculada a Google", "Conta vinculada ao Google")}
+    <div className="max-w-md space-y-8">
+      {/* Face ID / digital (passkeys) */}
+      <PasskeysConta />
+      <form onSubmit={salvar} className="space-y-4">
+        <div>
+          <h2 className="text-xl font-extrabold text-zinc-900">
+            {perfil.temSenha
+              ? t("Cambiar contraseña", "Alterar senha")
+              : t("Crear una contraseña", "Criar uma senha")}
+          </h2>
+          <p className="text-sm text-zinc-500">
+            {perfil.temSenha
+              ? t(
+                  "Usá al menos 8 caracteres, con letras y números.",
+                  "Use pelo menos 8 caracteres, com letras e números.",
+                )
+              : t(
+                  "Tu cuenta se creó con Google. Si querés, creá una contraseña para ingresar también con tu e-mail.",
+                  "Sua conta foi criada sem senha. Se quiser, crie uma senha para entrar também com seu e-mail.",
+                )}
+          </p>
         </div>
-      )}
-      {perfil.temSenha && (
-        <Campo id="s-atual" label={t("Contraseña actual", "Senha atual")} icone={Lock}>
+        {perfil.google && (
+          <div className="flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
+            <ShieldCheck className="h-4 w-4" />{" "}
+            {t("Cuenta vinculada a Google", "Conta vinculada ao Google")}
+          </div>
+        )}
+        {perfil.temSenha && (
+          <Campo id="s-atual" label={t("Contraseña actual", "Senha atual")} icone={Lock}>
+            <CampoSenha
+              id="s-atual"
+              autoComplete="current-password"
+              value={f.atual}
+              onChange={(e) => setF({ ...f, atual: e.target.value })}
+            />
+          </Campo>
+        )}
+        <Campo
+          id="s-nova"
+          label={t("Nueva contraseña", "Nova senha")}
+          icone={Lock}
+          dica={<ForcaSenha senha={f.nova} />}
+        >
           <CampoSenha
-            id="s-atual"
-            autoComplete="current-password"
-            value={f.atual}
-            onChange={(e) => setF({ ...f, atual: e.target.value })}
+            id="s-nova"
+            autoComplete="new-password"
+            value={f.nova}
+            onChange={(e) => setF({ ...f, nova: e.target.value })}
           />
         </Campo>
-      )}
-      <Campo
-        id="s-nova"
-        label={t("Nueva contraseña", "Nova senha")}
-        icone={Lock}
-        dica={<ForcaSenha senha={f.nova} />}
-      >
-        <CampoSenha
-          id="s-nova"
-          autoComplete="new-password"
-          value={f.nova}
-          onChange={(e) => setF({ ...f, nova: e.target.value })}
-        />
-      </Campo>
-      <Campo
-        id="s-conf"
-        label={t("Confirmá la nueva contraseña", "Confirme a nova senha")}
-        icone={Lock}
-        erro={
-          f.confirmar && f.confirmar !== f.nova
-            ? t("Las contraseñas no coinciden.", "As senhas não coincidem.")
-            : null
-        }
-      >
-        <CampoSenha
+        <Campo
           id="s-conf"
-          autoComplete="new-password"
-          value={f.confirmar}
-          onChange={(e) => setF({ ...f, confirmar: e.target.value })}
-          invalido={!!f.confirmar && f.confirmar !== f.nova}
-        />
-      </Campo>
-      <button
-        type="submit"
-        disabled={busy || !f.nova || f.nova !== f.confirmar}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary font-bold text-white hover:bg-primary/90 disabled:opacity-50"
-      >
-        {busy && <Loader2 className="h-5 w-5 animate-spin" />}{" "}
-        {perfil.temSenha
-          ? t("Cambiar contraseña", "Alterar senha")
-          : t("Crear contraseña", "Criar senha")}
-      </button>
-    </form>
+          label={t("Confirmá la nueva contraseña", "Confirme a nova senha")}
+          icone={Lock}
+          erro={
+            f.confirmar && f.confirmar !== f.nova
+              ? t("Las contraseñas no coinciden.", "As senhas não coincidem.")
+              : null
+          }
+        >
+          <CampoSenha
+            id="s-conf"
+            autoComplete="new-password"
+            value={f.confirmar}
+            onChange={(e) => setF({ ...f, confirmar: e.target.value })}
+            invalido={!!f.confirmar && f.confirmar !== f.nova}
+          />
+        </Campo>
+        <button
+          type="submit"
+          disabled={busy || !f.nova || f.nova !== f.confirmar}
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary font-bold text-white hover:bg-primary/90 disabled:opacity-50"
+        >
+          {busy && <Loader2 className="h-5 w-5 animate-spin" />}{" "}
+          {perfil.temSenha
+            ? t("Cambiar contraseña", "Alterar senha")
+            : t("Crear contraseña", "Criar senha")}
+        </button>
+      </form>
+    </div>
   );
 }
 
