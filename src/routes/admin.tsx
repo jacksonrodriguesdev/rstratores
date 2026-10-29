@@ -11,6 +11,7 @@ import {
   Calculator,
   Image,
   Flame,
+  Magnet,
   TrendingUp,
   LayoutTemplate,
   Globe2,
@@ -77,6 +78,7 @@ const GRUPOS: Grupo[] = [
     itens: [
       { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
       { to: "/admin/clientes", label: "Clientes", icon: Users },
+      { to: "/admin/captura", label: "Captação de visitantes", icon: Magnet },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
       { to: "/admin/pagamentos", label: "Pagamentos (links)", icon: CreditCard },
       { to: "/admin/vendas", label: "Vendas e etiquetas", icon: ShoppingBag },

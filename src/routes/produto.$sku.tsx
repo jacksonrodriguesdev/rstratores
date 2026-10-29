@@ -39,6 +39,8 @@ import { linksIdioma, comPrefixo, tr, useT, type Idioma } from "@/lib/idioma";
 import { principalDe } from "@/components/PrecoTag";
 import { urlRepuestos } from "@/lib/seo-paginas";
 import { whatsappQuoteUrl } from "@/lib/whatsapp";
+import { AvisoPreco } from "@/components/AvisoPreco";
+import { AjudaPeca } from "@/components/AjudaPeca";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { registrarVisto } from "@/hooks/use-vistos";
@@ -507,6 +509,7 @@ function ProductDetail() {
                     : t("Agregar a mi cotización", "Adicionar ao meu orçamento")}
                 </button>
               </div>
+              {temPreco && <AvisoPreco sku={product.sku.trim()} />}
               <ul className="mt-4 space-y-2 text-sm text-zinc-600">
                 <li className="flex items-center gap-2">
                   <Truck className="h-4 w-4 shrink-0 text-primary" />{" "}
@@ -697,6 +700,9 @@ function ProductDetail() {
           </div>
         )}
       </main>
+
+      {/* Balão «¿Sirve para tu tractor?» depois de 30 s na peça */}
+      <AjudaPeca sku={product.sku.trim()} nome={nome} codigo={codigo} />
 
       {/* Barra de compra fixa no celular (acima da barra de navegação) */}
       <div className="fixed inset-x-0 bottom-[var(--barra-inferior)] z-40 border-t border-zinc-200 bg-white px-3 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">

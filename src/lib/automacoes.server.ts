@@ -948,6 +948,13 @@ export async function rodarAutomacoes(apenasId?: number) {
     await (await import("./email.server")).garantirColunasEmail();
     await aplicarImagensAutomacoes();
     await detectarMudancasPreco();
+    // «Avisame cuando baje el precio» (página da peça): independe das automações ligadas
+    if (!apenasId)
+      await (
+        await import("./aviso-preco.server")
+      )
+        .processarAvisosPreco()
+        .catch((e) => console.error("avisos de preço:", e));
     if (!resendConfigurado()) return { ocupado: false, resultados };
     const autos = await prisma.email_automacoes.findMany({
       where: { ativo: true, ...(apenasId && { id: apenasId }) },

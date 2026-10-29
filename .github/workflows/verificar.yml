@@ -126,6 +126,9 @@ jobs:
       - name: Contato pelo WhatsApp (pop-up)
         run: npx tsx scripts/ci/testar-contato-whatsapp.ts
 
+      - name: Captação (avisos de preço e visitantes quentes)
+        run: npx tsx scripts/ci/testar-captura.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

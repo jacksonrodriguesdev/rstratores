@@ -64,6 +64,7 @@ export function SugestaoIdioma() {
   return (
     <div
       role="dialog"
+      data-sugestao-idioma
       aria-label={paraPt ? "Ver o site em português" : "Ver el sitio en español"}
       className="fixed inset-x-3 bottom-[calc(var(--barra-inferior,0px)+0.75rem)] z-[90] mx-auto flex max-w-md animate-in slide-in-from-bottom-4 items-center gap-3 rounded-2xl bg-white p-3 pr-2 shadow-2xl ring-1 ring-black/10 md:bottom-5 md:left-5 md:right-auto"
     >

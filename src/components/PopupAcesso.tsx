@@ -238,7 +238,12 @@ export function PopupAcesso() {
     // 2ª peça: espera 4 s na página (a pessoa vê a peça antes do pop-up)
     const t2 =
       naPeca() && pecasNaVisita.current >= 2 ? setTimeout(() => abrir("2a_peca"), 4000) : null;
-    const t40 = naPeca() ? setTimeout(() => abrir("40s_peca"), 40_000) : null;
+    // 40 s na peça: se o balão de ajuda (AjudaPeca, 30 s) está na tela, ele já fez o convite
+    const t40 = naPeca()
+      ? setTimeout(() => {
+          if (!document.querySelector("[data-ajuda-peca]")) abrir("40s_peca");
+        }, 40_000)
+      : null;
     const chegou = performance.now();
     const saida = (e: MouseEvent) => {
       if (e.clientY > 0 || e.relatedTarget) return;

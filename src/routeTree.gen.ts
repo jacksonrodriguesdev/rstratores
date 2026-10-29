@@ -30,6 +30,7 @@ import { Route as AdminAnunciosRouteImport } from './routes/admin.anuncios'
 import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCampanhasRouteImport } from './routes/admin.campanhas'
+import { Route as AdminCapturaRouteImport } from './routes/admin.captura'
 import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
 import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
@@ -91,6 +92,7 @@ import { Route as ApiAuthRapidoRouteImport } from './routes/api/auth.rapido'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicAvaliacaoFotoRouteImport } from './routes/api/public/avaliacao-foto'
+import { Route as ApiPublicAvisoPrecoRouteImport } from './routes/api/public/aviso-preco'
 import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carrinho'
 import { Route as ApiPublicContatoWhatsappRouteImport } from './routes/api/public/contato-whatsapp'
 import { Route as ApiPublicEmailBajaRouteImport } from './routes/api/public/email-baja'
@@ -230,6 +232,11 @@ const AdminBannersRoute = AdminBannersRouteImport.update({
 const AdminCampanhasRoute = AdminCampanhasRouteImport.update({
   id: '/campanhas',
   path: '/campanhas',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCapturaRoute = AdminCapturaRouteImport.update({
+  id: '/captura',
+  path: '/captura',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCarrinhosRoute = AdminCarrinhosRouteImport.update({
@@ -537,6 +544,11 @@ const ApiPublicAvaliacaoFotoRoute = ApiPublicAvaliacaoFotoRouteImport.update({
   path: '/api/public/avaliacao-foto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAvisoPrecoRoute = ApiPublicAvisoPrecoRouteImport.update({
+  id: '/api/public/aviso-preco',
+  path: '/api/public/aviso-preco',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCarrinhoRoute = ApiPublicCarrinhoRouteImport.update({
   id: '/api/public/carrinho',
   path: '/api/public/carrinho',
@@ -742,6 +754,7 @@ export interface FileRoutesByFullPath {
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/campanhas': typeof AdminCampanhasRoute
+  '/admin/captura': typeof AdminCapturaRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -802,6 +815,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
+  '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
@@ -860,6 +874,7 @@ export interface FileRoutesByTo {
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/campanhas': typeof AdminCampanhasRoute
+  '/admin/captura': typeof AdminCapturaRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -920,6 +935,7 @@ export interface FileRoutesByTo {
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
+  '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
@@ -980,6 +996,7 @@ export interface FileRoutesById {
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/campanhas': typeof AdminCampanhasRoute
+  '/admin/captura': typeof AdminCapturaRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
@@ -1040,6 +1057,7 @@ export interface FileRoutesById {
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
+  '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
@@ -1101,6 +1119,7 @@ export interface FileRouteTypes {
     | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/campanhas'
+    | '/admin/captura'
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
@@ -1161,6 +1180,7 @@ export interface FileRouteTypes {
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
+    | '/api/public/aviso-preco'
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
@@ -1219,6 +1239,7 @@ export interface FileRouteTypes {
     | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/campanhas'
+    | '/admin/captura'
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
@@ -1279,6 +1300,7 @@ export interface FileRouteTypes {
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
+    | '/api/public/aviso-preco'
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
@@ -1338,6 +1360,7 @@ export interface FileRouteTypes {
     | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/campanhas'
+    | '/admin/captura'
     | '/admin/carrinhos'
     | '/admin/catalogos'
     | '/admin/categorias'
@@ -1398,6 +1421,7 @@ export interface FileRouteTypes {
     | '/api/auth/register'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
+    | '/api/public/aviso-preco'
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
@@ -1480,6 +1504,7 @@ export interface RootRouteChildren {
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicAvaliacaoFotoRoute: typeof ApiPublicAvaliacaoFotoRoute
+  ApiPublicAvisoPrecoRoute: typeof ApiPublicAvisoPrecoRoute
   ApiPublicCarrinhoRoute: typeof ApiPublicCarrinhoRoute
   ApiPublicContatoWhatsappRoute: typeof ApiPublicContatoWhatsappRoute
   ApiPublicEmailBajaRoute: typeof ApiPublicEmailBajaRoute
@@ -1653,6 +1678,13 @@ declare module '@tanstack/react-router' {
       path: '/campanhas'
       fullPath: '/admin/campanhas'
       preLoaderRoute: typeof AdminCampanhasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/captura': {
+      id: '/admin/captura'
+      path: '/captura'
+      fullPath: '/admin/captura'
+      preLoaderRoute: typeof AdminCapturaRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/carrinhos': {
@@ -2082,6 +2114,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAvaliacaoFotoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/aviso-preco': {
+      id: '/api/public/aviso-preco'
+      path: '/api/public/aviso-preco'
+      fullPath: '/api/public/aviso-preco'
+      preLoaderRoute: typeof ApiPublicAvisoPrecoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/carrinho': {
       id: '/api/public/carrinho'
       path: '/api/public/carrinho'
@@ -2337,6 +2376,7 @@ interface AdminRouteChildren {
   AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
   AdminBannersRoute: typeof AdminBannersRoute
   AdminCampanhasRoute: typeof AdminCampanhasRoute
+  AdminCapturaRoute: typeof AdminCapturaRoute
   AdminCarrinhosRoute: typeof AdminCarrinhosRoute
   AdminCatalogosRoute: typeof AdminCatalogosRoute
   AdminCategoriasRoute: typeof AdminCategoriasRoute
@@ -2380,6 +2420,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAvaliacoesRoute: AdminAvaliacoesRoute,
   AdminBannersRoute: AdminBannersRoute,
   AdminCampanhasRoute: AdminCampanhasRoute,
+  AdminCapturaRoute: AdminCapturaRoute,
   AdminCarrinhosRoute: AdminCarrinhosRoute,
   AdminCatalogosRoute: AdminCatalogosRoute,
   AdminCategoriasRoute: AdminCategoriasRoute,
@@ -2541,6 +2582,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicAvaliacaoFotoRoute: ApiPublicAvaliacaoFotoRoute,
+  ApiPublicAvisoPrecoRoute: ApiPublicAvisoPrecoRoute,
   ApiPublicCarrinhoRoute: ApiPublicCarrinhoRoute,
   ApiPublicContatoWhatsappRoute: ApiPublicContatoWhatsappRoute,
   ApiPublicEmailBajaRoute: ApiPublicEmailBajaRoute,

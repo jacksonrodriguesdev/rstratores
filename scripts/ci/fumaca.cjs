@@ -37,6 +37,7 @@ const PAGINAS = [
   ["/robots.txt", 200, ["Sitemap"]],
   ["/feeds/google-merchant.xml", 200, ["<?xml"]],
   ["/feeds/google-merchant-br.xml", 200, ["<?xml"]],
+  ["/feeds/meta-catalogo.xml", 200, ["<?xml"]],
   ["/pagar/link-que-nao-existe", 200, ["Link no encontrado"]],
   ["/pt/pagar/link-que-nao-existe", 200, ["Link não encontrado"]],
   ["/pagina-que-nao-existe-ci", 404, []],
@@ -90,7 +91,7 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
 
   // Admin sem login: o painel não pode vir no HTML (src/routes/admin.tsx só mostra depois de confirmar
   // a sessão; os dados passam por assertAdmin no servidor)
-  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes"]) {
+  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes", "/admin/captura"]) {
     const adm = await fetch(BASE + caminho, { redirect: "manual" });
     const htmlAdm = adm.status === 200 ? await adm.text() : "";
     const vazou = /Painel de controle|Criador de anúncios|E-mail marketing/.test(htmlAdm);

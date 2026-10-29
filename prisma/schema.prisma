@@ -1095,3 +1095,24 @@ model contatos_whatsapp {
   @@index([visitor_id])
   @@index([created_at])
 }
+
+// «Avisame cuando baje el precio» (página da peça): WhatsApp ou e-mail. Status: ATIVO, WHATSAPP
+// (baixou, falta avisar pelo WhatsApp), AVISADO, VENCIDO. Criada também por garantirTabelaAvisos().
+model avisos_preco {
+  id              Int       @id @default(autoincrement())
+  sku             String    @db.VarChar(191)
+  telefone        String?   @db.VarChar(20)
+  email           String?   @db.VarChar(191)
+  user_id         Int?
+  idioma          String    @default("es") @db.VarChar(2)
+  preco_ref_brl   Float
+  preco_aviso_brl Float?
+  status          String    @default("ATIVO") @db.VarChar(20)
+  visitor_id      String?   @db.VarChar(64)
+  baixou_em       DateTime?
+  avisado_em      DateTime?
+  created_at      DateTime  @default(now())
+
+  @@index([status])
+  @@index([sku])
+}
