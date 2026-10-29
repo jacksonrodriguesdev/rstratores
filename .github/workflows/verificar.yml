@@ -114,6 +114,9 @@ jobs:
       - name: Peças na nova venda (preço e cadastro rápido)
         run: npx tsx scripts/ci/testar-pecas-venda.ts
 
+      - name: Ficha do cliente (viu e não pediu)
+        run: npx tsx scripts/ci/testar-ficha-cliente.ts
+
       - name: Search Console (Google falso)
         run: npx tsx scripts/ci/testar-search-console.ts
 

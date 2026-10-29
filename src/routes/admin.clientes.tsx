@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { BotaoFichaCliente } from "@/components/admin/FichaCliente";
 import { OfertaClientes, numeroWhatsapp } from "@/components/admin/OfertaClientes";
 import { EmailClientes } from "@/components/admin/EmailClientes";
 
@@ -529,19 +530,20 @@ function ClientesPage() {
                 <th className="px-4 py-2.5">Cadastro</th>
                 <th className="px-4 py-2.5">Último login</th>
                 <th className="px-4 py-2.5 text-center">Atividade</th>
+                <th className="w-12 px-2 py-2.5" />
               </tr>
             </thead>
             <tbody className="divide-y">
               {isLoading && (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-6 text-center text-muted-foreground">
                     Carregando…
                   </td>
                 </tr>
               )}
               {!isLoading && filtrados.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-6 text-center text-muted-foreground">
                     Nenhum cliente encontrado.
                   </td>
                 </tr>
@@ -666,6 +668,9 @@ function Linha({ c, marcado, aoMarcar }: { c: Cliente; marcado: boolean; aoMarca
             {c.catalogos}
           </span>
         </div>
+      </td>
+      <td className="px-2 py-2.5">
+        <BotaoFichaCliente id={c.id} nome={c.nome} numero={numero} />
       </td>
     </tr>
   );

@@ -214,3 +214,13 @@ export const listarClientesFn = createServerFn({ method: "GET" }).handler(
     });
   },
 );
+
+// Ficha completa de um cliente (Admin → Clientes → olho)
+export const fichaClienteFn = createServerFn({ method: "GET" })
+  .validator((d: { id: number }) => ({ id: Number(d?.id) || 0 }))
+  .handler(async ({ data }) => {
+    const { assertAdmin } = await import("./auth.server");
+    await assertAdmin();
+    const f = await import("./ficha-cliente.server");
+    return f.fichaCliente(data.id);
+  });
