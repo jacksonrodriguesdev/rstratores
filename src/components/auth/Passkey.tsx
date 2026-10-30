@@ -138,6 +138,100 @@ export function BotaoPasskey({
   );
 }
 
+// Oferta de um toque logo depois de entrar/criar a conta (pop-up): ninguém precisa ir até
+// Mi cuenta. Aparece uma vez por aparelho; "Ahora no" ou fechar não pergunta de novo.
+export const OFERTA_PASSKEY = "passkey_oferta_vista";
+export function ofertaPasskeyPendente() {
+  try {
+    return !!window.PublicKeyCredential && !localStorage.getItem(OFERTA_PASSKEY);
+  } catch {
+    return false;
+  }
+}
+export function OfertaPasskey({ aoFechar }: { aoFechar?: () => void }) {
+  const { t, idioma } = useT();
+  const [estado, setEstado] = useState<"pergunta" | "ocupado" | "ok" | "fechada">("pergunta");
+  const [erro, setErro] = useState<string | null>(null);
+  const bio = nomeBiometria(idioma);
+  // Marca como vista ao aparecer: se a pessoa ignorar e fechar, não volta
+  useEffect(() => {
+    try {
+      localStorage.setItem(OFERTA_PASSKEY, String(Date.now()));
+    } catch {
+      /* modo privado */
+    }
+  }, []);
+  if (estado === "fechada") return null;
+  if (estado === "ok")
+    return (
+      <p className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
+        <Check className="h-4 w-4" />
+        {t(`¡Listo! La próxima vez entrá con ${bio}.`, `Pronto! Da próxima vez, entre com ${bio}.`)}
+      </p>
+    );
+  const ativar = async () => {
+    setErro(null);
+    setEstado("ocupado");
+    try {
+      await ativarPasskey();
+      setEstado("ok");
+    } catch (e: any) {
+      if (e?.name === "InvalidStateError") {
+        setEstado("ok");
+      } else {
+        if (!cancelou(e)) setErro(msg(e?.codigo ?? "", idioma));
+        setEstado("pergunta");
+      }
+    }
+  };
+  return (
+    <div className="mt-4 rounded-2xl border border-zinc-200 p-4 text-left">
+      <div className="flex gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white">
+          <ScanFace className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="font-bold text-zinc-900">
+            {t("¿Entrar más rápido la próxima vez?", "Entrar mais rápido da próxima vez?")}
+          </p>
+          <p className="text-sm text-zinc-600">
+            {t(
+              `Con ${bio}: sin códigos ni contraseña. Tu cara o huella quedan en tu celular.`,
+              `Com ${bio}: sem códigos nem senha. Seu rosto ou digital ficam no seu celular.`,
+            )}
+          </p>
+        </div>
+      </div>
+      {erro && <p className="mt-2 text-sm text-red-700">{erro}</p>}
+      <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
+        <button
+          type="button"
+          onClick={ativar}
+          disabled={estado === "ocupado"}
+          className="flex h-11 items-center justify-center gap-2 rounded-xl bg-zinc-900 font-bold text-white hover:bg-zinc-800 disabled:opacity-60"
+        >
+          {estado === "ocupado" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ScanFace className="h-4 w-4" />
+          )}
+          {t(`Activar ${bio}`, `Ativar ${bio}`)}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setEstado("fechada");
+            aoFechar?.();
+          }}
+          className="h-11 rounded-xl px-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-50"
+        >
+          {t("Ahora no", "Agora não")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Mi cuenta → Seguridad: ativar neste aparelho e ver/remover os aparelhos ativados
 export function PasskeysConta() {
   const { t, idioma } = useT();

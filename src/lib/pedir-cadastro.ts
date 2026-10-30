@@ -2,12 +2,14 @@
 // - carrinho: adicionou uma peça ao carrinho (uma vez por sessão);
 // - busca: buscou e não achou a peça ("te avisamos cuando llegue");
 // - catalogo: tentou abrir um catálogo que pede conta;
+// - limite: viu mais de 3 peças sem conta (o próprio pop-up dispara);
 // - whatsapp: pediu preço / mandou o pedido pelo WhatsApp (exige cadastro: sem conta, o pop-up
 //   aparece e o WhatsApp só abre depois de entrar; com o pop-up desligado no admin, abre direto).
 // O PopupAcesso (montado na rota raiz) escuta este evento.
 import { eventoDoLinkWhatsapp } from "./eventos";
 
-export type MotivoCadastro = "carrinho" | "busca" | "catalogo" | "whatsapp" | "cotizacao";
+export type MotivoCadastro =
+  "carrinho" | "busca" | "catalogo" | "whatsapp" | "cotizacao" | "limite";
 export type PedidoCadastro = {
   motivo: MotivoCadastro;
   termo?: string; // busca sem resultado

@@ -22,16 +22,31 @@ export const meuCupomFn = createServerFn({ method: "POST" }).handler(async () =>
   const { garantirCupom } = await import("./acesso.server");
   const { prisma } = await import("./prisma");
   const cupom = await garantirCupom(s.id);
-  const u = await prisma.users.findUnique({
-    where: { id: s.id },
-    select: { nome_completo: true, cupom_usado_em: true },
-  });
-  return { cupom, usado: !!u?.cupom_usado_em, nome: u?.nome_completo ?? s.nome };
+  const { garantirTabelaPasskeys } = await import("./passkey.server");
+  await garantirTabelaPasskeys();
+  const [u, pk] = await Promise.all([
+    prisma.users.findUnique({
+      where: { id: s.id },
+      select: { nome_completo: true, cupom_usado_em: true, telefone: true },
+    }),
+    prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
+      "SELECT COUNT(*) AS n FROM passkeys WHERE user_id = ?",
+      s.id,
+    ),
+  ]);
+  return {
+    cupom,
+    usado: !!u?.cupom_usado_em,
+    nome: u?.nome_completo ?? s.nome,
+    // O pop-up pede o WhatsApp (obrigatório) e oferece o Face ID a quem ainda não tem
+    telefone: !!u?.telefone,
+    passkeys: Number(pk[0]?.n ?? 0),
+  };
 });
 
-// Depois do cadastro só com e-mail: nome, departamento e celular são opcionais (pop-up ou Mi cuenta)
+// Depois do cadastro só com e-mail (pop-up): o WhatsApp é obrigatório; nome e departamento, opcionais
 export const completarPerfilFn = createServerFn({ method: "POST" })
-  .validator((d: { nome?: string; departamento?: string; telefone?: string }) => ({
+  .validator((d: { nome?: string; departamento?: string; telefone?: string; idioma?: string }) => ({
     nome: String(d?.nome ?? "")
       .trim()
       .slice(0, 120),
@@ -39,14 +54,27 @@ export const completarPerfilFn = createServerFn({ method: "POST" })
     telefone: String(d?.telefone ?? "")
       .trim()
       .slice(0, 30),
+    idioma: d?.idioma === "pt" ? ("pt" as const) : ("es" as const),
   }))
   .handler(async ({ data }) => {
     const { getSession } = await import("./auth.server");
     const s = await getSession();
     if (!s || s.role === "ADMIN") throw new Error("Iniciá sesión de nuevo.");
-    const { normalizarCelularUY, DEPARTAMENTOS_UY } = await import("./validacao-conta");
-    const telefone = data.telefone ? normalizarCelularUY(data.telefone) : null;
-    if (data.telefone && !telefone) throw new Error("El celular debe ser uruguayo: 09X XXX XXX.");
+    const { normalizarCelularUY, normalizarCelularBR, DEPARTAMENTOS_UY } =
+      await import("./validacao-conta");
+    const pt = data.idioma === "pt";
+    // Celular do país da página primeiro; aceita o do outro país (cliente de fronteira)
+    const telefone = data.telefone
+      ? pt
+        ? (normalizarCelularBR(data.telefone) ?? normalizarCelularUY(data.telefone))
+        : (normalizarCelularUY(data.telefone) ?? normalizarCelularBR(data.telefone))
+      : null;
+    if (data.telefone && !telefone)
+      throw new Error(
+        pt
+          ? "Confira o celular: DDD + número, ex.: (53) 99999-9999."
+          : "Revisá el celular: 09X XXX XXX.",
+      );
     const campos: { nome_completo?: string; departamento?: string; telefone?: string } = {};
     if (data.nome.length >= 2) campos.nome_completo = data.nome;
     if ((DEPARTAMENTOS_UY as readonly string[]).includes(data.departamento))
