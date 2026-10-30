@@ -79,7 +79,7 @@ fs.mkdirSync(path.dirname(saida), { recursive: true });
 fs.writeFileSync(
   saida,
   [
-    "-- RS Trator Peças: estrutura completa + dados da linha agrícola e do site",
+    "-- AGRO PARTS: estrutura completa + dados da linha agrícola e do site",
     "SET FOREIGN_KEY_CHECKS=0;",
     compativel(estrutura),
     compativel(dados),

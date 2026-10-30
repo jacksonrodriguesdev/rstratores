@@ -1,4 +1,4 @@
-// Uso: node scripts/qa/botoes_flutuantes.cjs [http://localhost:8080 | https://rsautopecas.com]
+// Uso: node scripts/qa/botoes_flutuantes.cjs [http://localhost:8080 | https://agropartsuy.com]
 // Monitor: no celular, todo botão/link dentro de elementos fixos (flutuantes) precisa receber
 // o toque no próprio centro (não pode estar coberto pela barra inferior nem por outro fixo).
 // Testa também o fim da página (o rodapé não pode ficar escondido atrás da barra).

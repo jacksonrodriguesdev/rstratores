@@ -61,7 +61,7 @@ async function baixar(url) {
   try {
     const res = await fetch(url, {
       signal: AbortSignal.timeout(TIMEOUT_MS),
-      headers: { "User-Agent": "RSTratorPecas-Catalogo/1.0" },
+      headers: { "User-Agent": "AgroParts-Catalogo/1.0" },
     });
     if (!res.ok) return null;
     const buf = Buffer.from(await res.arrayBuffer());

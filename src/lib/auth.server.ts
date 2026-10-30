@@ -2,7 +2,7 @@ import type { SessionPayload } from "./auth";
 import { SignJWT, jwtVerify } from "jose";
 import { getCookie } from "@tanstack/start-server-core";
 
-export const AUTH_COOKIE = "rstrator_auth";
+export const AUTH_COOKIE = "agroparts_auth";
 
 function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET;
