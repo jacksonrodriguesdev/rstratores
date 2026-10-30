@@ -88,6 +88,31 @@ const servidor = http.createServer(async (req, res) => {
     });
   // Anúncios
   if (p.access_token !== "token-ads") return j({ error: { code: 190, message: "token" } }, 400);
+  // Segunda conta (a que o app do Instagram cria ao impulsionar) e uma sem acesso
+  if (c.startsWith("/act_999")) return j({ error: { code: 200, message: "sem permissão" } }, 403);
+  if (c === "/act_777")
+    return j({
+      name: "Instagram AGRO",
+      currency: "UYU",
+      amount_spent: "500000",
+      account_status: 1,
+    });
+  if (c === "/act_777/insights") {
+    const x = ins({ spend: "50", impressions: "5000", clicks: "100", reach: "4000" });
+    if (p.time_increment) return j({ data: [{ date_start: "2026-10-18", ...x }] });
+    if (p.breakdowns === "region") return j({ data: [{ region: "Rivera", ...x }] });
+    if (p.breakdowns) return j({ data: [] });
+    if (p.level === "campaign") return j({ data: [{ campaign_id: "c7", ...x }] });
+    if (p.level) return j({ data: [] });
+    return j({ data: [x] });
+  }
+  if (c === "/act_777/campaigns")
+    return j({
+      data: [
+        { id: "c7", name: "Impulso Instagram", status: "ACTIVE", objective: "OUTCOME_ENGAGEMENT" },
+      ],
+    });
+  if (c === "/act_777/adsets" || c === "/act_777/ads") return j({ data: [] });
   if (c === "/act_555" && req.method === "GET")
     return j({
       name: "AGRO PARTS Ads",
@@ -276,6 +301,53 @@ async function main() {
       resultados: 20,
     });
     assert.equal(pub.regiao[0].rotulo, "Montevideo", "região com mais gasto primeiro");
+
+    // ---------- duas contas (Facebook + a do Instagram) somadas; a sem acesso é avisada
+    const { limparCacheMarketing } = await import("../../src/lib/marketing-config.server");
+    const contas = (v: string) => {
+      process.env.MKT_META_AD_ACCOUNT = v;
+      limparCacheMarketing();
+      m.limparMemoMeta();
+    };
+    contas("act_555, 777; act_999");
+    const c2 = await m.contaCompleta();
+    assert.equal(c2.id, "act_555", "a primeira é a principal");
+    assert.deepEqual(
+      c2.outras.map((o) => [o.nome, o.gastoTotal]),
+      [["Instagram AGRO", 5000]],
+    );
+    assert.deepEqual(
+      c2.semAcesso.map((s) => s.id),
+      ["act_999"],
+      "conta sem acesso não derruba o painel",
+    );
+    const g2 = await m.visaoGeral(7);
+    assert.deepEqual(
+      [g2.total.gasto, g2.total.cliques, g2.total.impressoes, g2.total.cpc],
+      [150.5, 400, 15000, 150.5 / 400],
+    );
+    const e2 = await m.estrutura(30);
+    assert.deepEqual(
+      e2.map((x) => [x.id, x.conta, x.numeros.gasto]),
+      [
+        ["c1", "AGRO PARTS Ads", 100.5],
+        ["c7", "Instagram AGRO", 50],
+        ["c2", "AGRO PARTS Ads", 0],
+      ],
+    );
+    const pub2 = await m.publico(30);
+    assert.equal(
+      pub2.regiao.find((x) => x.rotulo === "Rivera")?.gasto,
+      150.5,
+      "mesma região das duas contas vira uma linha",
+    );
+    const { campanhasMeta } = await import("../../src/lib/ads-meta.server");
+    assert.deepEqual(
+      (await campanhasMeta()).map((x) => x.id),
+      ["c1", "c2", "c7"],
+      "Central de Anúncios recebe as campanhas das duas contas",
+    );
+    contas("act_555");
 
     // ---------- site: retorno, cidades, rotas e leads do site
     const u = await prisma.users.create({

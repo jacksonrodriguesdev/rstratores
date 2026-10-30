@@ -103,8 +103,8 @@ export const salvarIntegracoesFn = createServerFn({ method: "POST" })
     conf("mkt_gads_id", /^AW-\d{6,15}$/, "Google Ads: formato AW-123456789.");
     conf(
       "mkt_meta_ad_account",
-      /^(act_)?\d{6,25}$/,
-      "Conta de anúncios: números (com ou sem act_).",
+      /^(act_)?\d{6,25}([\s,;]+(act_)?\d{6,25})*$/,
+      "Conta de anúncios: números (com ou sem act_); mais de uma, separe por vírgula.",
     );
     if (erros.length) throw new Error(erros.join(" "));
     await salvarConfigMarketing(data);

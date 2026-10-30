@@ -2,7 +2,7 @@
 // anúncios (pausar/ativar/orçamento), últimos anúncios com prévia, público (idade, gênero,
 // região, posicionamento, aparelho), cidades e rotas no site, leads, criar anúncio e conta/saldo.
 // Usa o token e a conta da Central de Anúncios (Integrações ou «Conectar Facebook»).
-import { cfg, chamar, todas } from "./ads-meta.server";
+import { cfg, chamar, contasMeta, emCadaConta, fatorDoObjeto, todas } from "./ads-meta.server";
 
 const DIA = 86_400_000;
 const diaUY = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "America/Montevideo" });
@@ -63,7 +63,7 @@ export type Numeros = {
 };
 const CAMPOS_INSIGHTS =
   "spend,impressions,reach,clicks,inline_link_clicks,ctr,cpc,cpm,frequency,actions,action_values";
-function numeros(x: any): Numeros {
+function numeros(x: any, fator = 1): Numeros {
   const compra =
     um(x.actions, "purchase") ||
     um(x.actions, "omni_purchase") ||
@@ -73,7 +73,7 @@ function numeros(x: any): Numeros {
     um(x.action_values, "omni_purchase") ||
     um(x.action_values, "offsite_conversion.fb_pixel_purchase");
   return {
-    gasto: Number(x.spend || 0),
+    gasto: Number(x.spend || 0) * fator,
     impressoes: Number(x.impressions || 0),
     alcance: Number(x.reach || 0),
     cliques: Number(x.clicks || 0),
@@ -82,20 +82,43 @@ function numeros(x: any): Numeros {
     leads: soma(x.actions, LEADS),
     conversas: soma(x.actions, CONVERSAS),
     compras: compra,
-    valorCompras: valor,
+    valorCompras: valor * fator,
     ctr: x.ctr != null ? Number(x.ctr) : null,
-    cpc: x.cpc != null ? Number(x.cpc) : null,
-    cpm: x.cpm != null ? Number(x.cpm) : null,
+    cpc: x.cpc != null ? Number(x.cpc) * fator : null,
+    cpm: x.cpm != null ? Number(x.cpm) * fator : null,
     frequencia: x.frequency != null ? Number(x.frequency) : null,
   };
 }
 const vazio = (): Numeros => numeros({});
+// Junta os números de várias contas (as taxas são recalculadas sobre a soma; o alcance é somado,
+// então quem viu anúncios das duas contas conta duas vezes)
+const SOMAVEIS = [
+  "gasto",
+  "impressoes",
+  "alcance",
+  "cliques",
+  "cliquesLink",
+  "visitasPagina",
+  "leads",
+  "conversas",
+  "compras",
+  "valorCompras",
+] as const;
+function somar(lista: Numeros[]): Numeros {
+  if (lista.length === 1) return lista[0];
+  const t = vazio();
+  for (const n of lista) for (const k of SOMAVEIS) t[k] += n[k];
+  t.ctr = t.impressoes ? (t.cliques / t.impressoes) * 100 : null;
+  t.cpc = t.cliques ? t.gasto / t.cliques : null;
+  t.cpm = t.impressoes ? (t.gasto / t.impressoes) * 1000 : null;
+  t.frequencia = t.alcance ? t.impressoes / t.alcance : null;
+  return t;
+}
 
 // ---------------------------------------------------------------- conta e saldo
-export async function contaCompleta() {
-  const c = await cfg();
-  return lembrar(`conta:${c.conta}`, 60_000, async () => {
-    const j = await chamar(c.conta, {
+async function lerConta(id: string) {
+  {
+    const j = await chamar(id, {
       fields:
         "name,currency,balance,amount_spent,spend_cap,account_status,disable_reason,timezone_name,funding_source_details,business{id,name}",
     });
@@ -110,9 +133,9 @@ export async function contaCompleta() {
       100: "Fechamento pendente",
       101: "Fechada",
     };
-    const digitos = c.conta.replace(/\D/g, "");
+    const digitos = id.replace(/\D/g, "");
     return {
-      id: c.conta,
+      id,
       nome: String(j.name ?? ""),
       moeda: String(j.currency ?? "USD"),
       status: STATUS[Number(j.account_status)] ?? String(j.account_status ?? ""),
@@ -126,23 +149,42 @@ export async function contaCompleta() {
       linkPagamento: `https://business.facebook.com/billing_hub/accounts/details?asset_id=${digitos}`,
       linkGerenciador: `https://adsmanager.facebook.com/adsmanager/manage/campaigns?act=${digitos}`,
     };
+  }
+}
+export async function contaCompleta() {
+  const c = await cfg();
+  return lembrar(`conta:${c.contas.join(",")}`, 60_000, async () => {
+    const { contas, semAcesso } = await contasMeta();
+    const [principal, ...outras] = await Promise.all(contas.map((x) => lerConta(x.id)));
+    return { ...principal, outras, semAcesso };
   });
 }
 
 // ---------------------------------------------------------------- visão geral
 export async function visaoGeral(dias: number) {
   const c = await cfg();
-  return lembrar(`geral:${c.conta}:${dias}`, 120_000, async () => {
-    const [tot, serie] = await Promise.all([
-      chamar(`${c.conta}/insights`, { fields: CAMPOS_INSIGHTS, time_range: faixa(dias) }),
-      todas(`${c.conta}/insights`, {
-        fields: CAMPOS_INSIGHTS,
-        time_range: faixa(dias),
-        time_increment: "1",
-        limit: "500",
-      }),
-    ]);
-    const porDia = new Map(serie.map((x: any) => [String(x.date_start), numeros(x)]));
+  return lembrar(`geral:${c.contas.join(",")}:${dias}`, 120_000, async () => {
+    const porConta = await emCadaConta(async (conta) => {
+      const [tot, serie] = await Promise.all([
+        chamar(`${conta.id}/insights`, { fields: CAMPOS_INSIGHTS, time_range: faixa(dias) }),
+        todas(`${conta.id}/insights`, {
+          fields: CAMPOS_INSIGHTS,
+          time_range: faixa(dias),
+          time_increment: "1",
+          limit: "500",
+        }),
+      ]);
+      return [
+        {
+          total: numeros(tot.data?.[0] ?? {}, conta.fator),
+          serie: serie.map((x: any) => ({ dia: String(x.date_start), n: numeros(x, conta.fator) })),
+        },
+      ];
+    });
+    const juntos = new Map<string, Numeros[]>();
+    for (const p of porConta)
+      for (const x of p.serie) juntos.set(x.dia, [...(juntos.get(x.dia) ?? []), x.n]);
+    const porDia = new Map([...juntos].map(([d, l]) => [d, somar(l)]));
     const p = periodo(dias);
     const dias_: Array<Numeros & { dia: string }> = [];
     for (
@@ -153,7 +195,7 @@ export async function visaoGeral(dias: number) {
       const d = new Date(t).toISOString().slice(0, 10);
       dias_.push({ dia: d, ...(porDia.get(d) ?? vazio()) });
     }
-    return { total: numeros(tot.data?.[0] ?? {}), serie: dias_ };
+    return { total: porConta.length ? somar(porConta.map((p) => p.total)) : vazio(), serie: dias_ };
   });
 }
 
@@ -213,30 +255,43 @@ const STATUS: Record<string, string> = {
   ARCHIVED: "REMOVIDA",
 };
 async function insightsPor(nivel: "campaign" | "adset" | "ad", dias: number) {
-  const c = await cfg();
-  const rows = await todas(`${c.conta}/insights`, {
-    level: nivel,
-    fields: `${nivel}_id,${CAMPOS_INSIGHTS}`,
-    time_range: faixa(dias),
-    limit: "500",
-  });
-  return new Map(rows.map((x: any) => [String(x[`${nivel}_id`]), numeros(x)]));
+  const rows = await emCadaConta(async (c) =>
+    (
+      await todas(`${c.id}/insights`, {
+        level: nivel,
+        fields: `${nivel}_id,${CAMPOS_INSIGHTS}`,
+        time_range: faixa(dias),
+        limit: "500",
+      })
+    ).map((x: any) => [String(x[`${nivel}_id`]), numeros(x, c.fator)] as const),
+  );
+  return new Map(rows);
 }
 
 export async function estrutura(dias: number) {
   const c = await cfg();
-  return lembrar(`estrutura:${c.conta}:${dias}`, 120_000, async () => {
+  return lembrar(`estrutura:${c.contas.join(",")}:${dias}`, 120_000, async () => {
+    const { contas } = await contasMeta();
+    const varias = contas.length > 1;
     const [camps, conjuntos, ins, insC] = await Promise.all([
-      todas(`${c.conta}/campaigns`, {
-        fields:
-          "id,name,status,effective_status,objective,daily_budget,lifetime_budget,created_time",
-        limit: "200",
-      }),
-      todas(`${c.conta}/adsets`, {
-        fields:
-          "id,name,status,effective_status,campaign_id,daily_budget,lifetime_budget,optimization_goal,targeting{age_min,age_max,genders,geo_locations}",
-        limit: "500",
-      }),
+      emCadaConta(async (conta) =>
+        (
+          await todas(`${conta.id}/campaigns`, {
+            fields:
+              "id,name,status,effective_status,objective,daily_budget,lifetime_budget,created_time",
+            limit: "200",
+          })
+        ).map((x: any) => ({ ...x, _conta: conta })),
+      ),
+      emCadaConta(async (conta) =>
+        (
+          await todas(`${conta.id}/adsets`, {
+            fields:
+              "id,name,status,effective_status,campaign_id,daily_budget,lifetime_budget,optimization_goal,targeting{age_min,age_max,genders,geo_locations}",
+            limit: "500",
+          })
+        ).map((x: any) => ({ ...x, _conta: conta })),
+      ),
       insightsPor("campaign", dias),
       insightsPor("adset", dias),
     ]);
@@ -246,7 +301,7 @@ export async function estrutura(dias: number) {
       nome: String(a.name ?? a.id),
       status: STATUS[a.status] ?? "OUTRO",
       statusOrigem: String(a.effective_status ?? a.status ?? ""),
-      orcamentoDiario: a.daily_budget ? Number(a.daily_budget) / 100 : null,
+      orcamentoDiario: a.daily_budget ? (Number(a.daily_budget) / 100) * a._conta.fator : null,
       vitalicio: !!a.lifetime_budget,
       otimizacao: a.optimization_goal ?? null,
       publico: [
@@ -269,7 +324,8 @@ export async function estrutura(dias: number) {
         status: STATUS[x.status] ?? "OUTRO",
         statusOrigem: String(x.effective_status ?? x.status ?? ""),
         objetivo: x.objective ?? null,
-        orcamentoDiario: x.daily_budget ? Number(x.daily_budget) / 100 : null,
+        conta: varias ? (x._conta.nome as string) : null,
+        orcamentoDiario: x.daily_budget ? (Number(x.daily_budget) / 100) * x._conta.fator : null,
         vitalicio: !!x.lifetime_budget,
         criada: x.created_time ?? null,
         numeros: ins.get(String(x.id)) ?? vazio(),
@@ -285,13 +341,19 @@ export async function estrutura(dias: number) {
 // Últimos anúncios com a arte, os textos e os números do período
 export async function anuncios(dias: number) {
   const c = await cfg();
-  return lembrar(`anuncios:${c.conta}:${dias}`, 120_000, async () => {
+  return lembrar(`anuncios:${c.contas.join(",")}:${dias}`, 120_000, async () => {
+    const { contas } = await contasMeta();
+    const varias = contas.length > 1;
     const [ads, ins] = await Promise.all([
-      todas(`${c.conta}/ads`, {
-        fields:
-          "id,name,status,effective_status,created_time,campaign{name},adset{name},creative{thumbnail_url,image_url,title,body,call_to_action_type,object_story_spec,effective_instagram_media_id,effective_object_story_id}",
-        limit: "100",
-      }),
+      emCadaConta(async (conta) =>
+        (
+          await todas(`${conta.id}/ads`, {
+            fields:
+              "id,name,status,effective_status,created_time,campaign{name},adset{name},creative{thumbnail_url,image_url,title,body,call_to_action_type,object_story_spec,effective_instagram_media_id,effective_object_story_id}",
+            limit: "100",
+          })
+        ).map((x: any) => ({ ...x, _conta: conta })),
+      ),
       insightsPor("ad", dias),
     ]);
     return ads
@@ -305,6 +367,7 @@ export async function anuncios(dias: number) {
           statusOrigem: String(a.effective_status ?? a.status ?? ""),
           criado: a.created_time ?? null,
           campanha: a.campaign?.name ?? null,
+          conta: varias ? (a._conta.nome as string) : null,
           conjunto: a.adset?.name ?? null,
           imagem: cr.image_url ?? cr.thumbnail_url ?? ld.picture ?? null,
           titulo: cr.title ?? ld.name ?? null,
@@ -334,7 +397,7 @@ export async function alterarObjeto(id: string, o: { ativo?: boolean; orcamento?
   if (o.ativo !== undefined) params.status = o.ativo ? "ACTIVE" : "PAUSED";
   if (o.orcamento !== undefined) {
     if (!(o.orcamento > 0)) throw new Error("Orçamento inválido");
-    params.daily_budget = String(Math.round(o.orcamento * 100));
+    params.daily_budget = String(Math.round((o.orcamento / (await fatorDoObjeto(id))) * 100));
   }
   await chamar(id, params, "POST");
   limparMemoMeta();
@@ -343,21 +406,30 @@ export async function alterarObjeto(id: string, o: { ativo?: boolean; orcamento?
 // ---------------------------------------------------------------- público
 export async function publico(dias: number) {
   const c = await cfg();
-  return lembrar(`publico:${c.conta}:${dias}`, 300_000, async () => {
+  return lembrar(`publico:${c.contas.join(",")}:${dias}`, 300_000, async () => {
     const por = async (breakdowns: string) =>
-      todas(`${c.conta}/insights`, {
-        fields: CAMPOS_INSIGHTS,
-        time_range: faixa(dias),
-        breakdowns,
-        limit: "500",
-      }).catch(() => []);
+      emCadaConta(async (conta) =>
+        (
+          await todas(`${conta.id}/insights`, {
+            fields: CAMPOS_INSIGHTS,
+            time_range: faixa(dias),
+            breakdowns,
+            limit: "500",
+          }).catch(() => [])
+        ).map((x: any) => ({ ...x, _fator: conta.fator })),
+      );
     const [idade, regiao, posicao, aparelho] = await Promise.all([
       por("age,gender"),
       por("region"),
       por("publisher_platform,platform_position"),
       por("impression_device"),
     ]);
-    const linha = (rotulo: string, x: any) => ({ rotulo, ...numeros(x) });
+    // A mesma linha vinda de contas diferentes vira uma só
+    const agrupar = (rows: any[], rotulo: (x: any) => string) => {
+      const g = new Map<string, Numeros[]>();
+      for (const x of rows) g.set(rotulo(x), [...(g.get(rotulo(x)) ?? []), numeros(x, x._fator)]);
+      return [...g].map(([r, l]) => ({ rotulo: r, ...somar(l) })).sort((a, b) => b.gasto - a.gasto);
+    };
     const GEN: Record<string, string> = {
       male: "Homens",
       female: "Mulheres",
@@ -375,7 +447,7 @@ export async function publico(dias: number) {
         cliques: 0,
         resultados: 0,
       };
-      const n = numeros(x);
+      const n = numeros(x, x._fator);
       g[GEN[x.gender] ?? "Não informado"] += n.cliques;
       g.gasto += n.gasto;
       g.cliques += n.cliques;
@@ -384,17 +456,12 @@ export async function publico(dias: number) {
     }
     return {
       idade: [...idades.values()].sort((a, b) => a.rotulo.localeCompare(b.rotulo)),
-      regiao: regiao
-        .map((x: any) => linha(String(x.region), x))
-        .sort((a: any, b: any) => b.gasto - a.gasto),
-      posicao: posicao
-        .map((x: any) =>
-          linha(`${x.publisher_platform} · ${String(x.platform_position).replace(/_/g, " ")}`, x),
-        )
-        .sort((a: any, b: any) => b.gasto - a.gasto),
-      aparelho: aparelho
-        .map((x: any) => linha(String(x.impression_device).replace(/_/g, " "), x))
-        .sort((a: any, b: any) => b.gasto - a.gasto),
+      regiao: agrupar(regiao, (x) => String(x.region)),
+      posicao: agrupar(
+        posicao,
+        (x) => `${x.publisher_platform} · ${String(x.platform_position).replace(/_/g, " ")}`,
+      ),
+      aparelho: agrupar(aparelho, (x) => String(x.impression_device).replace(/_/g, " ")),
     };
   });
 }

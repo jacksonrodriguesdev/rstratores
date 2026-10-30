@@ -339,9 +339,9 @@ function Contas({
             </ol>
             {campo(
               "mkt_meta_ad_account",
-              "Conta de anúncios",
-              "act_1234567890",
-              "Gerenciador de Anúncios → ID da conta.",
+              "Contas de anúncios",
+              "act_1234567890, act_9876543210",
+              "Gerenciador de Anúncios → ID da conta. Mais de uma (ex.: a do Facebook e a que o app do Instagram criou ao impulsionar)? Separe por vírgula; o painel soma todas. A primeira é a principal.",
             )}
             {campo(
               "mkt_meta_ads_token",

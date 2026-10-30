@@ -354,7 +354,7 @@ const valeNoMes = (x: { mes: string; recorrente: boolean; mes_fim: string | null
 // ---------------------------------------------------------------- Meta Ads por mês
 async function gastoMeta(desde: string, ate: string) {
   try {
-    const { cfg, todas } = await import("./ads-meta.server");
+    const { cfg, emCadaConta, todas } = await import("./ads-meta.server");
     const c = await cfg();
     if (!c.conta || !c.token) return { ok: false as const, erro: "Meta Ads não conectado" };
     const { contaCompleta } = await import("./meta-ads.server");
@@ -364,17 +364,22 @@ async function gastoMeta(desde: string, ate: string) {
     const until = (fim < hoje ? fim : hoje).toLocaleDateString("en-CA", {
       timeZone: "America/Montevideo",
     });
-    const linhas = await todas(`${c.conta}/insights`, {
-      fields: "spend",
-      time_range: JSON.stringify({ since: `${desde}-01`, until }),
-      time_increment: "monthly",
-      limit: "100",
-    });
+    // Todas as contas (Facebook e a do Instagram), na moeda da principal
+    const linhas = await emCadaConta(async (conta) =>
+      (
+        await todas(`${conta.id}/insights`, {
+          fields: "spend",
+          time_range: JSON.stringify({ since: `${desde}-01`, until }),
+          time_increment: "monthly",
+          limit: "100",
+        })
+      ).map((l: any) => ({
+        mes: String(l.date_start).slice(0, 7),
+        gasto: Number(l.spend || 0) * conta.fator,
+      })),
+    );
     const porMes = new Map<string, number>();
-    for (const l of linhas) {
-      const m = String(l.date_start).slice(0, 7);
-      porMes.set(m, (porMes.get(m) ?? 0) + Number(l.spend || 0));
-    }
+    for (const l of linhas) porMes.set(l.mes, (porMes.get(l.mes) ?? 0) + l.gasto);
     return { ok: true as const, moeda: conta.moeda, porMes };
   } catch (e: any) {
     return { ok: false as const, erro: String(e?.message ?? e).slice(0, 200) };

@@ -27,10 +27,21 @@ export type DiaApi = {
   leads: number;
 };
 
+// Uma ou mais contas, separadas por vírgula ("act_1, act_2"): por exemplo a do Facebook e a que o
+// app do Instagram cria quando se impulsiona um post de lá. A primeira é a principal (criar
+// anúncio, moeda dos totais); o painel soma todas.
+export function listaContas(v: string) {
+  const ids = String(v ?? "")
+    .split(/[\s,;]+/)
+    .map((x) => x.replace(/^act_/i, "").replace(/\D/g, ""))
+    .filter(Boolean);
+  return [...new Set(ids)].map((x) => `act_${x}`);
+}
+
 export async function cfg() {
   const { configMarketing } = await import("./marketing-config.server");
   const c = await configMarketing();
-  let conta = c.mkt_meta_ad_account.replace(/^act_/i, "").replace(/\D/g, "");
+  let contas = listaContas(c.mkt_meta_ad_account);
   let token = c.mkt_meta_ads_token;
   // Sem token colado em Integrações: usa a conexão «Conectar Facebook» (Instagram e Facebook)
   if (!token) {
@@ -38,14 +49,82 @@ export async function cfg() {
     const fb = await anunciosDaConexao().catch(() => null);
     if (fb) {
       token = fb.token;
-      if (!conta) conta = fb.conta.replace(/^act_/i, "").replace(/\D/g, "");
+      if (!contas.length) contas = listaContas(fb.conta);
     }
   }
-  return { conta: conta ? `act_${conta}` : "", token };
+  return { conta: contas[0] ?? "", contas, token };
 }
 export async function metaConfigurado() {
   const c = await cfg();
   return !!(c.conta && c.token);
+}
+
+// Contas que o token consegue ler. Os valores de uma conta em outra moeda são convertidos para a
+// moeda da principal (fator) para virar um número só. Conta sem acesso fica de fora e é avisada.
+export type ContaMeta = { id: string; nome: string; moeda: string; fator: number };
+let cacheContas: {
+  chave: string;
+  ate: number;
+  v: Promise<{ contas: ContaMeta[]; semAcesso: Array<{ id: string; erro: string }> }>;
+} | null = null;
+export async function contasMeta() {
+  const c = await cfg();
+  const chave = `${c.contas.join(",")}:${c.token.slice(-12)}`;
+  if (cacheContas && cacheContas.chave === chave && cacheContas.ate > Date.now())
+    return cacheContas.v;
+  const v = (async () => {
+    const lidas = await Promise.all(
+      c.contas.map(async (id): Promise<Omit<ContaMeta, "fator"> | { id: string; erro: string }> => {
+        try {
+          const j = await chamar(id, { fields: "name,currency" });
+          return { id, nome: String(j.name ?? id), moeda: String(j.currency ?? "USD") };
+        } catch (e: any) {
+          return { id, erro: String(e?.message ?? e) };
+        }
+      }),
+    );
+    const principal = lidas[0];
+    if (!principal) throw new Error("Meta: falta a conta de anúncios ou o token.");
+    if ("erro" in principal) throw new Error(principal.erro);
+    const { taxaUYU } = await import("./ads.server");
+    const taxaP = await taxaUYU(principal.moeda).catch(() => null);
+    const contas: ContaMeta[] = [];
+    const semAcesso: Array<{ id: string; erro: string }> = [];
+    for (const l of lidas) {
+      if ("erro" in l) {
+        semAcesso.push({ id: l.id, erro: l.erro });
+        continue;
+      }
+      let fator = 1;
+      if (l.moeda !== principal.moeda) {
+        const t = await taxaUYU(l.moeda).catch(() => null);
+        if (!t || !taxaP) {
+          semAcesso.push({ id: l.id, erro: `sem câmbio de ${l.moeda} para ${principal.moeda}` });
+          continue;
+        }
+        fator = t / taxaP;
+      }
+      contas.push({ ...l, fator });
+    }
+    return { contas, semAcesso };
+  })();
+  v.catch(() => (cacheContas = null));
+  cacheContas = { chave, ate: Date.now() + 10 * 60_000, v };
+  return v;
+}
+
+// Roda a mesma consulta em cada conta e junta tudo
+export async function emCadaConta<T>(fn: (c: ContaMeta) => Promise<T[]>): Promise<T[]> {
+  const { contas } = await contasMeta();
+  return (await Promise.all(contas.map(fn))).flat();
+}
+
+// Fator de moeda da conta dona de uma campanha/conjunto (para gravar orçamento na moeda certa)
+export async function fatorDoObjeto(id: string) {
+  const { contas } = await contasMeta();
+  if (contas.length < 2) return 1;
+  const j = await chamar(id, { fields: "account_id" });
+  return contas.find((c) => c.id === `act_${j.account_id}`)?.fator ?? 1;
 }
 
 export async function chamar(
@@ -113,22 +192,23 @@ const STATUS: Record<string, CampanhaApi["status"]> = {
 };
 
 export async function campanhasMeta(): Promise<CampanhaApi[]> {
-  const c = await cfg();
-  const rows = await todas(`${c.conta}/campaigns`, {
-    fields: "id,name,status,effective_status,daily_budget,lifetime_budget,objective",
-    limit: "200",
+  return emCadaConta(async (c) => {
+    const rows = await todas(`${c.id}/campaigns`, {
+      fields: "id,name,status,effective_status,daily_budget,lifetime_budget,objective",
+      limit: "200",
+    });
+    return rows.map((x) => ({
+      id: String(x.id),
+      nome: String(x.name ?? x.id),
+      status: STATUS[x.status] ?? "OUTRO",
+      statusOrigem: String(x.effective_status ?? x.status ?? ""),
+      // O Meta guarda o orçamento na menor unidade da moeda (centavos)
+      orcamentoDiario: x.daily_budget ? (Number(x.daily_budget) / 100) * c.fator : null,
+      orcamentoRef: x.daily_budget ? "campanha" : x.lifetime_budget ? "vitalicio" : "conjunto",
+      compartilhado: false,
+      objetivo: x.objective ? String(x.objective) : null,
+    }));
   });
-  return rows.map((x) => ({
-    id: String(x.id),
-    nome: String(x.name ?? x.id),
-    status: STATUS[x.status] ?? "OUTRO",
-    statusOrigem: String(x.effective_status ?? x.status ?? ""),
-    // O Meta guarda o orçamento na menor unidade da moeda (centavos)
-    orcamentoDiario: x.daily_budget ? Number(x.daily_budget) / 100 : null,
-    orcamentoRef: x.daily_budget ? "campanha" : x.lifetime_budget ? "vitalicio" : "conjunto",
-    compartilhado: false,
-    objetivo: x.objective ? String(x.objective) : null,
-  }));
 }
 
 // Ações que contam como lead (formulário, pixel, conversa iniciada no WhatsApp/Messenger)
@@ -154,30 +234,33 @@ const compra = (lista: any[] | undefined) => {
 };
 
 export async function diasMeta(ini: string, fim: string): Promise<DiaApi[]> {
-  const c = await cfg();
-  const rows = await todas(`${c.conta}/insights`, {
-    level: "campaign",
-    time_increment: "1",
-    time_range: JSON.stringify({ since: ini, until: fim }),
-    fields: "campaign_id,spend,impressions,clicks,actions,action_values",
-    limit: "500",
+  return emCadaConta(async (c) => {
+    const rows = await todas(`${c.id}/insights`, {
+      level: "campaign",
+      time_increment: "1",
+      time_range: JSON.stringify({ since: ini, until: fim }),
+      fields: "campaign_id,spend,impressions,clicks,actions,action_values",
+      limit: "500",
+    });
+    return rows.map((x) => ({
+      id: String(x.campaign_id),
+      dia: String(x.date_start),
+      gasto: Number(x.spend || 0) * c.fator,
+      impressoes: Number(x.impressions || 0),
+      cliques: Number(x.clicks || 0),
+      conversoes: compra(x.actions),
+      valorConv: compra(x.action_values) * c.fator,
+      leads: soma(x.actions, LEADS),
+    }));
   });
-  return rows.map((x) => ({
-    id: String(x.campaign_id),
-    dia: String(x.date_start),
-    gasto: Number(x.spend || 0),
-    impressoes: Number(x.impressions || 0),
-    cliques: Number(x.clicks || 0),
-    conversoes: compra(x.actions),
-    valorConv: compra(x.action_values),
-    leads: soma(x.actions, LEADS),
-  }));
 }
 
 export async function statusMeta(id: string, ativa: boolean) {
   await chamar(id, { status: ativa ? "ACTIVE" : "PAUSED" }, "POST");
 }
 
+// valor na moeda da conta principal
 export async function orcamentoMeta(id: string, valor: number) {
-  await chamar(id, { daily_budget: String(Math.round(valor * 100)) }, "POST");
+  const fator = await fatorDoObjeto(id);
+  await chamar(id, { daily_budget: String(Math.round((valor / fator) * 100)) }, "POST");
 }

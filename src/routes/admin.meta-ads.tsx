@@ -512,6 +512,7 @@ function Campanhas({ dias, din }: { dias: number; din: (x: number | null) => str
                     </button>
                     <p className="pl-6 text-[11px] text-muted-foreground">
                       {c.objetivo?.replace("OUTCOME_", "")} · {c.conjuntos.length} conjunto(s)
+                      {c.conta && ` · conta ${c.conta}`}
                     </p>
                   </td>
                   <td className="p-3">
@@ -739,6 +740,7 @@ function Anuncios({ dias, din }: { dias: number; din: (x: number | null) => stri
                 </p>
                 <p className="truncate text-[11px] text-muted-foreground">
                   {a.campanha} · {a.criado ? new Date(a.criado).toLocaleDateString("pt-BR") : ""}
+                  {a.conta && ` · ${a.conta}`}
                 </p>
                 {a.titulo && <p className="mt-1 line-clamp-1 text-sm">{a.titulo}</p>}
                 {a.texto && <p className="line-clamp-2 text-xs text-muted-foreground">{a.texto}</p>}
@@ -1875,6 +1877,40 @@ function Conta({ v, din }: { v: any; din: (x: number | null) => string }) {
           Conta {c.id} · fuso {c.fuso ?? "—"}
         </p>
       </Card>
+      {c.outras?.map((o: any) => (
+        <Card key={o.id} className="space-y-2 p-5 text-sm">
+          <p className="font-bold">
+            Outra conta: {o.nome || o.id}{" "}
+            <span className="font-normal text-muted-foreground">
+              ({o.id} · {o.moeda})
+            </span>
+          </p>
+          <p>
+            {o.status} · gasto total{" "}
+            {o.gastoTotal != null ? `${o.gastoTotal.toFixed(2)} ${o.moeda}` : "—"} · a pagar{" "}
+            {o.saldoDevido != null ? `${o.saldoDevido.toFixed(2)} ${o.moeda}` : "—"} · pagamento{" "}
+            {o.pagamento ?? "—"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              <a href={o.linkPagamento} target="_blank" rel="noreferrer">
+                Pagamentos e fundos <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+              </a>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <a href={o.linkGerenciador} target="_blank" rel="noreferrer">
+                Gerenciador <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+              </a>
+            </Button>
+          </div>
+        </Card>
+      ))}
+      {c.semAcesso?.map((s: any) => (
+        <Card key={s.id} className="border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          A conta {s.id} não entrou na soma: {s.erro}. Confira se o token (ou a conexão do Facebook)
+          tem acesso a ela.
+        </Card>
+      ))}
     </div>
   );
 }
