@@ -7,7 +7,7 @@ import { useT, type Idioma } from "@/lib/idioma";
 import { cn } from "@/lib/utils";
 
 // Entrar com Face ID / Touch ID / digital / Windows Hello (passkeys). Servidor:
-// src/lib/passkey.server.ts. A biblioteca do navegador só carrega quando a pessoa usa.
+// src/lib/passkey.server.ts. A biblioteca do navegador carrega quando o botão aparece.
 
 // O nome que a pessoa conhece no aparelho dela
 export function nomeBiometria(idioma: Idioma) {
@@ -60,14 +60,50 @@ async function post(url: string, body: unknown) {
   return j;
 }
 
+// O iPhone (Safari) só abre o Face ID se ele for chamado logo no toque: esperar o servidor ou
+// carregar a biblioteca antes faz o Safari recusar em silêncio. Por isso a biblioteca e o desafio
+// ficam prontos antes (usePreparo) e o toque chama a biometria na hora.
+type Tipo = "registro" | "login";
+type Preparo = { opcoes: any; token: string; em: number };
+let biblioteca: typeof import("@simplewebauthn/browser") | null = null;
+const carregar = async () => (biblioteca ??= await import("@simplewebauthn/browser"));
+const VALE = 4 * 60_000; // o desafio vale 5 min no servidor
+const preparar = async (tipo: Tipo): Promise<Preparo> => {
+  const [, j] = await Promise.all([carregar(), post("/api/auth/passkey/opcoes", { tipo })]);
+  return { ...j, em: Date.now() };
+};
+const valido = (p?: Preparo | null) => (p && Date.now() - p.em < VALE ? p : null);
+
+// Deixa pronto (e renova) o desafio enquanto o botão está na tela
+function usePreparo(tipo: Tipo, ativo: boolean) {
+  const [preparo, setPreparo] = useState<Preparo | null>(null);
+  const [rodada, setRodada] = useState(0);
+  useEffect(() => {
+    if (!ativo) return;
+    let vivo = true;
+    preparar(tipo)
+      .then((p) => vivo && setPreparo(p))
+      .catch(() => vivo && setPreparo(null));
+    const t = setTimeout(() => setRodada((n) => n + 1), VALE);
+    return () => {
+      vivo = false;
+      clearTimeout(t);
+    };
+  }, [tipo, ativo, rodada]);
+  // Cada desafio vale uma vez: depois de usar, pega outro
+  return { preparo, renovar: () => setRodada((n) => n + 1) };
+}
+
+// Recusa em menos de 1 s, sem a janela aparecer: o navegador bloqueou (não foi a pessoa)
+const bloqueado = (e: any, inicio: number) => cancelou(e) && Date.now() - inicio < 1000;
+
 // Entrar: o aparelho mostra as contas salvas, a pessoa confirma com a biometria
-export async function entrarComPasskey(redirect?: string) {
-  const { startAuthentication } = await import("@simplewebauthn/browser");
-  const { opcoes, token } = await post("/api/auth/passkey/opcoes", { tipo: "login" });
-  const resposta = await startAuthentication({ optionsJSON: opcoes });
+export async function entrarComPasskey(redirect?: string, pronto?: Preparo | null) {
+  const p = valido(pronto) ?? (await preparar("login"));
+  const resposta = await biblioteca!.startAuthentication({ optionsJSON: p.opcoes });
   return post("/api/auth/passkey/verificar", {
     tipo: "login",
-    token,
+    token: p.token,
     resposta,
     redirect,
   }) as Promise<{
@@ -77,12 +113,16 @@ export async function entrarComPasskey(redirect?: string) {
 }
 
 // Ativar neste aparelho (logado)
-export async function ativarPasskey() {
-  const { startRegistration } = await import("@simplewebauthn/browser");
-  const { opcoes, token } = await post("/api/auth/passkey/opcoes", { tipo: "registro" });
-  const resposta = await startRegistration({ optionsJSON: opcoes });
-  return post("/api/auth/passkey/verificar", { tipo: "registro", token, resposta });
+export async function ativarPasskey(pronto?: Preparo | null) {
+  const p = valido(pronto) ?? (await preparar("registro"));
+  const resposta = await biblioteca!.startRegistration({ optionsJSON: p.opcoes });
+  return post("/api/auth/passkey/verificar", { tipo: "registro", token: p.token, resposta });
 }
+
+const TOQUE_DE_NOVO: [string, string] = [
+  "Tocá de nuevo para abrir el Face ID / huella.",
+  "Toque de novo para abrir o Face ID / digital.",
+];
 
 // Botão "Entrar con Face ID" (login e pop-up). Some nos navegadores sem suporte.
 export function BotaoPasskey({
@@ -101,16 +141,20 @@ export function BotaoPasskey({
   const { t, idioma } = useT();
   const suporta = useSuportaPasskey();
   const [ocupado, setOcupado] = useState(false);
+  const { preparo, renovar } = usePreparo("login", suporta);
   if (!suporta) return null;
   const entrar = async () => {
+    const inicio = Date.now();
     setOcupado(true);
     try {
-      const r = await entrarComPasskey(redirect);
+      const r = await entrarComPasskey(redirect, preparo);
       // Recarrega para o site inteiro pegar a sessão
       window.location.href = r.destino || redirect || "/cuenta";
     } catch (e: any) {
-      if (!cancelou(e)) aoErro?.(msg(e?.codigo ?? "", idioma));
+      if (bloqueado(e, inicio)) aoErro?.(TOQUE_DE_NOVO[idioma === "pt" ? 1 : 0]);
+      else if (!cancelou(e)) aoErro?.(msg(e?.codigo ?? "", idioma));
       setOcupado(false);
+      renovar();
     }
   };
   return (
@@ -153,6 +197,7 @@ export function OfertaPasskey({ aoFechar }: { aoFechar?: () => void }) {
   const [estado, setEstado] = useState<"pergunta" | "ocupado" | "ok" | "fechada">("pergunta");
   const [erro, setErro] = useState<string | null>(null);
   const bio = nomeBiometria(idioma);
+  const { preparo, renovar } = usePreparo("registro", estado === "pergunta");
   // Marca como vista ao aparecer: se a pessoa ignorar e fechar, não volta
   useEffect(() => {
     try {
@@ -170,17 +215,20 @@ export function OfertaPasskey({ aoFechar }: { aoFechar?: () => void }) {
       </p>
     );
   const ativar = async () => {
+    const inicio = Date.now();
     setErro(null);
     setEstado("ocupado");
     try {
-      await ativarPasskey();
+      await ativarPasskey(preparo);
       setEstado("ok");
     } catch (e: any) {
       if (e?.name === "InvalidStateError") {
         setEstado("ok");
       } else {
-        if (!cancelou(e)) setErro(msg(e?.codigo ?? "", idioma));
+        if (bloqueado(e, inicio)) setErro(TOQUE_DE_NOVO[idioma === "pt" ? 1 : 0]);
+        else if (!cancelou(e)) setErro(msg(e?.codigo ?? "", idioma));
         setEstado("pergunta");
+        renovar();
       }
     }
   };
@@ -240,11 +288,13 @@ export function PasskeysConta() {
   const { data } = useQuery({ queryKey: ["minhas-passkeys"], queryFn: () => minhasPasskeysFn() });
   const [ocupado, setOcupado] = useState(false);
   const bio = nomeBiometria(idioma);
+  const { preparo, renovar } = usePreparo("registro", suporta && !ocupado);
 
   const ativar = async () => {
+    const inicio = Date.now();
     setOcupado(true);
     try {
-      await ativarPasskey();
+      await ativarPasskey(preparo);
       toast.success(
         t(`¡Listo! La próxima vez entrá con ${bio}.`, `Pronto! Da próxima vez, entre com ${bio}.`),
       );
@@ -252,9 +302,11 @@ export function PasskeysConta() {
     } catch (e: any) {
       if (e?.name === "InvalidStateError")
         toast.info(t("Este dispositivo ya está activado.", "Este aparelho já está ativado."));
+      else if (bloqueado(e, inicio)) toast.info(TOQUE_DE_NOVO[idioma === "pt" ? 1 : 0]);
       else if (!cancelou(e)) toast.error(msg(e?.codigo ?? "", idioma));
     } finally {
       setOcupado(false);
+      renovar();
     }
   };
   const remover = async (id: number) => {
