@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Ticket } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { CuponsLista } from "@/components/campanha/Cupons";
+import { CuponsLista, cuponsDaMoeda } from "@/components/campanha/Cupons";
 import { cuponsPaginaFn } from "@/lib/campanhas";
 import { linksIdioma, tr, useT, type Idioma } from "@/lib/idioma";
 
@@ -32,8 +32,8 @@ export const Route = createFileRoute("/cupones")({
 });
 
 function PaginaCupons() {
-  const cupons = Route.useLoaderData();
-  const { t } = useT();
+  const { t, idioma } = useT();
+  const cupons = cuponsDaMoeda(Route.useLoaderData(), idioma);
   return (
     <div className="min-h-screen bg-zinc-100">
       <SiteHeader />

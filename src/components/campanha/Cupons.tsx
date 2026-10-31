@@ -13,10 +13,16 @@ const moedaFmt = (v: number, m: string) =>
     ? `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`
     : `$U ${v.toLocaleString("es-UY")}`;
 
+// Cada versão do site mostra só os cupons da sua moeda: R$ no português, $U no espanhol
+export const cuponsDaMoeda = (cupons: CupomPagina[], idioma: "es" | "pt") =>
+  cupons.filter((c) => (c.moeda === "BRL") === (idioma === "pt"));
+
 export function CuponsLista({ cupons, escuro }: { cupons: CupomPagina[]; escuro?: boolean }) {
+  const { idioma } = useT();
+  const daMoeda = cuponsDaMoeda(cupons, idioma);
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {cupons.map((c, i) => (
+      {daMoeda.map((c, i) => (
         <CartaoCupom key={c.codigo ?? `m${i}`} c={c} escuro={escuro} />
       ))}
     </div>

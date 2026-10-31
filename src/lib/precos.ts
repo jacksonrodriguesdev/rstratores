@@ -110,3 +110,13 @@ export const margemDe = (custo: number, venda: number) =>
 export const fmtUYU = (n: number) => `$U ${Math.round(n).toLocaleString("es-UY")}`;
 export const fmtBRL = (n: number) =>
   `R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// Cada versão do site mostra uma moeda só: espanhol (Uruguai) em $U, português (Brasil) em R$.
+// Tira a outra moeda; sem preço na moeda do país, a peça fica sem preço ("Consultar preço"),
+// nunca na moeda do outro país.
+export function precoDoPais(pr: PrecoFinal | null, idioma: "es" | "pt"): PrecoFinal | null {
+  if (!pr) return null;
+  if (idioma === "pt") return pr.brl ? { ...pr, uyu: null, deUyu: null } : null;
+  return pr.uyu ? { ...pr, brl: null, deBrl: null } : null;
+}
+export const moedaDoPais = (idioma: "es" | "pt") => (idioma === "pt" ? "BRL" : "UYU");

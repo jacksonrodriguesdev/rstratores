@@ -4,6 +4,7 @@ import {
   fmtBRL,
   fmtUYU,
   precoVenda,
+  precoDoPais,
   type CamposPreco,
   type ConfigPrecos,
   type PrecoFinal,
@@ -11,9 +12,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useIdioma, type Idioma } from "@/lib/idioma";
 
-// Preço da peça no site: $U (cotação do dia) em destaque e R$ menor; na versão em português
-// (cliente do Brasil), o contrário: R$ em destaque e $U menor. Em promoção, mostra o
-// preço "de" riscado e o desconto. Sem preço, ou com "mostrar preços" desligado, não mostra nada.
+// Preço da peça no site, na moeda do país da página: $U na versão em espanhol (Uruguai), R$ na
+// versão em português (Brasil). Nunca as duas. Em promoção, mostra o preço "de" riscado e o
+// desconto. Sem preço na moeda do país, ou com "mostrar preços" desligado, não mostra nada.
 export function usePrecos(inicial?: ConfigPrecos) {
   const { data } = useQuery({
     queryKey: ["precos-config"],
@@ -26,18 +27,14 @@ export function usePrecos(inicial?: ConfigPrecos) {
 
 export function usePreco(p: CamposPreco, inicial?: ConfigPrecos): PrecoFinal | null {
   const cfg = usePrecos(inicial);
+  const idioma = useIdioma();
   if (!cfg?.mostrar) return null;
-  return precoVenda(p, cfg);
+  return precoDoPais(precoVenda(p, cfg), idioma);
 }
 
+// pr já vem de precoDoPais (só a moeda do país)
 export const principalDe = (pr: PrecoFinal, idioma: Idioma = "es") =>
-  idioma === "pt"
-    ? pr.brl
-      ? fmtBRL(pr.brl)
-      : fmtUYU(pr.uyu!)
-    : pr.uyu
-      ? fmtUYU(pr.uyu)
-      : fmtBRL(pr.brl!);
+  idioma === "pt" ? fmtBRL(pr.brl!) : fmtUYU(pr.uyu!);
 
 export function PrecoTag({
   p,
@@ -71,16 +68,11 @@ export function PrecoVisual({
     ? pt
       ? preco.deBrl
         ? fmtBRL(preco.deBrl)
-        : preco.deUyu
-          ? fmtUYU(preco.deUyu)
-          : null
+        : null
       : preco.deUyu
         ? fmtUYU(preco.deUyu)
-        : preco.deBrl
-          ? fmtBRL(preco.deBrl)
-          : null
+        : null
     : null;
-  const segundo = preco.uyu && preco.brl ? (pt ? fmtUYU(preco.uyu) : fmtBRL(preco.brl)) : null;
   const lg = tamanho === "lg";
   return (
     <div className={cn("flex flex-col", className)}>
@@ -110,11 +102,6 @@ export function PrecoVisual({
         >
           {principalDe(preco, idioma)}
         </span>
-        {segundo && (
-          <span className={cn("font-semibold text-zinc-500", lg ? "text-base" : "text-xs")}>
-            {segundo}
-          </span>
-        )}
       </div>
     </div>
   );

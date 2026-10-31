@@ -99,6 +99,17 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
     if (!ok) falhas.push(`${caminho}: WhatsApp ${numeros.length ? `com número errado (${[...new Set(errados)]})` : "sem link"}`);
   }
 
+  // Uma moeda por país: português (Brasil) só R$, espanhol (Uruguai) só $U
+  for (const [caminho, certa, errada] of [
+    ["/pt/produto/CI-001", "R$", /\$U\s?\d/],
+    ["/produto/CI-001", "$U", /R\$\s?\d/],
+  ]) {
+    const html = await (await fetch(BASE + caminho)).text();
+    const ok = html.includes(certa) && !errada.test(html);
+    console.log(`${ok ? "✔" : "✘"} moeda em ${caminho}: ${ok ? `só ${certa}` : "moeda errada ou sem preço"}`);
+    if (!ok) falhas.push(`${caminho}: moeda errada (esperado só ${certa})`);
+  }
+
   // Admin sem login: o painel não pode vir no HTML (src/routes/admin.tsx só mostra depois de confirmar
   // a sessão; os dados passam por assertAdmin no servidor)
   for (const caminho of ["/admin", "/admin/analises", "/admin/clientes", "/admin/captura"]) {

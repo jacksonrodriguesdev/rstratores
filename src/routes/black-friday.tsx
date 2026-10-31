@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ArrowRight, BellRing, Flame, MessageCircle, Percent, Tag } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Contagem, HeroCampanha, ListaOfertas } from "@/components/campanha/Campanha";
-import { CuponsLista } from "@/components/campanha/Cupons";
+import { CuponsLista, cuponsDaMoeda } from "@/components/campanha/Cupons";
 import { paginaCampanhaFn } from "@/lib/campanhas";
 import { urlRepuestos } from "@/lib/seo-paginas";
 import { categoriaEs } from "@/lib/pecas-es";
@@ -66,8 +66,9 @@ export const Route = createFileRoute("/black-friday")({
 });
 
 function PaginaBlack() {
-  const { campanha: c, regras, pecas, cupons, proxima } = Route.useLoaderData();
+  const { campanha: c, regras, pecas, cupons: todosCupons, proxima } = Route.useLoaderData();
   const { t, idioma, href } = useT();
+  const cupons = cuponsDaMoeda(todosCupons, idioma);
   const zap = whatsappContactUrl(
     t(
       "¡Hola! Quiero aprovechar la Black Friday de AGRO PARTS.",

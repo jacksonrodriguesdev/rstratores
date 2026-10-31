@@ -47,7 +47,7 @@ import { registrarVisto } from "@/hooks/use-vistos";
 import { getPrecosConfigFn } from "@/lib/produtos-admin";
 import { PrecoTag, usePreco } from "@/components/PrecoTag";
 import { eventoVerProduto } from "@/lib/marketing";
-import { precoVenda, fmtUYU, fmtBRL } from "@/lib/precos";
+import { precoVenda, precoDoPais } from "@/lib/precos";
 import { avaliacoesProdutoFn } from "@/lib/avaliacoes";
 import { AvaliacoesPeca, ResumoEstrelas } from "@/components/AvaliacoesPeca";
 import { fotoInvalida } from "@/lib/fotos";
@@ -95,7 +95,10 @@ export const Route = createFileRoute("/produto/$sku")({
     const codigo = codigoExibicao(p);
     // "420462 · Retén New Holland | Uruguay": código, nome e marca (o que se busca), até ~60 caracteres
     const title = tituloPeca(p, idioma);
-    const precoMeta = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
+    // Só a moeda do país da página: R$ em português (Brasil), $U em espanhol (Uruguai)
+    const precoMeta = loaderData.precos?.mostrar
+      ? precoDoPais(precoVenda(p, loaderData.precos), idioma)
+      : null;
     const desc = metaDescricaoPeca(p, idioma, {
       precoUyu: precoMeta?.uyu ?? null,
       precoBrl: precoMeta?.brl ?? null,
@@ -108,7 +111,7 @@ export const Route = createFileRoute("/produto/$sku")({
     const imagem = temFoto ? urlImagem(p.imagem_principal!) : null;
     // Ao compartilhar (WhatsApp, Facebook) a peça sem foto mostra a marca da loja
     const imagemCompartilhar = imagem ?? `${SITE}/icon-512.png`;
-    const preco = loaderData.precos?.mostrar ? precoVenda(p, loaderData.precos) : null;
+    const preco = precoMeta;
     const av = loaderData.avaliacoes;
     // Dados estruturados: o Google entende nome, código e marca da peça (resultado mais completo)
     const produtoLd = {
@@ -142,7 +145,7 @@ export const Route = createFileRoute("/produto/$sku")({
         const pr = preco;
         if (!pr) return {};
         // Em português o preço vai em reais (cliente do Brasil); em espanhol, em pesos uruguaios
-        const emReais = idioma === "pt" ? !!pr.brl : !pr.uyu;
+        const emReais = idioma === "pt";
         return {
           offers: {
             "@type": "Offer",
@@ -279,7 +282,9 @@ function ProductDetail() {
     registrarVisto(product.sku);
     setMainImage(product.imagem_principal);
     // ViewContent (Meta) / view_item (GA4): base do remarketing e dos anúncios de catálogo
-    eventoVerProduto({ sku: product.sku.trim(), nome, valor: precoAtual?.uyu ?? null });
+    // Valor sempre em $U (moeda das contas de anúncio), mesmo na versão em português
+    const valor = precos?.mostrar ? (precoVenda(product, precos)?.uyu ?? null) : null;
+    eventoVerProduto({ sku: product.sku.trim(), nome, valor });
   }, [product.sku]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const imagesQuery = useQuery({
