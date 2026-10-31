@@ -1,6 +1,7 @@
 // Leads do Google (busca orgânica): visitas que chegaram por uma busca sem anúncio (Google, Bing,
 // DuckDuckGo…) e o que fizeram — pedido de preço no WhatsApp, cotação, carrinho. Mostra por qual
 // página entraram (a página que o Google mostrou) e quais peças pediram. Admin → Google.
+import { caminhoInterno } from "./caminhos-pt";
 import { prisma } from "./prisma";
 import { sqlHumano } from "./rastreio.server";
 
@@ -30,7 +31,7 @@ export type LeadsOrganicos = {
 };
 
 // "/pt/produto/X" e "/produto/X" contam como a mesma página; parâmetros saem
-const pagina = (p: string) => p.split(/[?#]/)[0].replace(/^\/pt(?=\/|$)/, "") || "/";
+const pagina = (p: string) => caminhoInterno(p.split(/[?#]/)[0]) || "/";
 
 export async function leadsOrganicos(dias: number): Promise<LeadsOrganicos> {
   const { limparEstatisticas } = await import("./limpeza-estatisticas.server");

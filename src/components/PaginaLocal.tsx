@@ -19,6 +19,7 @@ import {
   LOCAIS_SEO,
   localPorSlug,
   nomeLocal,
+  emLocal,
   textoLocal,
   tituloLocal,
   descricaoLocal,
@@ -99,7 +100,7 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
   const whats = whatsappContactUrl(
     t(
       `¡Hola! Estoy en ${nome} y busco un repuesto agrícola.`,
-      `Olá! Estou em ${nome} e procuro uma peça agrícola.`,
+      `Olá! Estou ${emLocal(l)} e procuro uma peça agrícola.`,
     ),
   );
   const vizinhos = l.vizinhos.map(localPorSlug).filter(Boolean) as LocalSeo[];
@@ -181,14 +182,14 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
           <section className="grid gap-4 md:grid-cols-2">
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-7">
               <h2 className="text-xl font-extrabold text-zinc-900">
-                {t(`Repuestos para el campo de ${nome}`, `Peças para o campo de ${nome}`)}
+                {t(`Repuestos para el campo de ${nome}`, `Peças para o campo ${emLocal(l)}`)}
               </h2>
               <p className="mt-3 text-zinc-700">{p2}</p>
               <p className="mt-3 text-zinc-700">{p3}</p>
             </div>
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-7">
               <h2 className="text-xl font-extrabold text-zinc-900">
-                {t(`Marcas más buscadas en ${nome}`, `Marcas mais procuradas em ${nome}`)}
+                {t(`Marcas más buscadas en ${nome}`, `Marcas mais procuradas ${emLocal(l)}`)}
               </h2>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {l.marcas.map((m) => {

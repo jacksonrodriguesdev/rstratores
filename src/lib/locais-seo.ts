@@ -580,6 +580,161 @@ const BASE: Base[] = [
     ["Massey Ferguson", "Valtra", "Agrale", "New Holland"],
     ["caxias-do-sul", "porto-alegre", "santa-maria"],
   ),
+  // Mais cidades do RS que aparecem nas buscas do Google ("peças agrícolas santiago rs", "...camaquã")
+  RS(
+    "Santiago",
+    "granos",
+    F.tr,
+    ["Massey Ferguson", "John Deere", "Valtra"],
+    ["sao-gabriel", "santa-maria", "sao-luiz-gonzaga"],
+  ),
+  RS(
+    "Cachoeira do Sul",
+    "arroz",
+    F.hi,
+    ["John Deere", "Massey Ferguson", "Valtra", "New Holland"],
+    ["santa-maria", "santa-cruz-do-sul", "camaqua"],
+  ),
+  RS(
+    "Santa Cruz do Sul",
+    "granja",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "Agrale", "New Holland"],
+    ["venancio-aires", "lajeado", "cachoeira-do-sul"],
+  ),
+  RS(
+    "Venâncio Aires",
+    "granja",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "Agrale", "New Holland"],
+    ["santa-cruz-do-sul", "lajeado", "porto-alegre"],
+  ),
+  RS(
+    "São Borja",
+    "arroz",
+    F.ro,
+    ["John Deere", "Massey Ferguson", "New Holland"],
+    ["itaqui", "sao-luiz-gonzaga", "uruguaiana"],
+  ),
+  RS(
+    "Itaqui",
+    "arroz",
+    F.ro,
+    ["John Deere", "New Holland", "Massey Ferguson"],
+    ["sao-borja", "uruguaiana", "alegrete"],
+  ),
+  RS(
+    "São Luiz Gonzaga",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["santo-angelo", "sao-borja", "santiago"],
+  ),
+  RS(
+    "Três Passos",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "John Deere", "Agrale"],
+    ["tres-de-maio", "santa-rosa", "frederico-westphalen"],
+  ),
+  RS(
+    "Frederico Westphalen",
+    "leche",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "Agrale"],
+    ["tres-passos", "palmeira-das-missoes", "erechim"],
+  ),
+  RS(
+    "Três de Maio",
+    "granos",
+    F.hi,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["horizontina", "santa-rosa", "tres-passos"],
+  ),
+  RS(
+    "Horizontina",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["tres-de-maio", "santa-rosa", "tres-passos"],
+  ),
+  RS(
+    "Panambi",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["ijui", "cruz-alta", "nao-me-toque"],
+  ),
+  RS(
+    "Não-Me-Toque",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH", "New Holland"],
+    ["carazinho", "passo-fundo", "panambi"],
+  ),
+  RS(
+    "Tupanciretã",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["cruz-alta", "julio-de-castilhos", "santa-maria"],
+  ),
+  RS(
+    "Júlio de Castilhos",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Valtra"],
+    ["tupancireta", "santa-maria", "cruz-alta"],
+  ),
+  RS(
+    "Soledade",
+    "granos",
+    F.hi,
+    ["Massey Ferguson", "John Deere", "Valtra"],
+    ["espumoso", "passo-fundo", "lajeado"],
+  ),
+  RS(
+    "Espumoso",
+    "granos",
+    F.tr,
+    ["John Deere", "Massey Ferguson", "Case IH"],
+    ["soledade", "carazinho", "nao-me-toque"],
+  ),
+  RS(
+    "São Lourenço do Sul",
+    "arroz",
+    F.hi,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["pelotas", "camaqua", "cangucu"],
+  ),
+  RS(
+    "Canguçu",
+    "granja",
+    F.fi,
+    ["Massey Ferguson", "Valtra", "Agrale"],
+    ["pelotas", "sao-lourenco-do-sul", "piratini"],
+  ),
+  RS(
+    "Piratini",
+    "ganaderia",
+    F.fr,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["cangucu", "pelotas", "bage"],
+  ),
+  RS(
+    "Rosário do Sul",
+    "ganaderia",
+    F.fr,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["santana-do-livramento", "alegrete", "sao-gabriel"],
+  ),
+  RS(
+    "Quaraí",
+    "ganaderia",
+    F.hi,
+    ["Massey Ferguson", "Valtra", "John Deere"],
+    ["uruguaiana", "alegrete", "artigas"],
+  ),
   // Santa Catarina
   {
     ...RS(
@@ -765,7 +920,7 @@ export function textoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number)
     return [
       `Loja online de peças agrícolas com mais de ${n} peças publicadas, preço visível e atendimento pelo WhatsApp. ${l.pais === "RS" ? `Enviamos para ${onde} ${envio}, com preço em R$.` : `Atendemos ${onde} pelo WhatsApp.`}`,
       `A região tem forte presença de ${l.perfil.pt}. Por isso as peças mais procuradas aqui são para ${l.maquinas.pt}, de marcas como ${marcas}.`,
-      `Atendemos todo o RS, SC e PR. Mande o código original ou uma foto da peça e confirmamos a compatibilidade antes da compra.`,
+      `Somos distribuidora de peças agrícolas no Rio Grande do Sul e atendemos também Santa Catarina e Paraná. Mande o código original ou uma foto da peça e confirmamos a compatibilidade antes da compra.`,
     ];
   }
   const onde = l.tipo === "cidade" && l.dentro ? `${nomeLocal(l, idioma)} (${l.dentro})` : l.nome;
@@ -776,11 +931,26 @@ export function textoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number)
   ];
 }
 
+// "no Rio Grande do Sul", "na Campanha Gaúcha", "em Pelotas"
+const PREPOSICAO: Record<string, string> = {
+  "Rio Grande do Sul": "no",
+  Paraná: "no",
+  "Sul do Brasil": "no",
+  "Extremo Sul": "no",
+  "Zona Sul do RS": "na",
+  "Campanha Gaúcha": "na",
+};
+export const emLocal = (l: LocalSeo) => `${PREPOSICAO[l.nome] ?? "em"} ${nomeLocal(l, "pt")}`;
+
 export function tituloLocal(l: LocalSeo, idioma: "es" | "pt") {
-  if (idioma === "pt")
+  if (idioma === "pt") {
+    // A página do estado é a da busca "distribuidora de peças agrícolas rio grande do sul"
+    if (l.nome === "Rio Grande do Sul")
+      return "Distribuidora de peças agrícolas no Rio Grande do Sul";
     return l.pais === "RS"
-      ? `Peças agrícolas em ${nomeLocal(l, idioma)}${l.tipo === "cidade" ? ` – ${UF[l.dentro ?? ""] ?? "RS"}` : ""}`
-      : `Peças agrícolas em ${nomeLocal(l, idioma)}`;
+      ? `Peças agrícolas ${emLocal(l)}${l.tipo === "cidade" ? ` – ${UF[l.dentro ?? ""] ?? "RS"}` : ""}`
+      : `Peças agrícolas ${emLocal(l)}`;
+  }
   return l.tipo === "pais"
     ? "Repuestos agrícolas en Uruguay"
     : `Repuestos agrícolas en ${nomeLocal(l, idioma)}`;

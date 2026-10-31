@@ -3,6 +3,7 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { SITE_URL, DOMINIOS_ALIAS } from "./lib/site";
+import { comPrefixo, tirarPrefixo } from "./lib/idioma";
 
 // www e domínios antigos -> domínio principal (301), mantendo o caminho
 function redirecionarAlias(request: Request): Response | null {
@@ -50,6 +51,23 @@ function comSeguranca(response: Response): Response {
   if (!r.headers.get("content-security-policy")?.includes("frame-ancestors"))
     r.headers.append("Content-Security-Policy", "frame-ancestors 'self'");
   return r;
+}
+
+// Versão em português com endereço em espanhol ("/pt/repuestos/sellos-y-juntas", como era antes)
+// -> endereço em português ("/pt/pecas/vedacoes"), 301, mantendo a busca (?...). Links antigos,
+// favoritos e o que o Google já indexou passam para o endereço novo.
+function redirecionarCaminhoPt(request: Request): Response | null {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const u = new URL(request.url);
+  const atual = u.pathname;
+  if (!atual.startsWith("/pt/")) return null;
+  const certo = comPrefixo(tirarPrefixo(atual), "pt");
+  // Barra no fim fica com o tratamento que já existe
+  if (certo === atual || certo === atual.replace(/\/+$/, "")) return null;
+  return new Response(null, {
+    status: 301,
+    headers: { Location: `${SITE_URL}${certo}${u.search}` },
+  });
 }
 
 type ServerEntry = {
@@ -112,6 +130,8 @@ export default {
     iniciarAutomacoes();
     const alias = redirecionarAlias(request);
     if (alias) return comSeguranca(alias);
+    const pt = redirecionarCaminhoPt(request);
+    if (pt) return comSeguranca(pt);
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

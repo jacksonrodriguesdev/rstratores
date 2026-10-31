@@ -2,6 +2,7 @@
 // evento "vitals": "<página>|<LCP ms>|<CLS>|<INP ms>|<celular|computador>"). O Google avalia pelo
 // percentil 75 (o valor que 75% das visitas não passam). Limites "bom" do Google:
 // LCP ≤ 2,5 s · CLS ≤ 0,1 · INP ≤ 200 ms.
+import { caminhoInterno } from "./caminhos-pt";
 import { prisma } from "./prisma";
 
 export const LIMITES = { lcp: 2500, cls: 0.1, inp: 200 };
@@ -23,7 +24,7 @@ const resumir = (l: Array<{ lcp: number; cls: number; inp: number }>): Medidas =
 // "/pt/produto/X" → "Peças (pt)": agrupa por tipo de página
 const tipoDePagina = (p: string) => {
   const pt = p.startsWith("/pt");
-  const c = p.replace(/^\/pt(?=\/|$)/, "") || "/";
+  const c = caminhoInterno(p) || "/";
   const tipo =
     c === "/"
       ? "Início"

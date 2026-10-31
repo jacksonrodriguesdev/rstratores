@@ -4,6 +4,7 @@
 // Textos: const { t } = useT(); t("Texto en español", "Texto em português").
 import { useLocation } from "@tanstack/react-router";
 import { SITE_URL } from "./site";
+import { paraPt, paraEs } from "./caminhos-pt";
 
 export type Idioma = "es" | "pt";
 export const HREFLANG: Record<Idioma, string> = { es: "es-UY", pt: "pt-BR" };
@@ -18,16 +19,16 @@ export function idiomaDoCaminho(caminho: string): Idioma {
   return caminho === "/pt" || caminho.startsWith("/pt/") ? "pt" : "es";
 }
 
-// "/pt/loja" -> "/loja"
+// "/pt/loja" -> "/loja"; "/pt/pecas/vedacoes" -> "/repuestos/sellos-y-juntas" (src/lib/caminhos-pt.ts)
 export function tirarPrefixo(caminho: string): string {
-  return idiomaDoCaminho(caminho) === "pt" ? caminho.slice(3) || "/" : caminho;
+  return idiomaDoCaminho(caminho) === "pt" ? paraEs(caminho.slice(3) || "/") : caminho;
 }
 
-// "/loja" + pt -> "/pt/loja"
+// "/loja" + pt -> "/pt/loja"; "/repuestos/sellos-y-juntas" + pt -> "/pt/pecas/vedacoes"
 export function comPrefixo(caminho: string, idioma: Idioma): string {
   if (idioma === "es" || caminhoSemIdioma(caminho) || idiomaDoCaminho(caminho) === "pt")
     return caminho;
-  return caminho === "/" ? "/pt" : `/pt${caminho}`;
+  return caminho === "/" ? "/pt" : `/pt${paraPt(caminho)}`;
 }
 
 const caminhoDe = (href: string) => {

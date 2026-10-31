@@ -46,7 +46,7 @@ export function AuthShell({
         />
         <Link to="/" className="relative flex items-center gap-3">
           <span className="rounded-2xl bg-white p-1.5">
-            <img src="/logo.png" alt="" width={52} height={52} className="h-[52px] w-[52px]" />
+            <img src="/logo-96.webp" alt="" width={52} height={52} className="h-[52px] w-[52px]" />
           </span>
           <span>
             <span className="block text-2xl font-extrabold">AGRO PARTS</span>
@@ -110,7 +110,7 @@ export function AuthShell({
               <ArrowLeft className="h-4 w-4" /> {t("Tienda", "Loja")}
             </Link>
             <img
-              src="/logo.png"
+              src="/logo-96.webp"
               alt="AGRO PARTS"
               width={40}
               height={40}

@@ -62,7 +62,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   const { t, href } = useT();
@@ -109,7 +109,7 @@ const caminhoDe = (href: string) => {
   }
 };
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient; idioma?: Idioma }>()({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // Idioma da página ("/pt/..." = português), disponível para o head() de todas as rotas
   beforeLoad: ({ location }) => ({
     idioma: idiomaDoCaminho(caminhoDe(location.publicHref)) as Idioma,

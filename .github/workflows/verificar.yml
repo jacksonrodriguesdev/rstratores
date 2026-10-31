@@ -69,6 +69,9 @@ jobs:
       - name: SEO fase 1 (títulos das peças, descrição com preço, cache, leads do Google)
         run: npx tsx scripts/ci/testar-seo-leads.ts
 
+      - name: Endereços em português na versão /pt (/pt/pecas, /pt/pecas-agricolas)
+        run: npx tsx scripts/ci/testar-caminhos-pt.ts
+
       - name: Google Shopping no painel (Merchant Center falso)
         run: npx tsx scripts/ci/testar-merchant.ts
 

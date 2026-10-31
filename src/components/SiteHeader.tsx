@@ -239,7 +239,7 @@ export function SiteHeader() {
           >
             <div className="rounded-2xl bg-white p-1 shadow-lg shadow-emerald-950/40 ring-1 ring-white/40 transition group-hover:scale-105">
               <img
-                src="/logo.png"
+                src="/logo-96.webp"
                 alt=""
                 width={48}
                 height={48}

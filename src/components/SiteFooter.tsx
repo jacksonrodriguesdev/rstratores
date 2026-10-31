@@ -28,7 +28,7 @@ export function SiteFooter() {
             <span className="rounded-2xl bg-white p-1">
               <img
                 decoding="async"
-                src="/logo.png"
+                src="/logo-96.webp"
                 alt=""
                 width={44}
                 height={44}

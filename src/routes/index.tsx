@@ -51,7 +51,7 @@ const lojaLd = (idioma: Idioma) => ({
   ...(idioma === "pt"
     ? {
         description:
-          "Peças para tratores e máquinas agrícolas com envio para RS, SC e PR por Correios ou transportadora, com nota fiscal.",
+          "Distribuidora de peças agrícolas no Rio Grande do Sul: peças para tratores e colheitadeiras com envio para RS, SC e PR por Correios ou transportadora, com nota fiscal.",
         areaServed: ["Rio Grande do Sul", "Santa Catarina", "Paraná"].map((name) => ({
           "@type": "State",
           name,
@@ -111,7 +111,8 @@ export const Route = createFileRoute("/")({
     const t = (es: string, pt: string) => tr(idioma, es, pt);
     const titulo = t(
       "AGRO PARTS — Repuestos para tractores en Uruguay",
-      "AGRO PARTS — Peças para tratores com envio para todo o Sul do Brasil",
+      // Buscas reais do Google no RS: "peças agrícolas rs", "distribuidora de peças agrícolas rio grande do sul"
+      "Peças agrícolas e para tratores no RS | AGRO PARTS",
     );
     return {
       meta: [
@@ -120,7 +121,7 @@ export const Route = createFileRoute("/")({
           name: "description",
           content: t(
             "Más de 49.000 repuestos para tractores y cosechadoras Massey Ferguson, Valtra, John Deere, New Holland y Case IH. Cotizá por WhatsApp.",
-            "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland e Case IH. Envio para todo o Sul do Brasil. Orçamento pelo WhatsApp.",
+            "Distribuidora de peças agrícolas no RS: mais de 49 mil peças para Massey Ferguson, Valtra, John Deere e New Holland. Nota fiscal e envio para RS, SC e PR.",
           ),
         },
         { property: "og:title", content: titulo },
@@ -271,7 +272,7 @@ function HomePage() {
           <h1 className="sr-only">
             {t(
               "Repuestos para tractores y maquinaria agrícola en Uruguay",
-              "Peças para tratores e máquinas agrícolas com envio para todo o Sul do Brasil",
+              "Distribuidora de peças agrícolas e peças para tratores no Rio Grande do Sul",
             )}
           </h1>
         )}

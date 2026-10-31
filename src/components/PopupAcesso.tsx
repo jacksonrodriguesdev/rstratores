@@ -650,7 +650,7 @@ export function PopupAcesso() {
         )}
 
         <div className="flex-1 overflow-y-auto p-6 sm:p-7">
-          <img src="/logo.png" alt="AGRO PARTS" className="mb-3 h-11 w-auto" />
+          <img src="/logo-96.webp" alt="AGRO PARTS" className="mb-3 h-11 w-auto" />
           {etapa === "ok" && resultado ? (
             <div className="flex h-full flex-col justify-center text-center">
               <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">

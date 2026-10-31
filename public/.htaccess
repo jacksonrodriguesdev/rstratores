@@ -1,0 +1,12 @@
+# Cache dos arquivos estáticos quando o servidor web da Hostinger entrega a pasta .output/public
+# direto (sem passar pelo Node): hoje os .js/.css de /assets e as fontes saem sem Cache-Control e
+# o navegador baixa tudo de novo a cada visita. Os de /assets têm um código no nome que muda a cada
+# build (index-BWDutxDr.js): podem ficar guardados por 1 ano. Sem o módulo, nada muda (IfModule).
+<IfModule mod_headers.c>
+  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.woff2$">
+    Header set Cache-Control "public, max-age=31536000"
+  </FilesMatch>
+</IfModule>
