@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ChevronRight,
@@ -25,6 +26,9 @@ import {
   descricaoLocal,
   perguntasLocal,
   type LocalSeo,
+  type ExtrasLocal,
+  type DadosIbge,
+  type CidadeDaLista,
 } from "@/lib/locais-seo";
 import { guiaZonas } from "@/lib/seo-guias";
 import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/components/GuiaSeo";
@@ -90,7 +94,15 @@ export function ldLocal(l: LocalSeo, url: string, dados: Dados, idioma: Idioma) 
   ];
 }
 
-export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados }) {
+export function PaginaLocal({
+  local: l,
+  dados,
+  extras,
+}: {
+  local: LocalSeo;
+  dados: Dados;
+  extras?: ExtrasLocal;
+}) {
   const { t, idioma, href } = useT();
   const nome = nomeLocal(l, idioma);
   const titulo = tituloLocal(l, idioma);
@@ -103,7 +115,13 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
       `Olá! Estou ${emLocal(l)} e procuro uma peça agrícola.`,
     ),
   );
-  const vizinhos = l.vizinhos.map(localPorSlug).filter(Boolean) as LocalSeo[];
+  // Vizinhos resolvidos no servidor (incluem as cidades geradas do IBGE); sem extras, só os fixos
+  const vizinhos =
+    extras?.vizinhos ??
+    (l.vizinhos.map(localPorSlug).filter(Boolean) as LocalSeo[]).map((v) => ({
+      slug: v.slug,
+      nome: nomeLocal(v, idioma),
+    }));
   const lojaCat = href(`/loja?categoria=${encodeURIComponent(l.foco)}`);
 
   return (
@@ -209,6 +227,10 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
             </div>
           </section>
 
+          {extras?.ibge && <CampoEmNumeros nome={nome} ibge={extras.ibge} regiao={extras.regiao} />}
+
+          {extras?.estado && <MunicipiosDoEstado estado={l.nome} grupos={extras.estado} />}
+
           <section>
             <div className="flex flex-wrap items-end justify-between gap-2">
               <h2 className="text-xl font-extrabold text-zinc-900 md:text-2xl">
@@ -273,7 +295,7 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
                     href={href(`/repuestos-agricolas/${v.slug}`)}
                     className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-black/10 hover:text-primary hover:ring-primary/40"
                   >
-                    <MapPin className="h-3.5 w-3.5" /> {nomeLocal(v, idioma)}
+                    <MapPin className="h-3.5 w-3.5" /> {v.nome}
                   </a>
                 ))}
                 <a
@@ -292,24 +314,37 @@ export function PaginaLocal({ local: l, dados }: { local: LocalSeo; dados: Dados
 }
 
 // Página central: todas as zonas de envio (Uruguai)
-export function PaginaZonas({ total }: { total: number }) {
+export function PaginaZonas({
+  total,
+  geradas = [],
+}: {
+  total: number;
+  // Cidades do IBGE com página (só na versão em português)
+  geradas?: Array<{ slug: string; nome: string; dentro: string }>;
+}) {
   const { t, idioma, href } = useT();
   // Espanhol: zonas do Uruguai. Português: RS, SC e PR.
-  const grupos: Array<{ titulo: string; itens: LocalSeo[] }> =
+  const so = (l: LocalSeo) => ({ slug: l.slug, nome: nomeLocal(l, idioma) });
+  const grupos: Array<{ titulo: string; itens: Array<{ slug: string; nome: string }> }> =
     idioma === "pt"
       ? [
           {
             titulo: "Estados e regiões",
             itens: LOCAIS_SEO.filter(
               (l) => l.pais === "RS" && (l.tipo === "estado" || l.tipo === "regiao"),
-            ),
+            ).map(so),
           },
           ...["Rio Grande do Sul", "Santa Catarina", "Paraná"].map((uf) => ({
             titulo: `Cidades — ${uf}`,
-            itens: LOCAIS_SEO.filter(
-              (l) =>
-                l.pais === "RS" && l.tipo === "cidade" && (l.dentro || "Rio Grande do Sul") === uf,
-            ),
+            itens: [
+              ...LOCAIS_SEO.filter(
+                (l) =>
+                  l.pais === "RS" &&
+                  l.tipo === "cidade" &&
+                  (l.dentro || "Rio Grande do Sul") === uf,
+              ).map((l) => ({ slug: l.slug, nome: nomeLocal(l, idioma) })),
+              ...geradas.filter((g) => g.dentro === uf),
+            ].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
           })),
         ]
       : [
@@ -317,15 +352,15 @@ export function PaginaZonas({ total }: { total: number }) {
             titulo: t("Uruguay por zona", "Uruguai por região"),
             itens: LOCAIS_SEO.filter(
               (l) => l.pais === "UY" && (l.tipo === "regiao" || l.tipo === "pais"),
-            ),
+            ).map(so),
           },
           {
             titulo: t("Departamentos", "Departamentos"),
-            itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "departamento"),
+            itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "departamento").map(so),
           },
           {
             titulo: t("Ciudades de Uruguay", "Cidades do Uruguai"),
-            itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "cidade"),
+            itens: LOCAIS_SEO.filter((l) => l.pais === "UY" && l.tipo === "cidade").map(so),
           },
         ];
   return (
@@ -356,7 +391,7 @@ export function PaginaZonas({ total }: { total: number }) {
                     href={href(`/repuestos-agricolas/${l.slug}`)}
                     className="group flex items-center gap-2 rounded-xl bg-white p-3 font-semibold text-zinc-800 shadow-sm ring-1 ring-black/5 hover:text-primary hover:ring-primary/40"
                   >
-                    <MapPin className="h-4 w-4 shrink-0 text-primary" /> {nomeLocal(l, idioma)}
+                    <MapPin className="h-4 w-4 shrink-0 text-primary" /> {l.nome}
                   </a>
                 ))}
               </div>
@@ -391,5 +426,118 @@ export function PaginaZonas({ total }: { total: number }) {
         </div>
       </main>
     </div>
+  );
+}
+
+const ha = (n: number) => `${n.toLocaleString("pt-BR")} ha`;
+
+// Lavouras do município (IBGE, Produção Agrícola Municipal): dado real, diferente em cada cidade
+function CampoEmNumeros({
+  nome,
+  ibge,
+  regiao,
+}: {
+  nome: string;
+  ibge: DadosIbge;
+  regiao: string | null;
+}) {
+  const maior = Math.max(...ibge.culturas.map(([, h]) => h), 1);
+  return (
+    <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-7">
+      <h2 className="text-xl font-extrabold text-zinc-900">{`O campo de ${nome} em números`}</h2>
+      <p className="mt-2 text-zinc-700">
+        {ha(ibge.ha)} plantados em {ibge.ano}
+        {regiao ? `, na microrregião de ${regiao}` : ""}. As lavouras que mais ocupam área:
+      </p>
+      <ul className="mt-4 space-y-2.5">
+        {ibge.culturas.map(([cultura, h]) => (
+          <li key={cultura} className="grid grid-cols-[7.5rem_1fr_auto] items-center gap-3 text-sm">
+            <span className="font-semibold capitalize text-zinc-800">{cultura}</span>
+            <span className="h-2.5 rounded-full bg-zinc-100">
+              <span
+                className="block h-2.5 rounded-full bg-primary"
+                style={{ width: `${Math.max(3, (h / maior) * 100)}%` }}
+              />
+            </span>
+            <span className="tabular-nums text-zinc-600">{ha(h)}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-xs text-zinc-500">
+        Fonte: IBGE, Produção Agrícola Municipal {ibge.ano} (área plantada).
+      </p>
+    </section>
+  );
+}
+
+// Página do estado: todos os municípios, por microrregião, com busca. Cidade com página vira link.
+function MunicipiosDoEstado({
+  estado,
+  grupos,
+}: {
+  estado: string;
+  grupos: Array<{ regiao: string; cidades: CidadeDaLista[] }>;
+}) {
+  const { href } = useT();
+  const [busca, setBusca] = useState("");
+  const total = grupos.reduce((t, g) => t + g.cidades.length, 0);
+  const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const filtrados = useMemo(() => {
+    const q = norm(busca.trim());
+    if (!q) return grupos;
+    return grupos
+      .map((g) => ({ ...g, cidades: g.cidades.filter((c) => norm(c.nome).includes(q)) }))
+      .filter((g) => g.cidades.length);
+  }, [busca, grupos]);
+  return (
+    <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-7">
+      <h2 className="text-xl font-extrabold text-zinc-900 md:text-2xl">
+        {`Enviamos para as ${total} cidades ${estado === "Santa Catarina" ? "de" : "do"} ${estado}`}
+      </h2>
+      <p className="mt-2 text-zinc-700">
+        Peças com nota fiscal por Correios ou transportadora para qualquer município. Procure a sua:
+      </p>
+      <label htmlFor="busca-cidade" className="sr-only">
+        Buscar cidade
+      </label>
+      <input
+        id="busca-cidade"
+        type="search"
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+        placeholder="Digite o nome da cidade"
+        className="mt-4 h-11 w-full max-w-md rounded-xl border border-zinc-200 px-4 text-base outline-none focus:border-primary"
+      />
+      <div className="mt-5 columns-1 gap-6 sm:columns-2 lg:columns-3">
+        {filtrados.map((g) => (
+          <div key={g.regiao} className="mb-5 break-inside-avoid">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-zinc-500">{g.regiao}</h3>
+            <p className="mt-1.5 text-sm leading-7 text-zinc-700">
+              {g.cidades.map((c, i) => (
+                <span key={c.nome}>
+                  {c.slug ? (
+                    <a
+                      href={href(`/repuestos-agricolas/${c.slug}`)}
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      {c.nome}
+                    </a>
+                  ) : (
+                    c.nome
+                  )}
+                  {i < g.cidades.length - 1 ? ", " : ""}
+                </span>
+              ))}
+            </p>
+          </div>
+        ))}
+        {!filtrados.length && (
+          <p className="text-sm text-zinc-600">
+            Nenhuma cidade com esse nome. Fale com a gente pelo WhatsApp: enviamos para todo o
+            estado.
+          </p>
+        )}
+      </div>
+    </section>
   );
 }

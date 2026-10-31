@@ -104,3 +104,21 @@ export const getPaginaLocalFn = createServerFn({ method: "GET" })
       return { total: todos.length, produtos: pagina.rows as Product[] };
     });
   });
+
+// Página de um local (/pt/pecas-agricolas/<cidade>): o local, se for uma cidade gerada do IBGE,
+// e os extras (números do IBGE, vizinhos, lista de municípios do estado). Dados ficam no servidor.
+export const getLocalFn = createServerFn({ method: "GET" })
+  .validator((d: { slug: string }) => ({ slug: String(d?.slug ?? "").slice(0, 80) }))
+  .handler(async ({ data }) => {
+    const { localPorSlug } = await import("./locais-seo");
+    const { localGerado, extrasDoLocal } = await import("./municipios-sul.server");
+    const local = localPorSlug(data.slug) ?? localGerado(data.slug);
+    if (!local) return null;
+    return { local, extras: extrasDoLocal(local) };
+  });
+
+// Cidades geradas do IBGE para a página "Peças agrícolas no Sul do Brasil" (/pt/pecas-agricolas)
+export const getCidadesGeradasFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { locaisGerados } = await import("./municipios-sul.server");
+  return locaisGerados().map((l) => ({ slug: l.slug, nome: l.nome, dentro: l.dentro ?? "" }));
+});

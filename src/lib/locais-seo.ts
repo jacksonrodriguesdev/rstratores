@@ -15,6 +15,19 @@ export type LocalSeo = {
   foco: string; // categoria do banco com destaque na página
   marcas: string[];
   vizinhos: string[]; // slugs de locais próximos (links internos)
+  // Cidades geradas a partir do IBGE (src/lib/municipios-sul.server.ts): microrregião e lavouras
+  regiao?: string;
+  ibge?: DadosIbge;
+};
+// Área plantada do município (IBGE, Produção Agrícola Municipal): total e principais lavouras, em hectares
+export type DadosIbge = { ha: number; ano: string; culturas: Array<[string, number]> };
+export type CidadeDaLista = { nome: string; slug: string | null };
+// Vem do servidor junto com a página (src/lib/municipios-sul.server.ts, extrasDoLocal)
+export type ExtrasLocal = {
+  ibge: DadosIbge | null;
+  regiao: string | null;
+  vizinhos: Array<{ slug: string; nome: string }>;
+  estado: Array<{ regiao: string; cidades: CidadeDaLista[] }> | null;
 };
 
 type Base = Omit<LocalSeo, "slug" | "vizinhos"> & { vizinhos: string[] };
@@ -38,7 +51,7 @@ const P = {
     pt: "citricultura, horticultura e pecuária",
   },
 };
-const M = {
+export const M = {
   arroz: {
     es: "cosechadoras arroceras, tractores medianos y grandes, niveladoras",
     pt: "colheitadeiras de arroz, tratores médios e grandes, plainas",
@@ -104,7 +117,7 @@ const RS = (
   vizinhos,
 });
 
-const F = {
+export const F = {
   tr: "Engrenagens e Transmissão",
   hi: "Hidráulica e Pneumática",
   fi: "Filtros",
@@ -959,7 +972,7 @@ export function tituloLocal(l: LocalSeo, idioma: "es" | "pt") {
 export function descricaoLocal(l: LocalSeo, idioma: "es" | "pt", totalPecas: number) {
   const n = totalPecas.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
   if (idioma === "pt")
-    return `Mais de ${n} peças para tratores e colheitadeiras ${l.marcas.slice(0, 3).join(", ")} com envio para ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por Correios ou transportadora" : ""}. Orçamento pelo WhatsApp.`;
+    return `Mais de ${n} peças para tratores e colheitadeiras ${l.marcas.slice(0, 3).join(", ")} com envio para ${nomeLocal(l, idioma)}${l.pais === "RS" ? " por Correios ou transportadora" : ""}.${l.ibge ? ` Para quem planta ${l.perfil.pt}.` : ""} Orçamento pelo WhatsApp.`;
   return `Más de ${n} repuestos para tractores y cosechadoras ${l.marcas.slice(0, 3).join(", ")} en ${nomeLocal(l, idioma)}, con código original. Cotizá por WhatsApp.`;
 }
 

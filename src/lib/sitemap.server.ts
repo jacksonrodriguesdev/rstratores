@@ -85,6 +85,16 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
           "<changefreq>weekly</changefreq><priority>0.7</priority>",
         ),
       ),
+      // Cidades do RS, SC e PR geradas dos dados do IBGE (só em português)
+      ...(await import("./municipios-sul.server"))
+        .locaisGerados()
+        .map((l) =>
+          urlUnica(
+            `/repuestos-agricolas/${l.slug}`,
+            "pt",
+            "<changefreq>monthly</changefreq><priority>0.6</priority>",
+          ),
+        ),
       url(`/catalogos`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
       ...(await catalogosPublicos()).map((c) =>
         url(c.caminho, `<lastmod>${c.data}</lastmod><priority>0.7</priority>`),

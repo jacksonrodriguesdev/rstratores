@@ -23,6 +23,10 @@ const PAGINAS = [
   ["/pt/pecas-agricolas", 200, ["Paraná"]],
   ["/pt/pecas-agricolas/pelotas", 200, ["Peças agrícolas em Pelotas", "/pt/pecas-agricolas/"]],
   ["/pt/pecas-agricolas/chapeco", 200, ["– SC"]],
+  // Cidade gerada dos dados do IBGE e lista de municípios do estado
+  ["/pt/pecas-agricolas/abelardo-luz", 200, ["Peças agrícolas em Abelardo Luz – SC", "IBGE"]],
+  ["/pt/pecas-agricolas/rio-grande-do-sul", 200, ["Enviamos para as 497 cidades", "Aceguá"]],
+  ["/pt/pecas-agricolas/cidade-que-nao-existe", 404, []],
   ["/pt/repuestos-agricolas/pelotas", 301, []],
   // Local na língua do outro país leva para a certa
   ["/repuestos-agricolas/pelotas", 301, []],
@@ -38,7 +42,7 @@ const PAGINAS = [
   ["/login", 200, []],
   ["/cadastro", 200, []],
   ["/sitemap.xml", 200, ["<sitemapindex"]],
-  ["/sitemaps/paginas.xml", 200, ["/repuestos-agricolas/rocha", "/pt/pecas-agricolas/pelotas", "/pt/pecas/vedacoes"]],
+  ["/sitemaps/paginas.xml", 200, ["/repuestos-agricolas/rocha", "/pt/pecas-agricolas/pelotas", "/pt/pecas/vedacoes", "/pt/pecas-agricolas/abelardo-luz"]],
   ["/sitemaps/pecas-1.xml", 200, ["CI-001"]],
   ["/robots.txt", 200, ["Sitemap"]],
   ["/feeds/google-merchant.xml", 200, ["<?xml"]],

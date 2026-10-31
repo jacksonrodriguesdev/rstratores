@@ -72,6 +72,9 @@ jobs:
       - name: Endereços em português na versão /pt (/pt/pecas, /pt/pecas-agricolas)
         run: npx tsx scripts/ci/testar-caminhos-pt.ts
 
+      - name: Cidades do RS, SC e PR com dados do IBGE (páginas e listas dos estados)
+        run: npx tsx scripts/ci/testar-municipios-sul.ts
+
       - name: Google Shopping no painel (Merchant Center falso)
         run: npx tsx scripts/ci/testar-merchant.ts
 
