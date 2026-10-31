@@ -112,10 +112,10 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
 
   // Admin sem login: o painel não pode vir no HTML (src/routes/admin.tsx só mostra depois de confirmar
   // a sessão; os dados passam por assertAdmin no servidor)
-  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes", "/admin/captura"]) {
+  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes", "/admin/captura", "/admin/fiscal"]) {
     const adm = await fetch(BASE + caminho, { redirect: "manual" });
     const htmlAdm = adm.status === 200 ? await adm.text() : "";
-    const vazou = /Painel de controle|Criador de anúncios|E-mail marketing/.test(htmlAdm);
+    const vazou = /Painel de controle|Criador de anúncios|E-mail marketing|Fiscal do MEI/.test(htmlAdm);
     console.log(`${vazou ? "✘" : "✔"} ${adm.status} ${caminho} sem login ${vazou ? "MOSTRA O PAINEL" : "não mostra o painel"}`);
     if (vazou) falhas.push(`${caminho} mostra o painel sem login`);
   }

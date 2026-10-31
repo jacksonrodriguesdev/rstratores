@@ -38,6 +38,7 @@ import {
   ShoppingBag,
   Star,
   type LucideIcon,
+  Landmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -83,6 +84,7 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/pagamentos", label: "Pagamentos (links)", icon: CreditCard },
       { to: "/admin/vendas", label: "Vendas e etiquetas", icon: ShoppingBag },
       { to: "/admin/financeiro", label: "Financeiro", icon: Wallet },
+      { to: "/admin/fiscal", label: "Fiscal (MEI e notas)", icon: Landmark },
       { to: "/admin/avaliacoes", label: "Avaliações", icon: Star },
     ],
   },

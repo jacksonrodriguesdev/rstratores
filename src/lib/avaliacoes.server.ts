@@ -23,6 +23,9 @@ const COLUNAS_FINANCEIRO: Array<[string, string]> = [
   ["frete_custo", "DOUBLE NULL"],
   ["cotacao_brl", "DOUBLE NULL"],
   ["etapa", "VARCHAR(20) NOT NULL DEFAULT 'AGUARDANDO'"],
+  // Endereço completo do cliente do Brasil (a nota fiscal pede número e bairro separados)
+  ["end_numero", "VARCHAR(20) NULL"],
+  ["end_bairro", "VARCHAR(80) NULL"],
 ];
 const SQL_VENDAS = `CREATE TABLE IF NOT EXISTS \`vendas\` (
   \`id\` INTEGER NOT NULL AUTO_INCREMENT,
@@ -183,6 +186,8 @@ export type DadosVenda = {
   cidade?: string | null;
   departamento?: string | null;
   cep?: string | null;
+  end_numero?: string | null;
+  end_bairro?: string | null;
   pais: "UY" | "BR";
   user_id?: number | null;
   itens: ItemVenda[];
@@ -237,6 +242,8 @@ export function limparVenda(d: DadosVenda) {
     cidade: txt(d.cidade, 120),
     departamento: txt(d.departamento, 80),
     cep: txt(d.cep, 20),
+    end_numero: txt(d.end_numero, 20),
+    end_bairro: txt(d.end_bairro, 80),
     pais: d.pais === "BR" ? "BR" : "UY",
     user_id: d.user_id ? Number(d.user_id) : null,
     itens: JSON.stringify(itens),
@@ -264,8 +271,14 @@ export async function salvarVenda(d: DadosVenda, id?: number) {
   const { prisma } = await import("./prisma");
   const dados = limparVenda(d);
   const { completarFinanceiro } = await import("./financeiro.server");
+  // Venda do Brasil com dados completos: a nota fiscal sai sozinha (em segundo plano)
+  const notaAuto = (vendaId: number) => {
+    if (dados.pais === "BR")
+      void import("./fiscal.server").then((f) => f.aoSalvarVenda(vendaId)).catch(() => {});
+  };
   if (id) {
     await prisma.vendas.update({ where: { id }, data: dados });
+    notaAuto(id);
     return paraVenda(await completarFinanceiro(id));
   }
   for (let t = 0; t < 5; t++) {
@@ -273,6 +286,7 @@ export async function salvarVenda(d: DadosVenda, id?: number) {
       const v = await prisma.vendas.create({ data: { ...dados, codigo: novoCodigo() } });
       // Primeira etapa do acompanhamento (sem aviso: o admin avança quando confirmar)
       await prisma.venda_etapas.create({ data: { venda_id: v.id, etapa: "AGUARDANDO" } });
+      notaAuto(v.id);
       return paraVenda(await completarFinanceiro(v.id));
     } catch (e: any) {
       if (!String(e?.code).includes("P2002")) throw e; // código repetido: tenta outro

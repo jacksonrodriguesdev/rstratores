@@ -114,6 +114,9 @@ jobs:
       - name: Financeiro (vendas, custos e lucro)
         run: npx tsx scripts/ci/testar-financeiro.ts
 
+      - name: Fiscal do MEI e nota fiscal automática (Focus NFe falsa)
+        run: npx tsx scripts/ci/testar-fiscal.ts
+
       - name: Acompanhamento do pedido e indicação
         run: npx tsx scripts/ci/testar-pedidos.ts
 

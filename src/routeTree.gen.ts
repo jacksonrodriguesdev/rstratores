@@ -38,6 +38,7 @@ import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
 import { Route as AdminConstrutorRouteImport } from './routes/admin.construtor'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
 import { Route as AdminFinanceiroRouteImport } from './routes/admin.financeiro'
+import { Route as AdminFiscalRouteImport } from './routes/admin.fiscal'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminGoogleRouteImport } from './routes/admin.google'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
@@ -274,6 +275,11 @@ const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
 const AdminFinanceiroRoute = AdminFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFiscalRoute = AdminFiscalRouteImport.update({
+  id: '/fiscal',
+  path: '/fiscal',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFotosLoteRoute = AdminFotosLoteRouteImport.update({
@@ -774,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
+  '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -896,6 +903,7 @@ export interface FileRoutesByTo {
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
+  '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -1020,6 +1028,7 @@ export interface FileRoutesById {
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
+  '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
@@ -1145,6 +1154,7 @@ export interface FileRouteTypes {
     | '/admin/construtor'
     | '/admin/cotacoes'
     | '/admin/financeiro'
+    | '/admin/fiscal'
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
@@ -1267,6 +1277,7 @@ export interface FileRouteTypes {
     | '/admin/construtor'
     | '/admin/cotacoes'
     | '/admin/financeiro'
+    | '/admin/fiscal'
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
@@ -1390,6 +1401,7 @@ export interface FileRouteTypes {
     | '/admin/construtor'
     | '/admin/cotacoes'
     | '/admin/financeiro'
+    | '/admin/fiscal'
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
@@ -1760,6 +1772,13 @@ declare module '@tanstack/react-router' {
       path: '/financeiro'
       fullPath: '/admin/financeiro'
       preLoaderRoute: typeof AdminFinanceiroRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/fiscal': {
+      id: '/admin/fiscal'
+      path: '/fiscal'
+      fullPath: '/admin/fiscal'
+      preLoaderRoute: typeof AdminFiscalRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/fotos-lote': {
@@ -2424,6 +2443,7 @@ interface AdminRouteChildren {
   AdminConstrutorRoute: typeof AdminConstrutorRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AdminFinanceiroRoute: typeof AdminFinanceiroRoute
+  AdminFiscalRoute: typeof AdminFiscalRoute
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminGoogleRoute: typeof AdminGoogleRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
@@ -2468,6 +2488,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminConstrutorRoute: AdminConstrutorRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
   AdminFinanceiroRoute: AdminFinanceiroRoute,
+  AdminFiscalRoute: AdminFiscalRoute,
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminGoogleRoute: AdminGoogleRoute,
   AdminHomepageRoute: AdminHomepageRoute,

@@ -245,6 +245,9 @@ export async function vendaDoLink(linkId: number) {
       await mudarEtapa(v.id, "PEDIDO_FEITO", { email: false }).catch((e) =>
         console.error("etapa do pedido:", e),
       );
+      // Brasil: nota fiscal automática quando o link trouxe os dados completos do cliente
+      if (pais === "BR")
+        void import("./fiscal.server").then((f) => f.aoSalvarVenda(v.id)).catch(() => {});
       return v.id;
     } catch (e: any) {
       if (!String(e?.code).includes("P2002")) throw e;
@@ -348,8 +351,10 @@ export async function salvarDespesa(d: DadosDespesa) {
 export async function excluirDespesa(id: number) {
   await prisma.despesas.delete({ where: { id } });
 }
-const valeNoMes = (x: { mes: string; recorrente: boolean; mes_fim: string | null }, mes: string) =>
-  x.recorrente ? x.mes <= mes && (!x.mes_fim || x.mes_fim >= mes) : x.mes === mes;
+export const valeNoMes = (
+  x: { mes: string; recorrente: boolean; mes_fim: string | null },
+  mes: string,
+) => (x.recorrente ? x.mes <= mes && (!x.mes_fim || x.mes_fim >= mes) : x.mes === mes);
 
 // ---------------------------------------------------------------- Meta Ads por mês
 async function gastoMeta(desde: string, ate: string) {

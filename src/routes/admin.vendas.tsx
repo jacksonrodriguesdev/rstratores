@@ -53,6 +53,8 @@ type Form = {
   cidade: string;
   departamento: string;
   cep: string;
+  end_numero: string;
+  end_bairro: string;
   pais: "UY" | "BR";
   user_id: number | null;
   itens: Item[];
@@ -73,6 +75,8 @@ const VAZIO: Form = {
   cidade: "",
   departamento: "",
   cep: "",
+  end_numero: "",
+  end_bairro: "",
   pais: "UY",
   user_id: null,
   itens: [],
@@ -482,6 +486,53 @@ function Campo({
   );
 }
 
+// Brasil: endereço separado como a nota fiscal pede. O CEP preenche rua, bairro, cidade e estado
+// (ViaCEP); falta só o número.
+function EnderecoBrasil({ f, set }: { f: Form; set: (p: Partial<Form>) => void }) {
+  const [buscando, setBuscando] = useState(false);
+  const buscarCep = async (cep: string) => {
+    const n = cep.replace(/D/g, "");
+    if (n.length !== 8) return;
+    setBuscando(true);
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${n}/json/`).then((x) => x.json());
+      if (r?.erro) return void toast.error("CEP não encontrado");
+      set({
+        endereco: f.endereco || r.logradouro || "",
+        end_bairro: f.end_bairro || r.bairro || "",
+        cidade: r.localidade || f.cidade,
+        departamento: r.uf || f.departamento,
+      });
+    } catch {
+      /* sem internet: preenche à mão */
+    } finally {
+      setBuscando(false);
+    }
+  };
+  return (
+    <>
+      <Campo r={buscando ? "CEP (buscando…)" : "CEP (preenche o resto)"}>
+        <Input
+          value={f.cep}
+          inputMode="numeric"
+          onChange={(e) => set({ cep: e.target.value })}
+          onBlur={(e) => buscarCep(e.target.value)}
+          placeholder="96230-000"
+        />
+      </Campo>
+      <Campo r="Rua / estrada (e complemento)" className="md:col-span-2">
+        <Input value={f.endereco} onChange={(e) => set({ endereco: e.target.value })} />
+      </Campo>
+      <Campo r="Número (S/N se não tiver)">
+        <Input value={f.end_numero} onChange={(e) => set({ end_numero: e.target.value })} />
+      </Campo>
+      <Campo r="Bairro / localidade" className="md:col-span-2">
+        <Input value={f.end_bairro} onChange={(e) => set({ end_bairro: e.target.value })} />
+      </Campo>
+    </>
+  );
+}
+
 function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
   const qc = useQueryClient();
   const [f, setF] = useState<Form>(inicial);
@@ -660,9 +711,13 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                     onChange={(e) => set({ cliente_doc: e.target.value })}
                   />
                 </Campo>
-                <Campo r="Endereço (rua, número, complemento)" className="md:col-span-3">
-                  <Input value={f.endereco} onChange={(e) => set({ endereco: e.target.value })} />
-                </Campo>
+                {f.pais === "BR" ? (
+                  <EnderecoBrasil f={f} set={set} />
+                ) : (
+                  <Campo r="Endereço (rua, número, complemento)" className="md:col-span-3">
+                    <Input value={f.endereco} onChange={(e) => set({ endereco: e.target.value })} />
+                  </Campo>
+                )}
                 <Campo r="Cidade">
                   <Input value={f.cidade} onChange={(e) => set({ cidade: e.target.value })} />
                 </Campo>
@@ -672,9 +727,11 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                     onChange={(e) => set({ departamento: e.target.value })}
                   />
                 </Campo>
-                <Campo r={f.pais === "BR" ? "CEP" : "Código postal"}>
-                  <Input value={f.cep} onChange={(e) => set({ cep: e.target.value })} />
-                </Campo>
+                {f.pais !== "BR" && (
+                  <Campo r="Código postal">
+                    <Input value={f.cep} onChange={(e) => set({ cep: e.target.value })} />
+                  </Campo>
+                )}
               </div>
             </section>
 
