@@ -187,6 +187,33 @@ Transferência enviada pelo Pix Pai Do Teste - •••.333.444-•• - COOP S
     );
     assert.equal(pa.mei.vendasSemLancar.length, 0, "a venda já ligada não serve para outro PIX");
 
+    // ------------------------------------------------ pessoal
+    const ps = await x.pessoal(2025, "2025-03");
+    assert.equal(ps.total, 230 + 1150, "gasto pessoal + ajuda à família");
+    const merc = ps.movimentos.find((m) => m.valor === 230)!;
+    assert.equal(merc.sub, "MERCADO", "supermercado = mercado (palpite)");
+    assert.equal(merc.origem, "palpite");
+    assert.equal(ps.movimentos.find((m) => m.valor === 1150)!.sub, "FAMILIA");
+    assert.equal(ps.pessoas[0].nome, "Pai Do Teste");
+    assert.equal(ps.subs.find((s) => s.sub === "MERCADO")!.total, 230);
+    assert.equal(ps.entrouParaVoce, 1000 + 2150.5, "doação + serviço PF de março");
+    await x.classificarSub({ id: merc.id, sub: "LAZER", lembrar: true });
+    const ps2 = await x.pessoal(2025);
+    const lz = ps2.movimentos.filter((m) => m.contraparte === "SUPERMERCADO BOM PRECO");
+    assert.equal(lz.length, 2, "março e abril");
+    assert.ok(
+      lz.every((m) => m.sub === "LAZER"),
+      "a regra «lembrar» vale para o outro mês",
+    );
+    assert.equal(lz.find((m) => m.data.startsWith("2025-03"))!.origem, "manual");
+    assert.equal(lz.find((m) => m.data.startsWith("2025-04"))!.origem, "regra");
+    assert.equal(ps2.recorrentes.length, 0, "só 2 meses: ainda não é recorrente");
+    await assert.rejects(
+      x.classificarSub({ id: cat(-2100).id, sub: "MERCADO" }),
+      /Só gasto pessoal/,
+    );
+    await assert.rejects(x.classificarSub({ id: merc.id, sub: "XYZ" }), /inválido/);
+
     // ------------------------------------------------ tarefas
     await prisma.configuracoes.deleteMany({ where: { chave: "fisc_tarefas" } });
     const t0 = await x.lerTarefas();

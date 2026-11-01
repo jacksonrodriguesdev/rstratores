@@ -32,8 +32,11 @@ import {
   painelExtratoFn,
 } from "@/lib/extratos";
 import { CATEGORIAS, categoriasDo, type Categoria } from "@/lib/extrato-categorias";
+import { Abas } from "@/components/admin/extrato/Mini";
+import { Panorama } from "@/components/admin/extrato/Panorama";
+import { mesDoPanorama } from "@/lib/extrato-formato";
 
-export const Route = createFileRoute("/admin/extratos")({ component: PaginaExtratos });
+export const Route = createFileRoute("/admin/extratos/")({ component: PaginaExtratos });
 
 type Painel = Awaited<ReturnType<typeof painelExtratoFn>>;
 
@@ -165,6 +168,8 @@ function PaginaExtratos() {
         </div>
       </header>
 
+      <Abas />
+
       {isLoading && (
         <div className="flex justify-center p-16">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -176,6 +181,8 @@ function PaginaExtratos() {
         <>
           {!data.arquivos.length && <ComoExportar />}
           <Meses d={data} mes={mes} escolher={setMes} />
+          {!!data.arquivos.length && <Panorama d={data} mes={mesDoPanorama(data, mes)} />}
+          <h2 className="pt-2 text-lg font-bold">No ano de {data.ano}</h2>
           <Cartoes d={data} />
           <div className="grid gap-4 xl:grid-cols-5">
             <div className="xl:col-span-3">

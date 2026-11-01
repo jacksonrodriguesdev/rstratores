@@ -1191,6 +1191,7 @@ model extrato_movimentos {
   manual      Boolean  @default(false)
   venda_id    Int?
   nota        String?  @db.VarChar(300)
+  subcategoria String? @db.VarChar(20) // Pessoal: mercado, combustível… (vazio = palpite/regra)
   hash        String   @unique @db.VarChar(64)
   created_at  DateTime @default(now())
 

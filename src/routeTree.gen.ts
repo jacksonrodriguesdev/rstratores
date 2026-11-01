@@ -37,7 +37,6 @@ import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
 import { Route as AdminConstrutorRouteImport } from './routes/admin.construtor'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
-import { Route as AdminExtratosRouteImport } from './routes/admin.extratos'
 import { Route as AdminFinanceiroRouteImport } from './routes/admin.financeiro'
 import { Route as AdminFiscalRouteImport } from './routes/admin.fiscal'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
@@ -82,6 +81,8 @@ import { Route as AdminEmailsAnaliseRouteImport } from './routes/admin.emails.an
 import { Route as AdminEmailsAnunciosRouteImport } from './routes/admin.emails.anuncios'
 import { Route as AdminEmailsFunilRouteImport } from './routes/admin.emails.funil'
 import { Route as AdminEmailsInteresseRouteImport } from './routes/admin.emails.interesse'
+import { Route as AdminExtratosIndexRouteImport } from './routes/admin.extratos.index'
+import { Route as AdminExtratosPessoalRouteImport } from './routes/admin.extratos.pessoal'
 import { Route as ApiAdminBannersRouteImport } from './routes/api/admin/banners'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
@@ -271,11 +272,6 @@ const AdminConstrutorRoute = AdminConstrutorRouteImport.update({
 const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
   id: '/cotacoes',
   path: '/cotacoes',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminExtratosRoute = AdminExtratosRouteImport.update({
-  id: '/extratos',
-  path: '/extratos',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFinanceiroRoute = AdminFinanceiroRouteImport.update({
@@ -496,6 +492,16 @@ const AdminEmailsFunilRoute = AdminEmailsFunilRouteImport.update({
 const AdminEmailsInteresseRoute = AdminEmailsInteresseRouteImport.update({
   id: '/emails/interesse',
   path: '/emails/interesse',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminExtratosIndexRoute = AdminExtratosIndexRouteImport.update({
+  id: '/extratos/',
+  path: '/extratos/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminExtratosPessoalRoute = AdminExtratosPessoalRouteImport.update({
+  id: '/extratos/pessoal',
+  path: '/extratos/pessoal',
   getParentRoute: () => AdminRoute,
 } as any)
 const ApiAdminBannersRoute = ApiAdminBannersRouteImport.update({
@@ -785,7 +791,6 @@ export interface FileRoutesByFullPath {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
-  '/admin/extratos': typeof AdminExtratosRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
@@ -829,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
   '/admin/emails/funil': typeof AdminEmailsFunilRoute
   '/admin/emails/interesse': typeof AdminEmailsInteresseRoute
+  '/admin/extratos/pessoal': typeof AdminExtratosPessoalRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -854,6 +860,7 @@ export interface FileRoutesByFullPath {
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
+  '/admin/extratos/': typeof AdminExtratosIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
   '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
@@ -909,7 +916,6 @@ export interface FileRoutesByTo {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
-  '/admin/extratos': typeof AdminExtratosRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
@@ -953,6 +959,7 @@ export interface FileRoutesByTo {
   '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
   '/admin/emails/funil': typeof AdminEmailsFunilRoute
   '/admin/emails/interesse': typeof AdminEmailsInteresseRoute
+  '/admin/extratos/pessoal': typeof AdminExtratosPessoalRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -978,6 +985,7 @@ export interface FileRoutesByTo {
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
+  '/admin/extratos': typeof AdminExtratosIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
   '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
@@ -1035,7 +1043,6 @@ export interface FileRoutesById {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
-  '/admin/extratos': typeof AdminExtratosRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
@@ -1079,6 +1086,7 @@ export interface FileRoutesById {
   '/admin/emails/anuncios': typeof AdminEmailsAnunciosRoute
   '/admin/emails/funil': typeof AdminEmailsFunilRoute
   '/admin/emails/interesse': typeof AdminEmailsInteresseRoute
+  '/admin/extratos/pessoal': typeof AdminExtratosPessoalRoute
   '/api/admin/banners': typeof ApiAdminBannersRouteWithChildren
   '/api/admin/categories': typeof ApiAdminCategoriesRouteWithChildren
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
@@ -1104,6 +1112,7 @@ export interface FileRoutesById {
   '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
+  '/admin/extratos/': typeof AdminExtratosIndexRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
   '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
@@ -1162,7 +1171,6 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
-    | '/admin/extratos'
     | '/admin/financeiro'
     | '/admin/fiscal'
     | '/admin/fotos-lote'
@@ -1206,6 +1214,7 @@ export interface FileRouteTypes {
     | '/admin/emails/anuncios'
     | '/admin/emails/funil'
     | '/admin/emails/interesse'
+    | '/admin/extratos/pessoal'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1231,6 +1240,7 @@ export interface FileRouteTypes {
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
+    | '/admin/extratos/'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
     | '/api/admin/catalogos/upload'
@@ -1286,7 +1296,6 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
-    | '/admin/extratos'
     | '/admin/financeiro'
     | '/admin/fiscal'
     | '/admin/fotos-lote'
@@ -1330,6 +1339,7 @@ export interface FileRouteTypes {
     | '/admin/emails/anuncios'
     | '/admin/emails/funil'
     | '/admin/emails/interesse'
+    | '/admin/extratos/pessoal'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1355,6 +1365,7 @@ export interface FileRouteTypes {
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
+    | '/admin/extratos'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
     | '/api/admin/catalogos/upload'
@@ -1411,7 +1422,6 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
-    | '/admin/extratos'
     | '/admin/financeiro'
     | '/admin/fiscal'
     | '/admin/fotos-lote'
@@ -1455,6 +1465,7 @@ export interface FileRouteTypes {
     | '/admin/emails/anuncios'
     | '/admin/emails/funil'
     | '/admin/emails/interesse'
+    | '/admin/extratos/pessoal'
     | '/api/admin/banners'
     | '/api/admin/categories'
     | '/api/admin/products'
@@ -1480,6 +1491,7 @@ export interface FileRouteTypes {
     | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
+    | '/admin/extratos/'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
     | '/api/admin/catalogos/upload'
@@ -1777,13 +1789,6 @@ declare module '@tanstack/react-router' {
       path: '/cotacoes'
       fullPath: '/admin/cotacoes'
       preLoaderRoute: typeof AdminCotacoesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/extratos': {
-      id: '/admin/extratos'
-      path: '/extratos'
-      fullPath: '/admin/extratos'
-      preLoaderRoute: typeof AdminExtratosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/financeiro': {
@@ -2092,6 +2097,20 @@ declare module '@tanstack/react-router' {
       path: '/emails/interesse'
       fullPath: '/admin/emails/interesse'
       preLoaderRoute: typeof AdminEmailsInteresseRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/extratos/': {
+      id: '/admin/extratos/'
+      path: '/extratos'
+      fullPath: '/admin/extratos/'
+      preLoaderRoute: typeof AdminExtratosIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/extratos/pessoal': {
+      id: '/admin/extratos/pessoal'
+      path: '/extratos/pessoal'
+      fullPath: '/admin/extratos/pessoal'
+      preLoaderRoute: typeof AdminExtratosPessoalRouteImport
       parentRoute: typeof AdminRoute
     }
     '/api/admin/banners': {
@@ -2461,7 +2480,6 @@ interface AdminRouteChildren {
   AdminClientesRoute: typeof AdminClientesRoute
   AdminConstrutorRoute: typeof AdminConstrutorRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
-  AdminExtratosRoute: typeof AdminExtratosRoute
   AdminFinanceiroRoute: typeof AdminFinanceiroRoute
   AdminFiscalRoute: typeof AdminFiscalRoute
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
@@ -2489,8 +2507,10 @@ interface AdminRouteChildren {
   AdminEmailsAnunciosRoute: typeof AdminEmailsAnunciosRoute
   AdminEmailsFunilRoute: typeof AdminEmailsFunilRoute
   AdminEmailsInteresseRoute: typeof AdminEmailsInteresseRoute
+  AdminExtratosPessoalRoute: typeof AdminExtratosPessoalRoute
   AdminAutomacoesIndexRoute: typeof AdminAutomacoesIndexRoute
   AdminEmailsIndexRoute: typeof AdminEmailsIndexRoute
+  AdminExtratosIndexRoute: typeof AdminExtratosIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -2507,7 +2527,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClientesRoute: AdminClientesRoute,
   AdminConstrutorRoute: AdminConstrutorRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
-  AdminExtratosRoute: AdminExtratosRoute,
   AdminFinanceiroRoute: AdminFinanceiroRoute,
   AdminFiscalRoute: AdminFiscalRoute,
   AdminFotosLoteRoute: AdminFotosLoteRoute,
@@ -2535,8 +2554,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEmailsAnunciosRoute: AdminEmailsAnunciosRoute,
   AdminEmailsFunilRoute: AdminEmailsFunilRoute,
   AdminEmailsInteresseRoute: AdminEmailsInteresseRoute,
+  AdminExtratosPessoalRoute: AdminExtratosPessoalRoute,
   AdminAutomacoesIndexRoute: AdminAutomacoesIndexRoute,
   AdminEmailsIndexRoute: AdminEmailsIndexRoute,
+  AdminExtratosIndexRoute: AdminExtratosIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

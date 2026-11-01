@@ -128,3 +128,79 @@ export const chaveNome = (s: string) =>
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 160);
+
+// ---------- Pessoal: para onde vai o dinheiro do dia a dia ----------
+// Vale para os gastos pessoais e para a ajuda à família (que sempre fica em FAMILIA)
+export type Sub =
+  | "MERCADO"
+  | "COMBUSTIVEL"
+  | "MORADIA"
+  | "CONTAS"
+  | "PESSOAS"
+  | "FAMILIA"
+  | "PLATAFORMAS"
+  | "CREDITO"
+  | "LAZER"
+  | "SAUDE"
+  | "TRANSPORTE"
+  | "COMPRAS"
+  | "OUTROS";
+export const SUBS: Record<Sub, { nome: string; cor: string; dica: string }> = {
+  MERCADO: { nome: "Mercado", cor: "#2a78d6", dica: "Supermercado, padaria, açougue" },
+  COMBUSTIVEL: { nome: "Combustível", cor: "#eb6834", dica: "Posto e abastecimento" },
+  MORADIA: { nome: "Aluguel e moradia", cor: "#7a5af8", dica: "Aluguel, imobiliária, condomínio" },
+  CONTAS: { nome: "Contas da casa", cor: "#0e9384", dica: "Luz, água, internet, celular" },
+  PESSOAS: { nome: "PIX para pessoas", cor: "#c4329b", dica: "Transferências para pessoas" },
+  FAMILIA: { nome: "Família", cor: "#1d9bd1", dica: "Ajuda à família" },
+  PLATAFORMAS: {
+    nome: "Plataformas e assinaturas",
+    cor: "#6172f3",
+    dica: "Apple, Google, streaming, apps",
+  },
+  CREDITO: { nome: "Cartão e crédito", cor: "#d92d20", dica: "Fatura, Pix no crédito, empréstimo" },
+  LAZER: { nome: "Lazer e comer fora", cor: "#e5a000", dica: "Bar, restaurante, lanche, esporte" },
+  SAUDE: { nome: "Saúde", cor: "#16a34a", dica: "Farmácia, consulta, exame" },
+  TRANSPORTE: { nome: "Transporte", cor: "#8a6d3b", dica: "Uber, passagem, pedágio" },
+  COMPRAS: { nome: "Compras", cor: "#9e77ed", dica: "Lojas, roupas, casa" },
+  OUTROS: { nome: "Outros", cor: "#98a2b3", dica: "O que não se encaixou" },
+};
+export const ehSub = (s: unknown): s is Sub => typeof s === "string" && s in SUBS;
+
+// Palpite pelo nome de quem recebeu (o dono corrige e o «lembrar» guarda)
+const PALPITES: Array<[Sub, RegExp]> = [
+  ["CREDITO", /PAGAMENTO DE FATURA|PIX NO CREDITO|EMPRESTIMO|FINANCIAMENTO/],
+  [
+    "CONTAS",
+    /CEEE|ESTADUAL DE DIST|CORSAN|ENERGIA|SANEAMENTO|INTERNET|TELECOM|OSIRNET|\bVIVO\b|\bCLARO\b|\bTIM\b|NUCEL|RECARGA DE CELULAR/,
+  ],
+  ["MORADIA", /IMOBILIARI|ALUGUEL|CONDOMINIO|NEGOCIOS IMOBILIARIOS/],
+  ["COMBUSTIVEL", /POSTO|ABASTECEDORA|COMBUST|PETROBRAS|IPIRANGA|\bSHELL\b|AUTO POSTO/],
+  [
+    "MERCADO",
+    /SUPERMERCADO|MERCADO|ATACAD|ACOUGUE|HORTIFRUTI|PADARIA|MINIMERCADO|ARMAZEM|FRUTEIRA/,
+  ],
+  [
+    "PLATAFORMAS",
+    /APPLE|NETFLIX|SPOTIFY|AMAZON|GOOGLE|YOUTUBE|DISNEY|\bHBO\b|PRIME VIDEO|MICROSOFT|CHATGPT|OPENAI|DEEZER|GLOBOPLAY|CANVA/,
+  ],
+  [
+    "LAZER",
+    /\bBAR\b|LOUNGE|RESTAURANTE|LANCHE|PIZZ|BURGER|HAMBURG|BEACH TENNIS|CHOPP|CERVEJ|IFOOD|SORVET|CAFE|TRAINING|ACADEMIA/,
+  ],
+  ["SAUDE", /FARMACIA|DROGA|CLINICA|HOSPITAL|LABORAT|ODONTO|MEDIC/],
+  ["TRANSPORTE", /\bUBER\b|\b99\b|BUSER|PASSAGE|ESTACIONAMENTO|PEDAGIO|RODOVIARIA/],
+  ["COMPRAS", /LOJA|MAGAZINE|SHOPEE|SHEIN|MERCADOLIVRE|CALCADOS|MODAS|CONFEC|MOVEIS/],
+];
+export function palpiteSub(m: {
+  categoria: string;
+  tipo: string;
+  contraparte: string;
+  documento: string | null;
+}): Sub {
+  if (m.categoria === "DOACAO_FEITA") return "FAMILIA";
+  const t = chaveNome(`${m.tipo} ${m.contraparte}`);
+  for (const [s, re] of PALPITES) if (re.test(t)) return s;
+  // PIX para um CPF (pessoa), não para empresa
+  if (/TRANSFERENCIA/.test(t) && /^[•·*]{3}/.test(m.documento ?? "")) return "PESSOAS";
+  return "OUTROS";
+}

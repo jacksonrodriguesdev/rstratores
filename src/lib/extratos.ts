@@ -52,6 +52,27 @@ export const apagarArquivoExtratoFn = createServerFn({ method: "POST" })
     return (await ext()).apagarArquivo(data.id);
   });
 
+export const pessoalFn = createServerFn({ method: "GET" })
+  .validator((d: { ano?: number; mes?: string | null }) => ({
+    ano: Number(d?.ano) || new Date().getFullYear(),
+    mes: /^\d{4}-\d{2}$/.test(String(d?.mes ?? "")) ? String(d!.mes) : null,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    return (await ext()).pessoal(data.ano, data.mes);
+  });
+
+export const classificarSubFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number; sub: string; lembrar?: boolean }) => ({
+    id: Number(d?.id),
+    sub: String(d?.sub ?? ""),
+    lembrar: !!d?.lembrar,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    return (await ext()).classificarSub(data);
+  });
+
 export const tarefasFn = createServerFn({ method: "GET" }).handler(async () => {
   await admin();
   return (await ext()).lerTarefas();

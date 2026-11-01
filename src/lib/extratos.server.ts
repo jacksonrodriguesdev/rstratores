@@ -11,6 +11,10 @@ import {
   categoriasDo,
   chaveNome,
   ehCategoria,
+  ehSub,
+  palpiteSub,
+  SUBS,
+  type Sub,
 } from "./extrato-categorias";
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
@@ -70,6 +74,14 @@ export function garantirTabelasExtrato() {
     const { garantirTabelasAvaliacoes } = await import("./avaliacoes.server");
     await garantirTabelasAvaliacoes(); // vendas (para ligar o PIX à venda lançada)
     for (const s of SQL) await prisma.$executeRawUnsafe(s);
+    // Coluna que chegou depois (Pessoal): a tabela da produção já existia sem ela
+    const col: unknown[] = await prisma.$queryRawUnsafe(
+      "SHOW COLUMNS FROM `extrato_movimentos` LIKE 'subcategoria'",
+    );
+    if (!col.length)
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `extrato_movimentos` ADD COLUMN `subcategoria` VARCHAR(20) NULL",
+      );
   })().catch((e) => {
     tabelas = null;
     throw e;
@@ -437,6 +449,187 @@ export async function painel(ano: number, mes?: string | null) {
       nota: m.nota,
     })),
   };
+}
+
+// ---------- Pessoal: como o dono gasta o dinheiro dele ----------
+// Gasto pessoal + ajuda à família, em subcategorias. A subcategoria vem da escolha à mão, senão
+// da regra «lembrar» (extrato_regras com sentido "P"), senão do palpite pelo nome.
+const PESSOAIS = ["PESSOAL", "DOACAO_FEITA"];
+export async function pessoal(ano: number, mes?: string | null) {
+  await garantirTabelasExtrato();
+  const [todos, arquivos, regrasP] = await Promise.all([
+    prisma.extrato_movimentos.findMany({
+      where: { data: { gte: `${ano}-01-01`, lte: `${ano}-12-31` } },
+      orderBy: [{ data: "asc" }, { id: "asc" }],
+    }),
+    prisma.extrato_arquivos.findMany({ select: { inicio: true, fim: true } }),
+    prisma.extrato_regras.findMany({ where: { sentido: "P" } }),
+  ]);
+  const regra = new Map(regrasP.map((r) => [r.chave, r.categoria]));
+  const movs = todos
+    .filter((m) => PESSOAIS.includes(m.categoria))
+    .map((m) => {
+      const r = regra.get(chaveNome(m.contraparte));
+      const sub: Sub =
+        m.categoria === "DOACAO_FEITA"
+          ? "FAMILIA"
+          : ehSub(m.subcategoria)
+            ? m.subcategoria
+            : ehSub(r)
+              ? r
+              : palpiteSub(m);
+      return {
+        id: m.id,
+        data: m.data,
+        valor: r2(-m.valor), // gasto positivo
+        tipo: m.tipo,
+        contraparte: m.contraparte,
+        documento: m.documento,
+        categoria: m.categoria,
+        nota: m.nota,
+        sub,
+        origem: ehSub(m.subcategoria) ? "manual" : ehSub(r) ? "regra" : "palpite",
+      };
+    });
+  // Meses com extrato (e que já passaram): a média é só sobre eles
+  const hojeMes = hojeBR().slice(0, 7);
+  const meses = Array.from({ length: 12 }, (_, i) => {
+    const m = `${ano}-${String(i + 1).padStart(2, "0")}`;
+    return {
+      mes: m,
+      importado: arquivos.some((a) => a.inicio.slice(0, 7) <= m && a.fim.slice(0, 7) >= m),
+      futuro: m > hojeMes,
+      total: 0,
+      porSub: {} as Record<string, number>,
+      entrouParaVoce: 0,
+    };
+  });
+  for (const m of movs) {
+    const b = meses[Number(m.data.slice(5, 7)) - 1];
+    b.total += m.valor;
+    b.porSub[m.sub] = (b.porSub[m.sub] ?? 0) + m.valor;
+  }
+  // O que entrou para a pessoa (não para a loja): doações e serviços como pessoa física
+  for (const m of todos.filter((x) => ["DOACAO", "SERVICO_PF"].includes(x.categoria)))
+    meses[Number(m.data.slice(5, 7)) - 1].entrouParaVoce += m.valor;
+  const comDados = meses.filter((m) => m.importado && !m.futuro);
+  const n = Math.max(1, comDados.length);
+  const sel = mes ? movs.filter((m) => m.data.startsWith(mes)) : movs;
+  const nMeses = mes ? 1 : n;
+
+  const subs = (Object.keys(SUBS) as Sub[])
+    .map((s) => {
+      const doPeriodo = sel.filter((m) => m.sub === s);
+      const total = doPeriodo.reduce((t, m) => t + m.valor, 0);
+      const media = comDados.reduce((t, m) => t + (m.porSub[s] ?? 0), 0) / n;
+      return {
+        sub: s,
+        nome: SUBS[s].nome,
+        cor: SUBS[s].cor,
+        total: r2(total),
+        vezes: doPeriodo.length,
+        mediaMes: r2(media),
+        // 12 meses para o gráfico pequeno do card
+        serie: meses.map((m) => ({ mes: m.mes, valor: r2(m.porSub[s] ?? 0) })),
+      };
+    })
+    .filter((s) => s.total > 0 || s.mediaMes > 0)
+    .sort((a, b) => b.total - a.total);
+  const totalSel = r2(sel.reduce((t, m) => t + m.valor, 0));
+
+  const agrupar = (lista: typeof sel) => {
+    const g = new Map<
+      string,
+      {
+        nome: string;
+        documento: string | null;
+        sub: Sub;
+        vezes: number;
+        total: number;
+        ultima: string;
+      }
+    >();
+    for (const m of lista) {
+      const k = chaveNome(m.contraparte);
+      const x = g.get(k) ?? {
+        nome: m.contraparte,
+        documento: m.documento,
+        sub: m.sub,
+        vezes: 0,
+        total: 0,
+        ultima: m.data,
+      };
+      x.vezes++;
+      x.total += m.valor;
+      if (m.data > x.ultima) x.ultima = m.data;
+      g.set(k, x);
+    }
+    return [...g.values()]
+      .map((x) => ({ ...x, total: r2(x.total) }))
+      .sort((a, b) => b.total - a.total);
+  };
+  // Aparece em 3 meses ou mais: conta fixa, assinatura, mercado de sempre
+  const porNomeMeses = new Map<string, Set<string>>();
+  for (const m of movs) {
+    const k = chaveNome(m.contraparte);
+    if (!porNomeMeses.has(k)) porNomeMeses.set(k, new Set());
+    porNomeMeses.get(k)!.add(m.data.slice(0, 7));
+  }
+  const recorrentes = agrupar(movs)
+    .filter((x) => (porNomeMeses.get(chaveNome(x.nome))?.size ?? 0) >= 3)
+    .map((x) => {
+      const nm = porNomeMeses.get(chaveNome(x.nome))!.size;
+      return { ...x, meses: nm, porMes: r2(x.total / nm) };
+    })
+    .sort((a, b) => b.porMes - a.porMes)
+    .slice(0, 12);
+
+  return {
+    ano,
+    mes: mes ?? null,
+    total: totalSel,
+    mediaMes: r2(comDados.reduce((t, m) => t + m.total, 0) / n),
+    porDia: r2(totalSel / (mes ? diasNoMes(mes) : nMeses * 30.4)),
+    entrouParaVoce: r2(
+      (mes ? meses.filter((m) => m.mes === mes) : meses).reduce((t, m) => t + m.entrouParaVoce, 0),
+    ),
+    meses: meses.map((m) => ({
+      mes: m.mes,
+      importado: m.importado,
+      futuro: m.futuro,
+      total: r2(m.total),
+      entrouParaVoce: r2(m.entrouParaVoce),
+    })),
+    subs,
+    pessoas: agrupar(sel.filter((m) => m.sub === "PESSOAS" || m.sub === "FAMILIA")).slice(0, 20),
+    lugares: agrupar(sel.filter((m) => m.sub !== "PESSOAS" && m.sub !== "FAMILIA")).slice(0, 20),
+    recorrentes,
+    maiores: [...sel].sort((a, b) => b.valor - a.valor).slice(0, 8),
+    movimentos: sel,
+  };
+}
+const diasNoMes = (mes: string) =>
+  new Date(Number(mes.slice(0, 4)), Number(mes.slice(5, 7)), 0).getDate();
+
+export async function classificarSub(d: { id: number; sub: string; lembrar?: boolean }) {
+  await garantirTabelasExtrato();
+  const m = await prisma.extrato_movimentos.findUnique({ where: { id: Number(d.id) } });
+  if (!m) throw new Error("Movimento não encontrado");
+  if (!ehSub(d.sub)) throw new Error("Tipo de gasto inválido");
+  if (m.categoria !== "PESSOAL") throw new Error("Só gasto pessoal tem tipo de gasto");
+  await prisma.extrato_movimentos.update({
+    where: { id: m.id },
+    data: { subcategoria: d.sub },
+  });
+  if (d.lembrar) {
+    const chave = chaveNome(m.contraparte);
+    await prisma.extrato_regras.upsert({
+      where: { chave_sentido: { chave, sentido: "P" } },
+      create: { chave, sentido: "P", categoria: d.sub },
+      update: { categoria: d.sub },
+    });
+  }
+  return { ok: true };
 }
 
 // ---------- Tarefas do dono (configuracoes, chave fisc_tarefas) ----------
