@@ -208,6 +208,64 @@ const perto = (a: number, b: number, msg: string) =>
     perto(lucroBR, 310 - 200 - 12 - 25, "lucro BR com custos editados");
     assert.equal(r2.vendas.find((v) => v.id === idLink)!.canal, "SITE");
 
+    // ------------------------------------------------ loja física × e-commerce e data da venda
+    const frente = (r: typeof r2, p: "mes" | "ano", k: string) =>
+      r.porFrente[p].find((l) => l.nome === k) ?? { vendas: 0, receita: 0, lucroBruto: 0 };
+    const balcao = {
+      cliente_nome: "Cliente Balcão",
+      pais: "BR" as const,
+      moeda: "BRL" as const,
+      metodo: "PIX",
+      itens: [
+        { sku: "CI-002", codigo: "CI-002", nome: "Rolamento teste", qtd: 1, valor: 100, custo: 40 },
+      ],
+    };
+    const v3 = await a.salvarVenda({ ...balcao, canal: "INDICACAO" });
+    vendas.push(v3.id);
+    assert.equal(v3.canal, "INDICACAO");
+    const passado = `${f.somarMes(mes, -1)}-15`;
+    const v4 = await a.salvarVenda({ ...balcao, canal: "BALCAO", data: passado });
+    vendas.push(v4.id);
+    const dia = (x: string | Date) =>
+      new Date(x).toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+    assert.equal(dia(v4.created_at), passado, "venda lançada depois fica no dia escolhido");
+    // Editar sem mudar o dia não mexe na hora gravada
+    const v4b = await a.salvarVenda({ ...balcao, canal: "BALCAO", data: passado }, v4.id);
+    assert.equal(String(v4b.created_at), String(v4.created_at));
+    await assert.rejects(
+      a.salvarVenda({ ...balcao, data: "2999-01-01" }),
+      /futuro/,
+      "data futura recusada",
+    );
+    // Peça fora do catálogo: nome, valor e custo digitados ficam como estão
+    const v5 = await a.salvarVenda({
+      ...balcao,
+      canal: "BALCAO",
+      itens: [
+        {
+          sku: "AVULSO-1",
+          codigo: "",
+          nome: "Bomba injetora usada",
+          qtd: 1,
+          valor: 900,
+          custo: 500,
+        },
+      ],
+    });
+    vendas.push(v5.id);
+    assert.equal(v5.itens[0].custo, 500, "custo digitado da peça avulsa");
+    assert.equal(v5.total, 900);
+    const r2b = await f.relatorio(mes);
+    const lojaMes = frente(r2b, "mes", "LOJA");
+    const lojaMes0 = frente(r2, "mes", "LOJA");
+    assert.equal(lojaMes.vendas - lojaMes0.vendas, 2, "só as de hoje entram no mês");
+    perto(lojaMes.lucroBruto - lojaMes0.lucroBruto, 60 + 400, "lucro bruto da loja física");
+    const lojaAno = frente(r2b, "ano", "LOJA");
+    assert.equal(lojaAno.vendas - frente(r2, "ano", "LOJA").vendas, 3, "12 meses: as três");
+    assert.ok(frente(r2b, "mes", "ONLINE").vendas >= 1, "o link pago conta como e-commerce");
+    assert.equal(f.frenteDe("WHATSAPP"), "ONLINE");
+    assert.equal(f.frenteDe("SEM_CANAL"), "OUTROS");
+
     // ------------------------------------------------ cancelada sai
     await prisma.vendas.update({ where: { id: v1.id }, data: { status: "CANCELADA" } });
     const r3 = await f.relatorio(mes);

@@ -198,6 +198,7 @@ export type DadosVenda = {
   status?: string;
   canal?: string | null;
   metodo?: string | null;
+  data?: string | null; // dia da venda (AAAA-MM-DD); vazio = hoje
 };
 const txt = (s: unknown, max: number) => {
   const t = String(s ?? "")
@@ -258,6 +259,19 @@ export function limparVenda(d: DadosVenda) {
     ...(d.metodo !== undefined && { metodo: txt(d.metodo, 20)?.toUpperCase() ?? null }),
   };
 }
+// Dia da venda lançada depois (balcão, boca a boca): meio-dia no horário de Brasília.
+// Não aceita data futura nem antes de 2020.
+const diaBR = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+function dataDaVenda(s: unknown) {
+  const t = String(s ?? "").trim();
+  if (!t) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t) || Number.isNaN(Date.parse(t)))
+    throw new Error("Data da venda inválida.");
+  if (t > diaBR(new Date())) throw new Error("A data da venda não pode ser no futuro.");
+  if (t < "2020-01-01") throw new Error("Data da venda muito antiga.");
+  return t;
+}
+
 export const paraVenda = (r: any) => ({
   ...r,
   itens: JSON.parse(r.itens || "[]") as ItemVenda[],
@@ -269,7 +283,16 @@ export const paraVenda = (r: any) => ({
 export async function salvarVenda(d: DadosVenda, id?: number) {
   await garantirTabelasAvaliacoes();
   const { prisma } = await import("./prisma");
-  const dados = limparVenda(d);
+  const dados: ReturnType<typeof limparVenda> & { created_at?: Date } = limparVenda(d);
+  // Data escolhida diferente do dia já gravado (ou de hoje, na venda nova) → muda a data
+  const dia = dataDaVenda(d.data);
+  if (dia) {
+    const atual = id
+      ? (await prisma.vendas.findUnique({ where: { id }, select: { created_at: true } }))
+          ?.created_at
+      : new Date();
+    if (!atual || diaBR(atual) !== dia) dados.created_at = new Date(`${dia}T12:00:00-03:00`);
+  }
   const { completarFinanceiro } = await import("./financeiro.server");
   // Venda do Brasil com dados completos: a nota fiscal sai sozinha (em segundo plano)
   const notaAuto = (vendaId: number) => {

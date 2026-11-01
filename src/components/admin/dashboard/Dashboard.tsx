@@ -46,6 +46,7 @@ const NOMES_CANAL: Record<string, string> = {
   SITE: "Site",
   LINK: "Link de pagamento",
   BALCAO: "Balcão",
+  INDICACAO: "Indicação",
   TELEFONE: "Telefone",
   MERCADOLIVRE: "Mercado Livre",
   OUTRO: "Outro",

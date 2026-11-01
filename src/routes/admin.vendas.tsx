@@ -42,7 +42,17 @@ import { BotaoCadastroPeca, ResultadosPecas } from "@/components/admin/PecasVend
 
 export const Route = createFileRoute("/admin/vendas")({ component: PaginaVendas });
 
-type Item = { sku: string; codigo: string; nome: string; qtd: number; valor: number };
+type Item = {
+  sku: string;
+  codigo: string;
+  nome: string;
+  qtd: number;
+  valor: number;
+  custo?: number | null;
+};
+// Peça fora do catálogo (venda de balcão): nome, valor e custo digitados à mão
+const AVULSO = "AVULSO-";
+const ehAvulso = (i: Item) => i.sku.startsWith(AVULSO);
 type Form = {
   id?: number;
   cliente_nome: string;
@@ -65,6 +75,7 @@ type Form = {
   status: string;
   canal: string;
   metodo: string;
+  data: string; // dia da venda (AAAA-MM-DD); vazio = hoje
 };
 const VAZIO: Form = {
   cliente_nome: "",
@@ -87,6 +98,7 @@ const VAZIO: Form = {
   status: "ABERTA",
   canal: "WHATSAPP",
   metodo: "",
+  data: "",
 };
 const STATUS: Record<string, string> = {
   ABERTA: "bg-sky-100 text-sky-800",
@@ -94,6 +106,7 @@ const STATUS: Record<string, string> = {
   ENTREGUE: "bg-emerald-100 text-emerald-800",
   CANCELADA: "bg-zinc-200 text-zinc-600",
 };
+const diaBR = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
 const dinheiro = (v: number, moeda: string) =>
   moeda === "BRL"
     ? `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -328,6 +341,7 @@ function PaginaVendas() {
                             ),
                             id: v.id,
                             itens: v.itens,
+                            data: diaBR(new Date(v.created_at)),
                           } as Form)
                         }
                       >
@@ -781,6 +795,22 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                   }));
                 }}
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setF((x) => ({
+                    ...x,
+                    itens: [
+                      ...x.itens,
+                      { sku: `${AVULSO}${Date.now()}`, codigo: "", nome: "", qtd: 1, valor: 0 },
+                    ],
+                  }))
+                }
+              >
+                <Plus className="mr-1 h-3.5 w-3.5" /> Peça fora do catálogo
+              </Button>
               {!!f.itens.length && (
                 <div className="overflow-x-auto rounded-md border">
                   <table className="w-full text-sm">
@@ -797,9 +827,64 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                       {f.itens.map((i, n) => (
                         <tr key={i.sku} className="border-t">
                           <td className="p-2">
-                            <p className="line-clamp-1 font-medium">{i.nome}</p>
-                            <p className="text-xs text-muted-foreground">{i.codigo}</p>
-                            <BotaoCadastroPeca sku={i.sku} />
+                            {ehAvulso(i) ? (
+                              <div className="grid gap-1.5 sm:grid-cols-[1fr_8rem_8rem]">
+                                <Input
+                                  className="h-8"
+                                  placeholder="Nome da peça *"
+                                  value={i.nome}
+                                  onChange={(e) =>
+                                    set({
+                                      itens: f.itens.map((x, k) =>
+                                        k === n ? { ...x, nome: e.target.value } : x,
+                                      ),
+                                    })
+                                  }
+                                />
+                                <Input
+                                  className="h-8"
+                                  placeholder="Código"
+                                  value={i.codigo}
+                                  onChange={(e) =>
+                                    set({
+                                      itens: f.itens.map((x, k) =>
+                                        k === n ? { ...x, codigo: e.target.value } : x,
+                                      ),
+                                    })
+                                  }
+                                />
+                                <Input
+                                  className="h-8"
+                                  type="number"
+                                  min={0}
+                                  step="0.01"
+                                  placeholder="Custo un."
+                                  title="Quanto você pagou por unidade (para o lucro)"
+                                  value={i.custo ?? ""}
+                                  onChange={(e) =>
+                                    set({
+                                      itens: f.itens.map((x, k) =>
+                                        k === n
+                                          ? {
+                                              ...x,
+                                              custo:
+                                                e.target.value === ""
+                                                  ? null
+                                                  : Math.max(0, Number(e.target.value) || 0),
+                                            }
+                                          : x,
+                                      ),
+                                    })
+                                  }
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                <p className="line-clamp-1 font-medium">{i.nome}</p>
+                                <p className="text-xs text-muted-foreground">{i.codigo}</p>
+                                <BotaoCadastroPeca sku={i.sku} />
+                              </>
+                            )}
                           </td>
                           <td className="p-2">
                             <Input
@@ -907,6 +992,14 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                   <option value="CANCELADA">Cancelada</option>
                 </select>
               </Campo>
+              <Campo r="Data da venda">
+                <Input
+                  type="date"
+                  value={f.data || diaBR(new Date())}
+                  max={diaBR(new Date())}
+                  onChange={(e) => set({ data: e.target.value })}
+                />
+              </Campo>
               <Campo r="Canal da venda">
                 <select
                   className="h-9 w-full rounded-md border bg-background px-2 text-sm"
@@ -918,6 +1011,7 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
                   <option value="SITE">Site</option>
                   <option value="LINK">Link de pagamento</option>
                   <option value="BALCAO">Balcão</option>
+                  <option value="INDICACAO">Indicação (boca a boca)</option>
                   <option value="TELEFONE">Telefone</option>
                   <option value="MERCADOLIVRE">Mercado Livre</option>
                   <option value="OUTRO">Outro</option>

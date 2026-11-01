@@ -40,6 +40,7 @@ export const CANAIS = [
   "WHATSAPP",
   "SITE",
   "BALCAO",
+  "INDICACAO",
   "TELEFONE",
   "MERCADOLIVRE",
   "OUTRO",
@@ -471,6 +472,14 @@ function fechar(n: Numeros) {
   };
 }
 
+// Frente da venda: loja física (balcão, boca a boca) × e-commerce (site, link, WhatsApp, ML…)
+export const FRENTES = {
+  LOJA: ["BALCAO", "INDICACAO"],
+  ONLINE: ["SITE", "LINK", "WHATSAPP", "TELEFONE", "MERCADOLIVRE"],
+};
+export const frenteDe = (canal: string) =>
+  FRENTES.LOJA.includes(canal) ? "LOJA" : FRENTES.ONLINE.includes(canal) ? "ONLINE" : "OUTROS";
+
 export async function relatorio(mes: string) {
   await garantirTabelasAvaliacoes();
   await sincronizarLinksPagos().catch((e) => console.error("financeiro (links):", e));
@@ -493,6 +502,8 @@ export async function relatorio(mes: string) {
   const porMes = new Map(meses.map((m) => [m, { UY: zero(), BR: zero(), total: zero() }]));
   const canais = new Map<string, Numeros>();
   const metodos = new Map<string, Numeros>();
+  const frentes = new Map<string, Numeros>(); // mês escolhido
+  const frentes12 = new Map<string, Numeros>(); // últimos 12 meses
   const pecas = new Map<
     string,
     {
@@ -542,6 +553,9 @@ export async function relatorio(mes: string) {
       v.moeda === moedaPais ? x : moedaPais === "BRL" ? brl(x) : cot ? brl(x) * cot : 0;
     somar(b[pais], naMoedaPais);
     somar(b.total, brl);
+    const fr = frenteDe(v.canal || (v.origem === "LINK" ? "LINK" : "SEM_CANAL"));
+    if (!frentes12.has(fr)) frentes12.set(fr, zero());
+    somar(frentes12.get(fr)!, brl);
     if (m === mes) {
       const dia = Number(
         v.created_at.toLocaleDateString("en-CA", { timeZone: "America/Montevideo" }).slice(8, 10),
@@ -558,6 +572,8 @@ export async function relatorio(mes: string) {
       if (!metodos.has(me)) metodos.set(me, zero());
       somar(canais.get(ch)!, brl);
       somar(metodos.get(me)!, brl);
+      if (!frentes.has(fr)) frentes.set(fr, zero());
+      somar(frentes.get(fr)!, brl);
       // Receita da peça sem frete; o desconto do link entra proporcional
       const fator = v.total ? (v.total - v.desconto) / v.total : 1;
       for (const i of itens) {
@@ -676,6 +692,8 @@ export async function relatorio(mes: string) {
       };
     }),
     porCanal: tabela(canais),
+    // Loja física × e-commerce: no mês e nos 12 meses (R$)
+    porFrente: { mes: tabela(frentes), ano: tabela(frentes12) },
     porMetodo: tabela(metodos),
     pecas: [...pecas.values()]
       .map((p) => ({

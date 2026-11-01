@@ -13,8 +13,10 @@ import {
   Loader2,
   Percent,
   Plus,
+  Globe,
   Receipt,
   Save,
+  Store,
   Trash2,
   Wallet,
 } from "lucide-react";
@@ -81,6 +83,7 @@ const NOMES: Record<string, string> = {
   WHATSAPP: "WhatsApp",
   SITE: "Site",
   BALCAO: "Balcão",
+  INDICACAO: "Indicação (boca a boca)",
   TELEFONE: "Telefone",
   MERCADOLIVRE: "Mercado Livre",
   OUTRO: "Outro",
@@ -99,7 +102,16 @@ const NOMES: Record<string, string> = {
   IMPOSTOS: "Impostos",
   OUTRA: "Outra",
 };
-const CANAIS = ["LINK", "WHATSAPP", "SITE", "BALCAO", "TELEFONE", "MERCADOLIVRE", "OUTRO"];
+const CANAIS = [
+  "LINK",
+  "WHATSAPP",
+  "SITE",
+  "BALCAO",
+  "INDICACAO",
+  "TELEFONE",
+  "MERCADOLIVRE",
+  "OUTRO",
+];
 const METODOS = [
   "STRIPE",
   "CARTAO",
@@ -216,6 +228,8 @@ function PaginaFinanceiro() {
 
           <Demonstrativo r={data} />
           <Meses r={data} mes={mes} escolher={setMes} />
+
+          <LojaOnline r={data} />
 
           <div className="grid gap-4 lg:grid-cols-2">
             <Agrupado titulo="Por canal de venda" linhas={data.porCanal} />
@@ -395,6 +409,102 @@ function Meses({ r, mes, escolher }: { r: Relatorio; mes: string; escolher: (m: 
           <span className="h-2 w-4 rounded bg-destructive/70" /> Resultado (prejuízo)
         </span>
       </p>
+    </Card>
+  );
+}
+
+// Loja física (balcão + boca a boca) × e-commerce, lado a lado, com o total junto
+const FRENTE = {
+  LOJA: { nome: "Loja física", desc: "Balcão e indicação (boca a boca)", icone: Store },
+  ONLINE: {
+    nome: "E-commerce",
+    desc: "Site, link, WhatsApp, telefone e Mercado Livre",
+    icone: Globe,
+  },
+  OUTROS: {
+    nome: "Outros",
+    desc: "Canal «Outro» ou sem canal: ajuste em Custos",
+    icone: AlertTriangle,
+  },
+} as const;
+function LojaOnline({ r }: { r: Relatorio }) {
+  const [periodo, setPeriodo] = useState<"mes" | "ano">("mes");
+  const linhas = r.porFrente[periodo];
+  const tot = linhas.reduce(
+    (a, l) => ({
+      vendas: a.vendas + l.vendas,
+      receita: a.receita + l.receita,
+      lucro: a.lucro + l.lucroBruto,
+    }),
+    { vendas: 0, receita: 0, lucro: 0 },
+  );
+  const frentes = (["LOJA", "ONLINE", "OUTROS"] as const).filter(
+    (k) => k !== "OUTROS" || linhas.some((l) => l.nome === k),
+  );
+  return (
+    <Card className="p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="flex-1 font-semibold">
+          Loja física × E-commerce{" "}
+          <span className="text-xs font-normal text-muted-foreground">(R$)</span>
+        </h2>
+        <div className="flex rounded-md border p-0.5 text-xs">
+          {(["mes", "ano"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setPeriodo(k)}
+              className={`rounded px-2.5 py-1 ${periodo === k ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              {k === "mes" ? "Este mês" : "12 meses"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {frentes.map((k) => {
+          const l = linhas.find((x) => x.nome === k);
+          const F = FRENTE[k];
+          const parte = tot.receita && l ? Math.round((l.receita / tot.receita) * 1000) / 10 : 0;
+          return (
+            <div key={k} className="rounded-lg border p-3">
+              <p className="flex items-center gap-1.5 text-sm font-semibold">
+                <F.icone className="h-4 w-4 text-primary" /> {F.nome}
+              </p>
+              <p className="text-xs text-muted-foreground">{F.desc}</p>
+              <p className="mt-2 text-xl font-bold tabular-nums">
+                {dinheiro(l?.receita ?? 0, "BRL")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {l?.vendas ?? 0} venda(s) · {pct(parte)} do total
+              </p>
+              <div className="mt-2 h-1.5 overflow-hidden rounded bg-muted">
+                <div className="h-full rounded bg-primary" style={{ width: `${parte}%` }} />
+              </div>
+              <p className="mt-2 text-sm">
+                Lucro bruto <b className="tabular-nums">{dinheiro(l?.lucroBruto ?? 0, "BRL")}</b>
+                <span className="text-xs text-muted-foreground">
+                  {" "}
+                  · margem {pct(l?.margemBruta)}
+                </span>
+              </p>
+            </div>
+          );
+        })}
+        <div className="rounded-lg border bg-muted/40 p-3">
+          <p className="text-sm font-semibold">Total (tudo junto)</p>
+          <p className="text-xs text-muted-foreground">Loja física + e-commerce</p>
+          <p className="mt-2 text-xl font-bold tabular-nums">{dinheiro(tot.receita, "BRL")}</p>
+          <p className="text-xs text-muted-foreground">{tot.vendas} venda(s)</p>
+          <p className="mt-5 text-sm">
+            Lucro bruto <b className="tabular-nums">{dinheiro(tot.lucro, "BRL")}</b>
+            <span className="text-xs text-muted-foreground">
+              {" "}
+              · margem {pct(tot.receita ? Math.round((tot.lucro / tot.receita) * 1000) / 10 : null)}
+            </span>
+          </p>
+        </div>
+      </div>
     </Card>
   );
 }
