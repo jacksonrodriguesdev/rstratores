@@ -1158,3 +1158,52 @@ model notas_fiscais {
 
   @@index([venda_id])
 }
+
+// Extrato do banco importado no Admin → Fiscal → Extrato do banco (tabelas criadas também em
+// src/lib/extratos.server.ts, porque a produção não roda db push)
+model extrato_arquivos {
+  id         Int      @id @default(autoincrement())
+  banco      String   @db.VarChar(40)
+  nome       String   @db.VarChar(191)
+  titular    String?  @db.VarChar(160)
+  inicio     String   @db.VarChar(10)
+  fim        String   @db.VarChar(10)
+  movimentos Int      @default(0)
+  entradas   Float    @default(0)
+  saidas     Float    @default(0)
+  conferido  Boolean?
+  created_at DateTime @default(now())
+
+  @@unique([banco, inicio, fim])
+}
+
+model extrato_movimentos {
+  id          Int      @id @default(autoincrement())
+  arquivo_id  Int
+  banco       String   @db.VarChar(40)
+  data        String   @db.VarChar(10)
+  valor       Float
+  tipo        String   @db.VarChar(80)
+  contraparte String   @db.VarChar(160)
+  documento   String?  @db.VarChar(30)
+  descricao   String   @db.Text
+  categoria   String   @default("A_CLASSIFICAR") @db.VarChar(20)
+  manual      Boolean  @default(false)
+  venda_id    Int?
+  nota        String?  @db.VarChar(300)
+  hash        String   @unique @db.VarChar(64)
+  created_at  DateTime @default(now())
+
+  @@index([data])
+  @@index([categoria])
+}
+
+model extrato_regras {
+  id         Int      @id @default(autoincrement())
+  chave      String   @db.VarChar(160)
+  sentido    String   @db.VarChar(1)
+  categoria  String   @db.VarChar(20)
+  created_at DateTime @default(now())
+
+  @@unique([chave, sentido])
+}

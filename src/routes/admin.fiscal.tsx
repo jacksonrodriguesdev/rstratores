@@ -46,6 +46,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { ResumoBanco, Tarefas } from "@/components/admin/fiscal/BancoETarefas";
 import {
   cancelarNotaFn,
   configFiscalFn,
@@ -198,6 +199,11 @@ function PaginaFiscal() {
       <div className="grid gap-4 xl:grid-cols-3">
         <CardImpostoRenda d={data} />
         <Calendario d={data} />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Tarefas />
+        <ResumoBanco ano={ano} />
       </div>
 
       <VendasComNota d={data} />

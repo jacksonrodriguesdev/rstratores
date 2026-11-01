@@ -117,6 +117,9 @@ jobs:
       - name: Fiscal do MEI e nota fiscal automática (Focus NFe falsa)
         run: npx tsx scripts/ci/testar-fiscal.ts
 
+      - name: Extrato do banco (leitura, classificação e imposto de renda)
+        run: npx tsx scripts/ci/testar-extratos.ts
+
       - name: Acompanhamento do pedido e indicação
         run: npx tsx scripts/ci/testar-pedidos.ts
 
