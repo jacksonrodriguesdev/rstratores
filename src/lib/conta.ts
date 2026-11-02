@@ -148,5 +148,8 @@ export const trocarSenhaFn = createServerFn({ method: "POST" })
       where: { id: s.id },
       data: { senha_hash: await bcrypt.hash(data.nova, 10) },
     });
+    // Senha nova: quem estava logado com a antiga (outro aparelho) sai; este continua
+    const { encerrarOutrasSessoes } = await import("./auth.server");
+    await encerrarOutrasSessoes(s);
     return { ok: true };
   });

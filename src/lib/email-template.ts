@@ -190,8 +190,13 @@ ${a.texto ? `<p style="margin:6px 0 0;font-size:14px;line-height:1.5;color:${o.t
 </td></tr></table></td></tr>`;
 }
 
-export const esc = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+// Texto vindo de cliente/visitante dentro de HTML (e-mails, tooltips dos gráficos do painel)
+export const esc = (s: string | null | undefined) =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 
 export const primeiroNome = (n?: string | null) => (n ?? "").trim().split(/\s+/)[0] ?? "";
 

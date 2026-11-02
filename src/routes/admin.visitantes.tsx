@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/card";
 import { EChart } from "@/components/admin/EChart";
 import { getVisitantesFn, type Visitantes } from "@/lib/visitantes";
 import { cn } from "@/lib/utils";
+import { esc } from "@/lib/email-template";
 
 export const Route = createFileRoute("/admin/visitantes")({
   component: VisitantesPage,
@@ -216,10 +217,10 @@ function Paineis({
         ...tooltipBase,
         formatter: (p: any) =>
           p.seriesType === "effectScatter"
-            ? `<b>${p.data.cidade}</b><br/>${p.data.regiao ?? ""}<br/>${fmt(p.data.value[2])} visitantes · ${fmt(p.data.whatsapp)} no WhatsApp`
+            ? `<b>${esc(p.data.cidade)}</b><br/>${esc(p.data.regiao ?? "")}<br/>${fmt(p.data.value[2])} visitantes · ${fmt(p.data.whatsapp)} no WhatsApp`
             : p.data
-              ? `<b>${p.data.rotulo}</b><br/>${fmt(p.data.value)} visitantes`
-              : p.name,
+              ? `<b>${esc(p.data.rotulo)}</b><br/>${fmt(p.data.value)} visitantes`
+              : esc(p.name ?? ""),
       },
       visualMap: {
         show: false,

@@ -1,6 +1,6 @@
 import type { SessionPayload } from "./auth";
 import { SignJWT, jwtVerify } from "jose";
-import { getCookie } from "@tanstack/start-server-core";
+import { getCookie, getRequestHeader, getRequestUrl, setCookie } from "@tanstack/start-server-core";
 
 export const AUTH_COOKIE = "agroparts_auth";
 
@@ -12,20 +12,104 @@ function getJwtSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+// Duração do login: cliente 7 dias; admin 12 horas (cookie do painel roubado vale pouco tempo)
+export const duracaoSessao = (role: string) => (role === "ADMIN" ? 12 * 60 * 60 : 7 * 24 * 60 * 60);
+
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime(`${duracaoSessao(payload.role)}s`)
     .sign(getJwtSecret());
 }
 
+// ---------- Versão da sessão (users.sessao_versao) ----------
+// Cada login leva a versão do usuário no token. Trocar a senha ou "sair de todos os aparelhos"
+// sobe a versão e derruba os cookies antigos. O papel (ADMIN) também vem do banco: tirar o admin
+// de alguém vale na hora, sem esperar o token vencer.
+// A coluna fica fora do schema do Prisma: a produção não roda db push, e um campo novo no model
+// quebraria toda consulta de usuários até a coluna existir. Ela é criada aqui, na primeira vez.
+let coluna: Promise<void> | null = null;
+function garantirColunaSessao() {
+  coluna ??= (async () => {
+    const { prisma } = await import("./prisma");
+    const c: unknown[] = await prisma.$queryRawUnsafe(
+      "SHOW COLUMNS FROM `users` LIKE 'sessao_versao'",
+    );
+    if (!c.length)
+      await prisma.$executeRawUnsafe(
+        "ALTER TABLE `users` ADD COLUMN `sessao_versao` INT NOT NULL DEFAULT 0",
+      );
+  })().catch((e) => {
+    coluna = null;
+    throw e;
+  });
+  return coluna;
+}
+
+// Cache curto: o painel dispara várias consultas por tela
+const situacao = new Map<number, { role: string; v: number; ate: number }>();
+
+async function situacaoDoUsuario(id: number): Promise<{ role: string; v: number } | null> {
+  const s = situacao.get(id);
+  if (s && s.ate > Date.now()) return s;
+  await garantirColunaSessao();
+  const { prisma } = await import("./prisma");
+  const r: Array<{ role: string; sessao_versao: number }> = await prisma.$queryRaw`
+    SELECT role, sessao_versao FROM users WHERE id = ${id} LIMIT 1`;
+  if (!r.length) {
+    situacao.delete(id);
+    return null;
+  }
+  const atual = { role: r[0].role, v: Number(r[0].sessao_versao) || 0, ate: Date.now() + 15_000 };
+  if (situacao.size > 5000) situacao.clear();
+  situacao.set(id, atual);
+  return atual;
+}
+
+// Derruba todos os logins do usuário (todos os aparelhos)
+export async function encerrarSessoes(id: number) {
+  await garantirColunaSessao();
+  const { prisma } = await import("./prisma");
+  await prisma.$executeRaw`UPDATE users SET sessao_versao = sessao_versao + 1 WHERE id = ${id}`;
+  situacao.delete(id);
+}
+
+// Dentro de uma server function: derruba os outros aparelhos e mantém este logado (troca de senha)
+export async function encerrarOutrasSessoes(s: SessionPayload) {
+  await encerrarSessoes(s.id);
+  const atual = await situacaoDoUsuario(s.id);
+  if (!atual) return;
+  const token = await createSessionToken({ ...s, role: atual.role, v: atual.v });
+  setCookie(AUTH_COOKIE, token, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    secure:
+      getRequestUrl().protocol === "https:" || getRequestHeader("x-forwarded-proto") === "https",
+    maxAge: duracaoSessao(atual.role),
+  });
+}
+
 async function verifySessionToken(token: string): Promise<SessionPayload | null> {
+  let payload: SessionPayload;
   try {
-    const { payload } = await jwtVerify(token, getJwtSecret());
-    return payload as unknown as SessionPayload;
+    payload = (await jwtVerify(token, getJwtSecret())).payload as unknown as SessionPayload;
   } catch {
     return null;
+  }
+  try {
+    const s = await situacaoDoUsuario(Number(payload.id));
+    if (!s || s.v !== (Number(payload.v) || 0)) return null;
+    // Admin com token de 7 dias (emitido antes do limite de 12 h, ou quando ainda era cliente):
+    // entra de novo
+    const { iat, exp } = payload as unknown as { iat?: number; exp?: number };
+    if (s.role === "ADMIN" && (!iat || !exp || exp - iat > duracaoSessao("ADMIN"))) return null;
+    return { ...payload, role: s.role };
+  } catch (e) {
+    // Banco fora do ar: cliente segue navegando; o painel fecha (não dá para conferir o admin)
+    console.error("sessão: não deu para conferir no banco", e);
+    return payload.role === "ADMIN" ? null : payload;
   }
 }
 
@@ -81,50 +165,72 @@ export async function assertAdmin(): Promise<SessionPayload> {
 
 // Cookie da sessão. `Secure` quando o acesso é por HTTPS (em produção a Hostinger encaminha
 // a requisição ao Node por http, então vale também o cabeçalho x-forwarded-proto).
-export function cookieSessao(request: Request, token: string | null): string {
+export function cookieSessao(
+  request: Request,
+  token: string | null,
+  segundos = duracaoSessao("USER"),
+): string {
   const https =
     new URL(request.url).protocol === "https:" ||
     request.headers.get("x-forwarded-proto") === "https";
   const valor = token
-    ? `${AUTH_COOKIE}=${token}; Max-Age=${60 * 60 * 24 * 7}`
+    ? `${AUTH_COOKIE}=${token}; Max-Age=${segundos}`
     : `${AUTH_COOKIE}=; Max-Age=0`;
   return `${valor}; Path=/; HttpOnly; SameSite=Lax${https ? "; Secure" : ""}`;
 }
 
-// Limite de tentativas de login por IP + e-mail (em memória): atrasa quem tenta adivinhar senhas.
+// Limite de tentativas de login (em memória): atrasa quem tenta adivinhar senhas.
+// Duas contagens: IP + e-mail (8) e só o e-mail (20). O IP vem de cabeçalhos que quem ataca pode
+// inventar a cada tentativa; o teto por e-mail segura esse caso (a conta ainda entra por código,
+// Google ou passkey enquanto a senha estiver travada).
 const tentativas = new Map<string, { n: number; desde: number }>();
 const JANELA = 15 * 60 * 1000;
 const MAX_TENTATIVAS = 8;
+const MAX_POR_EMAIL = 20;
 
-function chaveTentativa(request: Request, email: string) {
+function chavesTentativa(request: Request, email: string) {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
     request.headers.get("x-real-ip") ||
     "local";
-  return `${ip}|${email.toLowerCase()}`;
+  const e = email.toLowerCase();
+  return [`${ip}|${e}`, `*|${e}`];
+}
+
+function contagem(chave: string): number {
+  const t = tentativas.get(chave);
+  if (!t) return 0;
+  if (Date.now() - t.desde > JANELA) {
+    tentativas.delete(chave);
+    return 0;
+  }
+  return t.n;
 }
 
 export function loginBloqueado(request: Request, email: string): boolean {
-  const t = tentativas.get(chaveTentativa(request, email));
-  if (!t) return false;
-  if (Date.now() - t.desde > JANELA) {
-    tentativas.delete(chaveTentativa(request, email));
-    return false;
-  }
-  return t.n >= MAX_TENTATIVAS;
+  const [porIp, porEmail] = chavesTentativa(request, email);
+  return contagem(porIp) >= MAX_TENTATIVAS || contagem(porEmail) >= MAX_POR_EMAIL;
 }
 
 export function registrarFalhaLogin(request: Request, email: string) {
-  const chave = chaveTentativa(request, email);
-  const t = tentativas.get(chave);
-  if (!t || Date.now() - t.desde > JANELA) tentativas.set(chave, { n: 1, desde: Date.now() });
-  else t.n++;
-  // Evita crescer sem limite
-  if (tentativas.size > 5000) tentativas.clear();
+  for (const chave of chavesTentativa(request, email)) {
+    const t = tentativas.get(chave);
+    if (!t || Date.now() - t.desde > JANELA) tentativas.set(chave, { n: 1, desde: Date.now() });
+    else t.n++;
+  }
+  // Evita crescer sem limite: tira as vencidas e depois as mais antigas por IP. As contagens só
+  // por e-mail ficam (encher o mapa de propósito não zera o teto de quem está sendo atacado).
+  if (tentativas.size > 20000) {
+    const agora = Date.now();
+    for (const [k, t] of tentativas) {
+      if (tentativas.size <= 15000) break;
+      if (agora - t.desde > JANELA || !k.startsWith("*|")) tentativas.delete(k);
+    }
+  }
 }
 
 export function limparFalhasLogin(request: Request, email: string) {
-  tentativas.delete(chaveTentativa(request, email));
+  for (const chave of chavesTentativa(request, email)) tentativas.delete(chave);
 }
 
 // Abre a sessão de um usuário: grava o último acesso e devolve o cabeçalho Set-Cookie
@@ -136,13 +242,16 @@ export async function abrirSessao(
   await prisma.users
     .update({ where: { id: user.id }, data: { ultimo_login: new Date() } })
     .catch(() => {});
+  situacao.delete(user.id);
+  const s = await situacaoDoUsuario(user.id);
   const token = await createSessionToken({
     id: user.id,
     nome: user.nome_completo,
     email: user.email,
     role: user.role,
+    v: s?.v ?? 0,
   });
-  return cookieSessao(request, token);
+  return cookieSessao(request, token, duracaoSessao(user.role));
 }
 
 // Destino depois do login: só caminhos internos do site (evita redirecionar para outro domínio)

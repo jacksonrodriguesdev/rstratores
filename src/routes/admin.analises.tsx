@@ -32,6 +32,7 @@ import {
   tempoRealFn,
 } from "@/lib/analises";
 import { cn } from "@/lib/utils";
+import { esc } from "@/lib/email-template";
 
 // Admin → Análises: 10 ferramentas sobre o comportamento dos visitantes (src/lib/analises.server.ts)
 const ABAS = [
@@ -526,7 +527,7 @@ function Regioes({ dias }: { dias: number }) {
               option={{
                 tooltip: {
                   formatter: (p: any) =>
-                    `${p.data.cidade}<br/><b>${p.data.value[2]}</b> visitas · ${p.data.visitantes} visitantes`,
+                    `${esc(p.data.cidade)}<br/><b>${p.data.value[2]}</b> visitas · ${p.data.visitantes} visitantes`,
                 },
                 visualMap: {
                   max,
@@ -583,7 +584,7 @@ function Regioes({ dias }: { dias: number }) {
             option={{
               tooltip: {
                 formatter: (p: any) =>
-                  p.data ? `${p.data.name}: <b>${p.data.value[2]}</b> visitas` : "",
+                  p.data ? `${esc(p.data.name)}: <b>${p.data.value[2]}</b> visitas` : "",
               },
               geo: {
                 map: "world",
@@ -811,7 +812,7 @@ function PecaRegiao({ dias }: { dias: number }) {
               option={{
                 tooltip: {
                   formatter: (p: any) =>
-                    p.data ? `${p.data.name}: <b>${p.data.value[2]}</b>` : "",
+                    p.data ? `${esc(p.data.name)}: <b>${p.data.value[2]}</b>` : "",
                 },
                 geo: {
                   map: "world",
@@ -872,7 +873,7 @@ function PecaRegiao({ dias }: { dias: number }) {
           option={{
             tooltip: {
               formatter: (p: any) =>
-                `${d.skus[p.value[1]]?.nome}<br/>${d.regioes[p.value[0]]}: <b>${p.value[2]}</b> vistas`,
+                `${esc(d.skus[p.value[1]]?.nome ?? "")}<br/>${esc(d.regioes[p.value[0]] ?? "")}: <b>${p.value[2]}</b> vistas`,
             },
             visualMap: {
               max,
@@ -1202,7 +1203,7 @@ function Funil({ dias }: { dias: number }) {
               tooltip: {
                 trigger: "item",
                 formatter: (p: any) =>
-                  `${p.name}: <b>${n(p.value)}</b> (${pct(p.value / d.total[0])})`,
+                  `${esc(p.name)}: <b>${n(p.value)}</b> (${pct(p.value / d.total[0])})`,
               },
               series: [
                 {

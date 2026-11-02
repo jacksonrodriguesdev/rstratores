@@ -70,6 +70,38 @@ function redirecionarCaminhoPt(request: Request): Response | null {
   });
 }
 
+// CSRF: pedido que muda dados (POST…) nas funções do servidor e nas APIs só vale vindo das páginas
+// do próprio site. O cookie SameSite=Lax já barra a maioria; isto é a segunda tranca (Fetch Metadata
+// dos navegadores atuais e, sem ela, o cabeçalho Origin). Webhooks (Stripe, dLocal, Resend) ficam
+// em /api/public e não passam por aqui; chamadas sem navegador (sem esses cabeçalhos) seguem.
+function bloquearOutroSite(request: Request): Response | null {
+  if (["GET", "HEAD", "OPTIONS"].includes(request.method)) return null;
+  const u = new URL(request.url);
+  const protegido =
+    u.pathname.startsWith("/_serverFn") ||
+    (u.pathname.startsWith("/api/") && !u.pathname.startsWith("/api/public/"));
+  if (!protegido) return null;
+  const site = request.headers.get("sec-fetch-site");
+  let outro = site === "cross-site" || site === "same-site";
+  if (!site) {
+    const origem = request.headers.get("origin");
+    if (origem && origem !== "null") {
+      const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+        .split(",")[0]
+        .trim();
+      try {
+        const h = new URL(origem).host;
+        outro = h !== host && h !== new URL(SITE_URL).host;
+      } catch {
+        outro = true;
+      }
+    }
+  }
+  if (!outro) return null;
+  console.warn("bloqueado (outro site):", request.method, u.pathname, site ?? "origin");
+  return Response.json({ error: "Pedido de outro site bloqueado." }, { status: 403 });
+}
+
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
@@ -132,6 +164,8 @@ export default {
     if (alias) return comSeguranca(alias);
     const pt = redirecionarCaminhoPt(request);
     if (pt) return comSeguranca(pt);
+    const csrf = bloquearOutroSite(request);
+    if (csrf) return comSeguranca(csrf);
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

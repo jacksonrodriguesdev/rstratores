@@ -3,4 +3,6 @@ export type SessionPayload = {
   nome: string;
   email: string;
   role: string;
+  // Versão da sessão (users.sessao_versao) no momento do login
+  v?: number;
 };

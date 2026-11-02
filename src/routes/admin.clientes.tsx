@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { BotaoFichaCliente } from "@/components/admin/FichaCliente";
 import { OfertaClientes, numeroWhatsapp } from "@/components/admin/OfertaClientes";
 import { EmailClientes } from "@/components/admin/EmailClientes";
+import { esc } from "@/lib/email-template";
 
 export const Route = createFileRoute("/admin/clientes")({
   component: ClientesPage,
@@ -124,10 +125,10 @@ function ClientesPage() {
         ...tooltipBase,
         formatter: (p: any) =>
           p.data?.nomes
-            ? `<b>${p.data.rotulo || "—"}</b><br/>${p.data.nomes.length} cliente(s)<br/><span style="opacity:.75">${p.data.nomes.slice(0, 8).join("<br/>")}${p.data.nomes.length > 8 ? "<br/>…" : ""}</span>`
+            ? `<b>${esc(p.data.rotulo || "—")}</b><br/>${p.data.nomes.length} cliente(s)<br/><span style="opacity:.75">${p.data.nomes.slice(0, 8).map(esc).join("<br/>")}${p.data.nomes.length > 8 ? "<br/>…" : ""}</span>`
             : p.data?.depto
-              ? `<b>${p.data.depto}</b><br/>${p.data.value[2]} cliente(s)`
-              : p.name,
+              ? `<b>${esc(p.data.depto)}</b><br/>${p.data.value[2]} cliente(s)`
+              : esc(p.name ?? ""),
       },
       geo: {
         map: "world",

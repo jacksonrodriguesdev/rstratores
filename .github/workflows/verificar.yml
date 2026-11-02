@@ -163,6 +163,9 @@ jobs:
           for i in $(seq 1 60); do curl -sf http://localhost:3999/robots.txt > /dev/null && break; sleep 1; done
           BASE_URL=http://localhost:3999 node scripts/ci/fumaca.cjs
 
+      - name: Segurança do login e do painel (sessão do admin, CSRF, limite de senha)
+        run: BASE_URL=http://localhost:3999 node scripts/ci/testar-seguranca.cjs
+
       - name: Log do servidor (quando falha)
         if: failure()
         run: cat servidor.log || true

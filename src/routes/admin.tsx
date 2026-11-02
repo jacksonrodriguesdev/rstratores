@@ -239,9 +239,18 @@ function AdminLayout() {
       return !v;
     });
   };
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+  const handleLogout = async (todos = false) => {
+    await fetch("/api/auth/logout", { method: "POST", body: JSON.stringify({ todos }) });
     navigate({ to: "/login" });
+  };
+  // Perdeu o celular ou entrou num computador de outra pessoa: derruba todos os logins
+  const sairDeTodos = () => {
+    if (
+      confirm(
+        "Sair do painel em todos os aparelhos (celular, computador)? Você entra de novo aqui.",
+      )
+    )
+      void handleLogout(true);
   };
 
   if (!authorized) return null;
@@ -421,7 +430,7 @@ function AdminLayout() {
           <ExternalLink className="h-4 w-4" /> {!compacto && "Ver site"}
         </a>
         <button
-          onClick={handleLogout}
+          onClick={() => handleLogout()}
           title="Sair do painel"
           className={cn(
             "flex items-center gap-2 rounded-lg text-sm text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive",
@@ -431,6 +440,14 @@ function AdminLayout() {
           <LogOut className="h-4 w-4" /> {!compacto && "Sair"}
         </button>
       </div>
+      {!compacto && (
+        <button
+          onClick={sairDeTodos}
+          className="mt-1 w-full rounded-lg px-3 py-1.5 text-left text-xs text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+        >
+          Sair de todos os aparelhos
+        </button>
+      )}
     </div>
   );
 
@@ -484,7 +501,7 @@ function AdminLayout() {
         </button>
         <Marca compacto={false} />
         <button
-          onClick={handleLogout}
+          onClick={() => handleLogout()}
           className="rounded-lg p-2 text-muted-foreground hover:text-destructive"
           aria-label="Sair"
         >
