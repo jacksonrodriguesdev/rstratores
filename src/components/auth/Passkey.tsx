@@ -97,27 +97,61 @@ function usePreparo(tipo: Tipo, ativo: boolean) {
 // Recusa em menos de 1 s, sem a janela aparecer: o navegador bloqueou (não foi a pessoa)
 const bloqueado = (e: any, inicio: number) => cancelou(e) && Date.now() - inicio < 1000;
 
+// Marca que ESTE aparelho já tem a passkey. Sem ela, o celular não tem o que mostrar e abre o
+// menu de "chave de acesso de outro aparelho / QR code": antes disso, o botão explica como ativar.
+const NESTE_APARELHO = "passkey_neste_aparelho";
+const marcarAparelho = () => {
+  try {
+    localStorage.setItem(NESTE_APARELHO, "1");
+  } catch {
+    /* modo privado */
+  }
+};
+const temNoAparelho = () => {
+  try {
+    return !!localStorage.getItem(NESTE_APARELHO);
+  } catch {
+    return true;
+  }
+};
+
 // Entrar: o aparelho mostra as contas salvas, a pessoa confirma com a biometria
 export async function entrarComPasskey(redirect?: string, pronto?: Preparo | null) {
   const p = valido(pronto) ?? (await preparar("login"));
   const resposta = await biblioteca!.startAuthentication({ optionsJSON: p.opcoes });
-  return post("/api/auth/passkey/verificar", {
+  const r = (await post("/api/auth/passkey/verificar", {
     tipo: "login",
     token: p.token,
     resposta,
     redirect,
-  }) as Promise<{
-    destino: string;
-    role: string;
-  }>;
+  })) as { destino: string; role: string };
+  marcarAparelho();
+  return r;
 }
 
 // Ativar neste aparelho (logado)
 export async function ativarPasskey(pronto?: Preparo | null) {
   const p = valido(pronto) ?? (await preparar("registro"));
-  const resposta = await biblioteca!.startRegistration({ optionsJSON: p.opcoes });
-  return post("/api/auth/passkey/verificar", { tipo: "registro", token: p.token, resposta });
+  try {
+    const resposta = await biblioteca!.startRegistration({ optionsJSON: p.opcoes });
+    const r = await post("/api/auth/passkey/verificar", {
+      tipo: "registro",
+      token: p.token,
+      resposta,
+    });
+    marcarAparelho();
+    return r;
+  } catch (e: any) {
+    // "Já ativado neste aparelho"
+    if (e?.name === "InvalidStateError") marcarAparelho();
+    throw e;
+  }
 }
+
+const NAO_ATIVADO: [string, string] = [
+  "En este celular todavía no está activado. Entrá con tu e-mail o Google y tocá «Activar» (Mi cuenta → Seguridad). Si ya lo activaste, tocá de nuevo.",
+  "Neste celular ainda não está ativado. Entre com seu e-mail ou Google e toque em «Ativar» (Minha conta → Segurança). Se já ativou, toque de novo.",
+];
 
 const TOQUE_DE_NOVO: [string, string] = [
   "Tocá de nuevo para abrir el Face ID / huella.",
@@ -141,9 +175,17 @@ export function BotaoPasskey({
   const { t, idioma } = useT();
   const suporta = useSuportaPasskey();
   const [ocupado, setOcupado] = useState(false);
+  const [avisado, setAvisado] = useState(false);
   const { preparo, renovar } = usePreparo("login", suporta);
   if (!suporta) return null;
   const entrar = async () => {
+    // Aparelho sem a passkey: explica em vez de abrir o menu de QR code (o 2º toque tenta mesmo
+    // assim, ex.: passkey que veio sincronizada do iCloud/Google)
+    if (!temNoAparelho() && !avisado) {
+      setAvisado(true);
+      aoErro?.(NAO_ATIVADO[idioma === "pt" ? 1 : 0]);
+      return;
+    }
     const inicio = Date.now();
     setOcupado(true);
     try {

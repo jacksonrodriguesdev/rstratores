@@ -189,10 +189,12 @@ export async function verificarRegistro(
 export async function opcoesLogin(request: Request) {
   const rp = rpDe(request);
   if (!rp) return { erro: "dominio" as const };
-  const opcoes = await generateAuthenticationOptions({
-    rpID: rp.rpID,
-    userVerification: "required",
-  });
+  const opcoes = {
+    ...(await generateAuthenticationOptions({ rpID: rp.rpID, userVerification: "required" })),
+    // Procura primeiro a passkey do próprio aparelho (Face ID / digital), antes do menu de
+    // "outro aparelho / QR code"
+    hints: ["client-device"],
+  };
   return { opcoes, token: await assinarDesafio(opcoes.challenge, "login") };
 }
 
