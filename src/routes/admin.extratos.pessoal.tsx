@@ -3,18 +3,22 @@
 // e dicas. Usa o mesmo extrato importado no Panorama.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
+  ArrowDownLeft,
+  ArrowUpRight,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   Lightbulb,
   Loader2,
   Repeat,
+  Search,
   Store,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import {
   Bar,
@@ -31,7 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { classificarSubFn, pessoalFn } from "@/lib/extratos";
+import { buscarPessoaFn, classificarSubFn, pessoalFn } from "@/lib/extratos";
 import { SUBS, type Sub } from "@/lib/extrato-categorias";
 import { Abas, Mini, Variacao } from "@/components/admin/extrato/Mini";
 import { brl, dataBR, mesLongo, nomeMes } from "@/lib/extrato-formato";
@@ -44,6 +48,7 @@ function PaginaPessoal() {
   const [ano, setAno] = useState(() => new Date().getFullYear());
   const [mes, setMes] = useState<string | null>(null);
   const [filtro, setFiltro] = useState<Sub | null>(null);
+  const [pessoa, setPessoa] = useState("");
   const { data, isLoading, error } = useQuery({
     queryKey: ["pessoal", ano, mes],
     queryFn: () => pessoalFn({ data: { ano, mes } }),
@@ -131,6 +136,7 @@ function PaginaPessoal() {
             ))}
           </div>
           <Topo d={data} />
+          <BuscaPessoa ano={ano} busca={pessoa} setBusca={setPessoa} />
           <div className="grid gap-4 xl:grid-cols-5">
             <div className="xl:col-span-3">
               <PorMes d={data} escolher={setMes} />
@@ -147,6 +153,10 @@ function PaginaPessoal() {
               icone={Users}
               vazio="Nenhum PIX para pessoas no período."
               linhas={data.pessoas}
+              abrir={(nome) => {
+                setPessoa(nome);
+                document.getElementById("busca-pessoa")?.scrollIntoView({ behavior: "smooth" });
+              }}
             />
             <Lista
               titulo="Onde você mais gasta"
@@ -160,6 +170,231 @@ function PaginaPessoal() {
         </>
       )}
     </div>
+  );
+}
+
+// Buscar pessoa: quanto foi enviado e recebido de alguém no ano, mês a mês, e cada PIX
+const COR_ENVIADO = "#c4329b";
+const COR_RECEBIDO = "#16a34a";
+function BuscaPessoa({
+  ano,
+  busca,
+  setBusca,
+}: {
+  ano: number;
+  busca: string;
+  setBusca: (s: string) => void;
+}) {
+  const [termo, setTermo] = useState(busca);
+  const [nome, setNome] = useState<string | null>(null);
+  // Espera parar de digitar
+  useEffect(() => {
+    const t = setTimeout(() => setTermo(busca.trim()), 350);
+    return () => clearTimeout(t);
+  }, [busca]);
+  useEffect(() => setNome(null), [termo, ano]);
+  const { data, isFetching } = useQuery({
+    queryKey: ["pessoal-pessoa", ano, termo, nome],
+    queryFn: () => buscarPessoaFn({ data: { ano, busca: termo, nome } }),
+    enabled: termo.length >= 2,
+    placeholderData: (p) => p,
+  });
+  const r = termo.length >= 2 ? data : null;
+  const grafico = r?.meses.map((m) => ({ ...m, nome: nomeMes(m.mes) }));
+  const temGrafico = !!r && (r.enviado > 0 || r.recebido > 0);
+
+  return (
+    <Card id="busca-pessoa" className="scroll-mt-4 p-5">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="mr-auto flex items-center gap-2 font-semibold">
+          <Search className="h-4 w-4 text-primary" /> Buscar pessoa
+        </h2>
+        <div className="relative w-full sm:w-80">
+          <Input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Nome de quem enviou ou recebeu…"
+            className="pr-8"
+          />
+          {busca && (
+            <button
+              type="button"
+              aria-label="Limpar busca"
+              onClick={() => setBusca("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+      {!r && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Digite um nome para ver quanto você enviou e recebeu dessa pessoa em {ano}, mês a mês.
+          Procura em todo o extrato do ano (pessoal e loja).
+        </p>
+      )}
+      {r && !r.nomes.length && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          Ninguém com «{termo}» no extrato de {ano}.
+          {isFetching && <Loader2 className="ml-2 inline h-4 w-4 animate-spin" />}
+        </p>
+      )}
+      {r && r.nomes.length > 0 && (
+        <div className="mt-4 space-y-4">
+          {r.nomes.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setNome(null)}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-xs font-semibold",
+                  !r.nome && "border-primary bg-primary text-primary-foreground",
+                )}
+              >
+                Todos ({r.nomes.length})
+              </button>
+              {r.nomes.map((n) => (
+                <button
+                  key={n.chave}
+                  type="button"
+                  onClick={() => setNome(r.nome === n.chave ? null : n.chave)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-semibold",
+                    r.nome === n.chave && "border-primary bg-primary text-primary-foreground",
+                  )}
+                  title={`Enviado ${brl(n.enviado)} · recebido ${brl(n.recebido)}`}
+                >
+                  {n.nome}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border p-3">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <ArrowUpRight className="h-3.5 w-3.5" style={{ color: COR_ENVIADO }} /> Enviado em{" "}
+                {ano}
+              </p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{brl(r.enviado)}</p>
+              <p className="text-xs text-muted-foreground">{r.vezesEnviado} envio(s)</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <ArrowDownLeft className="h-3.5 w-3.5" style={{ color: COR_RECEBIDO }} /> Recebido
+                em {ano}
+              </p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{brl(r.recebido)}</p>
+              <p className="text-xs text-muted-foreground">{r.vezesRecebido} recebimento(s)</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                Saldo do ano
+              </p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{brl(r.saldo)}</p>
+              <p className="text-xs text-muted-foreground">
+                {r.saldo < 0
+                  ? "Você enviou mais do que recebeu"
+                  : r.saldo > 0
+                    ? "Você recebeu mais do que enviou"
+                    : "Empatado"}
+              </p>
+            </div>
+          </div>
+          {temGrafico && (
+            <div>
+              <div className="mb-1 flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-sm" style={{ background: COR_ENVIADO }} />
+                  Enviado
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-sm" style={{ background: COR_RECEBIDO }} />
+                  Recebido
+                </span>
+              </div>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={grafico} barGap={2}>
+                    <CartesianGrid vertical={false} stroke="rgba(127,127,127,.15)" />
+                    <XAxis dataKey="nome" tickLine={false} axisLine={false} fontSize={12} />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={11}
+                      width={52}
+                      tickFormatter={(v) =>
+                        v >= 1000 ? `${(v / 1000).toLocaleString("pt-BR")} mil` : v
+                      }
+                    />
+                    <Tooltip
+                      cursor={{ fill: "rgba(127,127,127,.08)" }}
+                      content={({ active, payload }: any) =>
+                        active && payload?.length ? (
+                          <div className="rounded-md border bg-background px-3 py-2 text-xs shadow">
+                            <p className="font-semibold capitalize">
+                              {mesLongo(payload[0].payload.mes)}
+                            </p>
+                            <p>
+                              Enviado: <b>{brl(payload[0].payload.enviado)}</b>
+                            </p>
+                            <p>
+                              Recebido: <b>{brl(payload[0].payload.recebido)}</b>
+                            </p>
+                          </div>
+                        ) : null
+                      }
+                    />
+                    <Bar dataKey="enviado" fill={COR_ENVIADO} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="recebido" fill={COR_RECEBIDO} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+          <div className="max-h-96 overflow-auto rounded-lg border">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-muted text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="p-2">Dia</th>
+                  <th className="p-2">Nome</th>
+                  <th className="p-2">Como está no extrato</th>
+                  <th className="p-2 text-right">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {r.movimentos.map((m) => (
+                  <tr key={m.id} className="border-t">
+                    <td className="whitespace-nowrap p-2 tabular-nums">{dataBR(m.data)}</td>
+                    <td className="min-w-40 p-2">
+                      <p className="font-medium">{m.contraparte}</p>
+                      <p className="text-xs text-muted-foreground">{m.tipo}</p>
+                    </td>
+                    <td className="p-2 text-xs text-muted-foreground">
+                      {m.categoriaNome}
+                      {m.nota && ` · ${m.nota}`}
+                    </td>
+                    <td
+                      className="whitespace-nowrap p-2 text-right font-semibold tabular-nums"
+                      style={{ color: m.valor < 0 ? COR_ENVIADO : COR_RECEBIDO }}
+                    >
+                      {m.valor < 0 ? "− " : "+ "}
+                      {brl(Math.abs(m.valor))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {r.totalMovimentos > r.movimentos.length && (
+            <p className="text-center text-xs text-muted-foreground">
+              Mostrando os {r.movimentos.length} mais recentes de {r.totalMovimentos}. Os totais e o
+              gráfico contam todos.
+            </p>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -449,11 +684,13 @@ function Lista({
   icone: Icone,
   vazio,
   linhas,
+  abrir,
 }: {
   titulo: string;
   icone: typeof Users;
   vazio: string;
   linhas: Dados["pessoas"];
+  abrir?: (nome: string) => void; // clicar no nome abre a busca da pessoa
 }) {
   return (
     <Card className="overflow-hidden p-0">
@@ -465,7 +702,18 @@ function Lista({
         {linhas.map((l) => (
           <li key={l.nome} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
             <span className="min-w-0">
-              <span className="block truncate font-medium">{l.nome}</span>
+              {abrir ? (
+                <button
+                  type="button"
+                  onClick={() => abrir(l.nome)}
+                  className="block max-w-full truncate text-left font-medium hover:text-primary hover:underline"
+                  title="Ver tudo o que foi e veio desta pessoa"
+                >
+                  {l.nome}
+                </button>
+              ) : (
+                <span className="block truncate font-medium">{l.nome}</span>
+              )}
               <span className="text-xs text-muted-foreground">
                 {SUBS[l.sub as Sub]?.nome} · {l.vezes}× · última {dataBR(l.ultima)}
               </span>

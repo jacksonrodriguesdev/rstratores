@@ -608,6 +608,91 @@ export async function pessoal(ano: number, mes?: string | null) {
     movimentos: sel,
   };
 }
+// Pessoal → «Buscar pessoa»: tudo o que foi e veio de quem tem o nome buscado (qualquer
+// categoria), no ano. `nome` (chave exata) fecha numa pessoa só quando a busca acha várias.
+export async function buscarPessoa(ano: number, busca: string, nome?: string | null) {
+  await garantirTabelasExtrato();
+  const termo = chaveNome(busca);
+  if (termo.length < 2) return null;
+  const todos = await prisma.extrato_movimentos.findMany({
+    where: { data: { gte: `${ano}-01-01`, lte: `${ano}-12-31` } },
+    orderBy: [{ data: "asc" }, { id: "asc" }],
+    select: {
+      id: true,
+      data: true,
+      valor: true,
+      tipo: true,
+      contraparte: true,
+      documento: true,
+      categoria: true,
+      nota: true,
+    },
+  });
+  const achados = todos.filter((m) => chaveNome(m.contraparte).includes(termo));
+  // Nomes encontrados (a mesma pessoa aparece com o mesmo nome no extrato)
+  const g = new Map<
+    string,
+    {
+      chave: string;
+      nome: string;
+      documento: string | null;
+      enviado: number;
+      recebido: number;
+      vezes: number;
+    }
+  >();
+  for (const m of achados) {
+    const k = chaveNome(m.contraparte);
+    const x = g.get(k) ?? {
+      chave: k,
+      nome: m.contraparte,
+      documento: m.documento,
+      enviado: 0,
+      recebido: 0,
+      vezes: 0,
+    };
+    if (m.valor < 0) x.enviado -= m.valor;
+    else x.recebido += m.valor;
+    x.vezes++;
+    g.set(k, x);
+  }
+  const nomes = [...g.values()]
+    .map((x) => ({ ...x, enviado: r2(x.enviado), recebido: r2(x.recebido) }))
+    .sort((a, b) => b.enviado + b.recebido - (a.enviado + a.recebido));
+  const sel = nome ? achados.filter((m) => chaveNome(m.contraparte) === nome) : achados;
+  const meses = Array.from({ length: 12 }, (_, i) => ({
+    mes: `${ano}-${String(i + 1).padStart(2, "0")}`,
+    enviado: 0,
+    recebido: 0,
+  }));
+  for (const m of sel) {
+    const b = meses[Number(m.data.slice(5, 7)) - 1];
+    if (m.valor < 0) b.enviado -= m.valor;
+    else b.recebido += m.valor;
+  }
+  const enviado = r2(meses.reduce((t, m) => t + m.enviado, 0));
+  const recebido = r2(meses.reduce((t, m) => t + m.recebido, 0));
+  return {
+    nomes: nomes.slice(0, 30),
+    nome: nome ?? null,
+    enviado,
+    recebido,
+    saldo: r2(recebido - enviado),
+    vezesEnviado: sel.filter((m) => m.valor < 0).length,
+    vezesRecebido: sel.filter((m) => m.valor >= 0).length,
+    meses: meses.map((m) => ({ ...m, enviado: r2(m.enviado), recebido: r2(m.recebido) })),
+    movimentos: sel
+      .slice()
+      .reverse()
+      .slice(0, 500)
+      .map((m) => ({
+        ...m,
+        categoriaNome: CATEGORIAS[m.categoria as Categoria]?.nome ?? m.categoria,
+      })),
+    totalMovimentos: sel.length,
+  };
+}
+
 const diasNoMes = (mes: string) =>
   new Date(Number(mes.slice(0, 4)), Number(mes.slice(5, 7)), 0).getDate();
 

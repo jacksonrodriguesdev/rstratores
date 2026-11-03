@@ -62,6 +62,17 @@ export const pessoalFn = createServerFn({ method: "GET" })
     return (await ext()).pessoal(data.ano, data.mes);
   });
 
+export const buscarPessoaFn = createServerFn({ method: "GET" })
+  .validator((d: { ano?: number; busca?: string; nome?: string | null }) => ({
+    ano: Number(d?.ano) || new Date().getFullYear(),
+    busca: String(d?.busca ?? "").slice(0, 80),
+    nome: d?.nome ? String(d.nome).slice(0, 160) : null,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    return (await ext()).buscarPessoa(data.ano, data.busca, data.nome);
+  });
+
 export const classificarSubFn = createServerFn({ method: "POST" })
   .validator((d: { id: number; sub: string; lembrar?: boolean }) => ({
     id: Number(d?.id),
