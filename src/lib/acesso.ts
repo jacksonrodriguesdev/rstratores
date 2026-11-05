@@ -123,6 +123,8 @@ export const painelPopupFn = createServerFn({ method: "GET" })
     });
     const n = (acao: string) =>
       eventos.filter((e) => e.dado.startsWith(acao)).reduce((t, e) => t + e._count, 0);
+    const { funilCodigoPopup } = await import("./acesso.server");
+    const funilCodigo = await funilCodigoPopup(desde);
     const q = data.busca;
     const where: any = { cupom: { not: null } };
     if (q)
@@ -162,6 +164,7 @@ export const painelPopupFn = createServerFn({ method: "GET" })
         cupons: total,
         usados,
       },
+      funilCodigo,
       cupons: cupons.map((u): CupomCliente => ({
         id: u.id,
         nome: u.nome_completo,

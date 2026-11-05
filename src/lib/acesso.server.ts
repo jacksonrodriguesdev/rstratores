@@ -227,3 +227,42 @@ export const senhaAleatoria = (prefixo: "google" | "codigo") =>
   `${prefixo}:${randomBytes(24).toString("hex")}`;
 export const contaSemSenha = (hash: string) =>
   hash.startsWith("google:") || hash.startsWith("codigo:");
+
+// Admin → Pop-up: funil do cadastro por código, em pessoas (aparelhos): onde quem pediu o código desiste
+export async function funilCodigoPopup(desde: Date) {
+  const { prisma } = await import("./prisma");
+  const passos = await prisma.site_eventos.findMany({
+    where: {
+      tipo: "popup",
+      created_at: { gte: desde },
+      visitor_id: { not: null },
+      dado: {
+        in: [
+          "codigo",
+          "reenvio_codigo",
+          "erro_codigo",
+          "erro_verificacao",
+          "fechado:etapa_codigo",
+          "cadastro",
+          "login",
+          "celular",
+        ],
+      },
+    },
+    select: { dado: true, visitor_id: true },
+  });
+  const quem = (...dados: string[]) =>
+    new Set(passos.filter((p) => dados.includes(p.dado)).map((p) => p.visitor_id!));
+  const pediram = quem("codigo", "reenvio_codigo");
+  const dosQuePediram = (s: Set<string>) => [...s].filter((v) => pediram.has(v)).length;
+  const entraram = quem("cadastro", "login");
+  return {
+    pediram: pediram.size,
+    erroEnvio: quem("erro_codigo").size,
+    reenviaram: dosQuePediram(quem("reenvio_codigo")),
+    erraram: dosQuePediram(quem("erro_verificacao")),
+    fecharam: dosQuePediram(quem("fechado:etapa_codigo")),
+    entraram: dosQuePediram(entraram),
+    celular: [...quem("celular")].filter((v) => pediram.has(v) && entraram.has(v)).length,
+  };
+}

@@ -169,16 +169,20 @@ export function PopupAcesso() {
     return j;
   };
 
+  // Funil do cadastro por código (Admin → Pop-up): 1º pedido, reenvios, erros e desistência
+  const codigoPedido = useRef(false);
   async function enviarCodigo(para: string) {
     setErro(null);
     setOcupado(true);
     try {
       await post("/api/auth/codigo", { email: para });
-      registrarEvento("popup", "codigo");
+      registrarEvento("popup", codigoPedido.current ? "reenvio_codigo" : "codigo");
+      codigoPedido.current = true;
       setCodigo("");
       setReenviar(240); // 4 minutos até liberar outro código
       setEtapa("codigo");
     } catch (err: any) {
+      registrarEvento("popup", "erro_codigo");
       setErro(err?.message ?? t("Algo salió mal.", "Algo deu errado."));
     } finally {
       setOcupado(false);
@@ -516,7 +520,14 @@ export function PopupAcesso() {
     if (etapa !== "ok" && etapa !== "faceid") {
       // Fechar um pedido feito pela pessoa (busca, catálogo) não bloqueia o pop-up do tempo
       if (!pedido) gravar(FECHADO, String(Date.now()), "sessao");
-      registrarEvento("popup", pedido ? `fechado:${pedido.motivo}` : "fechado");
+      registrarEvento(
+        "popup",
+        etapa === "codigo"
+          ? "fechado:etapa_codigo"
+          : pedido
+            ? `fechado:${pedido.motivo}`
+            : "fechado",
+      );
     }
     setAberto(false);
     setPedido(null);
@@ -552,7 +563,10 @@ export function PopupAcesso() {
   };
 
   const verificar = acao(async () => {
-    const j = await post("/api/auth/codigo/verificar", { email, codigo });
+    const j = await post("/api/auth/codigo/verificar", { email, codigo }).catch((e) => {
+      registrarEvento("popup", "erro_verificacao");
+      throw e;
+    });
     if (j.novo) {
       // Conta nova: cria na hora, só com o e-mail confirmado
       const c = await post("/api/auth/rapido", { token: j.token });

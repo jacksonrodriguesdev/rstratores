@@ -137,6 +137,56 @@ function PopupAdmin() {
       </div>
       <p className="-mt-3 text-xs text-muted-foreground">Últimos 30 dias.</p>
 
+      {data?.funilCodigo && (
+        <Card className="p-5">
+          <h2 className="font-semibold">Cadastro por código: onde as pessoas desistem</h2>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Pessoas (aparelhos) que pediram o código de 6 dígitos por e-mail nos últimos 30 dias.
+            Erros, reenvios e quem fechou na tela do código começaram a ser contados em 05/11/2026.
+          </p>
+          <ol className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-3">
+            {(
+              [
+                ["Pediram o código", data.funilCodigo.pediram, null],
+                ["Pediram outro código (não chegou?)", data.funilCodigo.reenviaram, "aviso"],
+                ["Digitaram um código errado", data.funilCodigo.erraram, "aviso"],
+                ["Fecharam na tela do código", data.funilCodigo.fecharam, "aviso"],
+                ["Entraram ou criaram a conta", data.funilCodigo.entraram, "ok"],
+                ["Deixaram o WhatsApp depois", data.funilCodigo.celular, "ok"],
+              ] as const
+            ).map(([rotulo, valor, tom]) => (
+              <li
+                key={rotulo}
+                className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 px-3 py-2"
+              >
+                <span>{rotulo}</span>
+                <span className="flex items-baseline gap-2">
+                  <b
+                    className={cn(
+                      tom === "aviso" && valor > 0 && "text-amber-700",
+                      tom === "ok" && "text-emerald-700",
+                    )}
+                  >
+                    {fmt(valor)}
+                  </b>
+                  {rotulo !== "Pediram o código" && (
+                    <span className="text-xs text-muted-foreground">
+                      {pct(valor, data.funilCodigo.pediram)}
+                    </span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ol>
+          {data.funilCodigo.erroEnvio > 0 && (
+            <p className="mt-3 text-xs text-destructive">
+              {data.funilCodigo.erroEnvio} pessoa(s) tentaram pedir o código e o site não conseguiu
+              enviar o e-mail.
+            </p>
+          )}
+        </Card>
+      )}
+
       <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
         <Card className="h-fit space-y-4 p-5">
           <h2 className="font-semibold">Configuração</h2>

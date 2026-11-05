@@ -265,11 +265,20 @@ function itensDoCarrinho(json: string): ItemCarrinho[] {
 // mais de N horas (não manda enquanto ainda navega) e que no período não pediram nada: WhatsApp,
 // cotação, carrinho, link de pagamento ou venda. As peças do e-mail são as mais vistas por ele.
 const SKU_PAGINA = /^(?:\/pt)?\/produto\/([^/?#]+)/;
+export type FunilInteresse = {
+  viram: number; // clientes logados que abriram peças no período
+  passouEspera: number; // e cuja última visita já passou da espera
+  aceitam: number; // e aceitam e-mails (público da automação)
+  naoReceberam: number; // e não receberam este e-mail no intervalo
+  naoPediram: number; // e não pediram nada no período
+};
 export async function selecionarInteresse(
   autoId: number,
   cfg: ConfigAutomacao,
   publico: Publico,
   agora: number,
+  // Painel: quantos clientes sobram em cada etapa (para ver onde a lista zera)
+  funil?: FunilInteresse,
 ): Promise<Envio[]> {
   const { prisma } = await import("./prisma");
   const { whereHumano } = await import("./rastreio.server");
@@ -303,10 +312,13 @@ export async function selecionarInteresse(
     porCliente.set(v.user_id, pecas);
   }
   const ids = [...porCliente.keys()].filter((u) => (ultimaVisita.get(u) ?? 0) <= espera);
+  if (funil) Object.assign(funil, { viram: porCliente.size, passouEspera: ids.length });
   if (!ids.length) return [];
   const ok = await elegiveis(publico);
   const recentes = await jaRecebeu(autoId, [], new Date(agora - (cfg.intervaloDias ?? 14) * DIA));
-  const candidatos = ids.filter((u) => ok.has(u) && !recentes.has(String(u)));
+  const aceitam = ids.filter((u) => ok.has(u));
+  const candidatos = aceitam.filter((u) => !recentes.has(String(u)));
+  if (funil) Object.assign(funil, { aceitam: aceitam.length, naoReceberam: candidatos.length });
   if (!candidatos.length) return [];
   // Quem pediu alguma coisa no período fica de fora
   const emails = candidatos.map((u) => ok.get(u)!.email.toLowerCase());
@@ -351,6 +363,7 @@ export async function selecionarInteresse(
     const u = porEmail.get((v.cliente_email ?? "").toLowerCase());
     if (u) pediram.add(u);
   }
+  if (funil) funil.naoPediram = candidatos.filter((u) => !pediram.has(u)).length;
   const { idiomasDosClientes } = await import("./idioma-cliente.server");
   const idiomas = await idiomasDosClientes(candidatos.filter((u) => !pediram.has(u)));
   const envios: Envio[] = [];

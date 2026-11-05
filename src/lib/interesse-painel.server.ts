@@ -187,6 +187,9 @@ export async function painelInteresse(dias: number) {
     produtos: string[];
     idioma: "es" | "pt";
   }> = [];
+  const funil = { viram: 0, passouEspera: 0, aceitam: 0, naoReceberam: 0, naoPediram: 0 };
+  let erroSelecao: string | null = null;
+  let comPecas = 0;
   const a = autos.find((x) => x.ativo) ?? autos[0];
   if (a) {
     const { selecionarInteresse } = await import("./automacoes.server");
@@ -200,7 +203,11 @@ export async function painelInteresse(dias: number) {
     };
     const cfg = ler(a.config, defTipo(a.tipo).config);
     const publico = ler(a.publico, { tipo: "todos", departamentos: [], dias: 30 } as any);
-    const lista = await selecionarInteresse(a.id, cfg, publico, Date.now()).catch(() => []);
+    const lista = await selecionarInteresse(a.id, cfg, publico, Date.now(), funil).catch((e) => {
+      erroSelecao = e instanceof Error ? e.message : String(e);
+      return [];
+    });
+    comPecas = lista.length;
     proximos = lista.slice(0, 50).map((x) => ({
       id: x.user.id,
       nome: x.user.nome_completo,
@@ -239,5 +246,7 @@ export async function painelInteresse(dias: number) {
       .slice(0, 10),
     linhas,
     proximos,
+    funil: { ...funil, comPecas },
+    erroSelecao,
   };
 }

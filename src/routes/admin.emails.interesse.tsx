@@ -380,6 +380,30 @@ function PaginaInteresse() {
             <p className="mb-2 text-xs text-muted-foreground">
               Quem receberia o e-mail se a automação rodasse agora (nada é enviado por aqui).
             </p>
+            {data.erroSelecao && (
+              <p className="mb-2 rounded-md bg-destructive/10 p-2 text-xs text-destructive">
+                Erro ao calcular a lista: {data.erroSelecao}
+              </p>
+            )}
+            <ol className="mb-3 space-y-1 text-xs">
+              {(
+                [
+                  ["Clientes logados que viram peças", data.funil.viram],
+                  ["Última visita há mais da espera", data.funil.passouEspera],
+                  ["Aceitam e-mails", data.funil.aceitam],
+                  ["Não receberam este e-mail no intervalo", data.funil.naoReceberam],
+                  ["Não pediram nada (WhatsApp, cotação, carrinho, compra)", data.funil.naoPediram],
+                  ["Com peças para mostrar", data.funil.comPecas],
+                ] as const
+              ).map(([rotulo, n], i) => (
+                <li key={rotulo} className="flex items-center justify-between gap-2">
+                  <span className={n ? "" : "text-muted-foreground"}>
+                    {i + 1}. {rotulo}
+                  </span>
+                  <b className={n ? "" : "text-muted-foreground"}>{n}</b>
+                </li>
+              ))}
+            </ol>
             {!data.proximos.length ? (
               <p className="text-sm text-muted-foreground">Ninguém no momento.</p>
             ) : (
