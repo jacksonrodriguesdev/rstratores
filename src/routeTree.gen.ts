@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as BajaRouteImport } from './routes/baja'
 import { Route as BlackFridayRouteImport } from './routes/black-friday'
@@ -54,6 +55,7 @@ import { Route as AdminPopupRouteImport } from './routes/admin.popup'
 import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
 import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
+import { Route as AdminPushRouteImport } from './routes/admin.push'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminVendasRouteImport } from './routes/admin.vendas'
 import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
@@ -99,6 +101,7 @@ import { Route as ApiPublicAvisoPrecoRouteImport } from './routes/api/public/avi
 import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carrinho'
 import { Route as ApiPublicContatoWhatsappRouteImport } from './routes/api/public/contato-whatsapp'
 import { Route as ApiPublicEmailBajaRouteImport } from './routes/api/public/email-baja'
+import { Route as ApiPublicPushRouteImport } from './routes/api/public/push'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend-webhook'
 import { Route as ApiPublicSaudeRouteImport } from './routes/api/public/saude'
@@ -142,6 +145,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AyudaRoute = AyudaRouteImport.update({
@@ -357,6 +365,11 @@ const AdminPrecificarRoute = AdminPrecificarRouteImport.update({
 const AdminProdutosRoute = AdminProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPushRoute = AdminPushRouteImport.update({
+  id: '/push',
+  path: '/push',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminUploadRoute = AdminUploadRouteImport.update({
@@ -585,6 +598,11 @@ const ApiPublicEmailBajaRoute = ApiPublicEmailBajaRouteImport.update({
   path: '/api/public/email-baja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPushRoute = ApiPublicPushRouteImport.update({
+  id: '/api/public/push',
+  path: '/api/public/push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicQuotesRoute = ApiPublicQuotesRouteImport.update({
   id: '/api/public/quotes',
   path: '/api/public/quotes',
@@ -766,6 +784,7 @@ const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/app': typeof AppRoute
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
   '/black-friday': typeof BlackFridayRoute
@@ -808,6 +827,7 @@ export interface FileRoutesByFullPath {
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
@@ -851,6 +871,7 @@ export interface FileRoutesByFullPath {
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
+  '/api/public/push': typeof ApiPublicPushRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/saude': typeof ApiPublicSaudeRoute
@@ -891,6 +912,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
   '/black-friday': typeof BlackFridayRoute
@@ -933,6 +955,7 @@ export interface FileRoutesByTo {
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
@@ -976,6 +999,7 @@ export interface FileRoutesByTo {
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
+  '/api/public/push': typeof ApiPublicPushRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/saude': typeof ApiPublicSaudeRoute
@@ -1018,6 +1042,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/app': typeof AppRoute
   '/ayuda': typeof AyudaRoute
   '/baja': typeof BajaRoute
   '/black-friday': typeof BlackFridayRoute
@@ -1060,6 +1085,7 @@ export interface FileRoutesById {
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/vendas': typeof AdminVendasRoute
   '/admin/visitantes': typeof AdminVisitantesRoute
@@ -1103,6 +1129,7 @@ export interface FileRoutesById {
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
+  '/api/public/push': typeof ApiPublicPushRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
   '/api/public/saude': typeof ApiPublicSaudeRoute
@@ -1146,6 +1173,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/app'
     | '/ayuda'
     | '/baja'
     | '/black-friday'
@@ -1188,6 +1216,7 @@ export interface FileRouteTypes {
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
+    | '/admin/push'
     | '/admin/upload'
     | '/admin/vendas'
     | '/admin/visitantes'
@@ -1231,6 +1260,7 @@ export interface FileRouteTypes {
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
+    | '/api/public/push'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
     | '/api/public/saude'
@@ -1271,6 +1301,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app'
     | '/ayuda'
     | '/baja'
     | '/black-friday'
@@ -1313,6 +1344,7 @@ export interface FileRouteTypes {
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
+    | '/admin/push'
     | '/admin/upload'
     | '/admin/vendas'
     | '/admin/visitantes'
@@ -1356,6 +1388,7 @@ export interface FileRouteTypes {
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
+    | '/api/public/push'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
     | '/api/public/saude'
@@ -1397,6 +1430,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/app'
     | '/ayuda'
     | '/baja'
     | '/black-friday'
@@ -1439,6 +1473,7 @@ export interface FileRouteTypes {
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
+    | '/admin/push'
     | '/admin/upload'
     | '/admin/vendas'
     | '/admin/visitantes'
@@ -1482,6 +1517,7 @@ export interface FileRouteTypes {
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
+    | '/api/public/push'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
     | '/api/public/saude'
@@ -1524,6 +1560,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AppRoute: typeof AppRoute
   AyudaRoute: typeof AyudaRoute
   BajaRoute: typeof BajaRoute
   BlackFridayRoute: typeof BlackFridayRoute
@@ -1568,6 +1605,7 @@ export interface RootRouteChildren {
   ApiPublicCarrinhoRoute: typeof ApiPublicCarrinhoRoute
   ApiPublicContatoWhatsappRoute: typeof ApiPublicContatoWhatsappRoute
   ApiPublicEmailBajaRoute: typeof ApiPublicEmailBajaRoute
+  ApiPublicPushRoute: typeof ApiPublicPushRoute
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
   ApiPublicSaudeRoute: typeof ApiPublicSaudeRoute
@@ -1607,6 +1645,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ayuda': {
@@ -1908,6 +1953,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/admin/produtos'
       preLoaderRoute: typeof AdminProdutosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/push': {
+      id: '/admin/push'
+      path: '/push'
+      fullPath: '/admin/push'
+      preLoaderRoute: typeof AdminPushRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/upload': {
@@ -2225,6 +2277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEmailBajaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push': {
+      id: '/api/public/push'
+      path: '/api/public/push'
+      fullPath: '/api/public/push'
+      preLoaderRoute: typeof ApiPublicPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/quotes': {
       id: '/api/public/quotes'
       path: '/api/public/quotes'
@@ -2497,6 +2556,7 @@ interface AdminRouteChildren {
   AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
   AdminPrecificarRoute: typeof AdminPrecificarRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
+  AdminPushRoute: typeof AdminPushRoute
   AdminUploadRoute: typeof AdminUploadRoute
   AdminVendasRoute: typeof AdminVendasRoute
   AdminVisitantesRoute: typeof AdminVisitantesRoute
@@ -2544,6 +2604,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPrecificacaoRoute: AdminPrecificacaoRoute,
   AdminPrecificarRoute: AdminPrecificarRoute,
   AdminProdutosRoute: AdminProdutosRoute,
+  AdminPushRoute: AdminPushRoute,
   AdminUploadRoute: AdminUploadRoute,
   AdminVendasRoute: AdminVendasRoute,
   AdminVisitantesRoute: AdminVisitantesRoute,
@@ -2645,6 +2706,7 @@ const ApiAuthGoogleRouteWithChildren = ApiAuthGoogleRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AppRoute: AppRoute,
   AyudaRoute: AyudaRoute,
   BajaRoute: BajaRoute,
   BlackFridayRoute: BlackFridayRoute,
@@ -2689,6 +2751,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCarrinhoRoute: ApiPublicCarrinhoRoute,
   ApiPublicContatoWhatsappRoute: ApiPublicContatoWhatsappRoute,
   ApiPublicEmailBajaRoute: ApiPublicEmailBajaRoute,
+  ApiPublicPushRoute: ApiPublicPushRoute,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
   ApiPublicSaudeRoute: ApiPublicSaudeRoute,

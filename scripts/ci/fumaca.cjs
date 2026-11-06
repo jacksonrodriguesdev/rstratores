@@ -7,7 +7,14 @@ const PAGINAS = [
   ["/", 200, ["AGRO PARTS", "<h1"]],
   ["/loja", 200, ["CI-0"]],
   // Duas versões, cada uma de um país: espanhol = Uruguai, português = Sul do Brasil (RS, SC e PR)
-  ["/pt", 200, ['lang="pt-BR"', 'hrefLang="es-UY"', "Santa Catarina"]],
+  ["/pt", 200, ['lang="pt-BR"', 'hrefLang="es-UY"', "Santa Catarina", "/manifest-pt.webmanifest"]],
+  // App instalável (PWA) e chave das notificações push
+  ["/sw.js", 200, ["notificationclick", "/offline.html"]],
+  ["/offline.html", 200, ["Sin conexión"]],
+  ["/manifest-pt.webmanifest", 200, ['"start_url": "/pt']],
+  ["/api/public/push", 200, ['"chave"']],
+  ["/app", 200, ["AGRO PARTS en tu celular"]],
+  ["/pt/app", 200, ["A AGRO PARTS no seu celular", "/manifest-pt.webmanifest"]],
   ["/produto/CI-001", 200, ["CI-001", "application/ld+json"]],
   ["/pt/produto/CI-001", 200, ["CI-001"]],
   ["/repuestos", 200, ["John Deere"]],

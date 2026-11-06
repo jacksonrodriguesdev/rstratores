@@ -1,0 +1,103 @@
+{
+  "name": "AGRO PARTS — Peças agrícolas",
+  "short_name": "AGRO PARTS",
+  "id": "/pt",
+  "start_url": "/pt?utm_source=app&utm_medium=pwa",
+  "scope": "/",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "description": "Peças para tratores e colheitadeiras. Busque pelo código, peça orçamento pelo WhatsApp e receba avisos quando o preço baixar. Envio para RS, SC e PR.",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2e7d32",
+  "categories": [
+    "shopping",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Buscar peça",
+      "short_name": "Buscar",
+      "url": "/pt/loja?utm_source=app&utm_medium=atalho",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Orçamento pelo WhatsApp",
+      "short_name": "Orçamento",
+      "url": "/pt/orcamento?utm_source=app&utm_medium=atalho",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Catálogos e manuais",
+      "short_name": "Catálogos",
+      "url": "/pt/catalogos?utm_source=app&utm_medium=atalho",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/img/app/captura-pt-inicio.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Início da AGRO PARTS"
+    },
+    {
+      "src": "/img/app/captura-pt-loja.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Peças com foto, código e preço"
+    }
+  ]
+}

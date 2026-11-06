@@ -27,6 +27,7 @@ import appCss from "../styles.css?url";
 import { FloatingContact } from "@/components/FloatingContact";
 import { VisitTracker } from "@/components/VisitTracker";
 import { PopupAcesso } from "@/components/PopupAcesso";
+import { AppPwa } from "@/components/AppInstalavel";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { SugestaoIdioma } from "@/components/SugestaoIdioma";
@@ -179,7 +180,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           rel: "stylesheet",
           href: appCss,
         },
-        { rel: "manifest", href: "/manifest.webmanifest" },
+        // App instalável: o de /pt abre em português (página inicial /pt)
+        {
+          rel: "manifest",
+          href: idioma === "pt" ? "/manifest-pt.webmanifest" : "/manifest.webmanifest",
+        },
         { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
         { rel: "icon", href: "/favicon-48.png", type: "image/png", sizes: "48x48" },
         // O Google mostra o ícone nos resultados (pede múltiplo de 48 px; maior fica mais nítido)
@@ -269,6 +274,7 @@ function RootComponent() {
               <RodapePublico />
               <MobileTabBar />
               <VisitTracker />
+              <AppPwa />
               {!avaliar && <PopupAcesso />}
               {!avaliar && <SugestaoIdioma />}
               {!avaliar && <IndicacaoAmigo />}

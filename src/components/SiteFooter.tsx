@@ -8,6 +8,7 @@ import { locaisDoIdioma, nomeLocal } from "@/lib/locais-seo";
 import { GUIAS } from "@/lib/guias";
 import { useT } from "@/lib/idioma";
 import { SeletorIdioma } from "@/components/SeletorIdioma";
+import { CartaoApp } from "@/components/AppInstalavel";
 
 const AYUDA = [
   { label: ["Cómo comprar", "Como comprar"], hash: "como-comprar" },
@@ -49,6 +50,7 @@ export function SiteFooter() {
               "Mais de 49.000 peças para tratores e colheitadeiras Massey Ferguson, Valtra, John Deere, New Holland, Case IH e Ford. Enviamos para todo o RS, SC e PR por Correios ou transportadora.",
             )}
           </p>
+          <CartaoApp />
         </div>
 
         {/* Atención */}

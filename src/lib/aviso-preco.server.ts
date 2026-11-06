@@ -133,6 +133,7 @@ type Aviso = {
   user_id: number | null;
   idioma: "es" | "pt";
   preco_ref_brl: number;
+  visitor_id: string | null;
 };
 
 // Roda no agendador: confere os avisos ativos. Baixou ≥ 1% → avisa (e-mail) ou põe na fila (WhatsApp).
@@ -143,7 +144,7 @@ export async function processarAvisosPreco(agora = Date.now()) {
     new Date(agora - VALIDADE),
   );
   const ativos = await prisma.$queryRawUnsafe<Aviso[]>(
-    "SELECT id, sku, telefone, email, user_id, idioma, preco_ref_brl FROM avisos_preco WHERE status = 'ATIVO' LIMIT 5000",
+    "SELECT id, sku, telefone, email, user_id, idioma, preco_ref_brl, visitor_id FROM avisos_preco WHERE status = 'ATIVO' LIMIT 5000",
   );
   if (!ativos.length) return { baixaram: 0, emails: 0, whatsapp: 0 };
   const precos = await precosAtuais([...new Set(ativos.map((a) => a.sku))]);
@@ -158,6 +159,8 @@ export async function processarAvisosPreco(agora = Date.now()) {
     let enviado = false;
     if (a.email) enviado = await emailAviso(a, atual).catch(() => false);
     if (a.user_id) await sininho(a).catch(() => {});
+    // Notificação no celular (app/navegador com avisos ativados), de quem pediu o aviso
+    if (await pushAviso(a, atual).catch(() => false)) enviado = true;
     // E-mail enviado: pronto. Só WhatsApp (ou e-mail sem Resend): fila do admin
     const status = enviado
       ? "AVISADO"
@@ -177,6 +180,37 @@ export async function processarAvisosPreco(agora = Date.now()) {
     );
   }
   return { baixaram: baixaram.length, emails, whatsapp };
+}
+
+async function pushAviso(a: Aviso, atual: number) {
+  if (!a.user_id && !a.visitor_id) return false;
+  const p = await prisma.agricolas.findFirst({
+    where: { sku: a.sku },
+    select: { sku: true, nome: true, nome_es: true, imagem_principal: true },
+  });
+  const { nomeProduto } = await import("./pecas-es");
+  const { SITE_URL } = await import("./site");
+  const { enviarPush } = await import("./push.server");
+  const pt = a.idioma === "pt";
+  const nome = p ? (pt ? p.nome : nomeProduto(p)) : a.sku;
+  const queda = Math.round((1 - atual / a.preco_ref_brl) * 100);
+  const foto = p?.imagem_principal;
+  const r = await enviarPush(
+    { tipo: "pessoa", userId: a.user_id, visitorId: a.visitor_id },
+    {
+      titulo: pt
+        ? `Baixou o preço${queda >= 1 ? ` ${queda}%` : ""}`
+        : `Bajó el precio${queda >= 1 ? ` ${queda}%` : ""}`,
+      texto: pt
+        ? `${nome}: peça pelo WhatsApp enquanto vale.`
+        : `${nome}: pedila por WhatsApp mientras vale.`,
+      url: `${pt ? "/pt" : ""}/produto/${encodeURIComponent(a.sku)}`,
+      imagem: foto ? (foto.startsWith("/") ? SITE_URL + foto : foto) : null,
+      tag: `preco-${a.sku}`,
+    },
+    "aviso_preco",
+  );
+  return r.enviados > 0;
 }
 
 async function sininho(a: Aviso) {

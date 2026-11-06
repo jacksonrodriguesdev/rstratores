@@ -7,11 +7,13 @@ import { visitanteAtual } from "./visitante";
 export const PREFIXO_EVENTO = "/_evento/";
 
 export function registrarEvento(
-  tipo: "whatsapp" | "busca" | "cotacao" | "popup" | "carrinho",
+  tipo: "whatsapp" | "busca" | "cotacao" | "popup" | "carrinho" | "app",
   dado: string,
   eventIdDado?: string,
 ) {
   if (typeof window === "undefined") return;
+  // Outros componentes reagem ao evento (ex.: oferecer o app depois de chamar no WhatsApp)
+  window.dispatchEvent(new CustomEvent("ap:evento", { detail: { tipo, dado } }));
   // Aparelho da equipe (já abriu o admin): testes não viram lead nem estatística
   try {
     if (localStorage.getItem("ap_equipe") === "1") return;
@@ -24,8 +26,8 @@ export function registrarEvento(
   // Também avisa o Google Analytics / Meta Pixel / Google Ads, quando configurados
   if (tipo === "busca") eventoBusca(dado.slice(dado.indexOf("|") + 1));
   else if (tipo === "popup") eventoPopup(dado, eventId);
-  else if (tipo === "carrinho") {
-    /* GA4/Pixel do carrinho já saem em CartContext (eventoCarrinho) */
+  else if (tipo === "carrinho" || tipo === "app") {
+    /* carrinho: GA4/Pixel já saem em CartContext (eventoCarrinho); app: só estatística própria */
   } else conversaoWhatsapp(dado, eventId!);
   try {
     fetch("/api/public/track", {

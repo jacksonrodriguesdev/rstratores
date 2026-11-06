@@ -4,6 +4,8 @@ import { Bell, BellRing, Check, Loader2 } from "lucide-react";
 import { getSessionFn } from "@/lib/user-auth";
 import { visitanteAtual } from "@/lib/visitante";
 import { useT } from "@/lib/idioma";
+import { BotaoAvisos } from "@/components/AppInstalavel";
+import { ofertarApp } from "@/lib/app-pwa";
 
 // «Avisame cuando baje el precio» (página da peça). Logado: um toque (avisa no e-mail da conta e no
 // sininho). Sem conta: WhatsApp ou e-mail num campo só. Servidor: src/lib/aviso-preco.server.ts.
@@ -54,6 +56,8 @@ export function AvisoPreco({ sku }: { sku: string }) {
       }
       setFeito(canal);
       setAberto(false);
+      // iPhone sem o app (ou sem avisos no navegador): oferece instalar para receber no celular
+      ofertarApp("aviso_preco");
     } catch (err: any) {
       setErro(err?.message ?? t("Algo salió mal.", "Algo deu errado."));
     } finally {
@@ -63,18 +67,21 @@ export function AvisoPreco({ sku }: { sku: string }) {
 
   if (feito)
     return (
-      <p className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
-        <BellRing className="h-4 w-4 shrink-0" />
-        {feito === "whatsapp"
-          ? t(
-              "Listo: si baja el precio, te avisamos por WhatsApp.",
-              "Pronto: se o preço baixar, avisamos pelo WhatsApp.",
-            )
-          : t(
-              "Listo: si baja el precio, te avisamos por e-mail.",
-              "Pronto: se o preço baixar, avisamos por e-mail.",
-            )}
-      </p>
+      <div className="mt-3">
+        <p className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+          <BellRing className="h-4 w-4 shrink-0" />
+          {feito === "whatsapp"
+            ? t(
+                "Listo: si baja el precio, te avisamos por WhatsApp.",
+                "Pronto: se o preço baixar, avisamos pelo WhatsApp.",
+              )
+            : t(
+                "Listo: si baja el precio, te avisamos por e-mail.",
+                "Pronto: se o preço baixar, avisamos por e-mail.",
+              )}
+        </p>
+        <BotaoAvisos origem="aviso_preco" className="mt-2" />
+      </div>
     );
 
   return (

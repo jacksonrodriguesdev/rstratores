@@ -10,3 +10,14 @@
     Header set Cache-Control "public, max-age=31536000"
   </FilesMatch>
 </IfModule>
+
+# App instalável (PWA): manifesto com o tipo certo; sw.js, manifesto e offline.html sempre conferidos
+# (o navegador precisa ver a versão nova do service worker logo depois de cada publicação)
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "^(sw\.js|offline\.html|manifest(-pt)?\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

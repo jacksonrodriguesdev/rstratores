@@ -1,17 +1,103 @@
 {
-  "name": "AGRO PARTS",
+  "name": "AGRO PARTS — Repuestos agrícolas",
   "short_name": "AGRO PARTS",
-  "description": "Repuestos para tractores con cotización rápida por WhatsApp. Envíos a todo Uruguay.",
-  "lang": "es-UY",
-  "start_url": "/",
+  "id": "/",
+  "start_url": "/?utm_source=app&utm_medium=pwa",
   "scope": "/",
+  "lang": "es-UY",
+  "dir": "ltr",
+  "description": "Repuestos para tractores y cosechadoras. Buscá por código, cotizá por WhatsApp y recibí avisos cuando baja el precio. Envíos a todo Uruguay.",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
-  "background_color": "#f4f4f5",
+  "background_color": "#ffffff",
   "theme_color": "#2e7d32",
+  "categories": [
+    "shopping",
+    "business"
+  ],
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Buscar repuesto",
+      "short_name": "Buscar",
+      "url": "/loja?utm_source=app&utm_medium=atajo",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Cotizar por WhatsApp",
+      "short_name": "Cotizar",
+      "url": "/cotizar?utm_source=app&utm_medium=atajo",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Catálogos y manuales",
+      "short_name": "Catálogos",
+      "url": "/catalogos?utm_source=app&utm_medium=atajo",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/img/app/captura-es-inicio.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Inicio de AGRO PARTS"
+    },
+    {
+      "src": "/img/app/captura-es-tienda.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Repuestos con foto, código y precio"
+    }
   ]
 }
