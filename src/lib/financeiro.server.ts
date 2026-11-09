@@ -184,6 +184,9 @@ export async function vendaDoLink(linkId: number) {
   await garantirTabelasAvaliacoes();
   const ja = await prisma.vendas.findUnique({ where: { link_id: linkId } });
   if (ja) return ja.id;
+  // Venda deste link apagada de propósito no admin: não cria de novo
+  const { linksDeVendasExcluidas } = await import("./vendas-excluir.server");
+  if ((await linksDeVendasExcluidas()).includes(linkId)) return null;
   const link = await prisma.links_pagamento.findUnique({
     where: { id: linkId },
     include: {
@@ -266,7 +269,8 @@ export async function sincronizarLinksPagos() {
     where: { link_id: { not: null } },
     select: { link_id: true },
   });
-  const ids = feitos.map((x) => x.link_id!) as number[];
+  const { linksDeVendasExcluidas } = await import("./vendas-excluir.server");
+  const ids = [...(feitos.map((x) => x.link_id!) as number[]), ...(await linksDeVendasExcluidas())];
   const pagos = await prisma.links_pagamento.findMany({
     where: { status: "PAGO", ...(ids.length && { id: { notIn: ids } }) },
     select: { id: true },

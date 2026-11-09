@@ -167,9 +167,19 @@ export const etiquetaFn = createServerFn({ method: "GET" })
     const v = await prisma.vendas.findUnique({ where: { id: data.id } });
     if (!v) throw new Error("Venda não encontrada");
     const { SITE_URL } = await import("./site");
+    const link = a.linkAvaliacao(SITE_URL, v.codigo, v.pais);
+    // QR gerado aqui (a biblioteca não vai para o navegador)
+    const QRCode = (await import("qrcode")).default;
+    const qr = await QRCode.toDataURL(link, {
+      errorCorrectionLevel: "M",
+      margin: 1,
+      width: 600,
+      color: { dark: "#000000", light: "#ffffff" },
+    });
     return {
       venda: a.paraVenda(v),
-      link: a.linkAvaliacao(SITE_URL, v.codigo, v.pais),
+      link,
+      qr,
       remetente: await a.lerRemetente(),
       desconto: a.DESCONTO_AVALIACAO,
     };
@@ -223,4 +233,45 @@ export const criarPecaRapidaFn = createServerFn({ method: "POST" })
     await admin();
     const p = await import("./pecas-venda.server");
     return p.criarPecaRapida(data);
+  });
+
+// ---------------------------------------------------------------- admin: apagar e restaurar vendas
+export const excluirVendasFn = createServerFn({ method: "POST" })
+  .validator((d: { ids: number[] }) => ({
+    ids: (Array.isArray(d?.ids) ? d.ids : [])
+      .map(Number)
+      .filter((n) => Number.isInteger(n) && n > 0)
+      .slice(0, 200),
+  }))
+  .handler(async ({ data }) => {
+    const s = await admin();
+    if (!data.ids.length) throw new Error("Escolha pelo menos uma venda.");
+    const x = await import("./vendas-excluir.server");
+    return x.excluirVendas(data.ids, s.email || String(s.id));
+  });
+
+export const vendasExcluidasFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const x = await import("./vendas-excluir.server");
+  return x.listarExcluidas();
+});
+
+export const restaurarVendaFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number }) => ({ id: Number(d?.id) || 0 }))
+  .handler(async ({ data }) => {
+    await admin();
+    const x = await import("./vendas-excluir.server");
+    return x.restaurarVenda(data.id);
+  });
+
+// Ajuste do destinatário e da transportadora direto na tela da etiqueta
+export const salvarEtiquetaFn = createServerFn({ method: "POST" })
+  .validator((d: import("./vendas-excluir.server").DadosEtiqueta) => ({
+    ...d,
+    id: Number(d?.id) || 0,
+  }))
+  .handler(async ({ data }) => {
+    await admin();
+    const x = await import("./vendas-excluir.server");
+    return x.salvarEtiqueta(data);
   });

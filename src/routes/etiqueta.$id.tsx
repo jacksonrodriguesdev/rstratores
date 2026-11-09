@@ -3,9 +3,8 @@
 // ?formato=10x15 (térmica, padrão) ou ?formato=a4 (impressora comum).
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
-import { Printer } from "lucide-react";
-import { etiquetaFn } from "@/lib/avaliacoes";
+import { Pencil, Printer, Save, X } from "lucide-react";
+import { etiquetaFn, salvarEtiquetaFn } from "@/lib/avaliacoes";
 import { nomeEs } from "@/lib/pecas-es";
 
 type Busca = { formato?: "10x15" | "a4" };
@@ -53,21 +52,33 @@ function Etiqueta() {
   const { formato } = Route.useSearch();
   const [d, setD] = useState<Awaited<ReturnType<typeof etiquetaFn>> | null>(null);
   const [erro, setErro] = useState("");
-  const [qr, setQr] = useState("");
+  // Editar a etiqueta: a prévia muda enquanto digita; "Salvar" grava na venda
+  const [original, setOriginal] = useState<any>(null);
+  const [salvando, setSalvando] = useState(false);
+  const [aviso, setAviso] = useState("");
+  const editando = original !== null;
+  const mudar = (campo: string, valor: string) =>
+    setD((x) => (x ? { ...x, venda: { ...x.venda, [campo]: valor } } : x));
+  const salvar = async () => {
+    if (!d) return;
+    setSalvando(true);
+    setAviso("");
+    try {
+      const v = await salvarEtiquetaFn({ data: { ...d.venda, id: d.venda.id } });
+      setD((x) => (x ? { ...x, venda: v } : x));
+      setOriginal(null);
+      setAviso("Salvo na venda ✔");
+    } catch (e: any) {
+      setAviso(e?.message ?? "Erro ao salvar");
+    } finally {
+      setSalvando(false);
+    }
+  };
   useEffect(() => {
     etiquetaFn({ data: { id: Number(id) } })
       .then(setD)
       .catch((e) => setErro(e?.message ?? "Erro"));
   }, [id]);
-  useEffect(() => {
-    if (d?.link)
-      QRCode.toDataURL(d.link, {
-        errorCorrectionLevel: "M",
-        margin: 1,
-        width: 600,
-        color: { dark: "#000000", light: "#ffffff" },
-      }).then(setQr);
-  }, [d?.link]);
   if (erro)
     return (
       <p style={{ padding: 24, fontFamily: "sans-serif" }}>
@@ -76,6 +87,7 @@ function Etiqueta() {
     );
   if (!d) return <p style={{ padding: 24, fontFamily: "sans-serif" }}>Carregando…</p>;
   const v = d.venda;
+  const qr = d.qr;
   const t = TXT[v.pais === "BR" ? "pt" : "es"];
   const a4 = formato === "a4";
   const W = a4 ? "190mm" : "100mm";
@@ -103,18 +115,8 @@ function Etiqueta() {
       >
         <button
           onClick={() => window.print()}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            background: "#111",
-            color: "#fff",
-            border: 0,
-            borderRadius: 8,
-            padding: "10px 18px",
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
+          disabled={editando}
+          style={{ ...botaoEscuro, opacity: editando ? 0.5 : 1 }}
         >
           <Printer size={16} /> Imprimir
         </button>
@@ -124,7 +126,97 @@ function Etiqueta() {
         >
           Trocar para {a4 ? "10×15 cm (térmica)" : "A4 (impressora comum)"}
         </a>
+        {!editando && (
+          <button
+            onClick={() => {
+              setOriginal(v);
+              setAviso("");
+            }}
+            style={botaoClaro}
+          >
+            <Pencil size={15} /> Editar etiqueta
+          </button>
+        )}
+        {aviso && !editando && (
+          <span style={{ alignSelf: "center", fontWeight: 600, color: "#2e7d32" }}>{aviso}</span>
+        )}
       </div>
+      {editando && (
+        <div
+          className="nao-imprimir"
+          style={{
+            maxWidth: 640,
+            margin: "0 auto 12px",
+            background: "#fff",
+            borderRadius: 10,
+            padding: 14,
+            fontFamily: "sans-serif",
+            fontSize: 13,
+            boxShadow: "0 2px 12px rgba(0,0,0,.12)",
+          }}
+        >
+          <div style={{ fontWeight: 800, marginBottom: 8 }}>
+            Editar etiqueta — a prévia abaixo muda enquanto você digita
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 8,
+            }}
+          >
+            {campos(v.pais === "BR").map(([campo, rotulo, largo]) => (
+              <label
+                key={campo}
+                style={{ display: "grid", gap: 3, gridColumn: largo ? "1 / -1" : undefined }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#555" }}>{rotulo}</span>
+                <input
+                  value={v[campo] ?? ""}
+                  onChange={(e) => mudar(campo, e.target.value)}
+                  style={{
+                    padding: "7px 9px",
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    fontSize: 14,
+                  }}
+                />
+              </label>
+            ))}
+          </div>
+          <p style={{ color: "#666", fontSize: 12, margin: "8px 0 0" }}>
+            Grava na venda. Peças, valores e rastreio: edite em Admin → Vendas.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              justifyContent: "flex-end",
+              marginTop: 10,
+              alignItems: "center",
+            }}
+          >
+            {aviso && <span style={{ color: "#c62828", fontWeight: 600 }}>{aviso}</span>}
+            <button
+              onClick={() => {
+                setD((x) => (x ? { ...x, venda: original } : x));
+                setOriginal(null);
+                setAviso("");
+              }}
+              style={botaoClaro}
+            >
+              <X size={15} /> Cancelar
+            </button>
+            <button
+              onClick={salvar}
+              disabled={salvando || !String(v.cliente_nome ?? "").trim()}
+              style={{ ...botaoEscuro, opacity: salvando ? 0.6 : 1 }}
+            >
+              <Save size={15} /> {salvando ? "Salvando…" : "Salvar"}
+            </button>
+          </div>
+        </div>
+      )}
       <div
         className="folha"
         style={{
@@ -184,8 +276,11 @@ function Etiqueta() {
           >
             {v.cliente_nome}
           </div>
-          {v.endereco && (
-            <div style={{ fontSize: px(10), lineHeight: 1.25, marginTop: 2 }}>{v.endereco}</div>
+          {(v.endereco || v.end_numero || v.end_bairro) && (
+            <div style={{ fontSize: px(10), lineHeight: 1.25, marginTop: 2 }}>
+              {[v.endereco, v.end_numero].filter(Boolean).join(", ")}
+              {v.end_bairro ? ` — ${v.end_bairro}` : ""}
+            </div>
           )}
           <div style={{ fontSize: px(10.5), fontWeight: 700, lineHeight: 1.25 }}>
             {[v.cidade, v.departamento].filter(Boolean).join(" — ")}
@@ -320,3 +415,40 @@ function Etiqueta() {
     </>
   );
 }
+
+const botaoEscuro = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  background: "#111",
+  color: "#fff",
+  border: 0,
+  borderRadius: 8,
+  padding: "10px 18px",
+  fontWeight: 700,
+  cursor: "pointer",
+} as const;
+const botaoClaro = {
+  ...botaoEscuro,
+  background: "#fff",
+  color: "#111",
+  border: "1px solid #bbb",
+  padding: "9px 14px",
+} as const;
+// [campo da venda, rótulo, ocupa a linha toda]
+const campos = (br: boolean): Array<[string, string, boolean?]> => [
+  ["cliente_nome", "Destinatário", true],
+  ["endereco", br ? "Rua / endereço" : "Dirección", true],
+  ...(br
+    ? ([
+        ["end_numero", "Número"],
+        ["end_bairro", "Bairro"],
+      ] as Array<[string, string]>)
+    : []),
+  ["cidade", br ? "Cidade" : "Ciudad / localidad"],
+  ["departamento", br ? "Estado" : "Departamento"],
+  ["cep", br ? "CEP" : "Código postal"],
+  ["cliente_telefone", "Telefone"],
+  ["cliente_doc", br ? "CPF / CNPJ" : "Documento"],
+  ["transportadora", "Transportadora"],
+];

@@ -14,6 +14,7 @@ import {
   Truck,
   Plus,
   Printer,
+  RotateCcw,
   Save,
   Search,
   Settings,
@@ -30,7 +31,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   buscarClientesFn,
   buscarPecasVendaFn,
+  excluirVendasFn,
   listarVendasFn,
+  restaurarVendaFn,
+  vendasExcluidasFn,
   remetenteFn,
   salvarRastreioFn,
   salvarRemetenteFn,
@@ -126,7 +130,7 @@ function textoRastreio(v: {
   rastreio: string;
   transportadora?: string | null;
 }) {
-  const n = v.cliente_nome.split(/s+/)[0];
+  const n = v.cliente_nome.split(/\s+/)[0];
   const t = v.transportadora || "DAC";
   const onde = /dac/i.test(t)
     ? v.pais === "BR"
@@ -155,6 +159,16 @@ function PaginaVendas() {
   const [busca, setBusca] = useState("");
   const [form, setForm] = useState<Form | null>(null);
   const [remetente, setRemetente] = useState(false);
+  const [marcadas, setMarcadas] = useState<Set<number>>(new Set());
+  const [apagar, setApagar] = useState<any[] | null>(null);
+  const [lixeira, setLixeira] = useState(false);
+  const marcar = (id: number) =>
+    setMarcadas((m) => {
+      const n = new Set(m);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
   const { data, isLoading } = useQuery({
     queryKey: ["vendas", busca],
     queryFn: () => listarVendasFn({ data: { q: busca } }),
@@ -173,6 +187,9 @@ function PaginaVendas() {
             avaliações.
           </p>
         </div>
+        <Button variant="ghost" onClick={() => setLixeira(true)}>
+          <Trash2 className="mr-1.5 h-4 w-4" /> Apagadas
+        </Button>
         <Button variant="outline" onClick={() => setRemetente(true)}>
           <Settings className="mr-1.5 h-4 w-4" /> Remetente
         </Button>
@@ -215,10 +232,38 @@ function PaginaVendas() {
             Avaliações para aprovar →
           </Link>
         </div>
+        {marcadas.size > 0 && (
+          <div className="flex flex-wrap items-center gap-2 border-b bg-red-50 px-3 py-2 text-sm dark:bg-red-950/30">
+            <b>{marcadas.size} venda(s) selecionada(s)</b>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setApagar((data?.vendas ?? []).filter((v) => marcadas.has(v.id)))}
+            >
+              <Trash2 className="mr-1.5 h-4 w-4" /> Apagar selecionadas
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setMarcadas(new Set())}>
+              Limpar seleção
+            </Button>
+          </div>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
               <tr>
+                <th className="w-8 p-3">
+                  <input
+                    type="checkbox"
+                    aria-label="Selecionar todas"
+                    className="h-4 w-4 cursor-pointer accent-primary"
+                    checked={!!data?.vendas.length && marcadas.size === data.vendas.length}
+                    onChange={(e) =>
+                      setMarcadas(
+                        e.target.checked ? new Set(data?.vendas.map((v) => v.id)) : new Set(),
+                      )
+                    }
+                  />
+                </th>
                 <th className="p-3">Venda</th>
                 <th className="p-3">Cliente</th>
                 <th className="p-3">Peças</th>
@@ -232,13 +277,28 @@ function PaginaVendas() {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={9} className="p-8 text-center text-muted-foreground">
                     <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                   </td>
                 </tr>
               )}
               {data?.vendas.map((v) => (
-                <tr key={v.id} className="border-t align-top">
+                <tr
+                  key={v.id}
+                  className={cn(
+                    "border-t align-top",
+                    marcadas.has(v.id) && "bg-red-50/60 dark:bg-red-950/20",
+                  )}
+                >
+                  <td className="p-3">
+                    <input
+                      type="checkbox"
+                      aria-label={`Selecionar venda ${v.codigo}`}
+                      className="h-4 w-4 cursor-pointer accent-primary"
+                      checked={marcadas.has(v.id)}
+                      onChange={() => marcar(v.id)}
+                    />
+                  </td>
                   <td className="p-3">
                     <p className="font-mono font-bold">{v.codigo}</p>
                     <p className="text-xs text-muted-foreground">
@@ -347,13 +407,22 @@ function PaginaVendas() {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label="Apagar venda"
+                        title="Apagar venda e etiqueta"
+                        onClick={() => setApagar([v])}
+                      >
+                        <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-600" />
+                      </Button>
                     </div>
                   </td>
                 </tr>
               ))}
               {data && !data.vendas.length && (
                 <tr>
-                  <td colSpan={8} className="p-10 text-center text-sm text-muted-foreground">
+                  <td colSpan={9} className="p-10 text-center text-sm text-muted-foreground">
                     Nenhuma venda ainda. Clique em <b>Nova venda</b>.
                   </td>
                 </tr>
@@ -363,7 +432,34 @@ function PaginaVendas() {
         </div>
       </Card>
 
-      {form && <FormVenda inicial={form} fechar={() => setForm(null)} />}
+      {form && (
+        <FormVenda
+          inicial={form}
+          fechar={() => setForm(null)}
+          aoApagar={() => {
+            const v = data?.vendas.find((x) => x.id === form.id);
+            if (v) {
+              setForm(null);
+              setApagar([v]);
+            }
+          }}
+        />
+      )}
+      {apagar && (
+        <DialogoApagar
+          vendas={apagar}
+          fechar={(apagadas) => {
+            if (apagadas?.length)
+              setMarcadas((m) => {
+                const n = new Set(m);
+                for (const v of apagar) n.delete(v.id);
+                return n;
+              });
+            setApagar(null);
+          }}
+        />
+      )}
+      {lixeira && <DialogoApagadas fechar={() => setLixeira(false)} />}
       {remetente && <DialogoRemetente fechar={() => setRemetente(false)} />}
     </div>
   );
@@ -547,7 +643,15 @@ function EnderecoBrasil({ f, set }: { f: Form; set: (p: Partial<Form>) => void }
   );
 }
 
-function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
+function FormVenda({
+  inicial,
+  fechar,
+  aoApagar,
+}: {
+  inicial: Form;
+  fechar: () => void;
+  aoApagar: () => void;
+}) {
   const qc = useQueryClient();
   const [f, setF] = useState<Form>(inicial);
   const [salvando, setSalvando] = useState(false);
@@ -1046,7 +1150,16 @@ function FormVenda({ inicial, fechar }: { inicial: Form; fechar: () => void }) {
               </Campo>
             </section>
 
-            <div className="flex justify-end gap-2 border-t pt-4">
+            <div className="flex flex-wrap justify-end gap-2 border-t pt-4">
+              {f.id && (
+                <Button
+                  variant="ghost"
+                  className="mr-auto text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={aoApagar}
+                >
+                  <Trash2 className="mr-1.5 h-4 w-4" /> Apagar venda
+                </Button>
+              )}
               <Button variant="ghost" onClick={fechar}>
                 Cancelar
               </Button>
@@ -1108,6 +1221,210 @@ function DialogoRemetente({ fechar }: { fechar: () => void }) {
             >
               <Save className="mr-1.5 h-4 w-4" /> Salvar
             </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Apagar vendas (e as etiquetas delas). Vai para "Apagadas", de onde dá para restaurar.
+function DialogoApagar({
+  vendas,
+  fechar,
+}: {
+  vendas: any[];
+  fechar: (apagadas?: string[]) => void;
+}) {
+  const qc = useQueryClient();
+  const [apagando, setApagando] = useState(false);
+  const [bloqueadas, setBloqueadas] = useState<Array<{ codigo: string; motivo: string }>>([]);
+  const deLink = vendas.filter((v) => v.link_id);
+  const comCupom = vendas.filter((v) => v.cupom);
+  const doBrasil = vendas.filter((v) => v.pais === "BR");
+  const confirmar = async () => {
+    setApagando(true);
+    try {
+      const r = await excluirVendasFn({ data: { ids: vendas.map((v) => v.id) } });
+      qc.invalidateQueries({ queryKey: ["vendas"] });
+      qc.invalidateQueries({ queryKey: ["vendas-apagadas"] });
+      if (r.apagadas.length)
+        toast.success(
+          r.apagadas.length === 1
+            ? `Venda ${r.apagadas[0]} apagada`
+            : `${r.apagadas.length} vendas apagadas`,
+        );
+      if (r.bloqueadas.length) setBloqueadas(r.bloqueadas);
+      else fechar(r.apagadas);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setApagando(false);
+    }
+  };
+  return (
+    <Dialog open onOpenChange={(o) => !o && fechar()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {vendas.length === 1 ? "Apagar esta venda?" : `Apagar ${vendas.length} vendas?`}
+          </DialogTitle>
+        </DialogHeader>
+        {bloqueadas.length ? (
+          <div className="space-y-3 text-sm">
+            <p className="font-semibold text-red-700">Estas não foram apagadas:</p>
+            <ul className="space-y-1">
+              {bloqueadas.map((b) => (
+                <li key={b.codigo}>
+                  <span className="font-mono font-bold">{b.codigo}</span> — {b.motivo}
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-end">
+              <Button onClick={() => fechar()}>Entendi</Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4 text-sm">
+            <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2">
+              {vendas.map((v) => (
+                <li key={v.id} className="flex justify-between gap-3">
+                  <span>
+                    <span className="font-mono font-bold">{v.codigo}</span> · {v.cliente_nome}
+                  </span>
+                  <span className="whitespace-nowrap font-semibold">
+                    {dinheiro(v.total, v.moeda)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+              <li>A etiqueta, o acompanhamento do pedido e os números do Financeiro saem junto.</li>
+              <li>
+                Fica guardada em <b>Apagadas</b>: dá para restaurar igual, com o mesmo código.
+              </li>
+              {deLink.length > 0 && (
+                <li>
+                  {deLink.length === 1 ? "Ela veio" : `${deLink.length} vieram`} de um link de
+                  pagamento pago. O link continua pago, mas não vira venda de novo sozinho.
+                </li>
+              )}
+              {comCupom.length > 0 && (
+                <li>O cupom de 15% que o cliente ganhou ao avaliar continua valendo.</li>
+              )}
+              {doBrasil.length > 0 && (
+                <li>
+                  Venda com nota fiscal autorizada não é apagada: cancele a nota no Fiscal antes.
+                </li>
+              )}
+              <li>
+                Se a venda só não aconteceu, você também pode marcar como <b>Cancelada</b> no
+                editar: ela sai das contas e fica no histórico.
+              </li>
+            </ul>
+            <div className="flex justify-end gap-2 border-t pt-4">
+              <Button variant="ghost" onClick={() => fechar()}>
+                Voltar
+              </Button>
+              <Button variant="destructive" onClick={confirmar} disabled={apagando}>
+                {apagando ? (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="mr-1.5 h-4 w-4" />
+                )}
+                Apagar
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Vendas apagadas: restaurar volta a venda inteira (etapas, avaliações e extrato ligados)
+function DialogoApagadas({ fechar }: { fechar: () => void }) {
+  const qc = useQueryClient();
+  const [restaurando, setRestaurando] = useState<number | null>(null);
+  const { data, isLoading } = useQuery({
+    queryKey: ["vendas-apagadas"],
+    queryFn: () => vendasExcluidasFn(),
+  });
+  const restaurar = async (id: number) => {
+    setRestaurando(id);
+    try {
+      const v = await restaurarVendaFn({ data: { id } });
+      qc.invalidateQueries({ queryKey: ["vendas"] });
+      qc.invalidateQueries({ queryKey: ["vendas-apagadas"] });
+      toast.success(`Venda ${v.codigo} restaurada`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setRestaurando(null);
+    }
+  };
+  return (
+    <Dialog open onOpenChange={(o) => !o && fechar()}>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Vendas apagadas</DialogTitle>
+        </DialogHeader>
+        {isLoading ? (
+          <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+        ) : !data?.length ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma venda apagada.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="p-2">Venda</th>
+                  <th className="p-2">Cliente</th>
+                  <th className="p-2 text-right">Total</th>
+                  <th className="p-2">Apagada em</th>
+                  <th className="p-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((x) => (
+                  <tr key={x.id} className="border-t">
+                    <td className="p-2">
+                      <p className="font-mono font-bold">{x.codigo}</p>
+                      {x.criada && (
+                        <p className="text-xs text-muted-foreground">
+                          venda de {new Date(x.criada).toLocaleDateString("pt-BR")}
+                        </p>
+                      )}
+                    </td>
+                    <td className="p-2">{x.cliente_nome}</td>
+                    <td className="whitespace-nowrap p-2 text-right font-semibold">
+                      {dinheiro(x.total, x.moeda)}
+                    </td>
+                    <td className="p-2 text-xs text-muted-foreground">
+                      {new Date(x.created_at).toLocaleString("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </td>
+                    <td className="p-2 text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={restaurando !== null}
+                        onClick={() => restaurar(x.id)}
+                      >
+                        {restaurando === x.id ? (
+                          <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                        ) : (
+                          <RotateCcw className="mr-1 h-4 w-4" />
+                        )}
+                        Restaurar
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </DialogContent>
