@@ -38,6 +38,7 @@ import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
 import { Route as AdminConstrutorRouteImport } from './routes/admin.construtor'
 import { Route as AdminCotacoesRouteImport } from './routes/admin.cotacoes'
+import { Route as AdminEmpresasRouteImport } from './routes/admin.empresas'
 import { Route as AdminFinanceiroRouteImport } from './routes/admin.financeiro'
 import { Route as AdminFiscalRouteImport } from './routes/admin.fiscal'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
@@ -62,6 +63,9 @@ import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as AvaliarCodigoRouteImport } from './routes/avaliar.$codigo'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as CatalogosSlugRouteImport } from './routes/catalogos.$slug'
+import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
+import { Route as EmpresasPortalRouteImport } from './routes/empresas.portal'
+import { Route as EmpresasRegistroRouteImport } from './routes/empresas.registro'
 import { Route as EtiquetaIdRouteImport } from './routes/etiqueta.$id'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
@@ -95,12 +99,14 @@ import { Route as ApiAuthLoginRouteImport } from './routes/api/auth.login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth.logout'
 import { Route as ApiAuthRapidoRouteImport } from './routes/api/auth.rapido'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
+import { Route as ApiEmpresasRegistroRouteImport } from './routes/api/empresas.registro'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicAvaliacaoFotoRouteImport } from './routes/api/public/avaliacao-foto'
 import { Route as ApiPublicAvisoPrecoRouteImport } from './routes/api/public/aviso-preco'
 import { Route as ApiPublicCarrinhoRouteImport } from './routes/api/public/carrinho'
 import { Route as ApiPublicContatoWhatsappRouteImport } from './routes/api/public/contato-whatsapp'
 import { Route as ApiPublicEmailBajaRouteImport } from './routes/api/public/email-baja'
+import { Route as ApiPublicEmpresasListaRouteImport } from './routes/api/public/empresas-lista'
 import { Route as ApiPublicPushRouteImport } from './routes/api/public/push'
 import { Route as ApiPublicQuotesRouteImport } from './routes/api/public/quotes'
 import { Route as ApiPublicResendWebhookRouteImport } from './routes/api/public/resend-webhook'
@@ -108,7 +114,11 @@ import { Route as ApiPublicSaudeRouteImport } from './routes/api/public/saude'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as CatalogosArchivoIdRouteImport } from './routes/catalogos.archivo.$id'
 import { Route as CatalogosVerIdRouteImport } from './routes/catalogos.ver.$id'
+import { Route as EmpresasCotizacionCodigoRouteImport } from './routes/empresas.cotizacion.$codigo'
+import { Route as EmpresasDocumentoCodigoRouteImport } from './routes/empresas.documento.$codigo'
+import { Route as EmpresasProformaCodigoRouteImport } from './routes/empresas.proforma.$codigo'
 import { Route as RepuestosSlugSubRouteImport } from './routes/repuestos.$slug_.$sub'
+import { Route as ApiAdminAduanaArquivoRouteImport } from './routes/api/admin/aduana.arquivo'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
 import { Route as ApiAdminBannersUploadRouteImport } from './routes/api/admin/banners.upload'
 import { Route as ApiAdminCatalogosUploadRouteImport } from './routes/api/admin/catalogos.upload'
@@ -134,6 +144,7 @@ import { Route as ApiAuthCodigoVerificarRouteImport } from './routes/api/auth.co
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
 import { Route as ApiAuthPasskeyOpcoesRouteImport } from './routes/api/auth.passkey.opcoes'
 import { Route as ApiAuthPasskeyVerificarRouteImport } from './routes/api/auth.passkey.verificar'
+import { Route as ApiEmpresasArquivoIdRouteImport } from './routes/api/empresas.arquivo.$id'
 import { Route as ApiPublicDlocalPagamentosRouteImport } from './routes/api/public/dlocal.pagamentos'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe.webhook'
 
@@ -282,6 +293,11 @@ const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
   path: '/cotacoes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFinanceiroRoute = AdminFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
@@ -400,6 +416,21 @@ const CatalogosIndexRoute = CatalogosIndexRouteImport.update({
 const CatalogosSlugRoute = CatalogosSlugRouteImport.update({
   id: '/catalogos/$slug',
   path: '/catalogos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
+  id: '/empresas/',
+  path: '/empresas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasPortalRoute = EmpresasPortalRouteImport.update({
+  id: '/empresas/portal',
+  path: '/empresas/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasRegistroRoute = EmpresasRegistroRouteImport.update({
+  id: '/empresas/registro',
+  path: '/empresas/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EtiquetaIdRoute = EtiquetaIdRouteImport.update({
@@ -567,6 +598,11 @@ const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
   path: '/api/auth/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEmpresasRegistroRoute = ApiEmpresasRegistroRouteImport.update({
+  id: '/api/empresas/registro',
+  path: '/api/empresas/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAnalyticsRoute = ApiPublicAnalyticsRouteImport.update({
   id: '/api/public/analytics',
   path: '/api/public/analytics',
@@ -596,6 +632,11 @@ const ApiPublicContatoWhatsappRoute =
 const ApiPublicEmailBajaRoute = ApiPublicEmailBajaRouteImport.update({
   id: '/api/public/email-baja',
   path: '/api/public/email-baja',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicEmpresasListaRoute = ApiPublicEmpresasListaRouteImport.update({
+  id: '/api/public/empresas-lista',
+  path: '/api/public/empresas-lista',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPushRoute = ApiPublicPushRouteImport.update({
@@ -633,9 +674,30 @@ const CatalogosVerIdRoute = CatalogosVerIdRouteImport.update({
   path: '/catalogos/ver/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmpresasCotizacionCodigoRoute =
+  EmpresasCotizacionCodigoRouteImport.update({
+    id: '/empresas/cotizacion/$codigo',
+    path: '/empresas/cotizacion/$codigo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const EmpresasDocumentoCodigoRoute = EmpresasDocumentoCodigoRouteImport.update({
+  id: '/empresas/documento/$codigo',
+  path: '/empresas/documento/$codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasProformaCodigoRoute = EmpresasProformaCodigoRouteImport.update({
+  id: '/empresas/proforma/$codigo',
+  path: '/empresas/proforma/$codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RepuestosSlugSubRoute = RepuestosSlugSubRouteImport.update({
   id: '/repuestos/$slug_/$sub',
   path: '/repuestos/$slug/$sub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminAduanaArquivoRoute = ApiAdminAduanaArquivoRouteImport.update({
+  id: '/api/admin/aduana/arquivo',
+  path: '/api/admin/aduana/arquivo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminBannersIdRoute = ApiAdminBannersIdRouteImport.update({
@@ -769,6 +831,11 @@ const ApiAuthPasskeyVerificarRoute = ApiAuthPasskeyVerificarRouteImport.update({
   path: '/api/auth/passkey/verificar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEmpresasArquivoIdRoute = ApiEmpresasArquivoIdRouteImport.update({
+  id: '/api/empresas/arquivo/$id',
+  path: '/api/empresas/arquivo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDlocalPagamentosRoute =
   ApiPublicDlocalPagamentosRouteImport.update({
     id: '/api/public/dlocal/pagamentos',
@@ -810,6 +877,7 @@ export interface FileRoutesByFullPath {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
@@ -833,6 +901,8 @@ export interface FileRoutesByFullPath {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/empresas/portal': typeof EmpresasPortalRoute
+  '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
@@ -845,6 +915,7 @@ export interface FileRoutesByFullPath {
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/empresas/': typeof EmpresasIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
@@ -865,12 +936,14 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
+  '/api/public/empresas-lista': typeof ApiPublicEmpresasListaRoute
   '/api/public/push': typeof ApiPublicPushRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
@@ -878,10 +951,14 @@ export interface FileRoutesByFullPath {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
+  '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
+  '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/admin/extratos/': typeof AdminExtratosIndexRoute
+  '/api/admin/aduana/arquivo': typeof ApiAdminAduanaArquivoRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
   '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
@@ -907,6 +984,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
   '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
+  '/api/empresas/arquivo/$id': typeof ApiEmpresasArquivoIdRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -938,6 +1016,7 @@ export interface FileRoutesByTo {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
@@ -961,6 +1040,8 @@ export interface FileRoutesByTo {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/empresas/portal': typeof EmpresasPortalRoute
+  '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
@@ -973,6 +1054,7 @@ export interface FileRoutesByTo {
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
   '/catalogos': typeof CatalogosIndexRoute
+  '/empresas': typeof EmpresasIndexRoute
   '/guias': typeof GuiasIndexRoute
   '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
@@ -993,12 +1075,14 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
+  '/api/public/empresas-lista': typeof ApiPublicEmpresasListaRoute
   '/api/public/push': typeof ApiPublicPushRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
@@ -1006,10 +1090,14 @@ export interface FileRoutesByTo {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
+  '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
+  '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
   '/admin/extratos': typeof AdminExtratosIndexRoute
+  '/api/admin/aduana/arquivo': typeof ApiAdminAduanaArquivoRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
   '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
@@ -1035,6 +1123,7 @@ export interface FileRoutesByTo {
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
   '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
+  '/api/empresas/arquivo/$id': typeof ApiEmpresasArquivoIdRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1068,6 +1157,7 @@ export interface FileRoutesById {
   '/admin/clientes': typeof AdminClientesRoute
   '/admin/construtor': typeof AdminConstrutorRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/fiscal': typeof AdminFiscalRoute
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
@@ -1091,6 +1181,8 @@ export interface FileRoutesById {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/empresas/portal': typeof EmpresasPortalRoute
+  '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
@@ -1103,6 +1195,7 @@ export interface FileRoutesById {
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/empresas/': typeof EmpresasIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
@@ -1123,12 +1216,14 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
   '/api/public/carrinho': typeof ApiPublicCarrinhoRoute
   '/api/public/contato-whatsapp': typeof ApiPublicContatoWhatsappRoute
   '/api/public/email-baja': typeof ApiPublicEmailBajaRoute
+  '/api/public/empresas-lista': typeof ApiPublicEmpresasListaRoute
   '/api/public/push': typeof ApiPublicPushRoute
   '/api/public/quotes': typeof ApiPublicQuotesRoute
   '/api/public/resend-webhook': typeof ApiPublicResendWebhookRoute
@@ -1136,10 +1231,14 @@ export interface FileRoutesById {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
+  '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
+  '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
   '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/admin/extratos/': typeof AdminExtratosIndexRoute
+  '/api/admin/aduana/arquivo': typeof ApiAdminAduanaArquivoRoute
   '/api/admin/banners/$id': typeof ApiAdminBannersIdRoute
   '/api/admin/banners/upload': typeof ApiAdminBannersUploadRoute
   '/api/admin/catalogos/upload': typeof ApiAdminCatalogosUploadRoute
@@ -1165,6 +1264,7 @@ export interface FileRoutesById {
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
   '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
+  '/api/empresas/arquivo/$id': typeof ApiEmpresasArquivoIdRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1199,6 +1299,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
+    | '/admin/empresas'
     | '/admin/financeiro'
     | '/admin/fiscal'
     | '/admin/fotos-lote'
@@ -1222,6 +1323,8 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/empresas/portal'
+    | '/empresas/registro'
     | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/guias/$slug'
@@ -1234,6 +1337,7 @@ export interface FileRouteTypes {
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/empresas/'
     | '/guias/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
@@ -1254,12 +1358,14 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/rapido'
     | '/api/auth/register'
+    | '/api/empresas/registro'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/aviso-preco'
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
+    | '/api/public/empresas-lista'
     | '/api/public/push'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
@@ -1267,10 +1373,14 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/empresas/cotizacion/$codigo'
+    | '/empresas/documento/$codigo'
+    | '/empresas/proforma/$codigo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
     | '/admin/extratos/'
+    | '/api/admin/aduana/arquivo'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
     | '/api/admin/catalogos/upload'
@@ -1296,6 +1406,7 @@ export interface FileRouteTypes {
     | '/api/auth/google/callback'
     | '/api/auth/passkey/opcoes'
     | '/api/auth/passkey/verificar'
+    | '/api/empresas/arquivo/$id'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -1327,6 +1438,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
+    | '/admin/empresas'
     | '/admin/financeiro'
     | '/admin/fiscal'
     | '/admin/fotos-lote'
@@ -1350,6 +1462,8 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/empresas/portal'
+    | '/empresas/registro'
     | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/guias/$slug'
@@ -1362,6 +1476,7 @@ export interface FileRouteTypes {
     | '/uploads/$'
     | '/admin'
     | '/catalogos'
+    | '/empresas'
     | '/guias'
     | '/repuestos-agricolas'
     | '/repuestos'
@@ -1382,12 +1497,14 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/rapido'
     | '/api/auth/register'
+    | '/api/empresas/registro'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/aviso-preco'
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
+    | '/api/public/empresas-lista'
     | '/api/public/push'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
@@ -1395,10 +1512,14 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/empresas/cotizacion/$codigo'
+    | '/empresas/documento/$codigo'
+    | '/empresas/proforma/$codigo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
     | '/admin/extratos'
+    | '/api/admin/aduana/arquivo'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
     | '/api/admin/catalogos/upload'
@@ -1424,6 +1545,7 @@ export interface FileRouteTypes {
     | '/api/auth/google/callback'
     | '/api/auth/passkey/opcoes'
     | '/api/auth/passkey/verificar'
+    | '/api/empresas/arquivo/$id'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   id:
@@ -1456,6 +1578,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/construtor'
     | '/admin/cotacoes'
+    | '/admin/empresas'
     | '/admin/financeiro'
     | '/admin/fiscal'
     | '/admin/fotos-lote'
@@ -1479,6 +1602,8 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/empresas/portal'
+    | '/empresas/registro'
     | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/guias/$slug'
@@ -1491,6 +1616,7 @@ export interface FileRouteTypes {
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/empresas/'
     | '/guias/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
@@ -1511,12 +1637,14 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/rapido'
     | '/api/auth/register'
+    | '/api/empresas/registro'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/aviso-preco'
     | '/api/public/carrinho'
     | '/api/public/contato-whatsapp'
     | '/api/public/email-baja'
+    | '/api/public/empresas-lista'
     | '/api/public/push'
     | '/api/public/quotes'
     | '/api/public/resend-webhook'
@@ -1524,10 +1652,14 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/empresas/cotizacion/$codigo'
+    | '/empresas/documento/$codigo'
+    | '/empresas/proforma/$codigo'
     | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
     | '/admin/extratos/'
+    | '/api/admin/aduana/arquivo'
     | '/api/admin/banners/$id'
     | '/api/admin/banners/upload'
     | '/api/admin/catalogos/upload'
@@ -1553,6 +1685,7 @@ export interface FileRouteTypes {
     | '/api/auth/google/callback'
     | '/api/auth/passkey/opcoes'
     | '/api/auth/passkey/verificar'
+    | '/api/empresas/arquivo/$id'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   fileRoutesById: FileRoutesById
@@ -1575,6 +1708,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AvaliarCodigoRoute: typeof AvaliarCodigoRoute
   CatalogosSlugRoute: typeof CatalogosSlugRoute
+  EmpresasPortalRoute: typeof EmpresasPortalRoute
+  EmpresasRegistroRoute: typeof EmpresasRegistroRoute
   EtiquetaIdRoute: typeof EtiquetaIdRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
@@ -1586,6 +1721,7 @@ export interface RootRouteChildren {
   SitemapsArquivoRoute: typeof SitemapsArquivoRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
   CatalogosIndexRoute: typeof CatalogosIndexRoute
+  EmpresasIndexRoute: typeof EmpresasIndexRoute
   GuiasIndexRoute: typeof GuiasIndexRoute
   RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
@@ -1599,12 +1735,14 @@ export interface RootRouteChildren {
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthRapidoRoute: typeof ApiAuthRapidoRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
+  ApiEmpresasRegistroRoute: typeof ApiEmpresasRegistroRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicAvaliacaoFotoRoute: typeof ApiPublicAvaliacaoFotoRoute
   ApiPublicAvisoPrecoRoute: typeof ApiPublicAvisoPrecoRoute
   ApiPublicCarrinhoRoute: typeof ApiPublicCarrinhoRoute
   ApiPublicContatoWhatsappRoute: typeof ApiPublicContatoWhatsappRoute
   ApiPublicEmailBajaRoute: typeof ApiPublicEmailBajaRoute
+  ApiPublicEmpresasListaRoute: typeof ApiPublicEmpresasListaRoute
   ApiPublicPushRoute: typeof ApiPublicPushRoute
   ApiPublicQuotesRoute: typeof ApiPublicQuotesRoute
   ApiPublicResendWebhookRoute: typeof ApiPublicResendWebhookRoute
@@ -1612,7 +1750,11 @@ export interface RootRouteChildren {
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   CatalogosArchivoIdRoute: typeof CatalogosArchivoIdRoute
   CatalogosVerIdRoute: typeof CatalogosVerIdRoute
+  EmpresasCotizacionCodigoRoute: typeof EmpresasCotizacionCodigoRoute
+  EmpresasDocumentoCodigoRoute: typeof EmpresasDocumentoCodigoRoute
+  EmpresasProformaCodigoRoute: typeof EmpresasProformaCodigoRoute
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
+  ApiAdminAduanaArquivoRoute: typeof ApiAdminAduanaArquivoRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
   ApiAdminEstudioFotoRoute: typeof ApiAdminEstudioFotoRoute
@@ -1627,6 +1769,7 @@ export interface RootRouteChildren {
   ApiAdminMercadolivreCallbackRoute: typeof ApiAdminMercadolivreCallbackRoute
   ApiAuthPasskeyOpcoesRoute: typeof ApiAuthPasskeyOpcoesRoute
   ApiAuthPasskeyVerificarRoute: typeof ApiAuthPasskeyVerificarRoute
+  ApiEmpresasArquivoIdRoute: typeof ApiEmpresasArquivoIdRoute
   ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
@@ -1836,6 +1979,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCotacoesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/empresas': {
+      id: '/admin/empresas'
+      path: '/empresas'
+      fullPath: '/admin/empresas'
+      preLoaderRoute: typeof AdminEmpresasRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/financeiro': {
       id: '/admin/financeiro'
       path: '/financeiro'
@@ -2002,6 +2152,27 @@ declare module '@tanstack/react-router' {
       path: '/catalogos/$slug'
       fullPath: '/catalogos/$slug'
       preLoaderRoute: typeof CatalogosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/': {
+      id: '/empresas/'
+      path: '/empresas'
+      fullPath: '/empresas/'
+      preLoaderRoute: typeof EmpresasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/portal': {
+      id: '/empresas/portal'
+      path: '/empresas/portal'
+      fullPath: '/empresas/portal'
+      preLoaderRoute: typeof EmpresasPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/registro': {
+      id: '/empresas/registro'
+      path: '/empresas/registro'
+      fullPath: '/empresas/registro'
+      preLoaderRoute: typeof EmpresasRegistroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/etiqueta/$id': {
@@ -2235,6 +2406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/empresas/registro': {
+      id: '/api/empresas/registro'
+      path: '/api/empresas/registro'
+      fullPath: '/api/empresas/registro'
+      preLoaderRoute: typeof ApiEmpresasRegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/analytics': {
       id: '/api/public/analytics'
       path: '/api/public/analytics'
@@ -2275,6 +2453,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/email-baja'
       fullPath: '/api/public/email-baja'
       preLoaderRoute: typeof ApiPublicEmailBajaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/empresas-lista': {
+      id: '/api/public/empresas-lista'
+      path: '/api/public/empresas-lista'
+      fullPath: '/api/public/empresas-lista'
+      preLoaderRoute: typeof ApiPublicEmpresasListaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/push': {
@@ -2326,11 +2511,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogosVerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empresas/cotizacion/$codigo': {
+      id: '/empresas/cotizacion/$codigo'
+      path: '/empresas/cotizacion/$codigo'
+      fullPath: '/empresas/cotizacion/$codigo'
+      preLoaderRoute: typeof EmpresasCotizacionCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/documento/$codigo': {
+      id: '/empresas/documento/$codigo'
+      path: '/empresas/documento/$codigo'
+      fullPath: '/empresas/documento/$codigo'
+      preLoaderRoute: typeof EmpresasDocumentoCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/proforma/$codigo': {
+      id: '/empresas/proforma/$codigo'
+      path: '/empresas/proforma/$codigo'
+      fullPath: '/empresas/proforma/$codigo'
+      preLoaderRoute: typeof EmpresasProformaCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repuestos/$slug_/$sub': {
       id: '/repuestos/$slug_/$sub'
       path: '/repuestos/$slug/$sub'
       fullPath: '/repuestos/$slug/$sub'
       preLoaderRoute: typeof RepuestosSlugSubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/aduana/arquivo': {
+      id: '/api/admin/aduana/arquivo'
+      path: '/api/admin/aduana/arquivo'
+      fullPath: '/api/admin/aduana/arquivo'
+      preLoaderRoute: typeof ApiAdminAduanaArquivoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/banners/$id': {
@@ -2508,6 +2721,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthPasskeyVerificarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/empresas/arquivo/$id': {
+      id: '/api/empresas/arquivo/$id'
+      path: '/api/empresas/arquivo/$id'
+      fullPath: '/api/empresas/arquivo/$id'
+      preLoaderRoute: typeof ApiEmpresasArquivoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/dlocal/pagamentos': {
       id: '/api/public/dlocal/pagamentos'
       path: '/api/public/dlocal/pagamentos'
@@ -2539,6 +2759,7 @@ interface AdminRouteChildren {
   AdminClientesRoute: typeof AdminClientesRoute
   AdminConstrutorRoute: typeof AdminConstrutorRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
+  AdminEmpresasRoute: typeof AdminEmpresasRoute
   AdminFinanceiroRoute: typeof AdminFinanceiroRoute
   AdminFiscalRoute: typeof AdminFiscalRoute
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
@@ -2587,6 +2808,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClientesRoute: AdminClientesRoute,
   AdminConstrutorRoute: AdminConstrutorRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
+  AdminEmpresasRoute: AdminEmpresasRoute,
   AdminFinanceiroRoute: AdminFinanceiroRoute,
   AdminFiscalRoute: AdminFiscalRoute,
   AdminFotosLoteRoute: AdminFotosLoteRoute,
@@ -2721,6 +2943,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AvaliarCodigoRoute: AvaliarCodigoRoute,
   CatalogosSlugRoute: CatalogosSlugRoute,
+  EmpresasPortalRoute: EmpresasPortalRoute,
+  EmpresasRegistroRoute: EmpresasRegistroRoute,
   EtiquetaIdRoute: EtiquetaIdRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,
@@ -2732,6 +2956,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapsArquivoRoute: SitemapsArquivoRoute,
   UploadsSplatRoute: UploadsSplatRoute,
   CatalogosIndexRoute: CatalogosIndexRoute,
+  EmpresasIndexRoute: EmpresasIndexRoute,
   GuiasIndexRoute: GuiasIndexRoute,
   RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
@@ -2745,12 +2970,14 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthRapidoRoute: ApiAuthRapidoRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
+  ApiEmpresasRegistroRoute: ApiEmpresasRegistroRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicAvaliacaoFotoRoute: ApiPublicAvaliacaoFotoRoute,
   ApiPublicAvisoPrecoRoute: ApiPublicAvisoPrecoRoute,
   ApiPublicCarrinhoRoute: ApiPublicCarrinhoRoute,
   ApiPublicContatoWhatsappRoute: ApiPublicContatoWhatsappRoute,
   ApiPublicEmailBajaRoute: ApiPublicEmailBajaRoute,
+  ApiPublicEmpresasListaRoute: ApiPublicEmpresasListaRoute,
   ApiPublicPushRoute: ApiPublicPushRoute,
   ApiPublicQuotesRoute: ApiPublicQuotesRoute,
   ApiPublicResendWebhookRoute: ApiPublicResendWebhookRoute,
@@ -2758,7 +2985,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   CatalogosArchivoIdRoute: CatalogosArchivoIdRoute,
   CatalogosVerIdRoute: CatalogosVerIdRoute,
+  EmpresasCotizacionCodigoRoute: EmpresasCotizacionCodigoRoute,
+  EmpresasDocumentoCodigoRoute: EmpresasDocumentoCodigoRoute,
+  EmpresasProformaCodigoRoute: EmpresasProformaCodigoRoute,
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
+  ApiAdminAduanaArquivoRoute: ApiAdminAduanaArquivoRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
   ApiAdminEstudioFotoRoute: ApiAdminEstudioFotoRoute,
@@ -2773,6 +3004,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminMercadolivreCallbackRoute: ApiAdminMercadolivreCallbackRoute,
   ApiAuthPasskeyOpcoesRoute: ApiAuthPasskeyOpcoesRoute,
   ApiAuthPasskeyVerificarRoute: ApiAuthPasskeyVerificarRoute,
+  ApiEmpresasArquivoIdRoute: ApiEmpresasArquivoIdRoute,
   ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }

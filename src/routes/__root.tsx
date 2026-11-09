@@ -244,7 +244,9 @@ function RodapePublico() {
     pathname.startsWith("/admin") ||
     pathname === "/login" ||
     pathname === "/cadastro" ||
-    pathname.startsWith("/catalogos/ver/")
+    pathname.startsWith("/catalogos/ver/") ||
+    pathname.startsWith("/empresas/proforma/") ||
+    pathname.startsWith("/empresas/documento/")
   )
     return null;
   return (

@@ -25,8 +25,10 @@ export const Route = createFileRoute("/uploads/$")({
         const raiz = pastaUploads();
         const arquivo = path.resolve(raiz, decodeURIComponent(params._splat ?? ""));
 
-        // Impede sair da pasta de uploads (ex.: /uploads/../../.env)
-        if (!arquivo.startsWith(raiz + path.sep)) {
+        // Impede sair da pasta de uploads (ex.: /uploads/../../.env) e a pasta privada
+        // (documentos de exportação: entregues só por /api/empresas/arquivo/<id>)
+        const relativo = path.relative(raiz, arquivo).split(path.sep).join("/");
+        if (!arquivo.startsWith(raiz + path.sep) || /^privado(\/|$)/i.test(relativo)) {
           return new Response("Não encontrado", { status: 404 });
         }
 

@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { AUTOMOTIVA_ATIVA } from "@/lib/linhas";
 import { useEffect, useState } from "react";
 import {
+  Building2,
   BarChart3,
   LayoutDashboard,
   Package,
@@ -80,6 +81,7 @@ const GRUPOS: Grupo[] = [
     titulo: "Vendas",
     itens: [
       { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
+      { to: "/admin/empresas", label: "Empresas (atacado)", icon: Building2 },
       { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/captura", label: "Captação de visitantes", icon: Magnet },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },

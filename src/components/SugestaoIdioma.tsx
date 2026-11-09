@@ -48,7 +48,13 @@ export function SugestaoIdioma() {
     return () => clearTimeout(t);
   }, [idioma]);
 
-  if (!mostrar || pathname.startsWith("/admin") || pathname.startsWith("/catalogos/ver/"))
+  // Área de empresas (atacado) é só para o Uruguai, em espanhol
+  if (
+    !mostrar ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/catalogos/ver/") ||
+    pathname.startsWith("/empresas")
+  )
     return null;
 
   const fechar = () => {

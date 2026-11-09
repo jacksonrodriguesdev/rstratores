@@ -15,6 +15,10 @@ const PAGINAS = [
   ["/api/public/push", 200, ['"chave"']],
   ["/app", 200, ["AGRO PARTS en tu celular"]],
   ["/pt/app", 200, ["A AGRO PARTS no seu celular", "/manifest-pt.webmanifest"]],
+  // Canal mayorista (empresas do Uruguai): apresentação, cadastro e portal
+  ["/empresas", 200, ["CANAL MAYORISTA", "/empresas/registro"]],
+  ["/empresas/registro", 200, ["Registrá tu empresa"]],
+  ["/empresas/portal", 200, []],
   ["/produto/CI-001", 200, ["CI-001", "application/ld+json"]],
   ["/pt/produto/CI-001", 200, ["CI-001"]],
   ["/repuestos", 200, ["John Deere"]],
@@ -125,6 +129,24 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
     const vazou = /Painel de controle|Criador de anúncios|E-mail marketing|Fiscal do MEI|Extrato do banco/.test(htmlAdm);
     console.log(`${vazou ? "✘" : "✔"} ${adm.status} ${caminho} sem login ${vazou ? "MOSTRA O PAINEL" : "não mostra o painel"}`);
     if (vazou) falhas.push(`${caminho} mostra o painel sem login`);
+  }
+
+  // Pasta privada (documentos de exportação do atacado): a rota pública /uploads nunca entrega.
+  // Só /api/empresas/arquivo/<id>, para a empresa dona ou o admin. Testa com um arquivo de verdade.
+  {
+    const fs = require("fs");
+    const path = require("path");
+    const raiz = path.resolve(process.env.UPLOADS_DIR || path.join(process.cwd(), "uploads"));
+    const dir = path.join(raiz, "privado", "ci");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "teste.pdf"), "%PDF-1.4 teste");
+    const codigos = [];
+    for (const c of ["privado/ci/teste.pdf", "PRIVADO/ci/teste.pdf", "%70rivado/ci/teste.pdf"])
+      codigos.push((await fetch(BASE + "/uploads/" + c)).status);
+    fs.rmSync(dir, { recursive: true, force: true });
+    const ok = codigos.every((s) => s === 404);
+    console.log(`${ok ? "✔" : "✘"} /uploads/privado bloqueado (${codigos.join(", ")})`);
+    if (!ok) falhas.push(`/uploads/privado entregou arquivo (${codigos.join(", ")})`);
   }
 
   // Rastreio: grava uma visita e um evento
