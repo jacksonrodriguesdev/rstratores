@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
+import { caminhoesAtivaFn } from "@/lib/caminhoes";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
@@ -144,13 +145,30 @@ function LojaPage() {
   const [soComFoto, setSoComFoto] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { segment, setSegment } = useSegment();
+  const navigate = useNavigate();
   const loaderRef = useRef<HTMLDivElement>(null);
+  // Linha de caminhões: tratada como um filtro "Línea" dentro da loja (não mexe no header).
+  const [camiones, setCamiones] = useState(linha === "CAMINHOES");
+  const linhaLoja = camiones ? "CAMINHOES" : segment;
+  const { data: camStatus } = useQuery({
+    queryKey: ["cam-ativa"],
+    queryFn: () => caminhoesAtivaFn(),
+  });
+  const camionesDisponivel = !!camStatus?.ativa;
+  const trocarLinha = (cam: boolean) => {
+    setCamiones(cam);
+    setCategorias([]);
+    setMarcas([]);
+    setSearch("");
+    navigate({ to: "/loja", search: (cam ? { linha: "CAMINHOES" } : {}) as any });
+  };
 
   // Links do header/home trocam os filtros mesmo com a loja já aberta
   useEffect(() => {
     if (linha && (linha === "AGRICOLA" || linha === "AUTOMOTIVA") && linha !== segment) {
       setSegment(linha as any);
     }
+    setCamiones(linha === "CAMINHOES");
     setCategorias(categoria ? [categoria] : []);
     setMarcas(marca ? [marca] : []);
     setSearch(q ?? "");
@@ -159,7 +177,7 @@ function LojaPage() {
   const queryParams = useMemo(
     () => ({
       search: busca,
-      linha: segment,
+      linha: linhaLoja,
       categoria: categorias.length > 0 ? categorias : undefined,
       marca: marcas.length > 0 ? marcas : undefined,
       sort,
@@ -168,7 +186,7 @@ function LojaPage() {
       vitrine: !busca,
       hasImage: soComFoto && !busca,
     }),
-    [busca, segment, categorias, marcas, sort, soComFoto],
+    [busca, linhaLoja, categorias, marcas, sort, soComFoto],
   );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
@@ -186,9 +204,24 @@ function LojaPage() {
   });
 
   const { data: facets } = useQuery({
-    queryKey: ["facets", segment],
-    queryFn: () => getFacets(segment),
+    queryKey: ["facets", linhaLoja],
+    queryFn: () => getFacets(linhaLoja),
   });
+
+  // Busca cruzada: quantas peças de caminhão casam com o termo (oferece trocar para a linha Camiones).
+  const { data: camBusca } = useQuery({
+    queryKey: ["cam-busca", busca],
+    queryFn: () => listProducts({ linha: "CAMINHOES", search: busca, pageSize: 1, contar: true }),
+    enabled: camionesDisponivel && !camiones && busca.length >= 2,
+    staleTime: 60_000,
+  });
+  const totalCamiones = (camBusca as any)?.total ?? 0;
+  const verEnCamiones = () => {
+    setCamiones(true);
+    setCategorias([]);
+    setMarcas([]);
+    navigate({ to: "/loja", search: { linha: "CAMINHOES", q: busca } as any });
+  };
 
   const rows = useMemo(
     () => (data ? data.pages.flatMap((page) => page.rows as Product[]) : []),
@@ -245,7 +278,9 @@ function LojaPage() {
       ? categoriaNo(categorias[0], idioma)
       : marcas.length === 1
         ? `${t("Repuestos", "Peças")} ${marcas[0]}`
-        : t("Repuestos agrícolas", "Peças agrícolas");
+        : camiones
+          ? t("Repuestos para camiones", "Peças para caminhões")
+          : t("Repuestos agrícolas", "Peças agrícolas");
 
   const listaFiltro = (
     opcoes: { name: string; count: number }[] | undefined,
@@ -297,6 +332,40 @@ function LojaPage() {
         )}
       </div>
 
+      {camionesDisponivel && (
+        <div className="mb-4">
+          <label className="mb-2 block text-sm font-semibold text-zinc-800">
+            {t("Línea", "Linha")}
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => trocarLinha(false)}
+              className={cn(
+                "rounded-lg border px-3 py-2 text-sm font-semibold transition",
+                !camiones
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
+              )}
+            >
+              {t("Agrícola", "Agrícola")}
+            </button>
+            <button
+              type="button"
+              onClick={() => trocarLinha(true)}
+              className={cn(
+                "rounded-lg border px-3 py-2 text-sm font-semibold transition",
+                camiones
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
+              )}
+            >
+              {t("Camiones", "Caminhões")}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mb-4">
         <label htmlFor="busca-loja" className="mb-2 block text-sm font-semibold text-zinc-800">
           {t("Nombre o código", "Nome ou código")}
@@ -329,7 +398,7 @@ function LojaPage() {
         <AccordionItem value="marcas" className="border-b-0">
           <AccordionTrigger className="rounded-md px-1 py-3 hover:bg-muted/50 hover:no-underline">
             <span className="text-sm font-semibold uppercase tracking-wider text-zinc-800">
-              {t("Marca del tractor", "Marca do trator")}
+              {camiones ? t("Montadora", "Montadora") : t("Marca del tractor", "Marca do trator")}
             </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-1 px-1 pb-4 pt-1">
@@ -368,6 +437,14 @@ function LojaPage() {
                 `${rows.length} ${t("repuestos", "peças")}`
               )}
             </p>
+            {!camiones && busca.length >= 2 && totalCamiones > 0 && (
+              <button
+                onClick={verEnCamiones}
+                className="mt-2 flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100"
+              >
+                {`¿Repuestos de camión? Ver ${totalCamiones.toLocaleString("es-UY")} en la línea Camiones →`}
+              </button>
+            )}
             {!busca && !isLoading && (
               <button
                 onClick={() => setSoComFoto(!soComFoto)}

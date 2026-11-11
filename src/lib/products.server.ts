@@ -5,9 +5,20 @@ import { buscaParaPortugues, sinonimosBusca } from "./pecas-es";
 import { limparCacheCatalogo } from "./busca-catalogo.server";
 import { semCusto } from "./precos.server";
 
+// Resolve a linha que pode ser exibida na loja. AGRICOLA sempre; CAMINHOES quando o admin liga
+// (chave caminhoes_ativa); AUTOMOTIVA só se a constante estiver ligada. Qualquer outra → AGRICOLA.
+export async function resolverLinha(linha?: string | null): Promise<string> {
+  if (linha === "CAMINHOES") {
+    const { linhaCaminhoesAtiva } = await import("./caminhoes.server");
+    if (await linhaCaminhoesAtiva()) return "CAMINHOES";
+  }
+  if (AUTOMOTIVA_ATIVA && linha === "AUTOMOTIVA") return "AUTOMOTIVA";
+  return "AGRICOLA";
+}
+
 export async function listProducts(params: ListParams) {
-  // Com a linha automotiva desligada, toda listagem vem da tabela agrícola.
-  const linha = AUTOMOTIVA_ATIVA ? params.linha : "AGRICOLA";
+  // AGRICOLA → tabela agricolas; CAMINHOES → tabela products (linha='CAMINHOES'); resto → AGRICOLA.
+  const linha = await resolverLinha(params.linha);
   const {
     search,
     categoria,
@@ -25,9 +36,13 @@ export async function listProducts(params: ListParams) {
 
   // Linha agrícola: filtra e ordena em memória (src/lib/busca-catalogo.server.ts) e só busca
   // no banco as peças da página. Preço não entra: o catálogo agrícola não tem preços.
-  if (linha === "AGRICOLA" && precoMin == null && precoMax == null) {
+  // Linha agrícola e caminhões: filtra/ordena no índice em memória e só busca a página no banco.
+  if ((linha === "AGRICOLA" || linha === "CAMINHOES") && precoMin == null && precoMax == null) {
     const { buscarSkus } = await import("./busca-catalogo.server");
-    const skus = await buscarSkus({ search, categoria, marca, montadora, sort, hasImage, vitrine });
+    const skus = await buscarSkus(
+      { search, categoria, marca, montadora, sort, hasImage, vitrine },
+      linha,
+    );
     let inicio = 0;
     if (cursor) {
       const i = skus.indexOf(cursor);
@@ -36,13 +51,14 @@ export async function listProducts(params: ListParams) {
       inicio = (page - 1) * pageSize;
     }
     const pagina = skus.slice(inicio, inicio + pageSize);
+    const tabelaFast: any = linha === "CAMINHOES" ? prisma.products : prisma.agricolas;
     const encontrados = pagina.length
-      ? await prisma.agricolas.findMany({
+      ? await tabelaFast.findMany({
           where: { sku: { in: pagina } },
           include: { images: { orderBy: { sort_order: "asc" }, take: 1 } },
         })
       : [];
-    const porSku = new Map(encontrados.map((r) => [r.sku, r]));
+    const porSku = new Map(encontrados.map((r: any) => [r.sku, r]));
     const rows = pagina.map((s) => porSku.get(s)).filter(Boolean);
     const hasNextPage = inicio + pageSize < skus.length;
     return {
@@ -54,6 +70,11 @@ export async function listProducts(params: ListParams) {
   }
 
   const where: any = { AND: [] };
+
+  // Caminhões ficam na tabela `products` junto do Pellegrino: escopa pela coluna `linha`.
+  if (linha === "CAMINHOES") {
+    where.AND.push({ linha: "CAMINHOES" });
+  }
 
   // Versões de uma peça (duplicado_de) aparecem só na página do produto principal.
   if (linha === "AGRICOLA") {
@@ -73,7 +94,8 @@ export async function listProducts(params: ListParams) {
     });
   }
 
-  if (vitrine) {
+  // Caminhões não usam category_id (a categoria é texto do grupo), então a vitrine não se aplica.
+  if (vitrine && linha !== "CAMINHOES") {
     where.AND.push({ category_id: { not: null } });
   }
 
@@ -224,31 +246,30 @@ export async function listProducts(params: ListParams) {
 }
 
 export async function getProduct(sku: string) {
-  // Linha automotiva desligada: produtos da tabela `products` não são exibidos.
-  let data = !AUTOMOTIVA_ATIVA
-    ? null
-    : await prisma.products.findUnique({
-        where: { sku },
-        include: {
-          aplicacoes: true,
-          fichas_tecnicas: true,
-          similares: true,
-        },
-      });
-
-  if (!data) {
-    data = (await prisma.agricolas.findUnique({
-      where: { sku },
-      include: {
-        aplicacoes: true,
-        fichas_tecnicas: true,
-        similares: true,
-        variantes: {
-          select: { sku: true, codigo_fabricante: true, fabricante: true, nome: true },
-          orderBy: { codigo_fabricante: "asc" },
-        },
+  // Peça agrícola (principal); as versões (duplicado_de) resolvem pela página do principal.
+  let data = (await prisma.agricolas.findUnique({
+    where: { sku },
+    include: {
+      aplicacoes: true,
+      fichas_tecnicas: true,
+      similares: true,
+      variantes: {
+        select: { sku: true, codigo_fabricante: true, fabricante: true, nome: true },
+        orderBy: { codigo_fabricante: "asc" },
       },
-    })) as any;
+    },
+  })) as any;
+
+  // Caminhão (tabela products, linha CAMINHOES) quando a linha está ligada.
+  if (!data) {
+    const { linhaCaminhoesAtiva } = await import("./caminhoes.server");
+    if (await linhaCaminhoesAtiva()) {
+      const p = await prisma.products.findUnique({
+        where: { sku },
+        include: { aplicacoes: true, fichas_tecnicas: true, similares: true },
+      });
+      if (p && p.linha === "CAMINHOES") data = p as any;
+    }
   }
 
   // Custo e margem nunca saem para o site
@@ -307,7 +328,7 @@ export function limparCacheFacets() {
 }
 
 export async function getFacets(linha?: string) {
-  const cacheKey = (AUTOMOTIVA_ATIVA ? linha : "AGRICOLA") || "all";
+  const cacheKey = await resolverLinha(linha);
   if (facetsCache[cacheKey] && Date.now() - facetsCache[cacheKey].timestamp < 1000 * 60 * 5) {
     return facetsCache[cacheKey].data;
   }
@@ -335,6 +356,14 @@ export async function getFacets(linha?: string) {
       marcas: lista(marcas, "marca"),
       montadoras: lista(marcas, "marca"),
     };
+    facetsCache[cacheKey] = { data, timestamp: Date.now() };
+    return data;
+  }
+
+  // Linha de caminhões: grupos (categoria) e montadoras (marca) contados do índice em memória.
+  if (cacheKey === "CAMINHOES") {
+    const { facetsCaminhoes } = await import("./busca-catalogo.server");
+    const data = await facetsCaminhoes();
     facetsCache[cacheKey] = { data, timestamp: Date.now() };
     return data;
   }

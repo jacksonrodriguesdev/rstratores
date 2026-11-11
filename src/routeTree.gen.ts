@@ -82,8 +82,6 @@ import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
 import { Route as RepuestosAgricolasLocalRouteImport } from './routes/repuestos-agricolas.$local'
-import { Route as RepuestosCamionesIndexRouteImport } from './routes/repuestos-camiones.index'
-import { Route as RepuestosCamionesMontadoraRouteImport } from './routes/repuestos-camiones.$montadora'
 import { Route as RepuestosIndexRouteImport } from './routes/repuestos.index'
 import { Route as RepuestosSlugRouteImport } from './routes/repuestos.$slug'
 import { Route as SitemapsArquivoRouteImport } from './routes/sitemaps.$arquivo'
@@ -128,8 +126,6 @@ import { Route as DespachanteCotacaoCodigoRouteImport } from './routes/despachan
 import { Route as EmpresasCotizacionCodigoRouteImport } from './routes/empresas.cotizacion.$codigo'
 import { Route as EmpresasDocumentoCodigoRouteImport } from './routes/empresas.documento.$codigo'
 import { Route as EmpresasProformaCodigoRouteImport } from './routes/empresas.proforma.$codigo'
-import { Route as RepuestosCamionesMontadoraGrupoRouteImport } from './routes/repuestos-camiones.$montadora_.$grupo'
-import { Route as RepuestosCamionesProductoCodigoRouteImport } from './routes/repuestos-camiones.producto.$codigo'
 import { Route as RepuestosSlugSubRouteImport } from './routes/repuestos.$slug_.$sub'
 import { Route as ApiAdminAduanaArquivoRouteImport } from './routes/api/admin/aduana.arquivo'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
@@ -527,17 +523,6 @@ const RepuestosAgricolasLocalRoute = RepuestosAgricolasLocalRouteImport.update({
   path: '/repuestos-agricolas/$local',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RepuestosCamionesIndexRoute = RepuestosCamionesIndexRouteImport.update({
-  id: '/repuestos-camiones/',
-  path: '/repuestos-camiones/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RepuestosCamionesMontadoraRoute =
-  RepuestosCamionesMontadoraRouteImport.update({
-    id: '/repuestos-camiones/$montadora',
-    path: '/repuestos-camiones/$montadora',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const RepuestosIndexRoute = RepuestosIndexRouteImport.update({
   id: '/repuestos/',
   path: '/repuestos/',
@@ -761,18 +746,6 @@ const EmpresasProformaCodigoRoute = EmpresasProformaCodigoRouteImport.update({
   path: '/empresas/proforma/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RepuestosCamionesMontadoraGrupoRoute =
-  RepuestosCamionesMontadoraGrupoRouteImport.update({
-    id: '/repuestos-camiones/$montadora_/$grupo',
-    path: '/repuestos-camiones/$montadora/$grupo',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const RepuestosCamionesProductoCodigoRoute =
-  RepuestosCamionesProductoCodigoRouteImport.update({
-    id: '/repuestos-camiones/producto/$codigo',
-    path: '/repuestos-camiones/producto/$codigo',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const RepuestosSlugSubRoute = RepuestosSlugSubRouteImport.update({
   id: '/repuestos/$slug_/$sub',
   path: '/repuestos/$slug/$sub',
@@ -1004,7 +977,6 @@ export interface FileRoutesByFullPath {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
-  '/repuestos-camiones/$montadora': typeof RepuestosCamionesMontadoraRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
@@ -1014,7 +986,6 @@ export interface FileRoutesByFullPath {
   '/empresas/': typeof EmpresasIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
-  '/repuestos-camiones/': typeof RepuestosCamionesIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -1053,8 +1024,6 @@ export interface FileRoutesByFullPath {
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
-  '/repuestos-camiones/$montadora/$grupo': typeof RepuestosCamionesMontadoraGrupoRoute
-  '/repuestos-camiones/producto/$codigo': typeof RepuestosCamionesProductoCodigoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1156,7 +1125,6 @@ export interface FileRoutesByTo {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
-  '/repuestos-camiones/$montadora': typeof RepuestosCamionesMontadoraRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
@@ -1166,7 +1134,6 @@ export interface FileRoutesByTo {
   '/empresas': typeof EmpresasIndexRoute
   '/guias': typeof GuiasIndexRoute
   '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
-  '/repuestos-camiones': typeof RepuestosCamionesIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -1205,8 +1172,6 @@ export interface FileRoutesByTo {
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
-  '/repuestos-camiones/$montadora/$grupo': typeof RepuestosCamionesMontadoraGrupoRoute
-  '/repuestos-camiones/producto/$codigo': typeof RepuestosCamionesProductoCodigoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
@@ -1311,7 +1276,6 @@ export interface FileRoutesById {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
-  '/repuestos-camiones/$montadora': typeof RepuestosCamionesMontadoraRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
@@ -1321,7 +1285,6 @@ export interface FileRoutesById {
   '/empresas/': typeof EmpresasIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
-  '/repuestos-camiones/': typeof RepuestosCamionesIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -1360,8 +1323,6 @@ export interface FileRoutesById {
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
-  '/repuestos-camiones/$montadora_/$grupo': typeof RepuestosCamionesMontadoraGrupoRoute
-  '/repuestos-camiones/producto/$codigo': typeof RepuestosCamionesProductoCodigoRoute
   '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1467,7 +1428,6 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
-    | '/repuestos-camiones/$montadora'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
@@ -1477,7 +1437,6 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/guias/'
     | '/repuestos-agricolas/'
-    | '/repuestos-camiones/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1516,8 +1475,6 @@ export interface FileRouteTypes {
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
-    | '/repuestos-camiones/$montadora/$grupo'
-    | '/repuestos-camiones/producto/$codigo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1619,7 +1576,6 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
-    | '/repuestos-camiones/$montadora'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
@@ -1629,7 +1585,6 @@ export interface FileRouteTypes {
     | '/empresas'
     | '/guias'
     | '/repuestos-agricolas'
-    | '/repuestos-camiones'
     | '/repuestos'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1668,8 +1623,6 @@ export interface FileRouteTypes {
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
-    | '/repuestos-camiones/$montadora/$grupo'
-    | '/repuestos-camiones/producto/$codigo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
@@ -1773,7 +1726,6 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
-    | '/repuestos-camiones/$montadora'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
@@ -1783,7 +1735,6 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/guias/'
     | '/repuestos-agricolas/'
-    | '/repuestos-camiones/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1822,8 +1773,6 @@ export interface FileRouteTypes {
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
-    | '/repuestos-camiones/$montadora_/$grupo'
-    | '/repuestos-camiones/producto/$codigo'
     | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1889,7 +1838,6 @@ export interface RootRouteChildren {
   PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
-  RepuestosCamionesMontadoraRoute: typeof RepuestosCamionesMontadoraRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
   SitemapsArquivoRoute: typeof SitemapsArquivoRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
@@ -1897,7 +1845,6 @@ export interface RootRouteChildren {
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   GuiasIndexRoute: typeof GuiasIndexRoute
   RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
-  RepuestosCamionesIndexRoute: typeof RepuestosCamionesIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
@@ -1928,8 +1875,6 @@ export interface RootRouteChildren {
   EmpresasCotizacionCodigoRoute: typeof EmpresasCotizacionCodigoRoute
   EmpresasDocumentoCodigoRoute: typeof EmpresasDocumentoCodigoRoute
   EmpresasProformaCodigoRoute: typeof EmpresasProformaCodigoRoute
-  RepuestosCamionesMontadoraGrupoRoute: typeof RepuestosCamionesMontadoraGrupoRoute
-  RepuestosCamionesProductoCodigoRoute: typeof RepuestosCamionesProductoCodigoRoute
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminAduanaArquivoRoute: typeof ApiAdminAduanaArquivoRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
@@ -2465,20 +2410,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepuestosAgricolasLocalRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/repuestos-camiones/': {
-      id: '/repuestos-camiones/'
-      path: '/repuestos-camiones'
-      fullPath: '/repuestos-camiones/'
-      preLoaderRoute: typeof RepuestosCamionesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/repuestos-camiones/$montadora': {
-      id: '/repuestos-camiones/$montadora'
-      path: '/repuestos-camiones/$montadora'
-      fullPath: '/repuestos-camiones/$montadora'
-      preLoaderRoute: typeof RepuestosCamionesMontadoraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/repuestos/': {
       id: '/repuestos/'
       path: '/repuestos'
@@ -2785,20 +2716,6 @@ declare module '@tanstack/react-router' {
       path: '/empresas/proforma/$codigo'
       fullPath: '/empresas/proforma/$codigo'
       preLoaderRoute: typeof EmpresasProformaCodigoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/repuestos-camiones/$montadora_/$grupo': {
-      id: '/repuestos-camiones/$montadora_/$grupo'
-      path: '/repuestos-camiones/$montadora/$grupo'
-      fullPath: '/repuestos-camiones/$montadora/$grupo'
-      preLoaderRoute: typeof RepuestosCamionesMontadoraGrupoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/repuestos-camiones/producto/$codigo': {
-      id: '/repuestos-camiones/producto/$codigo'
-      path: '/repuestos-camiones/producto/$codigo'
-      fullPath: '/repuestos-camiones/producto/$codigo'
-      preLoaderRoute: typeof RepuestosCamionesProductoCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repuestos/$slug_/$sub': {
@@ -3252,7 +3169,6 @@ const rootRouteChildren: RootRouteChildren = {
   PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
-  RepuestosCamionesMontadoraRoute: RepuestosCamionesMontadoraRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,
   SitemapsArquivoRoute: SitemapsArquivoRoute,
   UploadsSplatRoute: UploadsSplatRoute,
@@ -3260,7 +3176,6 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasIndexRoute: EmpresasIndexRoute,
   GuiasIndexRoute: GuiasIndexRoute,
   RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
-  RepuestosCamionesIndexRoute: RepuestosCamionesIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
@@ -3291,8 +3206,6 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasCotizacionCodigoRoute: EmpresasCotizacionCodigoRoute,
   EmpresasDocumentoCodigoRoute: EmpresasDocumentoCodigoRoute,
   EmpresasProformaCodigoRoute: EmpresasProformaCodigoRoute,
-  RepuestosCamionesMontadoraGrupoRoute: RepuestosCamionesMontadoraGrupoRoute,
-  RepuestosCamionesProductoCodigoRoute: RepuestosCamionesProductoCodigoRoute,
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminAduanaArquivoRoute: ApiAdminAduanaArquivoRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,

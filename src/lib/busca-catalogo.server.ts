@@ -139,6 +139,95 @@ async function itens(): Promise<Item[]> {
   return estado.carregando;
 }
 
+// ---- Linha de caminhões: mesmo índice em memória, carregado sob demanda da tabela `products`
+// (linha='CAMINHOES'). Ordenar/filtrar 68 mil peças no MySQL por nome (TEXT) levava ~3 s.
+const Gc = globalThis as unknown as {
+  __indiceCaminhoes?: { cache: Indice | null; carregando: Promise<Item[]> | null };
+};
+const estadoCam = (Gc.__indiceCaminhoes ??= { cache: null, carregando: null });
+
+async function assinaturaCaminhoes(): Promise<string> {
+  const [r] = await prisma.$queryRawUnsafe<Array<{ n: bigint; u: Date | null }>>(
+    "SELECT COUNT(*) AS n, MAX(updated_at) AS u FROM products WHERE linha='CAMINHOES'",
+  );
+  return `${r?.n ?? 0}|${r?.u ? new Date(r.u).getTime() : 0}`;
+}
+
+async function carregarCaminhoes(): Promise<Item[]> {
+  const linhas = await prisma.products.findMany({
+    where: { linha: "CAMINHOES" },
+    select: {
+      sku: true,
+      nome: true,
+      categoria: true,
+      marca: true,
+      codigo_fabricante: true,
+      imagem_principal: true,
+      created_at: true,
+      veiculos_compativeis: true,
+    },
+  });
+  return linhas.map((l) => {
+    const img = l.imagem_principal ?? "";
+    const codigos = [l.sku, l.codigo_fabricante ?? ""].map(soCodigo).filter(Boolean).join(" ");
+    return {
+      sku: l.sku,
+      nome: l.nome,
+      nomeN: normalizar(l.nome),
+      codigos,
+      texto: normalizar(
+        [l.nome, l.sku, l.codigo_fabricante, l.marca, l.categoria, l.veiculos_compativeis].join(
+          " ",
+        ),
+      ),
+      categoria: l.categoria,
+      categoriaN: normalizar(l.categoria),
+      temCategoria: true,
+      marca: l.marca,
+      comImagem: img !== "" && !fotoInvalida(img),
+      fotoPropria: false,
+      criado: l.created_at.getTime(),
+    };
+  });
+}
+
+async function itensCaminhoes(): Promise<Item[]> {
+  if (estadoCam.cache && Date.now() - estadoCam.cache.em < VALIDADE) {
+    if (Date.now() - estadoCam.cache.conferido < CONFERIR) return estadoCam.cache.itens;
+    estadoCam.cache.conferido = Date.now();
+    try {
+      if ((await assinaturaCaminhoes()) === estadoCam.cache.assinatura)
+        return estadoCam.cache.itens;
+    } catch {
+      return estadoCam.cache.itens;
+    }
+  }
+  estadoCam.carregando ??= (async () => {
+    const assinatura = await assinaturaCaminhoes().catch(() => "");
+    const lista = await carregarCaminhoes();
+    estadoCam.cache = { itens: lista, em: Date.now(), assinatura, conferido: Date.now() };
+    return lista;
+  })().finally(() => (estadoCam.carregando = null));
+  return estadoCam.carregando;
+}
+
+// Filtros (categoria/marca) da linha de caminhões, contados do índice em memória.
+export async function facetsCaminhoes() {
+  const lista = await itensCaminhoes();
+  const contar = (campo: "categoria" | "marca") => {
+    const m = new Map<string, number>();
+    for (const i of lista) {
+      const v = i[campo];
+      if (v) m.set(v, (m.get(v) ?? 0) + 1);
+    }
+    return [...m.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  };
+  const marcas = contar("marca");
+  return { categorias: contar("categoria"), marcas, montadoras: marcas };
+}
+
 export type FiltrosBusca = {
   search?: string;
   categoria?: string | string[];
@@ -156,8 +245,8 @@ const compararNome = (a: Item, b: Item) =>
   a.nome < b.nome ? -1 : a.nome > b.nome ? 1 : a.sku < b.sku ? -1 : 1;
 
 // Devolve os SKUs na ordem de exibição.
-export async function buscarSkus(f: FiltrosBusca): Promise<string[]> {
-  let lista = await itens();
+export async function buscarSkus(f: FiltrosBusca, linha = "AGRICOLA"): Promise<string[]> {
+  let lista = linha === "CAMINHOES" ? await itensCaminhoes() : await itens();
 
   const termos = prepararBusca(f.search ?? "");
   const consultaCodigo = soCodigo(f.search ?? "");

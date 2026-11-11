@@ -431,7 +431,7 @@ function PainelCaminhoes() {
       <div className="flex items-center gap-2">
         {ativa && (
           <Button asChild variant="outline">
-            <a href="/repuestos-camiones" target="_blank" rel="noopener noreferrer">
+            <a href="/loja?linha=CAMINHOES" target="_blank" rel="noopener noreferrer">
               Ver na loja
             </a>
           </Button>
