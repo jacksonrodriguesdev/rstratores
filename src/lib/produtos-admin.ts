@@ -125,10 +125,17 @@ export const resumoProdutosFn = createServerFn({ method: "GET" }).handler(async 
   const comFotoSemPreco = await prisma.agricolas.count({
     where: { AND: [whereFiltro("com_foto"), SEM_PRECO] },
   });
-  return { ...Object.fromEntries(ent), comFotoSemPreco } as Record<
-    Filtro | "comFotoSemPreco",
-    number
-  >;
+  const [agricola, caminhoes] = await Promise.all([
+    prisma.agricolas.count({ where: { duplicado_de: null } }),
+    prisma.products.count({ where: { linha: "CAMINHOES" } }),
+  ]);
+  return {
+    ...Object.fromEntries(ent),
+    comFotoSemPreco,
+    totais: { agricola, caminhoes, total: agricola + caminhoes },
+  } as Record<Filtro | "comFotoSemPreco", number> & {
+    totais: { agricola: number; caminhoes: number; total: number };
+  };
 });
 
 export type LinhaAdmin = {
@@ -581,5 +588,154 @@ export const salvarConfigPrecosFn = createServerFn({ method: "POST" })
     await admin();
     const { salvarConfiguracoes } = await import("./precos.server");
     await salvarConfiguracoes(data);
+    return { ok: true };
+  });
+
+// ---------- Visão de caminhões no admin (tabela products, linha='CAMINHOES') ----------
+// Só leitura + preço simples (preco_brl). As colunas avançadas de preço ($U) são exclusivas da
+// linha agrícola; aqui o preço entra aos poucos pelo campo em R$ (ou deixa "consultar").
+function whereCaminhao(filtro: string): any {
+  const base: any = { linha: "CAMINHOES" };
+  switch (filtro) {
+    case "com_foto":
+      return { AND: [base, FOTO_OK] };
+    case "sem_foto":
+      return { AND: [base, SEM_FOTO] };
+    case "sem_preco":
+      return { AND: [base, SEM_PRECO] };
+    case "precificados":
+      return { AND: [base, COM_PRECO] };
+    default:
+      return base;
+  }
+}
+
+export const FILTROS_CAMINHAO = [
+  ["todos", "Todos"],
+  ["com_foto", "Com foto"],
+  ["sem_foto", "Sem foto"],
+  ["sem_preco", "Sem preço"],
+  ["precificados", "Precificados"],
+] as const;
+
+export const resumoCaminhoesFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const { prisma } = await import("./prisma");
+  const ent = await Promise.all(
+    FILTROS_CAMINHAO.map(
+      async ([k]) => [k, await prisma.products.count({ where: whereCaminhao(k) })] as const,
+    ),
+  );
+  return Object.fromEntries(ent) as Record<(typeof FILTROS_CAMINHAO)[number][0], number>;
+});
+
+export const opcoesCaminhoesFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  const { prisma } = await import("./prisma");
+  const [cats, marcas] = await Promise.all([
+    prisma.products.groupBy({
+      by: ["categoria"],
+      where: { linha: "CAMINHOES" },
+      _count: { _all: true },
+      orderBy: { _count: { categoria: "desc" } },
+    }),
+    prisma.products.groupBy({
+      by: ["marca"],
+      where: { linha: "CAMINHOES", marca: { not: null } },
+      _count: { _all: true },
+      orderBy: { _count: { marca: "desc" } },
+    }),
+  ]);
+  return {
+    categorias: cats.filter((c) => c.categoria).map((c) => c.categoria as string),
+    marcas: marcas.filter((m) => m.marca).map((m) => m.marca as string),
+  };
+});
+
+export type LinhaCaminhao = {
+  sku: string;
+  nome: string;
+  nome_es: string | null;
+  codigo_fabricante: string | null;
+  marca: string | null;
+  categoria: string | null;
+  veiculos_compativeis: string | null;
+  imagem_principal: string | null;
+  preco_brl: number | null;
+  estoque: number;
+};
+export const listarCaminhoesAdminFn = createServerFn({ method: "GET" })
+  .validator((d: ParamsLista) => d)
+  .handler(async ({ data }) => {
+    await admin();
+    const { prisma } = await import("./prisma");
+    const where: any = { AND: [whereCaminhao(data.filtro)] };
+    const q = (data.busca || "").trim();
+    if (q)
+      where.AND.push({
+        OR: [
+          { sku: { contains: q } },
+          { codigo_fabricante: { contains: q } },
+          { nome: { contains: q } },
+          { nome_es: { contains: q } },
+          { veiculos_compativeis: { contains: q } },
+        ],
+      });
+    if (data.categoria) where.AND.push({ categoria: String(data.categoria) });
+    if (data.marca) where.AND.push({ marca: data.marca });
+    const porPagina = Math.min(Math.max(Number(data.porPagina) || 50, 10), 200);
+    const pagina = Math.max(1, Number(data.pagina) || 1);
+    const orderBy: any =
+      data.ordem === "recentes"
+        ? [{ updated_at: "desc" }]
+        : data.ordem === "foto"
+          ? [{ imagem_principal: "desc" }, { nome: "asc" }]
+          : [{ nome: "asc" }];
+    const [total, rows] = await Promise.all([
+      prisma.products.count({ where }),
+      prisma.products.findMany({
+        where,
+        orderBy,
+        skip: (pagina - 1) * porPagina,
+        take: porPagina,
+        select: {
+          sku: true,
+          nome: true,
+          nome_es: true,
+          codigo_fabricante: true,
+          marca: true,
+          categoria: true,
+          veiculos_compativeis: true,
+          imagem_principal: true,
+          preco_brl: true,
+          estoque: true,
+        },
+      }),
+    ]);
+    return { total, pagina, porPagina, rows: rows as LinhaCaminhao[] };
+  });
+
+// Preço simples do caminhão (R$) e estoque. Vazio/0 → volta a "consultar".
+export const salvarPrecoCaminhaoFn = createServerFn({ method: "POST" })
+  .validator(
+    (d: { sku: string; preco_brl?: number | string | null; estoque?: number | string }) => d,
+  )
+  .handler(async ({ data }) => {
+    await admin();
+    const { prisma } = await import("./prisma");
+    const atual = await prisma.products.findUnique({ where: { sku: String(data.sku) } });
+    if (!atual || atual.linha !== "CAMINHOES") throw new Error("Peça não encontrada");
+    const preco =
+      data.preco_brl === "" || data.preco_brl == null
+        ? null
+        : Number(String(data.preco_brl).replace(",", "."));
+    if (preco != null && (Number.isNaN(preco) || preco < 0)) throw new Error("Preço inválido");
+    const estoque = Math.max(0, Math.round(Number(data.estoque) || 0));
+    await prisma.products.update({
+      where: { sku: atual.sku },
+      data: { preco_brl: preco, estoque },
+    });
+    const { limparCacheCatalogo } = await import("./busca-catalogo.server");
+    limparCacheCatalogo();
     return { ok: true };
   });

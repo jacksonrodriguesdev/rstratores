@@ -43,7 +43,13 @@ import {
   salvarProdutoAdminFn,
   precosAdminFn,
   avisosVisibilidade,
+  FILTROS_CAMINHAO,
+  resumoCaminhoesFn,
+  listarCaminhoesAdminFn,
+  opcoesCaminhoesFn,
+  salvarPrecoCaminhaoFn,
   type LinhaAdmin,
+  type LinhaCaminhao,
   type ParamsLista,
 } from "@/lib/produtos-admin";
 import {
@@ -76,6 +82,7 @@ const temPreco = (r: Pick<LinhaAdmin, "preco_brl" | "preco_modo" | "preco_uyu">)
 
 function Produtos() {
   const qc = useQueryClient();
+  const [linhaAdmin, setLinhaAdmin] = useState<"AGRICOLA" | "CAMINHOES">("AGRICOLA");
   const [p, setP] = useState<ParamsLista>({
     filtro: "com_foto",
     busca: "",
@@ -187,151 +194,159 @@ function Produtos() {
         }}
       />
 
-      <FotosAgrotrator />
+      <SeletorLinhaAdmin linha={linhaAdmin} setLinha={setLinhaAdmin} totais={resumo?.totais} />
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
-        {FILTROS.map(([k, rot]) => (
-          <button
-            key={k}
-            onClick={() => setP({ ...p, filtro: k, pagina: 1 })}
-            className={cn(
-              "rounded-xl border p-3 text-left transition",
-              p.filtro === k
-                ? "border-primary bg-primary/5 ring-1 ring-primary"
-                : "bg-card hover:border-primary/40",
-            )}
-          >
-            <p className="text-xs font-semibold text-muted-foreground">{rot}</p>
-            <p className="text-2xl font-bold">
-              {resumo ? (resumo[k] ?? 0).toLocaleString("pt-BR") : "…"}
-            </p>
-          </button>
-        ))}
-      </div>
-      {resumo && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-3 text-sm">
-          <span>Progresso da vitrine com foto:</span>
-          <div className="h-2 min-w-[160px] flex-1 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{
-                width: `${resumo.com_foto ? ((resumo.com_foto - resumo.comFotoSemPreco) / resumo.com_foto) * 100 : 0}%`,
-              }}
-            />
+      {linhaAdmin === "CAMINHOES" && <VistaCaminhoes />}
+
+      {linhaAdmin === "AGRICOLA" && (
+        <>
+          <FotosAgrotrator />
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+            {FILTROS.map(([k, rot]) => (
+              <button
+                key={k}
+                onClick={() => setP({ ...p, filtro: k, pagina: 1 })}
+                className={cn(
+                  "rounded-xl border p-3 text-left transition",
+                  p.filtro === k
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "bg-card hover:border-primary/40",
+                )}
+              >
+                <p className="text-xs font-semibold text-muted-foreground">{rot}</p>
+                <p className="text-2xl font-bold">
+                  {resumo ? (resumo[k] ?? 0).toLocaleString("pt-BR") : "…"}
+                </p>
+              </button>
+            ))}
           </div>
-          <b>
-            {(resumo.com_foto - resumo.comFotoSemPreco).toLocaleString("pt-BR")} de{" "}
-            {resumo.com_foto.toLocaleString("pt-BR")} precificados
-          </b>
-        </div>
-      )}
-
-      <Card className="flex flex-wrap items-center gap-2 p-3">
-        <div className="relative min-w-[220px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por nome, código ou SKU…"
-            className="pl-9"
-          />
-        </div>
-        <select
-          value={p.categoria ?? ""}
-          onChange={(e) =>
-            setP({ ...p, categoria: e.target.value ? Number(e.target.value) : null, pagina: 1 })
-          }
-          className="h-10 rounded-md border bg-background px-3 text-sm"
-        >
-          <option value="">Todas as categorias</option>
-          {opc?.categorias.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nome}
-            </option>
-          ))}
-        </select>
-        <select
-          value={p.marca}
-          onChange={(e) => setP({ ...p, marca: e.target.value, pagina: 1 })}
-          className="h-10 rounded-md border bg-background px-3 text-sm"
-        >
-          <option value="">Todas as marcas</option>
-          {opc?.marcas.map((m) => (
-            <option key={m}>{m}</option>
-          ))}
-        </select>
-        <select
-          value={p.ordem}
-          onChange={(e) => setP({ ...p, ordem: e.target.value as ParamsLista["ordem"] })}
-          className="h-10 rounded-md border bg-background px-3 text-sm"
-        >
-          <option value="nome">Nome A–Z</option>
-          <option value="recentes">Alterados recentemente</option>
-          <option value="foto">Com foto primeiro</option>
-        </select>
-        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
-      </Card>
-
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1100px] text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="w-10 p-3"></th>
-                <th className="p-3">Produto</th>
-                <th className="w-28 p-2">Custo R$</th>
-                <th className="w-24 p-2">Margem %</th>
-                <th className="w-28 p-2">Venda R$</th>
-                <th className="w-28 p-2">$U</th>
-                <th className="w-24 p-2">Peso kg</th>
-                <th className="w-44 p-2">A × L × C (cm)</th>
-                <th className="w-24 p-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.rows.map((r) => (
-                <LinhaProduto
-                  key={r.sku}
-                  r={r}
-                  cfg={precos?.cfg}
-                  aoEditar={() => setEditando(r.sku)}
-                  aoSalvar={linhaSalva}
+          {resumo && (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-3 text-sm">
+              <span>Progresso da vitrine com foto:</span>
+              <div className="h-2 min-w-[160px] flex-1 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{
+                    width: `${resumo.com_foto ? ((resumo.com_foto - resumo.comFotoSemPreco) / resumo.com_foto) * 100 : 0}%`,
+                  }}
                 />
-              ))}
-            </tbody>
-          </table>
-          {data && !data.rows.length && (
-            <p className="p-10 text-center text-sm text-muted-foreground">
-              Nenhum produto nesta lista.
-            </p>
+              </div>
+              <b>
+                {(resumo.com_foto - resumo.comFotoSemPreco).toLocaleString("pt-BR")} de{" "}
+                {resumo.com_foto.toLocaleString("pt-BR")} precificados
+              </b>
+            </div>
           )}
-        </div>
-        <div className="flex items-center justify-between border-t p-3 text-sm">
-          <span className="text-muted-foreground">
-            {data
-              ? `${data.total.toLocaleString("pt-BR")} produtos · página ${p.pagina} de ${paginas}`
-              : "…"}
-          </span>
-          <div className="flex gap-1">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={(p.pagina ?? 1) <= 1}
-              onClick={() => setP({ ...p, pagina: (p.pagina ?? 1) - 1 })}
+
+          <Card className="flex flex-wrap items-center gap-2 p-3">
+            <div className="relative min-w-[220px] flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Buscar por nome, código ou SKU…"
+                className="pl-9"
+              />
+            </div>
+            <select
+              value={p.categoria ?? ""}
+              onChange={(e) =>
+                setP({ ...p, categoria: e.target.value ? Number(e.target.value) : null, pagina: 1 })
+              }
+              className="h-10 rounded-md border bg-background px-3 text-sm"
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={(p.pagina ?? 1) >= paginas}
-              onClick={() => setP({ ...p, pagina: (p.pagina ?? 1) + 1 })}
+              <option value="">Todas as categorias</option>
+              {opc?.categorias.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+            <select
+              value={p.marca}
+              onChange={(e) => setP({ ...p, marca: e.target.value, pagina: 1 })}
+              className="h-10 rounded-md border bg-background px-3 text-sm"
             >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </Card>
+              <option value="">Todas as marcas</option>
+              {opc?.marcas.map((m) => (
+                <option key={m}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={p.ordem}
+              onChange={(e) => setP({ ...p, ordem: e.target.value as ParamsLista["ordem"] })}
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="nome">Nome A–Z</option>
+              <option value="recentes">Alterados recentemente</option>
+              <option value="foto">Com foto primeiro</option>
+            </select>
+            {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+          </Card>
+
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1100px] text-sm">
+                <thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="w-10 p-3"></th>
+                    <th className="p-3">Produto</th>
+                    <th className="w-28 p-2">Custo R$</th>
+                    <th className="w-24 p-2">Margem %</th>
+                    <th className="w-28 p-2">Venda R$</th>
+                    <th className="w-28 p-2">$U</th>
+                    <th className="w-24 p-2">Peso kg</th>
+                    <th className="w-44 p-2">A × L × C (cm)</th>
+                    <th className="w-24 p-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.rows.map((r) => (
+                    <LinhaProduto
+                      key={r.sku}
+                      r={r}
+                      cfg={precos?.cfg}
+                      aoEditar={() => setEditando(r.sku)}
+                      aoSalvar={linhaSalva}
+                    />
+                  ))}
+                </tbody>
+              </table>
+              {data && !data.rows.length && (
+                <p className="p-10 text-center text-sm text-muted-foreground">
+                  Nenhum produto nesta lista.
+                </p>
+              )}
+            </div>
+            <div className="flex items-center justify-between border-t p-3 text-sm">
+              <span className="text-muted-foreground">
+                {data
+                  ? `${data.total.toLocaleString("pt-BR")} produtos · página ${p.pagina} de ${paginas}`
+                  : "…"}
+              </span>
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={(p.pagina ?? 1) <= 1}
+                  onClick={() => setP({ ...p, pagina: (p.pagina ?? 1) - 1 })}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={(p.pagina ?? 1) >= paginas}
+                  onClick={() => setP({ ...p, pagina: (p.pagina ?? 1) + 1 })}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </>
+      )}
 
       <Dialog
         open={!!editando}
@@ -379,7 +394,290 @@ function Produtos() {
 }
 
 // Linha com edição rápida: salva sozinha ao sair da linha (ou Enter) e mostra o resultado na hora
-// Liga/desliga a linha inteira de peças de caminhão (catálogo Roni Chaves, /repuestos-camiones).
+// Seletor de linha (Agrícola / Caminhões) + totais da plataforma.
+function SeletorLinhaAdmin({
+  linha,
+  setLinha,
+  totais,
+}: {
+  linha: "AGRICOLA" | "CAMINHOES";
+  setLinha: (l: "AGRICOLA" | "CAMINHOES") => void;
+  totais?: { agricola: number; caminhoes: number; total: number };
+}) {
+  const fmt = (n?: number) => (n ?? 0).toLocaleString("pt-BR");
+  return (
+    <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
+      <div className="flex gap-2">
+        {(
+          [
+            ["AGRICOLA", "Agrícola"],
+            ["CAMINHOES", "Caminhões"],
+          ] as const
+        ).map(([k, rot]) => (
+          <button
+            key={k}
+            onClick={() => setLinha(k)}
+            className={cn(
+              "rounded-lg border px-4 py-2 text-sm font-semibold transition",
+              linha === k
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
+            )}
+          >
+            {rot}
+          </button>
+        ))}
+      </div>
+      {totais && (
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <span className="text-muted-foreground">
+            Plataforma: <b className="text-foreground">{fmt(totais.total)}</b> peças
+          </span>
+          <span className="text-muted-foreground">
+            Agrícola: <b className="text-foreground">{fmt(totais.agricola)}</b>
+          </span>
+          <span className="text-muted-foreground">
+            Caminhões: <b className="text-foreground">{fmt(totais.caminhoes)}</b>
+          </span>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// Visão de caminhões: filtros (categoria/montadora/estado), busca e preço simples (R$).
+function VistaCaminhoes() {
+  const qc = useQueryClient();
+  const [filtro, setFiltro] = useState<string>("todos");
+  const [busca, setBusca] = useState("");
+  const [buscaDeb, setBuscaDeb] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [marca, setMarca] = useState("");
+  const [pagina, setPagina] = useState(1);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setBuscaDeb(busca.trim());
+      setPagina(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [busca]);
+  const { data: resumo } = useQuery({
+    queryKey: ["cam-resumo"],
+    queryFn: () => resumoCaminhoesFn(),
+  });
+  const { data: opc } = useQuery({ queryKey: ["cam-opc"], queryFn: () => opcoesCaminhoesFn() });
+  const params = {
+    filtro,
+    busca: buscaDeb,
+    categoria: categoria || undefined,
+    marca: marca || undefined,
+    pagina,
+    porPagina: 50,
+  } as any;
+  const { data, isFetching } = useQuery({
+    queryKey: ["cam-lista", params],
+    queryFn: () => listarCaminhoesAdminFn({ data: params }),
+  });
+  const paginas = data ? Math.max(1, Math.ceil(data.total / data.porPagina)) : 1;
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {FILTROS_CAMINHAO.map(([k, rot]) => (
+          <button
+            key={k}
+            onClick={() => {
+              setFiltro(k);
+              setPagina(1);
+            }}
+            className={cn(
+              "rounded-xl border p-3 text-left transition",
+              filtro === k
+                ? "border-primary bg-primary/5 ring-1 ring-primary"
+                : "bg-card hover:border-primary/40",
+            )}
+          >
+            <p className="text-xs font-semibold text-muted-foreground">{rot}</p>
+            <p className="text-2xl font-bold">
+              {resumo ? (resumo[k as keyof typeof resumo] ?? 0).toLocaleString("pt-BR") : "…"}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      <Card className="flex flex-wrap items-center gap-2 p-3">
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar por código, nome ou aplicação…"
+            className="pl-9"
+          />
+        </div>
+        <select
+          value={categoria}
+          onChange={(e) => {
+            setCategoria(e.target.value);
+            setPagina(1);
+          }}
+          className="h-10 rounded-md border bg-background px-3 text-sm"
+        >
+          <option value="">Todos os grupos</option>
+          {opc?.categorias.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select
+          value={marca}
+          onChange={(e) => {
+            setMarca(e.target.value);
+            setPagina(1);
+          }}
+          className="h-10 rounded-md border bg-background px-3 text-sm"
+        >
+          <option value="">Todas as montadoras</option>
+          {opc?.marcas.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      </Card>
+
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <tr>
+                <th className="p-2">Foto</th>
+                <th className="p-2">Código</th>
+                <th className="p-2">Peça</th>
+                <th className="p-2">Montadora / grupo</th>
+                <th className="p-2">Preço R$</th>
+                <th className="p-2" />
+              </tr>
+            </thead>
+            <tbody>
+              {data?.rows.map((r) => (
+                <RowCaminhao
+                  key={r.sku}
+                  r={r}
+                  aoSalvar={() => qc.invalidateQueries({ queryKey: ["cam-lista"] })}
+                />
+              ))}
+            </tbody>
+          </table>
+          {data && !data.rows.length && (
+            <p className="p-10 text-center text-sm text-muted-foreground">
+              Nenhuma peça de caminhão neste filtro.
+            </p>
+          )}
+        </div>
+        <div className="flex items-center justify-between border-t p-3 text-sm">
+          <span className="text-muted-foreground">
+            {data
+              ? `${data.total.toLocaleString("pt-BR")} peças · página ${pagina} de ${paginas}`
+              : "…"}
+          </span>
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pagina <= 1}
+              onClick={() => setPagina(pagina - 1)}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pagina >= paginas}
+              onClick={() => setPagina(pagina + 1)}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function RowCaminhao({ r, aoSalvar }: { r: LinhaCaminhao; aoSalvar: () => void }) {
+  const [preco, setPreco] = useState(r.preco_brl != null ? String(r.preco_brl) : "");
+  const [salvando, setSalvando] = useState(false);
+  const mudou = (r.preco_brl != null ? String(r.preco_brl) : "") !== preco;
+  const salvar = async () => {
+    setSalvando(true);
+    try {
+      await salvarPrecoCaminhaoFn({
+        data: { sku: r.sku, preco_brl: preco === "" ? null : preco, estoque: r.estoque },
+      });
+      toast.success("Preço salvo");
+      aoSalvar();
+    } catch (e: any) {
+      toast.error(e?.message || "Erro");
+    } finally {
+      setSalvando(false);
+    }
+  };
+  return (
+    <tr className="border-t align-middle">
+      <td className="p-2">
+        {r.imagem_principal ? (
+          <img
+            src={r.imagem_principal}
+            alt=""
+            className="h-10 w-10 rounded object-contain"
+            loading="lazy"
+          />
+        ) : (
+          <div className="grid h-10 w-10 place-items-center rounded bg-muted text-[10px] text-muted-foreground">
+            —
+          </div>
+        )}
+      </td>
+      <td className="p-2 font-mono text-xs">
+        {r.sku}
+        {r.codigo_fabricante && <div className="text-muted-foreground">{r.codigo_fabricante}</div>}
+      </td>
+      <td className="max-w-[260px] p-2">
+        <p className="line-clamp-2 font-medium">{r.nome}</p>
+        {r.veiculos_compativeis && (
+          <p className="line-clamp-1 text-xs text-muted-foreground">{r.veiculos_compativeis}</p>
+        )}
+      </td>
+      <td className="p-2 text-xs">
+        <span className="font-semibold">{r.marca}</span>
+        {r.categoria && <div className="text-muted-foreground">{r.categoria}</div>}
+      </td>
+      <td className="p-2">
+        <Input
+          value={preco}
+          onChange={(e) => setPreco(e.target.value)}
+          inputMode="decimal"
+          placeholder="consultar"
+          className="h-8 w-24"
+        />
+      </td>
+      <td className="p-2">
+        <Button
+          size="sm"
+          variant={mudou ? "default" : "outline"}
+          disabled={!mudou || salvando}
+          onClick={salvar}
+        >
+          {salvando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Salvar"}
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
+// Liga/desliga a linha inteira de peças de caminhão (catálogo Roni Chaves).
 function PainelCaminhoes() {
   const qc = useQueryClient();
   const [salvando, setSalvando] = useState(false);
