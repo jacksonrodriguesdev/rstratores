@@ -52,6 +52,8 @@ export function SugestaoIdioma() {
   if (
     !mostrar ||
     pathname.startsWith("/admin") ||
+    pathname.startsWith("/despachante") ||
+    pathname.startsWith("/convite-despachante") ||
     pathname.startsWith("/catalogos/ver/") ||
     pathname.startsWith("/empresas")
   )

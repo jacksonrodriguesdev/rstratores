@@ -19,7 +19,9 @@ import {
   CircleCheck,
   Circle,
   EyeOff,
+  Truck,
 } from "lucide-react";
+import { statusCaminhoesFn, ativarCaminhoesFn } from "@/lib/caminhoes";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,6 +176,8 @@ function Produtos() {
           </Button>
         </div>
       </div>
+
+      <PainelCaminhoes />
 
       <PainelCotacao
         dados={precos}
@@ -375,6 +379,76 @@ function Produtos() {
 }
 
 // Linha com edição rápida: salva sozinha ao sair da linha (ou Enter) e mostra o resultado na hora
+// Liga/desliga a linha inteira de peças de caminhão (catálogo Roni Chaves, /repuestos-camiones).
+function PainelCaminhoes() {
+  const qc = useQueryClient();
+  const [salvando, setSalvando] = useState(false);
+  const { data } = useQuery({
+    queryKey: ["caminhoes-status"],
+    queryFn: () => statusCaminhoesFn(),
+  });
+  const ativa = data?.ativa ?? false;
+  const alternar = async () => {
+    setSalvando(true);
+    try {
+      await ativarCaminhoesFn({ data: { ativa: !ativa } });
+      await qc.invalidateQueries({ queryKey: ["caminhoes-status"] });
+      toast.success(ativa ? "Linha de caminhões desativada" : "Linha de caminhões ativada");
+    } catch (e: any) {
+      toast.error(e?.message || "Erro ao salvar");
+    } finally {
+      setSalvando(false);
+    }
+  };
+  return (
+    <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
+      <div className="flex items-center gap-3">
+        <span
+          className={`grid h-10 w-10 place-items-center rounded-xl ${
+            ativa ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-400"
+          }`}
+        >
+          <Truck className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="flex items-center gap-2 font-bold">
+            Linha de caminhões (Roni Chaves)
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                ativa ? "bg-emerald-100 text-emerald-700" : "bg-zinc-200 text-zinc-600"
+              }`}
+            >
+              {ativa ? "ATIVA" : "DESATIVADA"}
+            </span>
+          </p>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {data
+              ? `${data.total.toLocaleString("pt-BR")} peças · ${data.montadoras} montadoras · só espanhol, preço "consultar"`
+              : "Carregando…"}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {ativa && (
+          <Button asChild variant="outline">
+            <a href="/repuestos-camiones" target="_blank" rel="noopener noreferrer">
+              Ver na loja
+            </a>
+          </Button>
+        )}
+        <Button onClick={alternar} disabled={salvando} variant={ativa ? "outline" : "default"}>
+          {salvando ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Truck className="mr-2 h-4 w-4" />
+          )}
+          {ativa ? "Desativar linha" : "Ativar linha"}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 function LinhaProduto({
   r,
   cfg,

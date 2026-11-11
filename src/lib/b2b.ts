@@ -171,7 +171,7 @@ export const proformaFn = createServerFn({ method: "GET" })
     const s = await logado();
     const b = await import("./b2b.server");
     const r =
-      s.role === "ADMIN"
+      s.role === "ADMIN" || s.role === "DESPACHANTE"
         ? await b.cotacaoAdmin(data.codigo)
         : await b.cotacaoDoCliente(Number(s.id), data.codigo);
     const { nota_interna: _n, ...cotacao } = r.cotacao;

@@ -7,6 +7,10 @@ const admin = async () => {
   const { assertAdmin } = await import("../auth.server");
   return assertAdmin();
 };
+const despachante = async () => {
+  const { assertDespachante } = await import("../auth.server");
+  return assertDespachante();
+};
 const logado = async () => {
   const { getSession } = await import("../auth.server");
   const s = await getSession();
@@ -15,7 +19,7 @@ const logado = async () => {
 };
 
 export const painelAduanaFn = createServerFn({ method: "GET" }).handler(async () => {
-  await admin();
+  await despachante();
   const ad = await import("./aduana.server");
   const [config, prontidao, embarques] = await Promise.all([
     ad.configAduana(),
@@ -39,7 +43,7 @@ export const origensFn = createServerFn({ method: "GET" })
     filtro: String(d?.filtro ?? "").slice(0, 20),
   }))
   .handler(async ({ data }) => {
-    await admin();
+    await despachante();
     const ad = await import("./aduana.server");
     return ad.listarOrigens(data.q, data.filtro);
   });
@@ -47,7 +51,7 @@ export const origensFn = createServerFn({ method: "GET" })
 export const salvarOrigemFn = createServerFn({ method: "POST" })
   .validator((d: Partial<Origem> & { sku: string }) => d)
   .handler(async ({ data }) => {
-    await admin();
+    await despachante();
     const ad = await import("./aduana.server");
     return ad.salvarOrigem(data);
   });
@@ -55,7 +59,7 @@ export const salvarOrigemFn = createServerFn({ method: "POST" })
 export const embarqueAdminFn = createServerFn({ method: "GET" })
   .validator((d: { codigo: string }) => ({ codigo: String(d?.codigo ?? "").slice(0, 16) }))
   .handler(async ({ data }) => {
-    await admin();
+    await despachante();
     const b = await import("../b2b.server");
     return b.cotacaoAdmin(data.codigo);
   });
@@ -81,7 +85,7 @@ export const atualizarEmbarqueFn = createServerFn({ method: "POST" })
     }) => ({ ...d, id: Number(d?.id) || 0 }),
   )
   .handler(async ({ data }) => {
-    await admin();
+    await despachante();
     const ad = await import("./aduana.server");
     return ad.atualizarEmbarque(data);
   });
@@ -89,7 +93,7 @@ export const atualizarEmbarqueFn = createServerFn({ method: "POST" })
 export const apagarArquivoFn = createServerFn({ method: "POST" })
   .validator((d: { id: string }) => ({ id: String(d?.id ?? "").slice(0, 32) }))
   .handler(async ({ data }) => {
-    await admin();
+    await despachante();
     const ad = await import("./aduana.server");
     return ad.apagarArquivo(data.id);
   });
@@ -114,7 +118,7 @@ export const documentoFn = createServerFn({ method: "GET" })
     const b = await import("../b2b.server");
     const ad = await import("./aduana.server");
     const r =
-      s.role === "ADMIN"
+      s.role === "ADMIN" || s.role === "DESPACHANTE"
         ? await b.cotacaoAdmin(data.codigo)
         : await b.cotacaoDoCliente(Number(s.id), data.codigo);
     if (!["COTADA", "ACEITA"].includes(r.cotacao.status))

@@ -13,7 +13,10 @@ function getJwtSecret(): Uint8Array {
 }
 
 // Duração do login: cliente 7 dias; admin 12 horas (cookie do painel roubado vale pouco tempo)
-export const duracaoSessao = (role: string) => (role === "ADMIN" ? 12 * 60 * 60 : 7 * 24 * 60 * 60);
+// Admin e despachante (veem dados de todas as empresas): sessão curta de 12 h; cliente: 7 dias
+export const PAPEIS_PAINEL = ["ADMIN", "DESPACHANTE"];
+export const duracaoSessao = (role: string) =>
+  PAPEIS_PAINEL.includes(role) ? 12 * 60 * 60 : 7 * 24 * 60 * 60;
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
   return await new SignJWT(payload)
@@ -104,12 +107,13 @@ async function verifySessionToken(token: string): Promise<SessionPayload | null>
     // Admin com token de 7 dias (emitido antes do limite de 12 h, ou quando ainda era cliente):
     // entra de novo
     const { iat, exp } = payload as unknown as { iat?: number; exp?: number };
-    if (s.role === "ADMIN" && (!iat || !exp || exp - iat > duracaoSessao("ADMIN"))) return null;
+    if (PAPEIS_PAINEL.includes(s.role) && (!iat || !exp || exp - iat > duracaoSessao(s.role)))
+      return null;
     return { ...payload, role: s.role };
   } catch (e) {
-    // Banco fora do ar: cliente segue navegando; o painel fecha (não dá para conferir o admin)
+    // Banco fora do ar: cliente segue navegando; os painéis fecham (não dá para conferir o papel)
     console.error("sessão: não deu para conferir no banco", e);
-    return payload.role === "ADMIN" ? null : payload;
+    return PAPEIS_PAINEL.includes(payload.role) ? null : payload;
   }
 }
 
@@ -152,6 +156,22 @@ export async function requireAdmin(request: Request): Promise<Response | null> {
     });
   }
   return null;
+}
+
+// Painel do despachante: despachante aduaneiro ou admin
+export async function requireDespachante(request: Request): Promise<Response | null> {
+  const session = await getSessionFromRequest(request);
+  if (!session || !PAPEIS_PAINEL.includes(session.role))
+    return new Response(JSON.stringify({ error: "Acesso negado." }), {
+      status: session ? 403 : 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  return null;
+}
+export async function assertDespachante(): Promise<SessionPayload> {
+  const session = await getSession();
+  if (!session || !PAPEIS_PAINEL.includes(session.role)) throw new Error("Acesso negado.");
+  return session;
 }
 
 // Para server functions: lança erro se não for admin.

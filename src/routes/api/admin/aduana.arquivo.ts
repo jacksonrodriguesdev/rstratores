@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Admin → Embarques: anexa um documento a uma etapa (COD, DANFE, extrato da DU-E, CRT, MIC/DTA…).
+// Admin ou despachante → Embarques: anexa um documento a uma etapa (COD, DANFE, extrato da DU-E, CRT, MIC/DTA…).
 // Vai para a pasta privada; a empresa só vê os marcados "cliente".
 const LIMITE = 15 * 1024 * 1024;
 
@@ -8,8 +8,8 @@ export const Route = createFileRoute("/api/admin/aduana/arquivo")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { requireAdmin } = await import("@/lib/auth.server");
-        const negado = await requireAdmin(request);
+        const { requireDespachante } = await import("@/lib/auth.server");
+        const negado = await requireDespachante(request);
         if (negado) return negado;
         try {
           const form = await request.formData();

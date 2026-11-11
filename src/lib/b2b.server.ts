@@ -222,8 +222,21 @@ const nomeDe = async (p: Peca) => {
 // Página pública: quantos códigos da lista temos (sem preço)
 export async function conferirListaPublica(linhas: LinhaLista[]) {
   const mapa = await acharPecas(linhas.map((l) => l.codigo));
+  const cat = await import("./exportacao/catalogo.server");
+  const exp = await cat.acharProdutosExp(linhas.map((l) => l.codigo));
   const itens = await Promise.all(
     linhas.slice(0, 60).map(async (l) => {
+      const e = exp.get(normalizarCodigo(l.codigo));
+      if (e)
+        return {
+          linha: l.linha,
+          codigo: l.codigo,
+          qtd: l.qtd,
+          achou: true,
+          nome: e.nome_es,
+          marca: e.marca,
+          foto: e.foto,
+        };
       const p = mapa.get(normalizarCodigo(l.codigo));
       return {
         linha: l.linha,
@@ -250,8 +263,52 @@ export async function montarItens(
   // Registro de origem (aduana): NCM conferida, origem comprovada e TEC estimada
   const ad = await import("./aduana/aduana.server");
   const origens = await ad.origensDe([...mapa.values()].map((p) => p.sku.trim()));
+  const cat = await import("./exportacao/catalogo.server");
+  const { origemValida } = await import("./aduana/aduana-comum");
+  const exp = await cat.acharProdutosExp(linhas.map((l) => l.codigo));
   return Promise.all(
     linhas.slice(0, 300).map(async (l, i) => {
+      const e = exp.get(normalizarCodigo(l.codigo));
+      if (e) {
+        const minimo = e.minimo ?? cfg.minimo;
+        const pedida = Number(l.qtd) > 0 ? Math.min(99999, Math.round(Number(l.qtd))) : 0;
+        const qtd = Math.max(pedida, minimo);
+        const base =
+          e.preco_usd != null
+            ? e.preco_usd
+            : e.custo_brl && usdPorReal
+              ? e.custo_brl * (1 + cfg.margem / 100) * usdPorReal
+              : null;
+        return {
+          linha: Number(l.linha) || i + 1,
+          codigo: String(l.codigo).trim().slice(0, 64),
+          descricao: String(l.descricao ?? "")
+            .trim()
+            .slice(0, 160),
+          qtd,
+          ajustadaMinimo: qtd > pedida,
+          sku: cat.skuExp(e.id),
+          nome: e.nome_es,
+          marca: e.marca,
+          foto: e.foto,
+          ncm: e.ncm,
+          peso: e.peso_liquido,
+          sugerido: base != null ? Math.round(base * (1 - desconto / 100) * 100) / 100 : null,
+          preco: null,
+          origem:
+            e.origem_status === "EXTRAZONA"
+              ? "OUTRA"
+              : origemValida({ status: e.origem_status, prova_data: e.prova_data })
+                ? "MERCOSUL"
+                : null,
+          origemStatus: e.origem_status,
+          aec: e.aec,
+          minimo,
+          unidade: e.unidade,
+          disponivel: true,
+          obs: null,
+        } satisfies ItemCotacao;
+      }
       const p = mapa.get(normalizarCodigo(l.codigo));
       const pedida = Number(l.qtd) > 0 ? Math.min(99999, Math.round(Number(l.qtd))) : 0;
       const qtd = Math.max(pedida, cfg.minimo);
@@ -605,6 +662,14 @@ export async function decidirCotacao(userId: number, codigo: string, aceita: boo
   if (aceita) {
     const ad = await import("./aduana/aduana.server");
     await ad.criarEmbarque(c.id, c.codigo);
+    const dsp = await import("./despachante/despachante.server");
+    void dsp
+      .avisarDespachantes(
+        `Embarque novo: ${c.codigo} (${empresa.razao_social})`,
+        `Proposta aceita · USD ${c.total.toFixed(2)} · ${c.incoterm} · ${c.destino ?? ""}\nItens: ${c.itens.length}. Prepare a prova de origem, a DU-E e o transporte.`,
+        `/despachante/cotacao/${c.codigo}`,
+      )
+      .catch(() => {});
   }
   void avisarAdmin(
     `${aceita ? "✅ ACEITA" : "Recusada"}: cotação ${c.codigo} (${empresa.razao_social})`,

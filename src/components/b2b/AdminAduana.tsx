@@ -289,7 +289,7 @@ function ConfigExportador({ cfg }: { cfg: Painel["config"] }) {
   );
 }
 
-function RegistroOrigem() {
+export function RegistroOrigem() {
   const [q, setQ] = useState("");
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState("COTADAS");

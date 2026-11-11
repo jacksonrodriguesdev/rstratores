@@ -168,6 +168,8 @@ export type ItemCotacao = {
   disponivel?: boolean; // incluído na proposta
   obs?: string | null;
   aec?: number | null; // % da TEC/AEC no Uruguai sem preferência (estimativa de custo)
+  minimo?: number | null; // mínimo próprio do produto (catálogo de exportação)
+  unidade?: string | null; // UN, PAR, JG, KIT… (catálogo de exportação)
   origemStatus?: "COMPROVADA" | "INFORMADA" | "EXTRAZONA" | "A_VERIFICAR" | null; // registro de origem da peça
 };
 

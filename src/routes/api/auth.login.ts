@@ -55,8 +55,13 @@ export const Route = createFileRoute("/api/auth/login")({
           limparFalhasLogin(request, email);
 
           const cookie = await abrirSessao(request, user);
-          // Admin vai para o painel; cliente, para onde estava (ou o perfil)
-          const destino = user.role === "ADMIN" ? "/admin" : destinoSeguro(body.redirect);
+          // Admin vai para o painel, despachante para o painel dele; cliente, para onde estava (ou o perfil)
+          const destino =
+            user.role === "ADMIN"
+              ? "/admin"
+              : user.role === "DESPACHANTE"
+                ? "/despachante"
+                : destinoSeguro(body.redirect);
           return Response.json(
             { success: true, role: user.role, destino },
             { headers: { "Set-Cookie": cookie } },

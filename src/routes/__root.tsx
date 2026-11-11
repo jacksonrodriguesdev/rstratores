@@ -242,6 +242,8 @@ function RodapePublico() {
   // Admin tem layout próprio; login, cadastro e o visualizador de catálogos são telas cheias, sem rodapé
   if (
     pathname.startsWith("/admin") ||
+    pathname.startsWith("/despachante") ||
+    pathname === "/convite-despachante" ||
     pathname === "/login" ||
     pathname === "/cadastro" ||
     pathname.startsWith("/catalogos/ver/") ||

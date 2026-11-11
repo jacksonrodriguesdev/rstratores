@@ -59,7 +59,7 @@ export function useApp() {
 // Registra o service worker, mede instalação e abertura pelo app, liga a inscrição de avisos à
 // conta e decide quando mostrar a barra "Instale o app".
 const SEM_OFERTA = [
-  /^\/(pt\/)?(admin|login|cadastro|cuenta|conta|baja|avaliar|pedido|pagar|etiqueta|app|empresas)(\/|$)/,
+  /^\/(pt\/)?(admin|login|cadastro|cuenta|conta|baja|avaliar|pedido|pagar|etiqueta|app|empresas|despachante|convite-despachante)(\/|$)/,
 ];
 const VISITAS = "ap_app_visitas";
 const SESSAO = "ap_app_sessao"; // sessionStorage: esta visita já foi contada / já ofereceu

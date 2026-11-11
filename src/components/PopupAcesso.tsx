@@ -52,6 +52,9 @@ const LIMITE_PECAS = 3;
 const ROBO = /bot|crawl|spider|slurp|facebookexternalhit|lighthouse|headless|preview/i;
 const OCULTAR = [
   /^\/admin/,
+  /^\/despachante/, // painel do despachante aduaneiro
+  /^\/convite-despachante/,
+  /^\/empresas\/(proforma|documento)\//, // documentos para imprimir
   /^\/login/,
   /^\/cadastro/,
   /^\/cuenta/,
@@ -149,7 +152,8 @@ export function PopupAcesso() {
   const { data: perfil } = useQuery({
     queryKey: ["meu_perfil_popup"],
     queryFn: () => meuCupomFn(),
-    enabled: !!sessao && sessao.role !== "ADMIN",
+    // Admin e despachante não são clientes: sem pedido de WhatsApp/Face ID
+    enabled: !!sessao && sessao.role !== "ADMIN" && sessao.role !== "DESPACHANTE",
     staleTime: 5 * 60_000,
   });
 

@@ -48,6 +48,8 @@ import {
   PainelAduana,
   usePainelAduana,
 } from "@/components/b2b/AdminAduana";
+import { AdminCatalogo } from "@/components/b2b/AdminCatalogo";
+import { AdminDespachantes } from "@/components/b2b/AdminDespachantes";
 import { acordoDaNcm, origemValida, STATUS_ORIGEM_PT } from "@/lib/aduana/aduana-comum";
 import { Selo, tomStatus } from "@/components/b2b/B2bLayout";
 import { cn } from "@/lib/utils";
@@ -119,6 +121,7 @@ function PaginaEmpresas() {
           <TabsList>
             <TabsTrigger value="cotacoes">Cotações ({data.cotacoes.length})</TabsTrigger>
             <TabsTrigger value="empresas">Empresas ({data.empresas.length})</TabsTrigger>
+            <TabsTrigger value="catalogo">Catálogo exportação</TabsTrigger>
             <TabsTrigger value="embarques">Embarques ({aduana?.embarques.length ?? 0})</TabsTrigger>
             <TabsTrigger value="aduana">
               Aduana{" "}
@@ -128,6 +131,7 @@ function PaginaEmpresas() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="despachantes">Despachantes</TabsTrigger>
             <TabsTrigger value="config">
               <Settings className="mr-1 h-3.5 w-3.5" /> Configuração
             </TabsTrigger>
@@ -138,11 +142,17 @@ function PaginaEmpresas() {
           <TabsContent value="empresas">
             <ListaEmpresas empresas={data.empresas} editar={setEmpresa} />
           </TabsContent>
+          <TabsContent value="catalogo">
+            <AdminCatalogo />
+          </TabsContent>
           <TabsContent value="embarques">
             <ListaEmbarques abrir={setEmbarque} />
           </TabsContent>
           <TabsContent value="aduana">
             <PainelAduana />
+          </TabsContent>
+          <TabsContent value="despachantes">
+            <AdminDespachantes />
           </TabsContent>
           <TabsContent value="config">
             <Configuracao cfg={data.cfg} usdPorReal={data.usdPorReal} />

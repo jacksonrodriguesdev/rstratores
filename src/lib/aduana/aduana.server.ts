@@ -284,6 +284,25 @@ export async function origensDe(skus: string[]): Promise<Map<string, Origem>> {
     ...lista,
   );
   for (const r of rows) mapa.set(r.sku, { ...r, aec: r.aec == null ? null : Number(r.aec) });
+  // Produtos do catálogo de exportação ("EXP-<id>"): a origem fica no próprio produto
+  const cat = await import("../exportacao/catalogo.server");
+  const ids = lista.map(cat.idDoSku).filter((x): x is number => x != null);
+  for (const id of ids) {
+    const p = await cat.produtoPorId(id);
+    if (p)
+      mapa.set(cat.skuExp(id), {
+        sku: cat.skuExp(id),
+        ncm: p.ncm,
+        fabricante: p.fabricante,
+        pais: p.pais_origem,
+        status: p.origem_status,
+        prova: (p.prova as Prova | null) ?? null,
+        prova_data: p.prova_data,
+        prova_ref: p.prova_ref,
+        aec: p.aec,
+        nota: p.nota,
+      });
+  }
   return mapa;
 }
 
@@ -372,6 +391,9 @@ export async function salvarOrigem(d: Partial<Origem> & { sku: string }) {
 export async function gravarNcm(sku: string, ncm: string) {
   const n = soNcm(ncm);
   if (!ncmValida(n)) return;
+  const cat = await import("../exportacao/catalogo.server");
+  const idExp = cat.idDoSku(sku);
+  if (idExp) return cat.gravarNcmProduto(idExp, n);
   const prisma = await db();
   await prisma.agricolas.updateMany({ where: { sku }, data: { ncm: n } });
   await prisma.$executeRaw`
@@ -620,7 +642,7 @@ export async function arquivoPermitido(id: string, sessao: { id: number; role: s
     JOIN b2b_empresas e ON e.id = c.empresa_id
     WHERE a.id = ${id}`;
   if (!a) return null;
-  if (sessao.role !== "ADMIN" && (Number(a.user_id) !== Number(sessao.id) || !Number(a.cliente)))
-    return null;
+  const painel = sessao.role === "ADMIN" || sessao.role === "DESPACHANTE";
+  if (!painel && (Number(a.user_id) !== Number(sessao.id) || !Number(a.cliente))) return null;
   return { caminho: a.caminho as string, tipo: a.tipo as string, nome: a.nome as string };
 }

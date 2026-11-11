@@ -16,9 +16,11 @@ import { Route as AyudaRouteImport } from './routes/ayuda'
 import { Route as BajaRouteImport } from './routes/baja'
 import { Route as BlackFridayRouteImport } from './routes/black-friday'
 import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as ConviteDespachanteRouteImport } from './routes/convite-despachante'
 import { Route as CotizarRouteImport } from './routes/cotizar'
 import { Route as CuentaRouteImport } from './routes/cuenta'
 import { Route as CuponesRouteImport } from './routes/cupones'
+import { Route as DespachanteRouteImport } from './routes/despachante'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as PedidoRapidoRouteImport } from './routes/pedido-rapido'
@@ -63,6 +65,11 @@ import { Route as AdminVisitantesRouteImport } from './routes/admin.visitantes'
 import { Route as AvaliarCodigoRouteImport } from './routes/avaliar.$codigo'
 import { Route as CatalogosIndexRouteImport } from './routes/catalogos.index'
 import { Route as CatalogosSlugRouteImport } from './routes/catalogos.$slug'
+import { Route as DespachanteIndexRouteImport } from './routes/despachante.index'
+import { Route as DespachanteCotacoesRouteImport } from './routes/despachante.cotacoes'
+import { Route as DespachanteEmpresasRouteImport } from './routes/despachante.empresas'
+import { Route as DespachanteFerramentasRouteImport } from './routes/despachante.ferramentas'
+import { Route as DespachanteProdutosRouteImport } from './routes/despachante.produtos'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasPortalRouteImport } from './routes/empresas.portal'
 import { Route as EmpresasRegistroRouteImport } from './routes/empresas.registro'
@@ -75,6 +82,8 @@ import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
 import { Route as RepuestosAgricolasLocalRouteImport } from './routes/repuestos-agricolas.$local'
+import { Route as RepuestosCamionesIndexRouteImport } from './routes/repuestos-camiones.index'
+import { Route as RepuestosCamionesMontadoraRouteImport } from './routes/repuestos-camiones.$montadora'
 import { Route as RepuestosIndexRouteImport } from './routes/repuestos.index'
 import { Route as RepuestosSlugRouteImport } from './routes/repuestos.$slug'
 import { Route as SitemapsArquivoRouteImport } from './routes/sitemaps.$arquivo'
@@ -99,6 +108,7 @@ import { Route as ApiAuthLoginRouteImport } from './routes/api/auth.login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth.logout'
 import { Route as ApiAuthRapidoRouteImport } from './routes/api/auth.rapido'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
+import { Route as ApiDespachanteConviteRouteImport } from './routes/api/despachante.convite'
 import { Route as ApiEmpresasRegistroRouteImport } from './routes/api/empresas.registro'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicAvaliacaoFotoRouteImport } from './routes/api/public/avaliacao-foto'
@@ -114,9 +124,12 @@ import { Route as ApiPublicSaudeRouteImport } from './routes/api/public/saude'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as CatalogosArchivoIdRouteImport } from './routes/catalogos.archivo.$id'
 import { Route as CatalogosVerIdRouteImport } from './routes/catalogos.ver.$id'
+import { Route as DespachanteCotacaoCodigoRouteImport } from './routes/despachante.cotacao.$codigo'
 import { Route as EmpresasCotizacionCodigoRouteImport } from './routes/empresas.cotizacion.$codigo'
 import { Route as EmpresasDocumentoCodigoRouteImport } from './routes/empresas.documento.$codigo'
 import { Route as EmpresasProformaCodigoRouteImport } from './routes/empresas.proforma.$codigo'
+import { Route as RepuestosCamionesMontadoraGrupoRouteImport } from './routes/repuestos-camiones.$montadora_.$grupo'
+import { Route as RepuestosCamionesProductoCodigoRouteImport } from './routes/repuestos-camiones.producto.$codigo'
 import { Route as RepuestosSlugSubRouteImport } from './routes/repuestos.$slug_.$sub'
 import { Route as ApiAdminAduanaArquivoRouteImport } from './routes/api/admin/aduana.arquivo'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
@@ -126,6 +139,7 @@ import { Route as ApiAdminCategoriesIdRouteImport } from './routes/api/admin/cat
 import { Route as ApiAdminCategoriesUploadRouteImport } from './routes/api/admin/categories.upload'
 import { Route as ApiAdminEmailsUploadRouteImport } from './routes/api/admin/emails.upload'
 import { Route as ApiAdminEstudioFotoRouteImport } from './routes/api/admin/estudio.foto'
+import { Route as ApiAdminExportacaoFotoRouteImport } from './routes/api/admin/exportacao.foto'
 import { Route as ApiAdminFacebookCallbackRouteImport } from './routes/api/admin/facebook.callback'
 import { Route as ApiAdminFacebookConectarRouteImport } from './routes/api/admin/facebook.conectar'
 import { Route as ApiAdminGoogleCallbackRouteImport } from './routes/api/admin/google.callback'
@@ -183,6 +197,11 @@ const CadastroRoute = CadastroRouteImport.update({
   path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConviteDespachanteRoute = ConviteDespachanteRouteImport.update({
+  id: '/convite-despachante',
+  path: '/convite-despachante',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CotizarRoute = CotizarRouteImport.update({
   id: '/cotizar',
   path: '/cotizar',
@@ -196,6 +215,11 @@ const CuentaRoute = CuentaRouteImport.update({
 const CuponesRoute = CuponesRouteImport.update({
   id: '/cupones',
   path: '/cupones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DespachanteRoute = DespachanteRouteImport.update({
+  id: '/despachante',
+  path: '/despachante',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -418,6 +442,31 @@ const CatalogosSlugRoute = CatalogosSlugRouteImport.update({
   path: '/catalogos/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DespachanteIndexRoute = DespachanteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DespachanteRoute,
+} as any)
+const DespachanteCotacoesRoute = DespachanteCotacoesRouteImport.update({
+  id: '/cotacoes',
+  path: '/cotacoes',
+  getParentRoute: () => DespachanteRoute,
+} as any)
+const DespachanteEmpresasRoute = DespachanteEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => DespachanteRoute,
+} as any)
+const DespachanteFerramentasRoute = DespachanteFerramentasRouteImport.update({
+  id: '/ferramentas',
+  path: '/ferramentas',
+  getParentRoute: () => DespachanteRoute,
+} as any)
+const DespachanteProdutosRoute = DespachanteProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
+  getParentRoute: () => DespachanteRoute,
+} as any)
 const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
   id: '/empresas/',
   path: '/empresas/',
@@ -478,6 +527,17 @@ const RepuestosAgricolasLocalRoute = RepuestosAgricolasLocalRouteImport.update({
   path: '/repuestos-agricolas/$local',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepuestosCamionesIndexRoute = RepuestosCamionesIndexRouteImport.update({
+  id: '/repuestos-camiones/',
+  path: '/repuestos-camiones/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepuestosCamionesMontadoraRoute =
+  RepuestosCamionesMontadoraRouteImport.update({
+    id: '/repuestos-camiones/$montadora',
+    path: '/repuestos-camiones/$montadora',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RepuestosIndexRoute = RepuestosIndexRouteImport.update({
   id: '/repuestos/',
   path: '/repuestos/',
@@ -598,6 +658,11 @@ const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
   path: '/api/auth/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDespachanteConviteRoute = ApiDespachanteConviteRouteImport.update({
+  id: '/api/despachante/convite',
+  path: '/api/despachante/convite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEmpresasRegistroRoute = ApiEmpresasRegistroRouteImport.update({
   id: '/api/empresas/registro',
   path: '/api/empresas/registro',
@@ -674,6 +739,12 @@ const CatalogosVerIdRoute = CatalogosVerIdRouteImport.update({
   path: '/catalogos/ver/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DespachanteCotacaoCodigoRoute =
+  DespachanteCotacaoCodigoRouteImport.update({
+    id: '/cotacao/$codigo',
+    path: '/cotacao/$codigo',
+    getParentRoute: () => DespachanteRoute,
+  } as any)
 const EmpresasCotizacionCodigoRoute =
   EmpresasCotizacionCodigoRouteImport.update({
     id: '/empresas/cotizacion/$codigo',
@@ -690,6 +761,18 @@ const EmpresasProformaCodigoRoute = EmpresasProformaCodigoRouteImport.update({
   path: '/empresas/proforma/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepuestosCamionesMontadoraGrupoRoute =
+  RepuestosCamionesMontadoraGrupoRouteImport.update({
+    id: '/repuestos-camiones/$montadora_/$grupo',
+    path: '/repuestos-camiones/$montadora/$grupo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const RepuestosCamionesProductoCodigoRoute =
+  RepuestosCamionesProductoCodigoRouteImport.update({
+    id: '/repuestos-camiones/producto/$codigo',
+    path: '/repuestos-camiones/producto/$codigo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RepuestosSlugSubRoute = RepuestosSlugSubRouteImport.update({
   id: '/repuestos/$slug_/$sub',
   path: '/repuestos/$slug/$sub',
@@ -734,6 +817,11 @@ const ApiAdminEmailsUploadRoute = ApiAdminEmailsUploadRouteImport.update({
 const ApiAdminEstudioFotoRoute = ApiAdminEstudioFotoRouteImport.update({
   id: '/api/admin/estudio/foto',
   path: '/api/admin/estudio/foto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminExportacaoFotoRoute = ApiAdminExportacaoFotoRouteImport.update({
+  id: '/api/admin/exportacao/foto',
+  path: '/api/admin/exportacao/foto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminFacebookCallbackRoute =
@@ -856,9 +944,11 @@ export interface FileRoutesByFullPath {
   '/baja': typeof BajaRoute
   '/black-friday': typeof BlackFridayRoute
   '/cadastro': typeof CadastroRoute
+  '/convite-despachante': typeof ConviteDespachanteRoute
   '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
   '/cupones': typeof CuponesRoute
+  '/despachante': typeof DespachanteRouteWithChildren
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
@@ -901,6 +991,10 @@ export interface FileRoutesByFullPath {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/despachante/cotacoes': typeof DespachanteCotacoesRoute
+  '/despachante/empresas': typeof DespachanteEmpresasRoute
+  '/despachante/ferramentas': typeof DespachanteFerramentasRoute
+  '/despachante/produtos': typeof DespachanteProdutosRoute
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
@@ -910,14 +1004,17 @@ export interface FileRoutesByFullPath {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
+  '/repuestos-camiones/$montadora': typeof RepuestosCamionesMontadoraRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/despachante/': typeof DespachanteIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
+  '/repuestos-camiones/': typeof RepuestosCamionesIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -936,6 +1033,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/despachante/convite': typeof ApiDespachanteConviteRoute
   '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
@@ -951,9 +1049,12 @@ export interface FileRoutesByFullPath {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/despachante/cotacao/$codigo': typeof DespachanteCotacaoCodigoRoute
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
+  '/repuestos-camiones/$montadora/$grupo': typeof RepuestosCamionesMontadoraGrupoRoute
+  '/repuestos-camiones/producto/$codigo': typeof RepuestosCamionesProductoCodigoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -966,6 +1067,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
   '/api/admin/estudio/foto': typeof ApiAdminEstudioFotoRoute
+  '/api/admin/exportacao/foto': typeof ApiAdminExportacaoFotoRoute
   '/api/admin/facebook/callback': typeof ApiAdminFacebookCallbackRoute
   '/api/admin/facebook/conectar': typeof ApiAdminFacebookConectarRoute
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
@@ -995,6 +1097,7 @@ export interface FileRoutesByTo {
   '/baja': typeof BajaRoute
   '/black-friday': typeof BlackFridayRoute
   '/cadastro': typeof CadastroRoute
+  '/convite-despachante': typeof ConviteDespachanteRoute
   '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
   '/cupones': typeof CuponesRoute
@@ -1040,6 +1143,10 @@ export interface FileRoutesByTo {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/despachante/cotacoes': typeof DespachanteCotacoesRoute
+  '/despachante/empresas': typeof DespachanteEmpresasRoute
+  '/despachante/ferramentas': typeof DespachanteFerramentasRoute
+  '/despachante/produtos': typeof DespachanteProdutosRoute
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
@@ -1049,14 +1156,17 @@ export interface FileRoutesByTo {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
+  '/repuestos-camiones/$montadora': typeof RepuestosCamionesMontadoraRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin': typeof AdminIndexRoute
   '/catalogos': typeof CatalogosIndexRoute
+  '/despachante': typeof DespachanteIndexRoute
   '/empresas': typeof EmpresasIndexRoute
   '/guias': typeof GuiasIndexRoute
   '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
+  '/repuestos-camiones': typeof RepuestosCamionesIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -1075,6 +1185,7 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/despachante/convite': typeof ApiDespachanteConviteRoute
   '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
@@ -1090,9 +1201,12 @@ export interface FileRoutesByTo {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/despachante/cotacao/$codigo': typeof DespachanteCotacaoCodigoRoute
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
+  '/repuestos-camiones/$montadora/$grupo': typeof RepuestosCamionesMontadoraGrupoRoute
+  '/repuestos-camiones/producto/$codigo': typeof RepuestosCamionesProductoCodigoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
@@ -1105,6 +1219,7 @@ export interface FileRoutesByTo {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
   '/api/admin/estudio/foto': typeof ApiAdminEstudioFotoRoute
+  '/api/admin/exportacao/foto': typeof ApiAdminExportacaoFotoRoute
   '/api/admin/facebook/callback': typeof ApiAdminFacebookCallbackRoute
   '/api/admin/facebook/conectar': typeof ApiAdminFacebookConectarRoute
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
@@ -1136,9 +1251,11 @@ export interface FileRoutesById {
   '/baja': typeof BajaRoute
   '/black-friday': typeof BlackFridayRoute
   '/cadastro': typeof CadastroRoute
+  '/convite-despachante': typeof ConviteDespachanteRoute
   '/cotizar': typeof CotizarRoute
   '/cuenta': typeof CuentaRoute
   '/cupones': typeof CuponesRoute
+  '/despachante': typeof DespachanteRouteWithChildren
   '/login': typeof LoginRoute
   '/loja': typeof LojaRoute
   '/pedido-rapido': typeof PedidoRapidoRoute
@@ -1181,6 +1298,10 @@ export interface FileRoutesById {
   '/admin/visitantes': typeof AdminVisitantesRoute
   '/avaliar/$codigo': typeof AvaliarCodigoRoute
   '/catalogos/$slug': typeof CatalogosSlugRoute
+  '/despachante/cotacoes': typeof DespachanteCotacoesRoute
+  '/despachante/empresas': typeof DespachanteEmpresasRoute
+  '/despachante/ferramentas': typeof DespachanteFerramentasRoute
+  '/despachante/produtos': typeof DespachanteProdutosRoute
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
@@ -1190,14 +1311,17 @@ export interface FileRoutesById {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
+  '/repuestos-camiones/$montadora': typeof RepuestosCamionesMontadoraRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
   '/admin/': typeof AdminIndexRoute
   '/catalogos/': typeof CatalogosIndexRoute
+  '/despachante/': typeof DespachanteIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
+  '/repuestos-camiones/': typeof RepuestosCamionesIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
   '/admin/emails/$id': typeof AdminEmailsIdRoute
@@ -1216,6 +1340,7 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/rapido': typeof ApiAuthRapidoRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/despachante/convite': typeof ApiDespachanteConviteRoute
   '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
@@ -1231,9 +1356,12 @@ export interface FileRoutesById {
   '/api/public/track': typeof ApiPublicTrackRoute
   '/catalogos/archivo/$id': typeof CatalogosArchivoIdRoute
   '/catalogos/ver/$id': typeof CatalogosVerIdRoute
+  '/despachante/cotacao/$codigo': typeof DespachanteCotacaoCodigoRoute
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
+  '/repuestos-camiones/$montadora_/$grupo': typeof RepuestosCamionesMontadoraGrupoRoute
+  '/repuestos-camiones/producto/$codigo': typeof RepuestosCamionesProductoCodigoRoute
   '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1246,6 +1374,7 @@ export interface FileRoutesById {
   '/api/admin/categories/upload': typeof ApiAdminCategoriesUploadRoute
   '/api/admin/emails/upload': typeof ApiAdminEmailsUploadRoute
   '/api/admin/estudio/foto': typeof ApiAdminEstudioFotoRoute
+  '/api/admin/exportacao/foto': typeof ApiAdminExportacaoFotoRoute
   '/api/admin/facebook/callback': typeof ApiAdminFacebookCallbackRoute
   '/api/admin/facebook/conectar': typeof ApiAdminFacebookConectarRoute
   '/api/admin/google/callback': typeof ApiAdminGoogleCallbackRoute
@@ -1278,9 +1407,11 @@ export interface FileRouteTypes {
     | '/baja'
     | '/black-friday'
     | '/cadastro'
+    | '/convite-despachante'
     | '/cotizar'
     | '/cuenta'
     | '/cupones'
+    | '/despachante'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
@@ -1323,6 +1454,10 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/despachante/cotacoes'
+    | '/despachante/empresas'
+    | '/despachante/ferramentas'
+    | '/despachante/produtos'
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
@@ -1332,14 +1467,17 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
+    | '/repuestos-camiones/$montadora'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/despachante/'
     | '/empresas/'
     | '/guias/'
     | '/repuestos-agricolas/'
+    | '/repuestos-camiones/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1358,6 +1496,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/rapido'
     | '/api/auth/register'
+    | '/api/despachante/convite'
     | '/api/empresas/registro'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
@@ -1373,9 +1512,12 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/despachante/cotacao/$codigo'
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
+    | '/repuestos-camiones/$montadora/$grupo'
+    | '/repuestos-camiones/producto/$codigo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1388,6 +1530,7 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
     | '/api/admin/estudio/foto'
+    | '/api/admin/exportacao/foto'
     | '/api/admin/facebook/callback'
     | '/api/admin/facebook/conectar'
     | '/api/admin/google/callback'
@@ -1417,6 +1560,7 @@ export interface FileRouteTypes {
     | '/baja'
     | '/black-friday'
     | '/cadastro'
+    | '/convite-despachante'
     | '/cotizar'
     | '/cuenta'
     | '/cupones'
@@ -1462,6 +1606,10 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/despachante/cotacoes'
+    | '/despachante/empresas'
+    | '/despachante/ferramentas'
+    | '/despachante/produtos'
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
@@ -1471,14 +1619,17 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
+    | '/repuestos-camiones/$montadora'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin'
     | '/catalogos'
+    | '/despachante'
     | '/empresas'
     | '/guias'
     | '/repuestos-agricolas'
+    | '/repuestos-camiones'
     | '/repuestos'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1497,6 +1648,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/rapido'
     | '/api/auth/register'
+    | '/api/despachante/convite'
     | '/api/empresas/registro'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
@@ -1512,9 +1664,12 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/despachante/cotacao/$codigo'
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
+    | '/repuestos-camiones/$montadora/$grupo'
+    | '/repuestos-camiones/producto/$codigo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
@@ -1527,6 +1682,7 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
     | '/api/admin/estudio/foto'
+    | '/api/admin/exportacao/foto'
     | '/api/admin/facebook/callback'
     | '/api/admin/facebook/conectar'
     | '/api/admin/google/callback'
@@ -1557,9 +1713,11 @@ export interface FileRouteTypes {
     | '/baja'
     | '/black-friday'
     | '/cadastro'
+    | '/convite-despachante'
     | '/cotizar'
     | '/cuenta'
     | '/cupones'
+    | '/despachante'
     | '/login'
     | '/loja'
     | '/pedido-rapido'
@@ -1602,6 +1760,10 @@ export interface FileRouteTypes {
     | '/admin/visitantes'
     | '/avaliar/$codigo'
     | '/catalogos/$slug'
+    | '/despachante/cotacoes'
+    | '/despachante/empresas'
+    | '/despachante/ferramentas'
+    | '/despachante/produtos'
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
@@ -1611,14 +1773,17 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
+    | '/repuestos-camiones/$montadora'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
     | '/admin/'
     | '/catalogos/'
+    | '/despachante/'
     | '/empresas/'
     | '/guias/'
     | '/repuestos-agricolas/'
+    | '/repuestos-camiones/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
     | '/admin/emails/$id'
@@ -1637,6 +1802,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/rapido'
     | '/api/auth/register'
+    | '/api/despachante/convite'
     | '/api/empresas/registro'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
@@ -1652,9 +1818,12 @@ export interface FileRouteTypes {
     | '/api/public/track'
     | '/catalogos/archivo/$id'
     | '/catalogos/ver/$id'
+    | '/despachante/cotacao/$codigo'
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
+    | '/repuestos-camiones/$montadora_/$grupo'
+    | '/repuestos-camiones/producto/$codigo'
     | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1667,6 +1836,7 @@ export interface FileRouteTypes {
     | '/api/admin/categories/upload'
     | '/api/admin/emails/upload'
     | '/api/admin/estudio/foto'
+    | '/api/admin/exportacao/foto'
     | '/api/admin/facebook/callback'
     | '/api/admin/facebook/conectar'
     | '/api/admin/google/callback'
@@ -1698,9 +1868,11 @@ export interface RootRouteChildren {
   BajaRoute: typeof BajaRoute
   BlackFridayRoute: typeof BlackFridayRoute
   CadastroRoute: typeof CadastroRoute
+  ConviteDespachanteRoute: typeof ConviteDespachanteRoute
   CotizarRoute: typeof CotizarRoute
   CuentaRoute: typeof CuentaRoute
   CuponesRoute: typeof CuponesRoute
+  DespachanteRoute: typeof DespachanteRouteWithChildren
   LoginRoute: typeof LoginRoute
   LojaRoute: typeof LojaRoute
   PedidoRapidoRoute: typeof PedidoRapidoRoute
@@ -1717,6 +1889,7 @@ export interface RootRouteChildren {
   PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
+  RepuestosCamionesMontadoraRoute: typeof RepuestosCamionesMontadoraRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
   SitemapsArquivoRoute: typeof SitemapsArquivoRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
@@ -1724,6 +1897,7 @@ export interface RootRouteChildren {
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   GuiasIndexRoute: typeof GuiasIndexRoute
   RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
+  RepuestosCamionesIndexRoute: typeof RepuestosCamionesIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRouteWithChildren
@@ -1735,6 +1909,7 @@ export interface RootRouteChildren {
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthRapidoRoute: typeof ApiAuthRapidoRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
+  ApiDespachanteConviteRoute: typeof ApiDespachanteConviteRoute
   ApiEmpresasRegistroRoute: typeof ApiEmpresasRegistroRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicAvaliacaoFotoRoute: typeof ApiPublicAvaliacaoFotoRoute
@@ -1753,11 +1928,14 @@ export interface RootRouteChildren {
   EmpresasCotizacionCodigoRoute: typeof EmpresasCotizacionCodigoRoute
   EmpresasDocumentoCodigoRoute: typeof EmpresasDocumentoCodigoRoute
   EmpresasProformaCodigoRoute: typeof EmpresasProformaCodigoRoute
+  RepuestosCamionesMontadoraGrupoRoute: typeof RepuestosCamionesMontadoraGrupoRoute
+  RepuestosCamionesProductoCodigoRoute: typeof RepuestosCamionesProductoCodigoRoute
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminAduanaArquivoRoute: typeof ApiAdminAduanaArquivoRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
   ApiAdminEmailsUploadRoute: typeof ApiAdminEmailsUploadRoute
   ApiAdminEstudioFotoRoute: typeof ApiAdminEstudioFotoRoute
+  ApiAdminExportacaoFotoRoute: typeof ApiAdminExportacaoFotoRoute
   ApiAdminFacebookCallbackRoute: typeof ApiAdminFacebookCallbackRoute
   ApiAdminFacebookConectarRoute: typeof ApiAdminFacebookConectarRoute
   ApiAdminGoogleCallbackRoute: typeof ApiAdminGoogleCallbackRoute
@@ -1825,6 +2003,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/convite-despachante': {
+      id: '/convite-despachante'
+      path: '/convite-despachante'
+      fullPath: '/convite-despachante'
+      preLoaderRoute: typeof ConviteDespachanteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cotizar': {
       id: '/cotizar'
       path: '/cotizar'
@@ -1844,6 +2029,13 @@ declare module '@tanstack/react-router' {
       path: '/cupones'
       fullPath: '/cupones'
       preLoaderRoute: typeof CuponesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/despachante': {
+      id: '/despachante'
+      path: '/despachante'
+      fullPath: '/despachante'
+      preLoaderRoute: typeof DespachanteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -2154,6 +2346,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/despachante/': {
+      id: '/despachante/'
+      path: '/'
+      fullPath: '/despachante/'
+      preLoaderRoute: typeof DespachanteIndexRouteImport
+      parentRoute: typeof DespachanteRoute
+    }
+    '/despachante/cotacoes': {
+      id: '/despachante/cotacoes'
+      path: '/cotacoes'
+      fullPath: '/despachante/cotacoes'
+      preLoaderRoute: typeof DespachanteCotacoesRouteImport
+      parentRoute: typeof DespachanteRoute
+    }
+    '/despachante/empresas': {
+      id: '/despachante/empresas'
+      path: '/empresas'
+      fullPath: '/despachante/empresas'
+      preLoaderRoute: typeof DespachanteEmpresasRouteImport
+      parentRoute: typeof DespachanteRoute
+    }
+    '/despachante/ferramentas': {
+      id: '/despachante/ferramentas'
+      path: '/ferramentas'
+      fullPath: '/despachante/ferramentas'
+      preLoaderRoute: typeof DespachanteFerramentasRouteImport
+      parentRoute: typeof DespachanteRoute
+    }
+    '/despachante/produtos': {
+      id: '/despachante/produtos'
+      path: '/produtos'
+      fullPath: '/despachante/produtos'
+      preLoaderRoute: typeof DespachanteProdutosRouteImport
+      parentRoute: typeof DespachanteRoute
+    }
     '/empresas/': {
       id: '/empresas/'
       path: '/empresas'
@@ -2236,6 +2463,20 @@ declare module '@tanstack/react-router' {
       path: '/repuestos-agricolas/$local'
       fullPath: '/repuestos-agricolas/$local'
       preLoaderRoute: typeof RepuestosAgricolasLocalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-camiones/': {
+      id: '/repuestos-camiones/'
+      path: '/repuestos-camiones'
+      fullPath: '/repuestos-camiones/'
+      preLoaderRoute: typeof RepuestosCamionesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-camiones/$montadora': {
+      id: '/repuestos-camiones/$montadora'
+      path: '/repuestos-camiones/$montadora'
+      fullPath: '/repuestos-camiones/$montadora'
+      preLoaderRoute: typeof RepuestosCamionesMontadoraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repuestos/': {
@@ -2406,6 +2647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/despachante/convite': {
+      id: '/api/despachante/convite'
+      path: '/api/despachante/convite'
+      fullPath: '/api/despachante/convite'
+      preLoaderRoute: typeof ApiDespachanteConviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/empresas/registro': {
       id: '/api/empresas/registro'
       path: '/api/empresas/registro'
@@ -2511,6 +2759,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogosVerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/despachante/cotacao/$codigo': {
+      id: '/despachante/cotacao/$codigo'
+      path: '/cotacao/$codigo'
+      fullPath: '/despachante/cotacao/$codigo'
+      preLoaderRoute: typeof DespachanteCotacaoCodigoRouteImport
+      parentRoute: typeof DespachanteRoute
+    }
     '/empresas/cotizacion/$codigo': {
       id: '/empresas/cotizacion/$codigo'
       path: '/empresas/cotizacion/$codigo'
@@ -2530,6 +2785,20 @@ declare module '@tanstack/react-router' {
       path: '/empresas/proforma/$codigo'
       fullPath: '/empresas/proforma/$codigo'
       preLoaderRoute: typeof EmpresasProformaCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-camiones/$montadora_/$grupo': {
+      id: '/repuestos-camiones/$montadora_/$grupo'
+      path: '/repuestos-camiones/$montadora/$grupo'
+      fullPath: '/repuestos-camiones/$montadora/$grupo'
+      preLoaderRoute: typeof RepuestosCamionesMontadoraGrupoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-camiones/producto/$codigo': {
+      id: '/repuestos-camiones/producto/$codigo'
+      path: '/repuestos-camiones/producto/$codigo'
+      fullPath: '/repuestos-camiones/producto/$codigo'
+      preLoaderRoute: typeof RepuestosCamionesProductoCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repuestos/$slug_/$sub': {
@@ -2593,6 +2862,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/estudio/foto'
       fullPath: '/api/admin/estudio/foto'
       preLoaderRoute: typeof ApiAdminEstudioFotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/exportacao/foto': {
+      id: '/api/admin/exportacao/foto'
+      path: '/api/admin/exportacao/foto'
+      fullPath: '/api/admin/exportacao/foto'
+      preLoaderRoute: typeof ApiAdminExportacaoFotoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/facebook/callback': {
@@ -2845,6 +3121,28 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface DespachanteRouteChildren {
+  DespachanteCotacoesRoute: typeof DespachanteCotacoesRoute
+  DespachanteEmpresasRoute: typeof DespachanteEmpresasRoute
+  DespachanteFerramentasRoute: typeof DespachanteFerramentasRoute
+  DespachanteProdutosRoute: typeof DespachanteProdutosRoute
+  DespachanteIndexRoute: typeof DespachanteIndexRoute
+  DespachanteCotacaoCodigoRoute: typeof DespachanteCotacaoCodigoRoute
+}
+
+const DespachanteRouteChildren: DespachanteRouteChildren = {
+  DespachanteCotacoesRoute: DespachanteCotacoesRoute,
+  DespachanteEmpresasRoute: DespachanteEmpresasRoute,
+  DespachanteFerramentasRoute: DespachanteFerramentasRoute,
+  DespachanteProdutosRoute: DespachanteProdutosRoute,
+  DespachanteIndexRoute: DespachanteIndexRoute,
+  DespachanteCotacaoCodigoRoute: DespachanteCotacaoCodigoRoute,
+}
+
+const DespachanteRouteWithChildren = DespachanteRoute._addFileChildren(
+  DespachanteRouteChildren,
+)
+
 interface ApiAdminBannersRouteChildren {
   ApiAdminBannersIdRoute: typeof ApiAdminBannersIdRoute
   ApiAdminBannersUploadRoute: typeof ApiAdminBannersUploadRoute
@@ -2933,9 +3231,11 @@ const rootRouteChildren: RootRouteChildren = {
   BajaRoute: BajaRoute,
   BlackFridayRoute: BlackFridayRoute,
   CadastroRoute: CadastroRoute,
+  ConviteDespachanteRoute: ConviteDespachanteRoute,
   CotizarRoute: CotizarRoute,
   CuentaRoute: CuentaRoute,
   CuponesRoute: CuponesRoute,
+  DespachanteRoute: DespachanteRouteWithChildren,
   LoginRoute: LoginRoute,
   LojaRoute: LojaRoute,
   PedidoRapidoRoute: PedidoRapidoRoute,
@@ -2952,6 +3252,7 @@ const rootRouteChildren: RootRouteChildren = {
   PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
+  RepuestosCamionesMontadoraRoute: RepuestosCamionesMontadoraRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,
   SitemapsArquivoRoute: SitemapsArquivoRoute,
   UploadsSplatRoute: UploadsSplatRoute,
@@ -2959,6 +3260,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasIndexRoute: EmpresasIndexRoute,
   GuiasIndexRoute: GuiasIndexRoute,
   RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
+  RepuestosCamionesIndexRoute: RepuestosCamionesIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRouteWithChildren,
@@ -2970,6 +3272,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthRapidoRoute: ApiAuthRapidoRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
+  ApiDespachanteConviteRoute: ApiDespachanteConviteRoute,
   ApiEmpresasRegistroRoute: ApiEmpresasRegistroRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicAvaliacaoFotoRoute: ApiPublicAvaliacaoFotoRoute,
@@ -2988,11 +3291,14 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasCotizacionCodigoRoute: EmpresasCotizacionCodigoRoute,
   EmpresasDocumentoCodigoRoute: EmpresasDocumentoCodigoRoute,
   EmpresasProformaCodigoRoute: EmpresasProformaCodigoRoute,
+  RepuestosCamionesMontadoraGrupoRoute: RepuestosCamionesMontadoraGrupoRoute,
+  RepuestosCamionesProductoCodigoRoute: RepuestosCamionesProductoCodigoRoute,
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminAduanaArquivoRoute: ApiAdminAduanaArquivoRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,
   ApiAdminEmailsUploadRoute: ApiAdminEmailsUploadRoute,
   ApiAdminEstudioFotoRoute: ApiAdminEstudioFotoRoute,
+  ApiAdminExportacaoFotoRoute: ApiAdminExportacaoFotoRoute,
   ApiAdminFacebookCallbackRoute: ApiAdminFacebookCallbackRoute,
   ApiAdminFacebookConectarRoute: ApiAdminFacebookConectarRoute,
   ApiAdminGoogleCallbackRoute: ApiAdminGoogleCallbackRoute,

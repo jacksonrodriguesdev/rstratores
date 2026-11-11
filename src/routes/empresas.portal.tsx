@@ -2,7 +2,7 @@
 // (colar lista → revisar peça por peça → enviar) e histórico das cotações.
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { B2bPagina, Selo, tomStatus } from "@/components/b2b/B2bLayout";
 import { CartaoDespachante } from "@/components/b2b/ClienteAduana";
+import { CatalogoPortal } from "@/components/b2b/CatalogoPortal";
 import {
   formatarRut,
   INCOTERMS,
@@ -201,6 +202,7 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
     queryFn: () => minhasCotacoesFn(),
   });
   const abertas = (cotacoes ?? []).filter((c) => statusVisivel(c) === "COTADA");
+  const [extras, setExtras] = useState<Array<{ codigo: string; qtd: number }>>([]);
   return (
     <B2bPagina>
       <div className="border-b border-slate-200 bg-white">
@@ -240,7 +242,13 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
             </Link>
           </div>
         )}
-        <Compositor empresa={empresa} cfg={cfg} />
+        <CatalogoPortal
+          adicionar={(codigo, qtd) => {
+            setExtras((x) => [...x, { codigo, qtd }]);
+            document.getElementById("nueva-cotizacion")?.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
+        <Compositor empresa={empresa} cfg={cfg} extras={extras} consumir={() => setExtras([])} />
         <Historico cotacoes={cotacoes} />
         <CartaoDespachante nome={empresa.despachante_nome} contato={empresa.despachante_contato} />
       </div>
@@ -250,7 +258,17 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
 
 type Linha = ItemCotacao & { chave: string };
 
-function Compositor({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
+function Compositor({
+  empresa,
+  cfg,
+  extras,
+  consumir,
+}: {
+  empresa: Empresa;
+  cfg: Cfg;
+  extras: Array<{ codigo: string; qtd: number }>;
+  consumir: () => void;
+}) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [texto, setTexto] = useState("");
@@ -268,6 +286,30 @@ function Compositor({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
   const arquivo = useRef<HTMLInputElement>(null);
 
   const lidas = useMemo(() => lerLista(texto), [texto]);
+  useEffect(() => {
+    if (!extras.length) return;
+    const novos = extras;
+    consumir();
+    if (!linhas) {
+      setTexto((x) =>
+        [x.trim(), ...novos.map((n) => `${n.codigo}\t${n.qtd}`)].filter(Boolean).join("\n"),
+      );
+      return;
+    }
+    previaCotacaoFn({ data: { linhas: novos.map((n, k) => ({ linha: 1000 + k, ...n })) } })
+      .then((r) =>
+        setLinhas((ls) => [
+          ...(ls ?? []),
+          ...r.itens.map((i, k) => ({
+            ...i,
+            linha: (ls?.length ?? 0) + k + 1,
+            chave: `c${Date.now()}-${k}`,
+          })),
+        ]),
+      )
+      .catch((e) => setErro(e.message));
+  }, [extras]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const analisar = async () => {
     setErro("");
     if (!lidas.length) return setErro("Pegá al menos un código.");
@@ -332,7 +374,10 @@ function Compositor({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
   }, [linhas]);
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <section
+      id="nueva-cotizacion"
+      className="scroll-mt-20 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
         <div>
           <h2 className="text-lg font-bold">Nueva cotización</h2>
@@ -479,7 +524,7 @@ function Compositor({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
                     <td className="px-3 py-3 text-right">
                       <input
                         type="number"
-                        min={minimo}
+                        min={l.minimo ?? minimo}
                         value={l.qtd}
                         onChange={(e) =>
                           setLinhas((ls) =>
@@ -493,8 +538,8 @@ function Compositor({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
                         onBlur={() =>
                           setLinhas((ls) =>
                             ls!.map((x) =>
-                              x.chave === l.chave && x.qtd < minimo
-                                ? { ...x, qtd: minimo, ajustadaMinimo: true }
+                              x.chave === l.chave && x.qtd < (x.minimo ?? minimo)
+                                ? { ...x, qtd: x.minimo ?? minimo, ajustadaMinimo: true }
                                 : x,
                             ),
                           )
@@ -591,7 +636,9 @@ function Compositor({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
             {erro && <p className="text-sm font-medium text-rose-600">{erro}</p>}
             <button
               onClick={enviar}
-              disabled={enviando || !linhas.length || linhas.some((l) => l.qtd < minimo)}
+              disabled={
+                enviando || !linhas.length || linhas.some((l) => l.qtd < (l.minimo ?? minimo))
+              }
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-emerald-600 text-base font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 disabled:opacity-50"
             >
               {enviando ? (

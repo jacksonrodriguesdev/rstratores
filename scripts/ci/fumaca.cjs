@@ -19,6 +19,9 @@ const PAGINAS = [
   ["/empresas", 200, ["CANAL MAYORISTA", "/empresas/registro"]],
   ["/empresas/registro", 200, ["Registrá tu empresa"]],
   ["/empresas/portal", 200, []],
+  // Painel do despachante: abre a tela de entrada; convite sem token mostra "link inválido"
+  ["/despachante", 200, []],
+  ["/convite-despachante?token=x", 200, []],
   ["/produto/CI-001", 200, ["CI-001", "application/ld+json"]],
   ["/pt/produto/CI-001", 200, ["CI-001"]],
   ["/repuestos", 200, ["John Deere"]],
@@ -123,10 +126,10 @@ const QUEBRADA = [/Something went wrong/i, /Algo salió mal/i, /Algo deu errado/
 
   // Admin sem login: o painel não pode vir no HTML (src/routes/admin.tsx só mostra depois de confirmar
   // a sessão; os dados passam por assertAdmin no servidor)
-  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes", "/admin/captura", "/admin/fiscal", "/admin/extratos"]) {
+  for (const caminho of ["/admin", "/admin/analises", "/admin/clientes", "/admin/captura", "/admin/fiscal", "/admin/extratos", "/admin/empresas", "/despachante", "/despachante/cotacoes"]) {
     const adm = await fetch(BASE + caminho, { redirect: "manual" });
     const htmlAdm = adm.status === 200 ? await adm.text() : "";
-    const vazou = /Painel de controle|Criador de anúncios|E-mail marketing|Fiscal do MEI|Extrato do banco/.test(htmlAdm);
+    const vazou = /Painel de controle|Criador de anúncios|E-mail marketing|Fiscal do MEI|Extrato do banco|Cotações e embarques|Dados para a DU-E/.test(htmlAdm);
     console.log(`${vazou ? "✘" : "✔"} ${adm.status} ${caminho} sem login ${vazou ? "MOSTRA O PAINEL" : "não mostra o painel"}`);
     if (vazou) falhas.push(`${caminho} mostra o painel sem login`);
   }
