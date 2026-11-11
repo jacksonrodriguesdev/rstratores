@@ -13,6 +13,14 @@ export const caminhoesAtivaFn = createServerFn({ method: "GET" }).handler(async 
   return { ativa: await linhaCaminhoesAtiva() };
 });
 
+// Público: linha ligada + total de peças (páginas de SEO por cidade).
+export const infoCamionesFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { linhaCaminhoesAtiva, contagemCaminhoes } = await import("./caminhoes.server");
+  if (!(await linhaCaminhoesAtiva())) return { ativa: false, total: 0 };
+  const c = await contagemCaminhoes();
+  return { ativa: true, total: c.total };
+});
+
 // Admin: status com contagem.
 export const statusCaminhoesFn = createServerFn({ method: "GET" }).handler(async () => {
   await admin();

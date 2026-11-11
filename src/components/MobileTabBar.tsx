@@ -9,8 +9,10 @@ import {
   ShoppingCart,
   User,
   Tractor,
+  Truck,
   LogOut,
 } from "lucide-react";
+import { caminhoesAtivaFn } from "@/lib/caminhoes";
 import { abrirFotoPieza } from "@/components/FotoPieza";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/components/CartContext";
@@ -31,7 +33,17 @@ export function MobileTabBar() {
   const { data: user } = useQuery({ queryKey: ["auth_session"], queryFn: () => getSessionFn() });
   const cartItemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const categorias = useCategoriasLoja();
+  const { data: cam } = useQuery({ queryKey: ["cam-ativa"], queryFn: () => caminhoesAtivaFn() });
   const { t, href } = useT();
+  const MONTADORAS_CAMINHAO = [
+    "MERCEDES-BENZ",
+    "SCANIA",
+    "VOLVO",
+    "VOLKSWAGEN // MAN",
+    "IVECO",
+    "FORD",
+    "DAF",
+  ];
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/catalogos/ver/")) return null;
   // Páginas com barra fixa própria logo acima desta (ex.: comprar na página do produto)
@@ -180,6 +192,37 @@ export function MobileTabBar() {
               </Link>
             ))}
           </div>
+
+          {cam?.ativa && (
+            <>
+              <h3 className="mt-6 flex items-center gap-1.5 px-4 text-sm font-semibold text-zinc-900">
+                <Truck className="h-4 w-4 text-primary" /> {t("Camiones", "Caminhões")}
+              </h3>
+              <div className="scrollbar-none mt-2 flex gap-2 overflow-x-auto px-4">
+                {MONTADORAS_CAMINHAO.map((m) => (
+                  <Link
+                    key={m}
+                    to="/loja"
+                    search={{ linha: "CAMINHOES", marca: m } as never}
+                    onClick={() => setSheet(null)}
+                    className="flex shrink-0 items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 active:scale-95"
+                  >
+                    <Truck className="h-4 w-4 text-primary" /> {m.replace(" // ", "/")}
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-3 px-4">
+                <Link
+                  to="/loja"
+                  search={{ linha: "CAMINHOES" } as never}
+                  onClick={() => setSheet(null)}
+                  className="block rounded-xl border border-primary/30 bg-primary/5 py-2.5 text-center text-sm font-semibold text-primary active:scale-95"
+                >
+                  {t("Ver repuestos de camión", "Ver peças de caminhão")}
+                </Link>
+              </div>
+            </>
+          )}
 
           <div className="mt-6 px-4 pb-4">
             <Link

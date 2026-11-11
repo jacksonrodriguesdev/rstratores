@@ -36,10 +36,23 @@ async function pecas() {
     select: { sku: true, updated_at: true },
     orderBy: { sku: "asc" },
   });
-  cache = {
-    pecas: rows.map((r) => ({ sku: r.sku.trim(), data: r.updated_at.toISOString().slice(0, 10) })),
-    em: Date.now(),
-  };
+  let lista = rows.map((r) => ({
+    sku: r.sku.trim(),
+    data: r.updated_at.toISOString().slice(0, 10),
+  }));
+  // Peças de caminhão (tabela products, linha CAMINHOES) quando a linha está ligada.
+  const { linhaCaminhoesAtiva } = await import("./caminhoes.server");
+  if (await linhaCaminhoesAtiva()) {
+    const cam = await prisma.products.findMany({
+      where: { linha: "CAMINHOES" },
+      select: { sku: true, updated_at: true },
+      orderBy: { sku: "asc" },
+    });
+    lista = lista.concat(
+      cam.map((r) => ({ sku: r.sku.trim(), data: r.updated_at.toISOString().slice(0, 10) })),
+    );
+  }
+  cache = { pecas: lista, em: Date.now() };
   return cache.pecas;
 }
 
@@ -95,6 +108,16 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
             "<changefreq>monthly</changefreq><priority>0.6</priority>",
           ),
         ),
+      // Repuestos de camiones por ciudad do Uruguai (espanhol), só quando a linha está ligada
+      ...((await (await import("./caminhoes.server")).linhaCaminhoesAtiva())
+        ? (await import("./seo-camiones")).LOCAIS_CAMION.map((l) =>
+            urlUnica(
+              `/repuestos-camiones/${l.slug}`,
+              "es",
+              "<changefreq>weekly</changefreq><priority>0.8</priority>",
+            ),
+          )
+        : []),
       url(`/catalogos`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
       ...(await catalogosPublicos()).map((c) =>
         url(c.caminho, `<lastmod>${c.data}</lastmod><priority>0.7</priority>`),

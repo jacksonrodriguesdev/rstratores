@@ -82,6 +82,7 @@ import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
 import { Route as RepuestosAgricolasLocalRouteImport } from './routes/repuestos-agricolas.$local'
+import { Route as RepuestosCamionesLocalRouteImport } from './routes/repuestos-camiones.$local'
 import { Route as RepuestosIndexRouteImport } from './routes/repuestos.index'
 import { Route as RepuestosSlugRouteImport } from './routes/repuestos.$slug'
 import { Route as SitemapsArquivoRouteImport } from './routes/sitemaps.$arquivo'
@@ -521,6 +522,11 @@ const RepuestosAgricolasIndexRoute = RepuestosAgricolasIndexRouteImport.update({
 const RepuestosAgricolasLocalRoute = RepuestosAgricolasLocalRouteImport.update({
   id: '/repuestos-agricolas/$local',
   path: '/repuestos-agricolas/$local',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepuestosCamionesLocalRoute = RepuestosCamionesLocalRouteImport.update({
+  id: '/repuestos-camiones/$local',
+  path: '/repuestos-camiones/$local',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RepuestosIndexRoute = RepuestosIndexRouteImport.update({
@@ -977,6 +983,7 @@ export interface FileRoutesByFullPath {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
+  '/repuestos-camiones/$local': typeof RepuestosCamionesLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
@@ -1125,6 +1132,7 @@ export interface FileRoutesByTo {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
+  '/repuestos-camiones/$local': typeof RepuestosCamionesLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
@@ -1276,6 +1284,7 @@ export interface FileRoutesById {
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
+  '/repuestos-camiones/$local': typeof RepuestosCamionesLocalRoute
   '/repuestos/$slug': typeof RepuestosSlugRoute
   '/sitemaps/$arquivo': typeof SitemapsArquivoRoute
   '/uploads/$': typeof UploadsSplatRoute
@@ -1428,6 +1437,7 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
+    | '/repuestos-camiones/$local'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
@@ -1576,6 +1586,7 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
+    | '/repuestos-camiones/$local'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
@@ -1726,6 +1737,7 @@ export interface FileRouteTypes {
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
+    | '/repuestos-camiones/$local'
     | '/repuestos/$slug'
     | '/sitemaps/$arquivo'
     | '/uploads/$'
@@ -1838,6 +1850,7 @@ export interface RootRouteChildren {
   PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
+  RepuestosCamionesLocalRoute: typeof RepuestosCamionesLocalRoute
   RepuestosSlugRoute: typeof RepuestosSlugRoute
   SitemapsArquivoRoute: typeof SitemapsArquivoRoute
   UploadsSplatRoute: typeof UploadsSplatRoute
@@ -2408,6 +2421,13 @@ declare module '@tanstack/react-router' {
       path: '/repuestos-agricolas/$local'
       fullPath: '/repuestos-agricolas/$local'
       preLoaderRoute: typeof RepuestosAgricolasLocalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repuestos-camiones/$local': {
+      id: '/repuestos-camiones/$local'
+      path: '/repuestos-camiones/$local'
+      fullPath: '/repuestos-camiones/$local'
+      preLoaderRoute: typeof RepuestosCamionesLocalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repuestos/': {
@@ -3169,6 +3189,7 @@ const rootRouteChildren: RootRouteChildren = {
   PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
+  RepuestosCamionesLocalRoute: RepuestosCamionesLocalRoute,
   RepuestosSlugRoute: RepuestosSlugRoute,
   SitemapsArquivoRoute: SitemapsArquivoRoute,
   UploadsSplatRoute: UploadsSplatRoute,
