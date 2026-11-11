@@ -152,6 +152,8 @@ export const Route = createFileRoute("/produto/$sku")({
             url,
             priceCurrency: emReais ? "BRL" : "UYU",
             price: emReais ? pr.brl : pr.uyu,
+            // Validade do preço (recomendado pelo Google p/ merchant listings): ~1 ano à frente
+            priceValidUntil: new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10),
             availability:
               p.estoque > 0 ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
             seller: { "@type": "Organization", name: "AGRO PARTS" },
@@ -205,8 +207,9 @@ export const Route = createFileRoute("/produto/$sku")({
       ],
       links: linksIdioma(caminho, idioma),
       scripts: [
-        // O Google só aceita "Product" com preço (ou avaliações); sem preço, fica só a trilha
-        ...(preco || av?.total
+        // Merchant listing exige IMAGEM e preço: sem foto real (ou sem preço/avaliações) o Google
+        // reprova o item. Nesses casos fica só a trilha (a peça continua indexando normalmente).
+        ...(temFoto && (preco || av?.total)
           ? [{ type: "application/ld+json", children: JSON.stringify(produtoLd) }]
           : []),
         { type: "application/ld+json", children: JSON.stringify(trilhaLd) },
