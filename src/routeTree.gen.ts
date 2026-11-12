@@ -70,6 +70,7 @@ import { Route as DespachanteCotacoesRouteImport } from './routes/despachante.co
 import { Route as DespachanteEmpresasRouteImport } from './routes/despachante.empresas'
 import { Route as DespachanteFerramentasRouteImport } from './routes/despachante.ferramentas'
 import { Route as DespachanteProdutosRouteImport } from './routes/despachante.produtos'
+import { Route as DieselSplatRouteImport } from './routes/diesel.$'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasPortalRouteImport } from './routes/empresas.portal'
 import { Route as EmpresasRegistroRouteImport } from './routes/empresas.registro'
@@ -463,6 +464,11 @@ const DespachanteProdutosRoute = DespachanteProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
   getParentRoute: () => DespachanteRoute,
+} as any)
+const DieselSplatRoute = DieselSplatRouteImport.update({
+  id: '/diesel/$',
+  path: '/diesel/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
   id: '/empresas/',
@@ -974,6 +980,7 @@ export interface FileRoutesByFullPath {
   '/despachante/empresas': typeof DespachanteEmpresasRoute
   '/despachante/ferramentas': typeof DespachanteFerramentasRoute
   '/despachante/produtos': typeof DespachanteProdutosRoute
+  '/diesel/$': typeof DieselSplatRoute
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
@@ -1123,6 +1130,7 @@ export interface FileRoutesByTo {
   '/despachante/empresas': typeof DespachanteEmpresasRoute
   '/despachante/ferramentas': typeof DespachanteFerramentasRoute
   '/despachante/produtos': typeof DespachanteProdutosRoute
+  '/diesel/$': typeof DieselSplatRoute
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
@@ -1275,6 +1283,7 @@ export interface FileRoutesById {
   '/despachante/empresas': typeof DespachanteEmpresasRoute
   '/despachante/ferramentas': typeof DespachanteFerramentasRoute
   '/despachante/produtos': typeof DespachanteProdutosRoute
+  '/diesel/$': typeof DieselSplatRoute
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
@@ -1428,6 +1437,7 @@ export interface FileRouteTypes {
     | '/despachante/empresas'
     | '/despachante/ferramentas'
     | '/despachante/produtos'
+    | '/diesel/$'
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
@@ -1577,6 +1587,7 @@ export interface FileRouteTypes {
     | '/despachante/empresas'
     | '/despachante/ferramentas'
     | '/despachante/produtos'
+    | '/diesel/$'
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
@@ -1728,6 +1739,7 @@ export interface FileRouteTypes {
     | '/despachante/empresas'
     | '/despachante/ferramentas'
     | '/despachante/produtos'
+    | '/diesel/$'
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
@@ -1841,6 +1853,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AvaliarCodigoRoute: typeof AvaliarCodigoRoute
   CatalogosSlugRoute: typeof CatalogosSlugRoute
+  DieselSplatRoute: typeof DieselSplatRoute
   EmpresasPortalRoute: typeof EmpresasPortalRoute
   EmpresasRegistroRoute: typeof EmpresasRegistroRoute
   EtiquetaIdRoute: typeof EtiquetaIdRoute
@@ -2338,6 +2351,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/despachante/produtos'
       preLoaderRoute: typeof DespachanteProdutosRouteImport
       parentRoute: typeof DespachanteRoute
+    }
+    '/diesel/$': {
+      id: '/diesel/$'
+      path: '/diesel/$'
+      fullPath: '/diesel/$'
+      preLoaderRoute: typeof DieselSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/empresas/': {
       id: '/empresas/'
@@ -3180,6 +3200,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AvaliarCodigoRoute: AvaliarCodigoRoute,
   CatalogosSlugRoute: CatalogosSlugRoute,
+  DieselSplatRoute: DieselSplatRoute,
   EmpresasPortalRoute: EmpresasPortalRoute,
   EmpresasRegistroRoute: EmpresasRegistroRoute,
   EtiquetaIdRoute: EtiquetaIdRoute,
