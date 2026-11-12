@@ -21,7 +21,7 @@ import {
   EyeOff,
   Truck,
 } from "lucide-react";
-import { statusCaminhoesFn, ativarCaminhoesFn } from "@/lib/caminhoes";
+import { statusLinhasFn, ativarLinhaFn } from "@/lib/linhas-extras";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,7 @@ const temPreco = (r: Pick<LinhaAdmin, "preco_brl" | "preco_modo" | "preco_uyu">)
 
 function Produtos() {
   const qc = useQueryClient();
-  const [linhaAdmin, setLinhaAdmin] = useState<"AGRICOLA" | "CAMINHOES">("AGRICOLA");
+  const [linhaAdmin, setLinhaAdmin] = useState<string>("AGRICOLA");
   const [p, setP] = useState<ParamsLista>({
     filtro: "com_foto",
     busca: "",
@@ -184,7 +184,7 @@ function Produtos() {
         </div>
       </div>
 
-      <PainelCaminhoes />
+      <PainelLinhas />
 
       <PainelCotacao
         dados={precos}
@@ -196,7 +196,7 @@ function Produtos() {
 
       <SeletorLinhaAdmin linha={linhaAdmin} setLinha={setLinhaAdmin} totais={resumo?.totais} />
 
-      {linhaAdmin === "CAMINHOES" && <VistaCaminhoes />}
+      {linhaAdmin !== "AGRICOLA" && <VistaCaminhoes linha={linhaAdmin} />}
 
       {linhaAdmin === "AGRICOLA" && (
         <>
@@ -400,53 +400,60 @@ function SeletorLinhaAdmin({
   setLinha,
   totais,
 }: {
-  linha: "AGRICOLA" | "CAMINHOES";
-  setLinha: (l: "AGRICOLA" | "CAMINHOES") => void;
+  linha: string;
+  setLinha: (l: string) => void;
   totais?: { agricola: number; caminhoes: number; total: number };
 }) {
   const fmt = (n?: number) => (n ?? 0).toLocaleString("pt-BR");
+  const { data: linhas } = useQuery({
+    queryKey: ["linhas-status"],
+    queryFn: () => statusLinhasFn(),
+  });
+  const extras = linhas ?? [];
+  const opcoes = [
+    { id: "AGRICOLA", rotulo: "Agrícola" },
+    ...extras.map((l) => ({ id: l.id, rotulo: l.rotulo })),
+  ];
+  const plataforma = (totais?.agricola ?? 0) + extras.reduce((s, l) => s + (l.total || 0), 0);
   return (
     <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
-      <div className="flex gap-2">
-        {(
-          [
-            ["AGRICOLA", "Agrícola"],
-            ["CAMINHOES", "Caminhões"],
-          ] as const
-        ).map(([k, rot]) => (
+      <div className="flex flex-wrap gap-2">
+        {opcoes.map((o) => (
           <button
-            key={k}
-            onClick={() => setLinha(k)}
+            key={o.id}
+            onClick={() => setLinha(o.id)}
             className={cn(
               "rounded-lg border px-4 py-2 text-sm font-semibold transition",
-              linha === k
+              linha === o.id
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
             )}
           >
-            {rot}
+            {o.rotulo}
           </button>
         ))}
       </div>
       {totais && (
         <div className="flex flex-wrap items-center gap-4 text-sm">
           <span className="text-muted-foreground">
-            Plataforma: <b className="text-foreground">{fmt(totais.total)}</b> peças
+            Plataforma: <b className="text-foreground">{fmt(plataforma)}</b> peças
           </span>
           <span className="text-muted-foreground">
             Agrícola: <b className="text-foreground">{fmt(totais.agricola)}</b>
           </span>
-          <span className="text-muted-foreground">
-            Caminhões: <b className="text-foreground">{fmt(totais.caminhoes)}</b>
-          </span>
+          {extras.map((l) => (
+            <span key={l.id} className="text-muted-foreground">
+              {l.rotulo}: <b className="text-foreground">{fmt(l.total)}</b>
+            </span>
+          ))}
         </div>
       )}
     </Card>
   );
 }
 
-// Visão de caminhões: filtros (categoria/montadora/estado), busca e preço simples (R$).
-function VistaCaminhoes() {
+// Visão de uma linha extra (Caminhões/Diesel): filtros (segmento/marca/estado), busca e preço R$.
+function VistaCaminhoes({ linha }: { linha: string }) {
   const qc = useQueryClient();
   const [filtro, setFiltro] = useState<string>("todos");
   const [busca, setBusca] = useState("");
@@ -455,6 +462,14 @@ function VistaCaminhoes() {
   const [marca, setMarca] = useState("");
   const [pagina, setPagina] = useState(1);
   useEffect(() => {
+    setFiltro("todos");
+    setBusca("");
+    setBuscaDeb("");
+    setCategoria("");
+    setMarca("");
+    setPagina(1);
+  }, [linha]);
+  useEffect(() => {
     const t = setTimeout(() => {
       setBuscaDeb(busca.trim());
       setPagina(1);
@@ -462,11 +477,15 @@ function VistaCaminhoes() {
     return () => clearTimeout(t);
   }, [busca]);
   const { data: resumo } = useQuery({
-    queryKey: ["cam-resumo"],
-    queryFn: () => resumoCaminhoesFn(),
+    queryKey: ["cam-resumo", linha],
+    queryFn: () => resumoCaminhoesFn({ data: { linha } }),
   });
-  const { data: opc } = useQuery({ queryKey: ["cam-opc"], queryFn: () => opcoesCaminhoesFn() });
+  const { data: opc } = useQuery({
+    queryKey: ["cam-opc", linha],
+    queryFn: () => opcoesCaminhoesFn({ data: { linha } }),
+  });
   const params = {
+    linha,
     filtro,
     busca: buscaDeb,
     categoria: categoria || undefined,
@@ -522,7 +541,7 @@ function VistaCaminhoes() {
           }}
           className="h-10 rounded-md border bg-background px-3 text-sm"
         >
-          <option value="">Todos os grupos</option>
+          <option value="">Todos os segmentos</option>
           {opc?.categorias.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -537,7 +556,7 @@ function VistaCaminhoes() {
           }}
           className="h-10 rounded-md border bg-background px-3 text-sm"
         >
-          <option value="">Todas as montadoras</option>
+          <option value="">Todas as marcas</option>
           {opc?.marcas.map((m) => (
             <option key={m} value={m}>
               {m}
@@ -555,7 +574,7 @@ function VistaCaminhoes() {
                 <th className="p-2">Foto</th>
                 <th className="p-2">Código</th>
                 <th className="p-2">Peça</th>
-                <th className="p-2">Montadora / grupo</th>
+                <th className="p-2">Marca / segmento</th>
                 <th className="p-2">Preço R$</th>
                 <th className="p-2" />
               </tr>
@@ -572,7 +591,7 @@ function VistaCaminhoes() {
           </table>
           {data && !data.rows.length && (
             <p className="p-10 text-center text-sm text-muted-foreground">
-              Nenhuma peça de caminhão neste filtro.
+              Nenhuma peça nesta linha/filtro.
             </p>
           )}
         </div>
@@ -677,73 +696,79 @@ function RowCaminhao({ r, aoSalvar }: { r: LinhaCaminhao; aoSalvar: () => void }
   );
 }
 
-// Liga/desliga a linha inteira de peças de caminhão (catálogo Roni Chaves).
-function PainelCaminhoes() {
+// Liga/desliga cada linha extra (Caminhões, Diesel) e mostra a contagem.
+function PainelLinhas() {
   const qc = useQueryClient();
-  const [salvando, setSalvando] = useState(false);
-  const { data } = useQuery({
-    queryKey: ["caminhoes-status"],
-    queryFn: () => statusCaminhoesFn(),
+  const [salvando, setSalvando] = useState<string | null>(null);
+  const { data: linhas } = useQuery({
+    queryKey: ["linhas-status"],
+    queryFn: () => statusLinhasFn(),
   });
-  const ativa = data?.ativa ?? false;
-  const alternar = async () => {
-    setSalvando(true);
+  const alternar = async (id: string, ativa: boolean, rotulo: string) => {
+    setSalvando(id);
     try {
-      await ativarCaminhoesFn({ data: { ativa: !ativa } });
-      await qc.invalidateQueries({ queryKey: ["caminhoes-status"] });
-      toast.success(ativa ? "Linha de caminhões desativada" : "Linha de caminhões ativada");
+      await ativarLinhaFn({ data: { id, ativa: !ativa } });
+      await qc.invalidateQueries({ queryKey: ["linhas-status"] });
+      toast.success(ativa ? `Linha ${rotulo} desativada` : `Linha ${rotulo} ativada`);
     } catch (e: any) {
       toast.error(e?.message || "Erro ao salvar");
     } finally {
-      setSalvando(false);
+      setSalvando(null);
     }
   };
+  if (!linhas?.length) return null;
   return (
-    <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
-      <div className="flex items-center gap-3">
-        <span
-          className={`grid h-10 w-10 place-items-center rounded-xl ${
-            ativa ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-400"
-          }`}
-        >
-          <Truck className="h-5 w-5" />
-        </span>
-        <div>
-          <p className="flex items-center gap-2 font-bold">
-            Linha de caminhões (Roni Chaves)
+    <div className="space-y-2">
+      {linhas.map((l) => (
+        <Card key={l.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+          <div className="flex items-center gap-3">
             <span
-              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                ativa ? "bg-emerald-100 text-emerald-700" : "bg-zinc-200 text-zinc-600"
+              className={`grid h-10 w-10 place-items-center rounded-xl ${
+                l.ativa ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-400"
               }`}
             >
-              {ativa ? "ATIVA" : "DESATIVADA"}
+              <Truck className="h-5 w-5" />
             </span>
-          </p>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {data
-              ? `${data.total.toLocaleString("pt-BR")} peças · ${data.montadoras} montadoras · só espanhol, preço "consultar"`
-              : "Carregando…"}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        {ativa && (
-          <Button asChild variant="outline">
-            <a href="/loja?linha=CAMINHOES" target="_blank" rel="noopener noreferrer">
-              Ver na loja
-            </a>
-          </Button>
-        )}
-        <Button onClick={alternar} disabled={salvando} variant={ativa ? "outline" : "default"}>
-          {salvando ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Truck className="mr-2 h-4 w-4" />
-          )}
-          {ativa ? "Desativar linha" : "Ativar linha"}
-        </Button>
-      </div>
-    </Card>
+            <div>
+              <p className="flex items-center gap-2 font-bold">
+                Linha {l.rotulo}
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                    l.ativa ? "bg-emerald-100 text-emerald-700" : "bg-zinc-200 text-zinc-600"
+                  }`}
+                >
+                  {l.ativa ? "ATIVA" : "DESATIVADA"}
+                </span>
+              </p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {`${l.total.toLocaleString("pt-BR")} peças · ${l.marcas} marcas · ${l.segmentos} segmentos · só espanhol, preço "consultar"`}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {l.ativa && (
+              <Button asChild variant="outline">
+                <a href={`/loja?linha=${l.id}`} target="_blank" rel="noopener noreferrer">
+                  Ver na loja
+                </a>
+              </Button>
+            )}
+            <Button
+              onClick={() => alternar(l.id, l.ativa, l.rotulo)}
+              disabled={salvando === l.id}
+              variant={l.ativa ? "outline" : "default"}
+            >
+              {salvando === l.id ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Truck className="mr-2 h-4 w-4" />
+              )}
+              {l.ativa ? "Desativar" : "Ativar"}
+            </Button>
+          </div>
+        </Card>
+      ))}
+    </div>
   );
 }
 

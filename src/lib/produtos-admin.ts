@@ -594,8 +594,8 @@ export const salvarConfigPrecosFn = createServerFn({ method: "POST" })
 // ---------- Visão de caminhões no admin (tabela products, linha='CAMINHOES') ----------
 // Só leitura + preço simples (preco_brl). As colunas avançadas de preço ($U) são exclusivas da
 // linha agrícola; aqui o preço entra aos poucos pelo campo em R$ (ou deixa "consultar").
-function whereCaminhao(filtro: string): any {
-  const base: any = { linha: "CAMINHOES" };
+function whereCaminhao(filtro: string, linha = "CAMINHOES"): any {
+  const base: any = { linha };
   switch (filtro) {
     case "com_foto":
       return { AND: [base, FOTO_OK] };
@@ -618,39 +618,44 @@ export const FILTROS_CAMINHAO = [
   ["precificados", "Precificados"],
 ] as const;
 
-export const resumoCaminhoesFn = createServerFn({ method: "GET" }).handler(async () => {
-  await admin();
-  const { prisma } = await import("./prisma");
-  const ent = await Promise.all(
-    FILTROS_CAMINHAO.map(
-      async ([k]) => [k, await prisma.products.count({ where: whereCaminhao(k) })] as const,
-    ),
-  );
-  return Object.fromEntries(ent) as Record<(typeof FILTROS_CAMINHAO)[number][0], number>;
-});
+export const resumoCaminhoesFn = createServerFn({ method: "GET" })
+  .validator((d?: { linha?: string }) => ({ linha: d?.linha || "CAMINHOES" }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { prisma } = await import("./prisma");
+    const ent = await Promise.all(
+      FILTROS_CAMINHAO.map(
+        async ([k]) =>
+          [k, await prisma.products.count({ where: whereCaminhao(k, data.linha) })] as const,
+      ),
+    );
+    return Object.fromEntries(ent) as Record<(typeof FILTROS_CAMINHAO)[number][0], number>;
+  });
 
-export const opcoesCaminhoesFn = createServerFn({ method: "GET" }).handler(async () => {
-  await admin();
-  const { prisma } = await import("./prisma");
-  const [cats, marcas] = await Promise.all([
-    prisma.products.groupBy({
-      by: ["categoria"],
-      where: { linha: "CAMINHOES" },
-      _count: { _all: true },
-      orderBy: { _count: { categoria: "desc" } },
-    }),
-    prisma.products.groupBy({
-      by: ["marca"],
-      where: { linha: "CAMINHOES", marca: { not: null } },
-      _count: { _all: true },
-      orderBy: { _count: { marca: "desc" } },
-    }),
-  ]);
-  return {
-    categorias: cats.filter((c) => c.categoria).map((c) => c.categoria as string),
-    marcas: marcas.filter((m) => m.marca).map((m) => m.marca as string),
-  };
-});
+export const opcoesCaminhoesFn = createServerFn({ method: "GET" })
+  .validator((d?: { linha?: string }) => ({ linha: d?.linha || "CAMINHOES" }))
+  .handler(async ({ data }) => {
+    await admin();
+    const { prisma } = await import("./prisma");
+    const [cats, marcas] = await Promise.all([
+      prisma.products.groupBy({
+        by: ["categoria"],
+        where: { linha: data.linha },
+        _count: { _all: true },
+        orderBy: { _count: { categoria: "desc" } },
+      }),
+      prisma.products.groupBy({
+        by: ["marca"],
+        where: { linha: data.linha, marca: { not: null } },
+        _count: { _all: true },
+        orderBy: { _count: { marca: "desc" } },
+      }),
+    ]);
+    return {
+      categorias: cats.filter((c) => c.categoria).map((c) => c.categoria as string),
+      marcas: marcas.filter((m) => m.marca).map((m) => m.marca as string),
+    };
+  });
 
 export type LinhaCaminhao = {
   sku: string;
@@ -665,11 +670,11 @@ export type LinhaCaminhao = {
   estoque: number;
 };
 export const listarCaminhoesAdminFn = createServerFn({ method: "GET" })
-  .validator((d: ParamsLista) => d)
+  .validator((d: ParamsLista & { linha?: string }) => d)
   .handler(async ({ data }) => {
     await admin();
     const { prisma } = await import("./prisma");
-    const where: any = { AND: [whereCaminhao(data.filtro)] };
+    const where: any = { AND: [whereCaminhao(data.filtro, data.linha || "CAMINHOES")] };
     const q = (data.busca || "").trim();
     if (q)
       where.AND.push({
@@ -724,7 +729,8 @@ export const salvarPrecoCaminhaoFn = createServerFn({ method: "POST" })
     await admin();
     const { prisma } = await import("./prisma");
     const atual = await prisma.products.findUnique({ where: { sku: String(data.sku) } });
-    if (!atual || atual.linha !== "CAMINHOES") throw new Error("Peça não encontrada");
+    if (!atual || atual.linha === "AGRICOLA" || atual.linha === "PELLEGRINO")
+      throw new Error("Peça não encontrada");
     const preco =
       data.preco_brl === "" || data.preco_brl == null
         ? null

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
-import { caminhoesAtivaFn } from "@/lib/caminhoes";
+import { linhasLojaFn } from "@/lib/linhas-extras";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { z } from "zod";
@@ -147,20 +147,24 @@ function LojaPage() {
   const { segment, setSegment } = useSegment();
   const navigate = useNavigate();
   const loaderRef = useRef<HTMLDivElement>(null);
-  // Linha de caminhões: tratada como um filtro "Línea" dentro da loja (não mexe no header).
-  const [camiones, setCamiones] = useState(linha === "CAMINHOES");
-  const linhaLoja = camiones ? "CAMINHOES" : segment;
-  const { data: camStatus } = useQuery({
-    queryKey: ["cam-ativa"],
-    queryFn: () => caminhoesAtivaFn(),
+  // Linhas extras (Camiones, Diesel) tratadas como filtro "Línea" dentro da loja.
+  const { data: linhasExtras } = useQuery({
+    queryKey: ["linhas-loja"],
+    queryFn: () => linhasLojaFn(),
   });
-  const camionesDisponivel = !!camStatus?.ativa;
-  const trocarLinha = (cam: boolean) => {
-    setCamiones(cam);
+  const extras = linhasExtras ?? [];
+  const [linhaSel, setLinhaSel] = useState<string>(
+    linha && linha !== "AGRICOLA" ? linha : "AGRICOLA",
+  );
+  const ehExtra = linhaSel !== "AGRICOLA";
+  const linhaLoja = ehExtra ? linhaSel : segment;
+  const rotuloLinha = extras.find((l) => l.id === linhaSel)?.rotulo ?? "";
+  const trocarLinha = (id: string) => {
+    setLinhaSel(id);
     setCategorias([]);
     setMarcas([]);
     setSearch("");
-    navigate({ to: "/loja", search: (cam ? { linha: "CAMINHOES" } : {}) as any });
+    navigate({ to: "/loja", search: (id === "AGRICOLA" ? {} : { linha: id }) as any });
   };
 
   // Links do header/home trocam os filtros mesmo com a loja já aberta
@@ -168,7 +172,7 @@ function LojaPage() {
     if (linha && (linha === "AGRICOLA" || linha === "AUTOMOTIVA") && linha !== segment) {
       setSegment(linha as any);
     }
-    setCamiones(linha === "CAMINHOES");
+    setLinhaSel(linha && linha !== "AGRICOLA" ? linha : "AGRICOLA");
     setCategorias(categoria ? [categoria] : []);
     setMarcas(marca ? [marca] : []);
     setSearch(q ?? "");
@@ -207,21 +211,6 @@ function LojaPage() {
     queryKey: ["facets", linhaLoja],
     queryFn: () => getFacets(linhaLoja),
   });
-
-  // Busca cruzada: quantas peças de caminhão casam com o termo (oferece trocar para a linha Camiones).
-  const { data: camBusca } = useQuery({
-    queryKey: ["cam-busca", busca],
-    queryFn: () => listProducts({ linha: "CAMINHOES", search: busca, pageSize: 1, contar: true }),
-    enabled: camionesDisponivel && !camiones && busca.length >= 2,
-    staleTime: 60_000,
-  });
-  const totalCamiones = (camBusca as any)?.total ?? 0;
-  const verEnCamiones = () => {
-    setCamiones(true);
-    setCategorias([]);
-    setMarcas([]);
-    navigate({ to: "/loja", search: { linha: "CAMINHOES", q: busca } as any });
-  };
 
   const rows = useMemo(
     () => (data ? data.pages.flatMap((page) => page.rows as Product[]) : []),
@@ -278,8 +267,8 @@ function LojaPage() {
       ? categoriaNo(categorias[0], idioma)
       : marcas.length === 1
         ? `${t("Repuestos", "Peças")} ${marcas[0]}`
-        : camiones
-          ? t("Repuestos para camiones", "Peças para caminhões")
+        : ehExtra
+          ? `Repuestos ${rotuloLinha}`
           : t("Repuestos agrícolas", "Peças agrícolas");
 
   const listaFiltro = (
@@ -332,36 +321,27 @@ function LojaPage() {
         )}
       </div>
 
-      {camionesDisponivel && (
+      {extras.length > 0 && (
         <div className="mb-4">
           <label className="mb-2 block text-sm font-semibold text-zinc-800">
             {t("Línea", "Linha")}
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => trocarLinha(false)}
-              className={cn(
-                "rounded-lg border px-3 py-2 text-sm font-semibold transition",
-                !camiones
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
-              )}
-            >
-              {t("Agrícola", "Agrícola")}
-            </button>
-            <button
-              type="button"
-              onClick={() => trocarLinha(true)}
-              className={cn(
-                "rounded-lg border px-3 py-2 text-sm font-semibold transition",
-                camiones
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
-              )}
-            >
-              {t("Camiones", "Caminhões")}
-            </button>
+            {[{ id: "AGRICOLA", rotulo: t("Agrícola", "Agrícola") }, ...extras].map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => trocarLinha(l.id)}
+                className={cn(
+                  "rounded-lg border px-3 py-2 text-sm font-semibold transition",
+                  linhaSel === l.id
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-zinc-200 text-zinc-600 hover:border-zinc-300",
+                )}
+              >
+                {l.rotulo}
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -398,7 +378,7 @@ function LojaPage() {
         <AccordionItem value="marcas" className="border-b-0">
           <AccordionTrigger className="rounded-md px-1 py-3 hover:bg-muted/50 hover:no-underline">
             <span className="text-sm font-semibold uppercase tracking-wider text-zinc-800">
-              {camiones ? t("Montadora", "Montadora") : t("Marca del tractor", "Marca do trator")}
+              {ehExtra ? t("Marca", "Marca") : t("Marca del tractor", "Marca do trator")}
             </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-1 px-1 pb-4 pt-1">
@@ -437,14 +417,21 @@ function LojaPage() {
                 `${rows.length} ${t("repuestos", "peças")}`
               )}
             </p>
-            {!camiones && busca.length >= 2 && totalCamiones > 0 && (
-              <button
-                onClick={verEnCamiones}
-                className="mt-2 flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100"
-              >
-                {`¿Repuestos de camión? Ver ${totalCamiones.toLocaleString("es-UY")} en la línea Camiones →`}
-              </button>
-            )}
+            {!ehExtra &&
+              busca.length >= 2 &&
+              extras.map((l) => (
+                <BannerCruzado
+                  key={l.id}
+                  linha={l}
+                  busca={busca}
+                  aoVer={() => {
+                    setLinhaSel(l.id);
+                    setCategorias([]);
+                    setMarcas([]);
+                    navigate({ to: "/loja", search: { linha: l.id, q: busca } as any });
+                  }}
+                />
+              ))}
             {!busca && !isLoading && (
               <button
                 onClick={() => setSoComFoto(!soComFoto)}
@@ -733,5 +720,33 @@ function AvisoChegada({ busca }: { busca: string }) {
         )}
       </p>
     </form>
+  );
+}
+
+// Banner de busca cruzada: ao buscar na linha agrícola, se houver peças de uma linha extra
+// (Camiones, Diesel) com o termo, oferece pular para ela.
+function BannerCruzado({
+  linha,
+  busca,
+  aoVer,
+}: {
+  linha: { id: string; rotulo: string };
+  busca: string;
+  aoVer: () => void;
+}) {
+  const { data } = useQuery({
+    queryKey: ["busca-linha", linha.id, busca],
+    queryFn: () => listProducts({ linha: linha.id, search: busca, pageSize: 1, contar: true }),
+    staleTime: 60_000,
+  });
+  const total = (data as any)?.total ?? 0;
+  if (total <= 0) return null;
+  return (
+    <button
+      onClick={aoVer}
+      className="mt-2 flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 transition hover:bg-amber-100"
+    >
+      {`Ver ${total.toLocaleString("es-UY")} en la línea ${linha.rotulo} →`}
+    </button>
   );
 }

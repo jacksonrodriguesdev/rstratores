@@ -139,23 +139,27 @@ async function itens(): Promise<Item[]> {
   return estado.carregando;
 }
 
-// ---- Linha de caminhões: mesmo índice em memória, carregado sob demanda da tabela `products`
-// (linha='CAMINHOES'). Ordenar/filtrar 68 mil peças no MySQL por nome (TEXT) levava ~3 s.
-const Gc = globalThis as unknown as {
-  __indiceCaminhoes?: { cache: Indice | null; carregando: Promise<Item[]> | null };
+// ---- Linhas extras (CAMINHOES, DIESEL) na tabela `products`: índice em memória por linha,
+// carregado sob demanda. Ordenar/filtrar dezenas de milhares de peças no MySQL por nome (TEXT)
+// é lento; o índice resolve em memória.
+const Gx = globalThis as unknown as {
+  __indicesLinha?: Record<string, { cache: Indice | null; carregando: Promise<Item[]> | null }>;
 };
-const estadoCam = (Gc.__indiceCaminhoes ??= { cache: null, carregando: null });
+const estadosLinha = (Gx.__indicesLinha ??= {});
+const estadoDaLinha = (linha: string) =>
+  (estadosLinha[linha] ??= { cache: null, carregando: null });
 
-async function assinaturaCaminhoes(): Promise<string> {
+async function assinaturaLinha(linha: string): Promise<string> {
   const [r] = await prisma.$queryRawUnsafe<Array<{ n: bigint; u: Date | null }>>(
-    "SELECT COUNT(*) AS n, MAX(updated_at) AS u FROM products WHERE linha='CAMINHOES'",
+    "SELECT COUNT(*) AS n, MAX(updated_at) AS u FROM products WHERE linha=?",
+    linha,
   );
   return `${r?.n ?? 0}|${r?.u ? new Date(r.u).getTime() : 0}`;
 }
 
-async function carregarCaminhoes(): Promise<Item[]> {
+async function carregarLinha(linha: string): Promise<Item[]> {
   const linhas = await prisma.products.findMany({
-    where: { linha: "CAMINHOES" },
+    where: { linha },
     select: {
       sku: true,
       nome: true,
@@ -191,29 +195,29 @@ async function carregarCaminhoes(): Promise<Item[]> {
   });
 }
 
-async function itensCaminhoes(): Promise<Item[]> {
-  if (estadoCam.cache && Date.now() - estadoCam.cache.em < VALIDADE) {
-    if (Date.now() - estadoCam.cache.conferido < CONFERIR) return estadoCam.cache.itens;
-    estadoCam.cache.conferido = Date.now();
+async function itensLinhaProducts(linha: string): Promise<Item[]> {
+  const estado = estadoDaLinha(linha);
+  if (estado.cache && Date.now() - estado.cache.em < VALIDADE) {
+    if (Date.now() - estado.cache.conferido < CONFERIR) return estado.cache.itens;
+    estado.cache.conferido = Date.now();
     try {
-      if ((await assinaturaCaminhoes()) === estadoCam.cache.assinatura)
-        return estadoCam.cache.itens;
+      if ((await assinaturaLinha(linha)) === estado.cache.assinatura) return estado.cache.itens;
     } catch {
-      return estadoCam.cache.itens;
+      return estado.cache.itens;
     }
   }
-  estadoCam.carregando ??= (async () => {
-    const assinatura = await assinaturaCaminhoes().catch(() => "");
-    const lista = await carregarCaminhoes();
-    estadoCam.cache = { itens: lista, em: Date.now(), assinatura, conferido: Date.now() };
+  estado.carregando ??= (async () => {
+    const assinatura = await assinaturaLinha(linha).catch(() => "");
+    const lista = await carregarLinha(linha);
+    estado.cache = { itens: lista, em: Date.now(), assinatura, conferido: Date.now() };
     return lista;
-  })().finally(() => (estadoCam.carregando = null));
-  return estadoCam.carregando;
+  })().finally(() => (estado.carregando = null));
+  return estado.carregando;
 }
 
-// Filtros (categoria/marca) da linha de caminhões, contados do índice em memória.
-export async function facetsCaminhoes() {
-  const lista = await itensCaminhoes();
+// Filtros (categoria/marca) de uma linha extra, contados do índice em memória.
+export async function facetsLinha(linha: string) {
+  const lista = await itensLinhaProducts(linha);
   const contar = (campo: "categoria" | "marca") => {
     const m = new Map<string, number>();
     for (const i of lista) {
@@ -246,7 +250,7 @@ const compararNome = (a: Item, b: Item) =>
 
 // Devolve os SKUs na ordem de exibição.
 export async function buscarSkus(f: FiltrosBusca, linha = "AGRICOLA"): Promise<string[]> {
-  let lista = linha === "CAMINHOES" ? await itensCaminhoes() : await itens();
+  let lista = linha !== "AGRICOLA" ? await itensLinhaProducts(linha) : await itens();
 
   const termos = prepararBusca(f.search ?? "");
   const consultaCodigo = soCodigo(f.search ?? "");
