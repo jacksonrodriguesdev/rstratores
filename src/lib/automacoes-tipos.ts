@@ -20,6 +20,7 @@ export type TipoAutomacao =
   | "catalogo_novo"
   | "data_especial"
   | "aniversario"
+  | "carteira_vence"
   | "interesse_sem_pedido";
 
 export type ConfigAutomacao = {
@@ -390,6 +391,42 @@ export const TIPOS: DefTipo[] = [
       botaoUrl: "/loja",
       cor: "#c8102e",
     }),
+  },
+  {
+    tipo: "carteira_vence",
+    nome: "Crédito da carteira vencendo",
+    descricao: "Lembra o cliente de usar o crédito da carteira antes de vencer.",
+    gatilho: "Quando o crédito de boas-vindas do cliente está a poucos dias de vencer.",
+    cor: "#0b7a3b",
+    emoji: "💸",
+    produtos: false,
+    enviarAgora: false,
+    variaveis: { saldo: "$500", dias: "5", vence: "30/11" },
+    config: { dias: 5, intervaloDias: 10 },
+    assunto: "{{nombre}}, tenés {{saldo}} por vencer 🎁",
+    preheader: "Usá tu crédito antes del {{vence}}.",
+    conteudo: base({
+      destaque: "TU CRÉDITO VENCE PRONTO",
+      titulo: "{{nombre}}, te quedan {{saldo}} en tu billetera",
+      texto:
+        "Tu crédito de regalo vence el {{vence}} (en {{dias}} días). Usalo como descuento en tu próxima compra de repuestos — es tuyo.",
+      botaoTexto: "Usar mi crédito",
+      botaoUrl: "/cuenta",
+      cor: "#0b7a3b",
+    }),
+    pt: {
+      assunto: "{{nombre}}, você tem {{saldo}} pra usar 🎁",
+      preheader: "Use seu crédito antes de {{vence}}.",
+      conteudo: base({
+        destaque: "SEU CRÉDITO ESTÁ VENCENDO",
+        titulo: "{{nombre}}, restam {{saldo}} na sua carteira",
+        texto:
+          "Seu crédito de bônus vence em {{vence}} (em {{dias}} dias). Use como desconto na sua próxima compra de peças — é seu.",
+        botaoTexto: "Usar meu crédito",
+        botaoUrl: "/cuenta",
+        cor: "#0b7a3b",
+      }),
+    },
   },
 ];
 

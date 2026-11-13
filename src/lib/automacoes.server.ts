@@ -561,6 +561,57 @@ async function gatilho(
     };
   }
 
+  if (tipo === "carteira_vence") {
+    const { configCarteira } = await import("./carteira.server");
+    const cart = await configCarteira();
+    if (!cart.ativo) return { envios: [] };
+    const dias = cfg.dias ?? 5;
+    const limite = new Date(agora + dias * DIA);
+    // Clientes com saldo e um crédito vencendo dentro da janela
+    const users = await prisma.users.findMany({
+      where: {
+        role: { not: "ADMIN" },
+        carteira_saldo: { gt: 0 },
+        carteira_mov: {
+          some: { tipo: "CREDITO", expira_em: { gt: new Date(agora), lte: limite } },
+        },
+      },
+      select: {
+        id: true,
+        carteira_saldo: true,
+        carteira_mov: {
+          where: { tipo: "CREDITO", expira_em: { gt: new Date(agora), lte: limite } },
+          select: { expira_em: true },
+          orderBy: { expira_em: "asc" },
+          take: 1,
+        },
+      },
+      take: 2000,
+    });
+    const ok = await elegiveis(publico);
+    // No máximo 1 lembrete por cliente a cada N dias
+    const recentes = await jaRecebeu(a.id, [], new Date(agora - (cfg.intervaloDias ?? 10) * DIA));
+    const envios: Envio[] = [];
+    for (const u of users) {
+      if (!ok.has(u.id) || recentes.has(String(u.id))) continue;
+      const vence = u.carteira_mov[0]?.expira_em;
+      if (!vence) continue;
+      const faltam = Math.max(1, Math.ceil((+vence - agora) / DIA));
+      envios.push({
+        user: ok.get(u.id)!,
+        chave: `cart:${vence.toISOString().slice(0, 10)}`,
+        vars: {
+          saldo: "$" + u.carteira_saldo.toLocaleString("es-UY"),
+          dias: String(faltam),
+          vence: vence.toLocaleDateString("es-UY", { day: "2-digit", month: "2-digit" }),
+        },
+        botaoUrl: "/cuenta",
+      });
+      if (envios.length >= 300) break;
+    }
+    return { envios };
+  }
+
   if (tipo === "catalogo_aberto") {
     const espera = (cfg.horas ?? 20) * HORA;
     const downloads = await prisma.catalogos_downloads.findMany({
