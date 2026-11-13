@@ -10,6 +10,10 @@ export type ConfigCarteira = {
   minCompra: number; // compra mínima (pesos) para usar crédito
   tetoPct: number; // % máximo do pedido que o crédito pode cobrir
   orcamentoMes: number; // máximo de crédito a EMITIR no mês (0 = sem limite)
+  // Pop-up especial da carteira (usado automaticamente quando a carteira está ligada).
+  // {{valor}} é trocado pelo valor do bônus (ex.: $500).
+  popupTitulo: string;
+  popupSubtitulo: string;
 };
 
 export const CARTEIRA_PADRAO: ConfigCarteira = {
@@ -19,7 +23,15 @@ export const CARTEIRA_PADRAO: ConfigCarteira = {
   minCompra: 1500,
   tetoPct: 30,
   orcamentoMes: 0,
+  popupTitulo: "¡Ganá {{valor}} para tu primera compra! 🎁",
+  popupSubtitulo:
+    "Creá tu cuenta gratis con tu e-mail y activá tu crédito. Lo usás como descuento al comprar.",
 };
+
+// Troca {{valor}} pelo valor do bônus formatado (ex.: $500).
+export function textoCarteira(txt: string, valor: number): string {
+  return String(txt || "").replace(/\{\{\s*valor\s*\}\}/g, "$" + valor.toLocaleString("es-UY"));
+}
 
 const n = (v: string | undefined, def: number) => {
   const x = Math.round(Number(v));
@@ -39,6 +51,8 @@ export async function configCarteira(): Promise<ConfigCarteira> {
     minCompra: Math.max(0, n(v.carteira_min_compra, CARTEIRA_PADRAO.minCompra)),
     tetoPct: Math.min(100, Math.max(1, n(v.carteira_teto_pct, CARTEIRA_PADRAO.tetoPct))),
     orcamentoMes: Math.max(0, n(v.carteira_orcamento_mes, CARTEIRA_PADRAO.orcamentoMes)),
+    popupTitulo: v.carteira_popup_titulo || CARTEIRA_PADRAO.popupTitulo,
+    popupSubtitulo: v.carteira_popup_subtitulo || CARTEIRA_PADRAO.popupSubtitulo,
   };
 }
 
@@ -51,6 +65,11 @@ export async function salvarConfigCarteira(c: ConfigCarteira) {
     carteira_min_compra: String(Math.max(0, Math.round(c.minCompra) || 0)),
     carteira_teto_pct: String(Math.min(100, Math.max(1, Math.round(c.tetoPct) || 30))),
     carteira_orcamento_mes: String(Math.max(0, Math.round(c.orcamentoMes) || 0)),
+    carteira_popup_titulo: String(c.popupTitulo || CARTEIRA_PADRAO.popupTitulo).slice(0, 200),
+    carteira_popup_subtitulo: String(c.popupSubtitulo || CARTEIRA_PADRAO.popupSubtitulo).slice(
+      0,
+      300,
+    ),
   };
   for (const [chave, valor] of Object.entries(valores)) {
     await prisma.configuracoes.upsert({

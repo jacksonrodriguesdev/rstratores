@@ -3,14 +3,33 @@ import type { ConfigPopup } from "./acesso.server";
 
 // Pop-up "Entrá y ganá": configuração pública, cupom do cliente e painel do admin.
 
-export type PopupPublico = ConfigPopup & { google: boolean; codigo: boolean };
+export type PopupPublico = ConfigPopup & {
+  google: boolean;
+  codigo: boolean;
+  carteira: boolean; // pop-up especial da carteira ligado
+  carteiraValor: number; // valor do bônus de boas-vindas (UYU)
+};
 
 export const getPopupFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<PopupPublico> => {
     const { configPopup } = await import("./acesso.server");
     const { googleConfigurado } = await import("./google-oauth.server");
     const { resendConfigurado } = await import("./email.server");
-    return { ...(await configPopup()), google: googleConfigurado(), codigo: resendConfigurado() };
+    const { configCarteira, textoCarteira } = await import("./carteira.server");
+    const popup = await configPopup();
+    const cart = await configCarteira();
+    const base = { ...popup, google: googleConfigurado(), codigo: resendConfigurado() };
+    // Carteira ligada → pop-up especial automático, com o texto e o valor do crédito
+    if (cart.ativo && cart.valorBoasVindas > 0) {
+      return {
+        ...base,
+        titulo: textoCarteira(cart.popupTitulo, cart.valorBoasVindas),
+        subtitulo: textoCarteira(cart.popupSubtitulo, cart.valorBoasVindas),
+        carteira: true,
+        carteiraValor: cart.valorBoasVindas,
+      };
+    }
+    return { ...base, carteira: false, carteiraValor: 0 };
   },
 );
 

@@ -128,6 +128,38 @@ function CarteiraAdmin() {
             />
           </div>
 
+          <div className="space-y-3 rounded-lg border border-dashed border-emerald-300 p-4">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <Gift className="h-4 w-4 text-emerald-600" /> Pop-up especial da carteira
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Quando a campanha está <strong>ligada</strong>, o pop-up do site mostra esta mensagem
+              automaticamente (sem precisar mexer no pop-up). Use <code>{"{{valor}}"}</code> para
+              inserir o valor do bônus.
+            </p>
+            <label className="block space-y-1">
+              <span className="text-sm font-medium">Título</span>
+              <Input
+                value={cfg.popupTitulo}
+                onChange={(e) => setCfg({ ...cfg, popupTitulo: e.target.value })}
+              />
+            </label>
+            <label className="block space-y-1">
+              <span className="text-sm font-medium">Subtítulo</span>
+              <Input
+                value={cfg.popupSubtitulo}
+                onChange={(e) => setCfg({ ...cfg, popupSubtitulo: e.target.value })}
+              />
+            </label>
+            <div className="rounded-md bg-muted p-2 text-xs">
+              Prévia:{" "}
+              <strong>
+                {cfg.popupTitulo.replace(/\{\{\s*valor\s*\}\}/g, peso(cfg.valorBoasVindas))}
+              </strong>{" "}
+              — {cfg.popupSubtitulo.replace(/\{\{\s*valor\s*\}\}/g, peso(cfg.valorBoasVindas))}
+            </div>
+          </div>
+
           <div className="rounded-lg bg-emerald-50 p-3 text-xs text-emerald-900">
             Exemplo: bônus {peso(cfg.valorBoasVindas)}, válido {cfg.validadeDias} dias, compra
             mínima {peso(cfg.minCompra)}, cobre até {cfg.tetoPct}% do pedido. Numa venda de{" "}

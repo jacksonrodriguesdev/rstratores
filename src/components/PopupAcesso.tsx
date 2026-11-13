@@ -716,6 +716,26 @@ export function PopupAcesso() {
                   )
                 )}
               </p>
+              {cfg?.carteira && cfg.carteiraValor > 0 && (
+                <a
+                  href={href("/cuenta")}
+                  className="mt-5 block rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 p-5 text-center transition hover:bg-emerald-100"
+                >
+                  <p className="text-sm font-bold text-emerald-800">
+                    🎁{" "}
+                    {t(
+                      "Ya sumamos tu regalo a tu billetera",
+                      "Já colocamos seu presente na carteira",
+                    )}
+                  </p>
+                  <p className="mt-1 text-3xl font-black text-emerald-700">
+                    ${cfg.carteiraValor.toLocaleString("es-UY")}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-emerald-700">
+                    {t("Ver mi billetera →", "Ver minha carteira →")}
+                  </p>
+                </a>
+              )}
               {resultado.cupom && !resultado.usado && (
                 <div className="mt-5 rounded-2xl border-2 border-dashed border-[#e0a800] bg-[#fffbeb] p-5">
                   <p className="flex items-center justify-center gap-1.5 text-sm font-bold text-zinc-700">
