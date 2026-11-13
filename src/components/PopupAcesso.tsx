@@ -477,9 +477,11 @@ export function PopupAcesso() {
   const motivo = pedido?.motivo;
   const termo = pedido?.termo?.trim().slice(0, 60);
   const comDesconto = (x: string) => x.replace(/\{\{\s*descuento\s*\}\}/gi, String(desconto));
-  // Textos curtos: o pop-up só convida a entrar (ou criar conta) para consultar preços e cotar
-  const titulo =
-    motivo === "whatsapp" || motivo === "cotizacao"
+  // Textos curtos: o pop-up só convida a entrar (ou criar conta) para consultar preços e cotar.
+  // Carteira ligada → todos os gatilhos mostram a oferta do crédito (texto do Admin → Carteira).
+  const titulo = cfg?.carteira
+    ? cfg.titulo
+    : motivo === "whatsapp" || motivo === "cotizacao"
       ? t("Registrate para cotizar", "Cadastre-se para fazer seu orçamento")
       : motivo === "limite"
         ? t(
@@ -498,8 +500,9 @@ export function PopupAcesso() {
                 idioma === "pt"
                 ? "Entre para ver preços e fazer orçamentos"
                 : comDesconto(cfg.titulo);
-  const subtitulo =
-    motivo === "busca"
+  const subtitulo = cfg?.carteira
+    ? cfg.subtitulo
+    : motivo === "busca"
       ? t(
           "Dejá tu e-mail y te avisamos apenas llegue.",
           "Deixe seu e-mail e avisamos assim que chegar.",
