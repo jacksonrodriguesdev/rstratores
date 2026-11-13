@@ -5,10 +5,9 @@ import viteReact from "@vitejs/plugin-react";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
 
-// Configuração própria (sem o preset da Lovable).
+// Configuração própria.
 // O build gera um servidor Node.js em .output/ (`npm run build` e `npm start`):
-// o sistema usa MySQL via Prisma e grava uploads em disco, o que exige Node
-// (o preset da Lovable empacotava para Cloudflare por padrão).
+// o sistema usa MySQL via Prisma e grava uploads em disco, o que exige Node.
 export default defineConfig(({ command }) => ({
   plugins: [
     tailwindcss(),

@@ -1,7 +1,7 @@
 # AGRO PARTS (agropartsuy.com)
 
 Loja de peças agrícolas: TanStack Start (React 19, SSR) + Prisma + MySQL.
-Projeto independente (saiu da Lovable); repositório: github.com/jacksonrodriguesdev/rstratores.
+Projeto independente; repositório: github.com/jacksonrodriguesdev/rstratores.
 
 ## Rodando
 
