@@ -37,9 +37,11 @@ export const Route = createFileRoute("/api/auth/google/callback")({
                 pais: "Uruguai",
               },
             });
-            // Conta nova: cupom único de boas-vindas
+            // Conta nova: cupom único + bônus da carteira de boas-vindas
             const { garantirCupom } = await import("@/lib/acesso.server");
             await garantirCupom(user.id);
+            const { garantirBonusCarteira } = await import("@/lib/carteira.server");
+            await garantirBonusCarteira(user.id);
             const { registrarCadastro } = await import("@/lib/conversoes.server");
             void registrarCadastro(request, user);
           }

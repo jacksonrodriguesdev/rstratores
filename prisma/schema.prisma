@@ -15,134 +15,134 @@ model products_img {
   sort_order Int      @default(99)
   created_at DateTime @default(now())
 
-  product    products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  product products @relation(fields: [sku], references: [sku], onDelete: Cascade)
 
   @@unique([sku, image_path])
 }
 
 model categories {
-  id         Int          @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   nome       String
   parent_id  Int?
   image_path String?
-  linha      String       @default("AGRICOLA")
-  created_at DateTime     @default(now())
-  updated_at DateTime     @updatedAt
+  linha      String   @default("AGRICOLA")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  parent     categories?  @relation("CategoryToCategory", fields: [parent_id], references: [id], onDelete: SetNull)
-  children   categories[] @relation("CategoryToCategory")
-  products   products[]
-  agricolas  agricolas[]  @relation("AgricolaCategory")
+  parent    categories?  @relation("CategoryToCategory", fields: [parent_id], references: [id], onDelete: SetNull)
+  children  categories[] @relation("CategoryToCategory")
+  products  products[]
+  agricolas agricolas[]  @relation("AgricolaCategory")
 }
 
 model products {
-  sku                  String       @id
-  categoria            String?      @db.Text
+  sku                  String   @id
+  categoria            String?  @db.Text
   category_id          Int?
-  linha                String       @default("AGRICOLA")
-  created_at           DateTime     @default(now())
-  descricao            String?      @db.Text
-  estoque              Int          @default(0)
-  imagem_principal     String?      @db.Text
-  marca                String?      @db.Text
-  nome                 String       @db.Text
-  nome_es              String?      @db.Text
-  descricao_es         String?      @db.Text
+  linha                String   @default("AGRICOLA")
+  created_at           DateTime @default(now())
+  descricao            String?  @db.Text
+  estoque              Int      @default(0)
+  imagem_principal     String?  @db.Text
+  marca                String?  @db.Text
+  nome                 String   @db.Text
+  nome_es              String?  @db.Text
+  descricao_es         String?  @db.Text
   peso                 Float?
-  tamanho              String?      @db.Text
+  tamanho              String?  @db.Text
   altura               Float?
   largura              Float?
   valor_compra         Float?
   valor_promocional    Float?
   preco_brl            Float?
-  veiculos_compativeis String?      @db.Text
-  updated_at           DateTime     @updatedAt
-  url                  String?      @db.Text
-  codigo_fabricante    String?      @db.Text
-  ean                  String?      @db.Text
-  ncm                  String?      @db.Text
+  veiculos_compativeis String?  @db.Text
+  updated_at           DateTime @updatedAt
+  url                  String?  @db.Text
+  codigo_fabricante    String?  @db.Text
+  ean                  String?  @db.Text
+  ncm                  String?  @db.Text
   profundidade         Float?
 
-  category             categories?  @relation(fields: [category_id], references: [id], onDelete: SetNull)
-  images               products_img[]
-  aplicacoes           produto_aplicacao[]
-  similares            produto_similar[]
-  fichas_tecnicas      produto_ficha_tecnica[]
+  category        categories?             @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  images          products_img[]
+  aplicacoes      produto_aplicacao[]
+  similares       produto_similar[]
+  fichas_tecnicas produto_ficha_tecnica[]
 }
 
 model produto_aplicacao {
-  id         Int      @id @default(autoincrement())
-  sku        String
-  montadora  String
-  veiculo    String
-  ano        String?
-  motor      String?
-  
-  product    products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  id        Int     @id @default(autoincrement())
+  sku       String
+  montadora String
+  veiculo   String
+  ano       String?
+  motor     String?
+
+  product products @relation(fields: [sku], references: [sku], onDelete: Cascade)
 }
 
 model produto_similar {
-  id              Int      @id @default(autoincrement())
-  sku             String
-  codigo_similar  String
-  marca_similar   String
-  
-  product         products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  id             Int    @id @default(autoincrement())
+  sku            String
+  codigo_similar String
+  marca_similar  String
+
+  product products @relation(fields: [sku], references: [sku], onDelete: Cascade)
 }
 
 model produto_ficha_tecnica {
-  id         Int      @id @default(autoincrement())
-  sku        String
-  chave      String
-  valor      String   @db.Text
-  
-  product    products @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  id    Int    @id @default(autoincrement())
+  sku   String
+  chave String
+  valor String @db.Text
+
+  product products @relation(fields: [sku], references: [sku], onDelete: Cascade)
 }
 
 model site_banners {
-  id         Int      @id @default(autoincrement())
-  active     Boolean  @default(true)
-  created_at DateTime @default(now())
-  image_path String
+  id                Int      @id @default(autoincrement())
+  active            Boolean  @default(true)
+  created_at        DateTime @default(now())
+  image_path        String
   // Arte opcional para celular (o banner largo é cortado nas laterais em telas estreitas)
   image_path_mobile String?
   // Nome interno, usado também como texto alternativo da imagem
-  titulo     String?
-  kind       String
-  link_url   String?
-  position   Int      @default(0)
-  linha      String   @default("AGRICOLA")
+  titulo            String?
+  kind              String
+  link_url          String?
+  position          Int      @default(0)
+  linha             String   @default("AGRICOLA")
 }
 
 model site_visits {
-  id           Int      @id @default(autoincrement())
-  city         String?
-  country      String?
-  country_code String?
-  created_at   DateTime @default(now())
-  path         String
-  referrer     String?
-  region       String?
-  user_agent   String?
+  id            Int      @id @default(autoincrement())
+  city          String?
+  country       String?
+  country_code  String?
+  created_at    DateTime @default(now())
+  path          String
+  referrer      String?
+  region        String?
+  user_agent    String?
   // Rastreio de visitantes (src/lib/rastreio.server.ts). O IP nunca é gravado: só um hash.
-  visitor_id   String?  @db.VarChar(64)
-  session_id   String?  @db.VarChar(64)
-  ip_hash      String?  @db.VarChar(64)
-  latitude     Float?
-  longitude    Float?
-  fonte        String?  @db.VarChar(40)  // google, instagram, facebook, whatsapp, direto...
-  meio         String?  @db.VarChar(40)  // cpc, organico, social, referencia...
-  utm_source   String?  @db.VarChar(100)
-  utm_medium   String?  @db.VarChar(100)
-  utm_campaign String?  @db.VarChar(150)
-  referrer_host String? @db.VarChar(191)
-  device       String?  @db.VarChar(20)
-  browser      String?  @db.VarChar(40)
-  os           String?  @db.VarChar(40)
-  language     String?  @db.VarChar(20)
-  entrada      Boolean  @default(false) // primeira página da sessão
+  visitor_id    String?  @db.VarChar(64)
+  session_id    String?  @db.VarChar(64)
+  ip_hash       String?  @db.VarChar(64)
+  latitude      Float?
+  longitude     Float?
+  fonte         String?  @db.VarChar(40) // google, instagram, facebook, whatsapp, direto...
+  meio          String?  @db.VarChar(40) // cpc, organico, social, referencia...
+  utm_source    String?  @db.VarChar(100)
+  utm_medium    String?  @db.VarChar(100)
+  utm_campaign  String?  @db.VarChar(150)
+  referrer_host String?  @db.VarChar(191)
+  device        String?  @db.VarChar(20)
+  browser       String?  @db.VarChar(40)
+  os            String?  @db.VarChar(40)
+  language      String?  @db.VarChar(20)
+  entrada       Boolean  @default(false) // primeira página da sessão
   // Cliente logado (buscas e visitas de quem tem conta: automações de e-mail)
-  user_id      Int?
+  user_id       Int?
 
   @@index([created_at])
   @@index([visitor_id])
@@ -198,12 +198,12 @@ model analise_dia {
 // Uma linha por sessão (visita) dos dias fechados, gravada junto com analise_dia: as telas
 // Jornada e Visitantes leem daqui em vez de remontar as sessões a partir de cada página vista.
 model analise_sessao {
-  dia        String   @db.VarChar(10)
-  id         String   @db.VarChar(191) // id da sessão (o mesmo da Jornada)
-  visitante  String   @db.VarChar(191)
-  inicio     DateTime
-  pais       String?  @db.VarChar(8)
-  dados      String   @db.Text // JSON com o resumo da sessão
+  dia       String   @db.VarChar(10)
+  id        String   @db.VarChar(191) // id da sessão (o mesmo da Jornada)
+  visitante String   @db.VarChar(191)
+  inicio    DateTime
+  pais      String?  @db.VarChar(8)
+  dados     String   @db.Text // JSON com o resumo da sessão
 
   @@id([dia, id])
   @@index([dia, pais])
@@ -223,54 +223,54 @@ model quotes {
 }
 
 model agricolas {
-  sku                  String       @id
-  categoria            String?      @db.Text
+  sku                  String    @id
+  categoria            String?   @db.Text
   category_id          Int?
-  created_at           DateTime     @default(now())
-  descricao            String?      @db.Text
-  estoque              Int          @default(0)
-  imagem_principal     String?      @db.Text
-  marca                String?      @db.Text
-  nome                 String       @db.Text
-  nome_es              String?      @db.Text
-  descricao_es         String?      @db.Text
+  created_at           DateTime  @default(now())
+  descricao            String?   @db.Text
+  estoque              Int       @default(0)
+  imagem_principal     String?   @db.Text
+  marca                String?   @db.Text
+  nome                 String    @db.Text
+  nome_es              String?   @db.Text
+  descricao_es         String?   @db.Text
   peso                 Float?
-  tamanho              String?      @db.Text
+  tamanho              String?   @db.Text
   altura               Float?
   largura              Float?
   valor_compra         Float?
   valor_promocional    Float?
   preco_brl            Float?
-  veiculos_compativeis String?      @db.Text
-  updated_at           DateTime     @updatedAt
-  url                  String?      @db.Text
-  codigo_fabricante    String?      @db.Text
-  fabricante           String?      @db.Text // fabricante da peça (DANA, MWM, FERSA...)
+  veiculos_compativeis String?   @db.Text
+  updated_at           DateTime  @updatedAt
+  url                  String?   @db.Text
+  codigo_fabricante    String?   @db.Text
+  fabricante           String?   @db.Text // fabricante da peça (DANA, MWM, FERSA...)
   // Versão de outra peça com o mesmo código: fica oculta na loja e aparece na página do principal
-  duplicado_de         String?      @db.VarChar(191)
+  duplicado_de         String?   @db.VarChar(191)
   // false quando a marca é só o valor padrão da importação antiga e não pôde ser confirmada
-  marca_confirmada     Boolean      @default(true)
+  marca_confirmada     Boolean   @default(true)
   // Foto obtida automaticamente pela busca de imagens: página de origem (para remover se preciso)
-  imagem_origem        String?      @db.Text
+  imagem_origem        String?   @db.Text
   // Quando a busca automática de imagem foi feita (evita pesquisar e pagar duas vezes)
   imagem_buscada_em    DateTime?
-  ean                  String?      @db.Text
-  ncm                  String?      @db.Text
+  ean                  String?   @db.Text
+  ncm                  String?   @db.Text
   profundidade         Float?
   // Precificação (admin → Produtos e preços). valor_compra = custo em R$, preco_brl = venda em R$.
   // Preço em $U: AUTO = preco_brl × cotação do dia (tabela cotacoes); FIXO = preco_uyu digitado.
   margem               Float?
-  preco_modo           String       @default("AUTO") @db.VarChar(10)
+  preco_modo           String    @default("AUTO") @db.VarChar(10)
   preco_uyu            Float?
   precificado_em       DateTime?
 
-  category             categories?  @relation("AgricolaCategory", fields: [category_id], references: [id], onDelete: SetNull)
-  principal            agricolas?   @relation("AgricolaVariantes", fields: [duplicado_de], references: [sku], onDelete: SetNull)
-  variantes            agricolas[]  @relation("AgricolaVariantes")
-  images               agricolas_img[]
-  aplicacoes           agricolas_aplicacao[]
-  similares            agricolas_similar[]
-  fichas_tecnicas      agricolas_ficha_tecnica[]
+  category        categories?               @relation("AgricolaCategory", fields: [category_id], references: [id], onDelete: SetNull)
+  principal       agricolas?                @relation("AgricolaVariantes", fields: [duplicado_de], references: [sku], onDelete: SetNull)
+  variantes       agricolas[]               @relation("AgricolaVariantes")
+  images          agricolas_img[]
+  aplicacoes      agricolas_aplicacao[]
+  similares       agricolas_similar[]
+  fichas_tecnicas agricolas_ficha_tecnica[]
 }
 
 model agricolas_img {
@@ -281,37 +281,38 @@ model agricolas_img {
   sort_order Int      @default(99)
   created_at DateTime @default(now())
 
-  product    agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  product agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+
   @@unique([sku, image_path])
 }
 
 model agricolas_aplicacao {
-  id         Int      @id @default(autoincrement())
-  sku        String
-  montadora  String
-  veiculo    String
-  ano        String?
-  motor      String?
-  
-  product    agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  id        Int     @id @default(autoincrement())
+  sku       String
+  montadora String
+  veiculo   String
+  ano       String?
+  motor     String?
+
+  product agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
 }
 
 model agricolas_similar {
-  id              Int      @id @default(autoincrement())
-  sku             String
-  codigo_similar  String
-  marca_similar   String
-  
-  product         agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  id             Int    @id @default(autoincrement())
+  sku            String
+  codigo_similar String
+  marca_similar  String
+
+  product agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
 }
 
 model agricolas_ficha_tecnica {
-  id         Int      @id @default(autoincrement())
-  sku        String
-  chave      String
-  valor      String   @db.Text
-  
-  product    agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  id    Int    @id @default(autoincrement())
+  sku   String
+  chave String
+  valor String @db.Text
+
+  product agricolas @relation(fields: [sku], references: [sku], onDelete: Cascade)
 }
 
 model homepage_blocks {
@@ -326,65 +327,95 @@ model homepage_blocks {
 }
 
 model users {
-  id            Int      @id @default(autoincrement())
-  nome_completo String
-  email         String   @unique
-  senha_hash    String
-  telefone      String?
-  endereco      String?  @db.Text
-  cidade        String?
-  ponto_referencia String? @db.Text
-  numero_casa   String?
-  cep           String?
-  pais          String?  @default("Uruguai")
-  role          String   @default("USER")
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  id               Int       @id @default(autoincrement())
+  nome_completo    String
+  email            String    @unique
+  senha_hash       String
+  telefone         String?
+  endereco         String?   @db.Text
+  cidade           String?
+  ponto_referencia String?   @db.Text
+  numero_casa      String?
+  cep              String?
+  pais             String?   @default("Uruguai")
+  role             String    @default("USER")
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
   // Login com Google e perfil do cliente
-  google_id     String?  @unique @db.VarChar(64)
-  avatar_url    String?  @db.Text
-  departamento  String?  @db.VarChar(40)
-  ultimo_login  DateTime?
+  google_id        String?   @unique @db.VarChar(64)
+  avatar_url       String?   @db.Text
+  departamento     String?   @db.VarChar(40)
+  ultimo_login     DateTime?
   // E-mails de marketing: o cliente pode sair pelo link "darse de baja" de cada e-mail
-  recebe_emails Boolean  @default(true)
+  recebe_emails    Boolean   @default(true)
   // Cupom único de boas-vindas (pop-up "Entrá y ganá"): o cliente cita no WhatsApp; o admin marca como usado
-  cupom          String?   @unique @db.VarChar(20)
-  cupom_usado_em DateTime?
+  cupom            String?   @unique @db.VarChar(20)
+  cupom_usado_em   DateTime?
 
-  downloads     catalogos_downloads[]
-  carrinhos     carrinhos[]
+  // Carteira interna (crédito de bônus/indicação, usado como desconto na venda). Cache do saldo
+  // em pesos (UYU); a verdade é o livro-razão carteira_movimentos.
+  carteira_saldo Int @default(0)
+
+  downloads       catalogos_downloads[]
+  carrinhos       carrinhos[]
   links_pagamento links_pagamento[]
+  carteira_mov    carteira_movimentos[]
+}
+
+// Carteira interna do cliente: livro-razão (nunca editar saldo direto, só criar movimentos).
+// Crédito entra por bônus de boas-vindas/indicação/avaliação/promo; sai como desconto numa venda.
+// Valores em pesos uruguaios inteiros (UYU). O saldo do cliente é a soma dos créditos não
+// expirados menos os débitos (FIFO: o débito consome o crédito mais antigo primeiro).
+model carteira_movimentos {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  tipo         String    @db.VarChar(12) // CREDITO, DEBITO, EXPIRACAO, ESTORNO
+  valor        Int // sempre positivo; o tipo define o sinal
+  moeda        String    @default("UYU") @db.VarChar(3)
+  motivo       String    @db.VarChar(16) // BOAS_VINDAS, INDICACAO, AVALIACAO, ANIVERSARIO, PROMO, COMPRA, AJUSTE, EXPIRACAO
+  descricao    String?   @db.VarChar(200)
+  ref          String?   @db.VarChar(40) // ex.: venda:123
+  expira_em    DateTime? // só para CREDITO
+  saldo_depois Int       @default(0) // saldo após o movimento (auditoria)
+  criado_por   Int? // admin que lançou (manual)
+  created_at   DateTime  @default(now())
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+  @@index([motivo])
+  @@index([expira_em])
 }
 
 // Catálogos e manuais em PDF para mecânicos (página /catalogos). Arquivos em <uploads>/catalogos.
 model catalogos {
-  id          Int      @id @default(autoincrement())
-  titulo      String   @db.VarChar(200)
-  marca       String?  @db.VarChar(60)
-  tipo        String   @default("Catálogo de piezas") @db.VarChar(60)
-  descricao   String?  @db.Text
-  arquivo     String   @db.VarChar(255) // caminho relativo dentro de <uploads>/catalogos
-  tamanho     BigInt   @default(0)
-  idioma      String?  @db.VarChar(20)
-  ativo       Boolean  @default(false) // só aparece no site quando publicado
+  id           Int       @id @default(autoincrement())
+  titulo       String    @db.VarChar(200)
+  marca        String?   @db.VarChar(60)
+  tipo         String    @default("Catálogo de piezas") @db.VarChar(60)
+  descricao    String?   @db.Text
+  arquivo      String    @db.VarChar(255) // caminho relativo dentro de <uploads>/catalogos
+  tamanho      BigInt    @default(0)
+  idioma       String?   @db.VarChar(20)
+  ativo        Boolean   @default(false) // só aparece no site quando publicado
   publicado_em DateTime? // quando foi publicado (automação "Catálogo novo")
-  exige_login Boolean  @default(true)
-  downloads   Int      @default(0)
-  ordem       Int      @default(0)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  exige_login  Boolean   @default(true)
+  downloads    Int       @default(0)
+  ordem        Int       @default(0)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
 
-  registros   catalogos_downloads[]
+  registros catalogos_downloads[]
 }
 
 model catalogos_downloads {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   catalogo_id Int
   user_id     Int?
-  created_at  DateTime  @default(now())
+  created_at  DateTime @default(now())
 
-  catalogo    catalogos @relation(fields: [catalogo_id], references: [id], onDelete: Cascade)
-  user        users?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  catalogo catalogos @relation(fields: [catalogo_id], references: [id], onDelete: Cascade)
+  user     users?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@index([catalogo_id])
   @@index([user_id])
@@ -393,27 +424,27 @@ model catalogos_downloads {
 // Carrinhos (lista de cotação) salvos no servidor a cada mudança, para o painel de vendas.
 // Um visitante tem no máximo um carrinho ABERTO; ao pedir preço pelo WhatsApp vira ENVIADO.
 model carrinhos {
-  id            Int       @id @default(autoincrement())
-  visitante_id  String    @db.VarChar(64)
-  user_id       Int?
-  itens         String    @db.Text // JSON: [{sku, codigo, name, nameEs, image, quantity}]
-  qtd_itens     Int       @default(0)
-  status        String    @default("ABERTO") @db.VarChar(20) // ABERTO, ENVIADO
-  etapa         String    @default("NOVO") @db.VarChar(20) // NOVO, CONTATADO, NEGOCIANDO, GANHO, PERDIDO
-  nota          String?   @db.Text
-  valor_fechado Float?
-  contatos      Int       @default(0)
-  contatado_em  DateTime?
-  enviado_em    DateTime?
+  id             Int       @id @default(autoincrement())
+  visitante_id   String    @db.VarChar(64)
+  user_id        Int?
+  itens          String    @db.Text // JSON: [{sku, codigo, name, nameEs, image, quantity}]
+  qtd_itens      Int       @default(0)
+  status         String    @default("ABERTO") @db.VarChar(20) // ABERTO, ENVIADO
+  etapa          String    @default("NOVO") @db.VarChar(20) // NOVO, CONTATADO, NEGOCIANDO, GANHO, PERDIDO
+  nota           String?   @db.Text
+  valor_fechado  Float?
+  contatos       Int       @default(0)
+  contatado_em   DateTime?
+  enviado_em     DateTime?
   // Cookies do Meta (_fbp/_fbc) do navegador que montou o carrinho: a venda fechada vai
   // para a API de Conversões ligada ao clique no anúncio. capi_compra_em evita mandar duas vezes.
-  fbp           String?   @db.VarChar(255)
-  fbc           String?   @db.VarChar(255)
+  fbp            String?   @db.VarChar(255)
+  fbc            String?   @db.VarChar(255)
   capi_compra_em DateTime?
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
 
-  user          users?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  user users? @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@index([visitante_id])
   @@index([user_id])
@@ -422,47 +453,47 @@ model carrinhos {
 
 // Campanhas de e-mail (Resend). O conteúdo é o JSON do editor; o HTML é gerado no envio.
 model email_campanhas {
-  id         Int       @id @default(autoincrement())
-  nome       String    @db.VarChar(150)
-  assunto    String    @db.VarChar(200)
-  preheader  String?   @db.VarChar(200)
-  conteudo   String    @db.LongText
-  publico    String    @db.Text
-  status     String    @default("RASCUNHO") @db.VarChar(20) // RASCUNHO, AGENDADA, ENVIANDO, ENVIADA, ERRO
-  total      Int       @default(0)
-  enviados   Int       @default(0)
-  falhas     Int       @default(0)
-  erro       String?   @db.Text
-  enviado_em DateTime?
+  id            Int       @id @default(autoincrement())
+  nome          String    @db.VarChar(150)
+  assunto       String    @db.VarChar(200)
+  preheader     String?   @db.VarChar(200)
+  conteudo      String    @db.LongText
+  publico       String    @db.Text
+  status        String    @default("RASCUNHO") @db.VarChar(20) // RASCUNHO, AGENDADA, ENVIANDO, ENVIADA, ERRO
+  total         Int       @default(0)
+  enviados      Int       @default(0)
+  falhas        Int       @default(0)
+  erro          String?   @db.Text
+  enviado_em    DateTime?
   // Envio agendado (status AGENDADA): o agendador dispara sozinho nessa hora
   agendado_para DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 
-  envios     email_envios[]
+  envios email_envios[]
 }
 
 // Cada e-mail enviado. O status é atualizado pelo webhook do Resend (entregue, aberto, clicado...).
 model email_envios {
-  id          Int       @id @default(autoincrement())
-  campanha_id Int?
+  id           Int       @id @default(autoincrement())
+  campanha_id  Int?
   automacao_id Int?
   // Automações: evita mandar o mesmo e-mail duas vezes (ex.: "carrinho_baixou:SKU:850")
-  chave       String?   @db.VarChar(150)
-  user_id     Int?
-  email       String    @db.VarChar(191)
-  tipo        String    @default("CAMPANHA") @db.VarChar(20) // CAMPANHA, CARRINHO, AUTOMACAO, TESTE
-  status      String    @default("ENVIADO") @db.VarChar(20) // ENVIADO, ENTREGUE, ABERTO, CLICADO, REBOTADO, QUEIXA, FALHA
-  resend_id   String?   @db.VarChar(64)
-  erro        String?   @db.Text
-  aberto_em   DateTime?
-  clicado_em  DateTime?
-  produtos    String?   @db.Text // JSON: SKUs que foram no e-mail (automação de peças vistas)
-  cupom       String?   @db.VarChar(40) // cupom exclusivo criado para este envio
-  created_at  DateTime  @default(now())
+  chave        String?   @db.VarChar(150)
+  user_id      Int?
+  email        String    @db.VarChar(191)
+  tipo         String    @default("CAMPANHA") @db.VarChar(20) // CAMPANHA, CARRINHO, AUTOMACAO, TESTE
+  status       String    @default("ENVIADO") @db.VarChar(20) // ENVIADO, ENTREGUE, ABERTO, CLICADO, REBOTADO, QUEIXA, FALHA
+  resend_id    String?   @db.VarChar(64)
+  erro         String?   @db.Text
+  aberto_em    DateTime?
+  clicado_em   DateTime?
+  produtos     String?   @db.Text // JSON: SKUs que foram no e-mail (automação de peças vistas)
+  cupom        String?   @db.VarChar(40) // cupom exclusivo criado para este envio
+  created_at   DateTime  @default(now())
 
-  campanha    email_campanhas? @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
-  automacao   email_automacoes? @relation(fields: [automacao_id], references: [id], onDelete: Cascade)
+  campanha  email_campanhas?  @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
+  automacao email_automacoes? @relation(fields: [automacao_id], references: [id], onDelete: Cascade)
 
   @@index([campanha_id])
   @@index([automacao_id, user_id])
@@ -508,7 +539,7 @@ model email_automacoes {
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
 
-  envios      email_envios[]
+  envios email_envios[]
 }
 
 // Último preço visto de cada peça precificada: comparando com o atual, o sistema descobre
@@ -581,13 +612,13 @@ model precos_ofertas {
 }
 
 model precos_resumo {
-  sku           String   @id @db.VarChar(191)
-  achados       Int      @default(0)
+  sku           String    @id @db.VarChar(191)
+  achados       Int       @default(0)
   menor_brl     Float?
   mediana_brl   Float?
   maior_brl     Float?
-  erro          String?  @db.Text
-  pesquisado_em DateTime @default(now())
+  erro          String?   @db.Text
+  pesquisado_em DateTime  @default(now())
   aplicado_em   DateTime?
 }
 
@@ -728,17 +759,17 @@ model gsc_pagina {
 // Central de Anúncios (Admin → Central de Anúncios): campanhas do Google Ads e do Meta, números
 // por dia (importados pela API) e o registro de cada alteração feita pelo painel.
 model ads_campanha {
-  plataforma       String   @db.VarChar(10) // GOOGLE, META
-  id_externo       String   @db.VarChar(40)
-  nome             String   @db.VarChar(300)
-  status           String   @db.VarChar(20) // ATIVA, PAUSADA, REMOVIDA, OUTRO
-  status_origem    String?  @db.VarChar(40)
-  orcamento_diario Float? // na moeda da conta; null = orçamento nos conjuntos (Meta) ou vitalício
-  orcamento_ref    String?  @db.VarChar(200) // Google: resource do orçamento
-  orcamento_compartilhado Boolean @default(false)
-  objetivo         String?  @db.VarChar(60)
-  moeda            String   @db.VarChar(3)
-  atualizado_em    DateTime @updatedAt
+  plataforma              String   @db.VarChar(10) // GOOGLE, META
+  id_externo              String   @db.VarChar(40)
+  nome                    String   @db.VarChar(300)
+  status                  String   @db.VarChar(20) // ATIVA, PAUSADA, REMOVIDA, OUTRO
+  status_origem           String?  @db.VarChar(40)
+  orcamento_diario        Float? // na moeda da conta; null = orçamento nos conjuntos (Meta) ou vitalício
+  orcamento_ref           String?  @db.VarChar(200) // Google: resource do orçamento
+  orcamento_compartilhado Boolean  @default(false)
+  objetivo                String?  @db.VarChar(60)
+  moeda                   String   @db.VarChar(3)
+  atualizado_em           DateTime @updatedAt
 
   @@id([plataforma, id_externo])
 }
@@ -1178,22 +1209,22 @@ model extrato_arquivos {
 }
 
 model extrato_movimentos {
-  id          Int      @id @default(autoincrement())
-  arquivo_id  Int
-  banco       String   @db.VarChar(40)
-  data        String   @db.VarChar(10)
-  valor       Float
-  tipo        String   @db.VarChar(80)
-  contraparte String   @db.VarChar(160)
-  documento   String?  @db.VarChar(30)
-  descricao   String   @db.Text
-  categoria   String   @default("A_CLASSIFICAR") @db.VarChar(20)
-  manual      Boolean  @default(false)
-  venda_id    Int?
-  nota        String?  @db.VarChar(300)
-  subcategoria String? @db.VarChar(20) // Pessoal: mercado, combustível… (vazio = palpite/regra)
-  hash        String   @unique @db.VarChar(64)
-  created_at  DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  arquivo_id   Int
+  banco        String   @db.VarChar(40)
+  data         String   @db.VarChar(10)
+  valor        Float
+  tipo         String   @db.VarChar(80)
+  contraparte  String   @db.VarChar(160)
+  documento    String?  @db.VarChar(30)
+  descricao    String   @db.Text
+  categoria    String   @default("A_CLASSIFICAR") @db.VarChar(20)
+  manual       Boolean  @default(false)
+  venda_id     Int?
+  nota         String?  @db.VarChar(300)
+  subcategoria String?  @db.VarChar(20) // Pessoal: mercado, combustível… (vazio = palpite/regra)
+  hash         String   @unique @db.VarChar(64)
+  created_at   DateTime @default(now())
 
   @@index([data])
   @@index([categoria])

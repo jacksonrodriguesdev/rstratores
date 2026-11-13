@@ -29,6 +29,7 @@ import { whatsappContactUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { tr, useT, type Idioma } from "@/lib/idioma";
 import { minhasComprasFn } from "@/lib/pagamentos";
+import { minhaCarteiraFn } from "@/lib/carteira";
 import { STATUS_LINK, fmtValor } from "@/lib/pagamentos-comum";
 import { IndicarAmigo } from "@/components/IndicarAmigo";
 import { MeusPedidos } from "@/components/MeusPedidos";
@@ -76,6 +77,18 @@ function CuentaPage() {
     ABAS.some((a) => a.id === abaInicial) ? (abaInicial as Aba) : "datos",
   );
   const { t, href } = useT();
+  const { data: billetera } = useQuery({
+    queryKey: ["minha-carteira"],
+    queryFn: () => minhaCarteiraFn(),
+  });
+  const venceEm = (() => {
+    const cred = (billetera?.movimentos ?? [])
+      .filter((m) => m.tipo === "CREDITO" && m.expira_em)
+      .map((m) => +new Date(m.expira_em!))
+      .filter((x) => x > Date.now())
+      .sort((a, b) => a - b)[0];
+    return cred ? Math.max(1, Math.ceil((cred - Date.now()) / 86400000)) : null;
+  })();
   const iniciais = (perfil.nome_completo.trim() || perfil.email)
     .split(/\s+/)
     .map((p) => p[0])
@@ -195,6 +208,44 @@ function CuentaPage() {
               <span className="block font-mono text-2xl font-black tracking-[0.15em] text-primary">
                 {perfil.cupom}
               </span>
+            </span>
+            <span className="hidden text-sm font-bold text-[#128C4B] sm:block">
+              {t("Usarlo por WhatsApp →", "Usar pelo WhatsApp →")}
+            </span>
+          </a>
+        )}
+
+        {billetera?.ativo && billetera.saldo > 0 && (
+          <a
+            href={whatsappContactUrl(
+              t(
+                `¡Hola! Soy ${perfil.nome_completo.trim().split(" ")[0] || "cliente"} y quiero usar mi crédito de $${billetera.saldo.toLocaleString("es-UY")} en una compra.`,
+                `Olá! Sou ${perfil.nome_completo.trim().split(" ")[0] || "cliente"} e quero usar meu crédito de $${billetera.saldo.toLocaleString("es-UY")} numa compra.`,
+              ),
+            )}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="mt-4 flex items-center gap-4 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 p-4 transition hover:bg-emerald-100"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-2xl font-black text-white">
+              $
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-zinc-700">
+                {t("Mi billetera · crédito disponible", "Minha carteira · crédito disponível")}
+              </span>
+              <span className="block text-2xl font-black tracking-tight text-emerald-700">
+                ${billetera.saldo.toLocaleString("es-UY")}
+              </span>
+              {venceEm != null && (
+                <span className="block text-xs font-medium text-emerald-700">
+                  {t(`Vence en ${venceEm} días`, `Vence em ${venceEm} dias`)} ·{" "}
+                  {t(
+                    `úsalo en compras de $${billetera.config.minCompra.toLocaleString("es-UY")} o más`,
+                    `use em compras de $${billetera.config.minCompra.toLocaleString("es-UY")} ou mais`,
+                  )}
+                </span>
+              )}
             </span>
             <span className="hidden text-sm font-bold text-[#128C4B] sm:block">
               {t("Usarlo por WhatsApp →", "Usar pelo WhatsApp →")}

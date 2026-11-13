@@ -54,6 +54,8 @@ export const Route = createFileRoute("/api/auth/rapido")({
           if (!existente) {
             const { registrarCadastro } = await import("@/lib/conversoes.server");
             void registrarCadastro(request, user);
+            const { garantirBonusCarteira } = await import("@/lib/carteira.server");
+            await garantirBonusCarteira(user.id);
           }
           const cupom = await garantirCupom(user.id);
           const cookie = await abrirSessao(request, user);

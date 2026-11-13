@@ -199,6 +199,7 @@ export type DadosVenda = {
   canal?: string | null;
   metodo?: string | null;
   data?: string | null; // dia da venda (AAAA-MM-DD); vazio = hoje
+  creditoCarteira?: number | null; // crédito da carteira do cliente usado como desconto (UYU)
 };
 const txt = (s: unknown, max: number) => {
   const t = String(s ?? "")
@@ -247,6 +248,10 @@ export function limparVenda(d: DadosVenda) {
     end_bairro: txt(d.end_bairro, 80),
     pais: d.pais === "BR" ? "BR" : "UY",
     user_id: d.user_id ? Number(d.user_id) : null,
+    // Desconto só é tocado quando a carteira é usada (não mexe no desconto de venda vinda de link)
+    ...(d.creditoCarteira != null && {
+      desconto: Math.max(0, Math.round(Number(d.creditoCarteira) || 0)),
+    }),
     itens: JSON.stringify(itens),
     total: Math.round(itens.reduce((s, i) => s + i.qtd * i.valor, 0) * 100) / 100,
     moeda: d.moeda === "BRL" ? "BRL" : "UYU",
@@ -280,6 +285,28 @@ export const paraVenda = (r: any) => ({
   updated_at: r.updated_at?.toISOString?.() ?? r.updated_at,
 });
 
+// Aplica/estorna o crédito da carteira na venda e deixa o desconto igual ao líquido do livro-razão.
+// Só mexe quando a carteira é usada (creditoCarteira) ou a venda é cancelada — nunca em outros casos,
+// para não apagar o desconto de uma venda vinda de link.
+async function aplicarCarteiraNaVenda(d: DadosVenda, vendaId: number) {
+  const uid = d.user_id ? Number(d.user_id) : null;
+  if (!uid) return;
+  const cart = await import("./carteira.server");
+  let mexeu = false;
+  if (d.status === "CANCELADA") {
+    const estornado = await cart.estornarVenda(uid, vendaId);
+    if (estornado > 0) mexeu = true;
+  } else if (d.creditoCarteira != null) {
+    const credito = Math.max(0, Math.round(Number(d.creditoCarteira) || 0));
+    if (credito > 0) await cart.debitarVenda({ userId: uid, valor: credito, vendaId });
+    mexeu = true;
+  }
+  if (!mexeu) return;
+  const { prisma } = await import("./prisma");
+  const liquido = await cart.debitoLiquidoVenda(uid, vendaId);
+  await prisma.vendas.update({ where: { id: vendaId }, data: { desconto: liquido } });
+}
+
 export async function salvarVenda(d: DadosVenda, id?: number) {
   await garantirTabelasAvaliacoes();
   const { prisma } = await import("./prisma");
@@ -301,6 +328,7 @@ export async function salvarVenda(d: DadosVenda, id?: number) {
   };
   if (id) {
     await prisma.vendas.update({ where: { id }, data: dados });
+    await aplicarCarteiraNaVenda(d, id);
     notaAuto(id);
     return paraVenda(await completarFinanceiro(id));
   }
@@ -309,6 +337,7 @@ export async function salvarVenda(d: DadosVenda, id?: number) {
       const v = await prisma.vendas.create({ data: { ...dados, codigo: novoCodigo() } });
       // Primeira etapa do acompanhamento (sem aviso: o admin avança quando confirmar)
       await prisma.venda_etapas.create({ data: { venda_id: v.id, etapa: "AGUARDANDO" } });
+      await aplicarCarteiraNaVenda(d, v.id);
       notaAuto(v.id);
       return paraVenda(await completarFinanceiro(v.id));
     } catch (e: any) {

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import {
   Copy,
   Gift,
+  Wallet,
   Loader2,
   MessageCircle,
   Pencil,
@@ -40,6 +41,7 @@ import {
   salvarRemetenteFn,
   salvarVendaFn,
 } from "@/lib/avaliacoes";
+import { creditoDaVendaFn } from "@/lib/carteira";
 import { cn } from "@/lib/utils";
 import { EtapaPedido } from "@/components/admin/EtapaPedido";
 import { BotaoCadastroPeca, ResultadosPecas } from "@/components/admin/PecasVenda";
@@ -80,6 +82,7 @@ type Form = {
   canal: string;
   metodo: string;
   data: string; // dia da venda (AAAA-MM-DD); vazio = hoje
+  creditoCarteira: number; // crédito da carteira do cliente usado nesta venda (UYU)
 };
 const VAZIO: Form = {
   cliente_nome: "",
@@ -103,6 +106,7 @@ const VAZIO: Form = {
   canal: "WHATSAPP",
   metodo: "",
   data: "",
+  creditoCarteira: 0,
 };
 const STATUS: Record<string, string> = {
   ABERTA: "bg-sky-100 text-sky-800",
@@ -402,6 +406,9 @@ function PaginaVendas() {
                             id: v.id,
                             itens: v.itens,
                             data: diaBR(new Date(v.created_at)),
+                            // crédito já aplicado (só em venda manual; link não mexe aqui)
+                            creditoCarteira:
+                              (v as any).origem !== "LINK" ? Number((v as any).desconto ?? 0) : 0,
                           } as Form)
                         }
                       >
@@ -665,6 +672,15 @@ function FormVenda({
   const set = (p: Partial<Form>) => setF((x) => ({ ...x, ...p }));
   const total = f.itens.reduce((s, i) => s + i.qtd * i.valor, 0);
 
+  // Carteira: venda vinda de link não mexe aqui (o desconto dela é do próprio link)
+  const ehLink = (inicial as any).origem === "LINK";
+  const podeCarteira = !!f.user_id && !ehLink;
+  const { data: credito } = useQuery({
+    queryKey: ["venda-carteira", f.user_id, Math.round(total)],
+    queryFn: () => creditoDaVendaFn({ data: { userId: f.user_id!, total } }),
+    enabled: podeCarteira && total > 0,
+  });
+
   // Cliente do site
   const [qc1, setQc1] = useState("");
   const { data: clientes } = useQuery({
@@ -689,7 +705,10 @@ function FormVenda({
   const salvar = async () => {
     setSalvando(true);
     try {
-      const v = await salvarVendaFn({ data: { ...f, id: f.id } as any });
+      // Em venda de link não enviamos creditoCarteira (não tocar no desconto do link)
+      const { creditoCarteira: _cc, ...semCredito } = f;
+      const payload = ehLink ? semCredito : f;
+      const v = await salvarVendaFn({ data: { ...payload, id: f.id } as any });
       qc.invalidateQueries({ queryKey: ["vendas"] });
       toast.success(f.id ? "Venda atualizada" : `Venda ${v.codigo} lançada`);
       setSalva(v);
@@ -784,6 +803,63 @@ function FormVenda({
               </div>
               {f.user_id && (
                 <p className="text-xs text-emerald-700">✔ Ligado à conta do site (#{f.user_id})</p>
+              )}
+              {podeCarteira && credito && credito.disponivel > 0 && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm">
+                  <div className="flex items-center gap-2 font-semibold text-emerald-800">
+                    <Wallet className="h-4 w-4" /> Carteira do cliente:{" "}
+                    {dinheiro(credito.disponivel, "UYU")}
+                  </div>
+                  {credito.aplicavel > 0 ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className="text-xs text-emerald-700">Usar nesta venda:</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={credito.aplicavel}
+                        value={f.creditoCarteira}
+                        onChange={(e) =>
+                          set({
+                            creditoCarteira: Math.max(
+                              0,
+                              Math.min(credito.aplicavel, Math.round(Number(e.target.value) || 0)),
+                            ),
+                          })
+                        }
+                        className="h-8 w-28"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => set({ creditoCarteira: credito.aplicavel })}
+                      >
+                        Usar máximo ({dinheiro(credito.aplicavel, "UYU")})
+                      </Button>
+                      {f.creditoCarteira > 0 && (
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground underline"
+                          onClick={() => set({ creditoCarteira: 0 })}
+                        >
+                          tirar
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-1 text-xs text-emerald-700">
+                      {credito.motivo === "min_compra"
+                        ? "Pedido abaixo da compra mínima para usar o crédito."
+                        : "Sem crédito aplicável neste pedido."}
+                    </div>
+                  )}
+                  {f.creditoCarteira > 0 && (
+                    <div className="mt-1 text-xs font-medium text-emerald-800">
+                      Desconto da carteira: −{dinheiro(f.creditoCarteira, "UYU")} · total a cobrar{" "}
+                      {dinheiro(Math.max(0, total - f.creditoCarteira), f.moeda)}
+                    </div>
+                  )}
+                </div>
               )}
               <div className="grid gap-3 md:grid-cols-3">
                 <Campo r="Nome completo *" className="md:col-span-2">

@@ -35,6 +35,7 @@ import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCampanhasRouteImport } from './routes/admin.campanhas'
 import { Route as AdminCapturaRouteImport } from './routes/admin.captura'
 import { Route as AdminCarrinhosRouteImport } from './routes/admin.carrinhos'
+import { Route as AdminCarteiraRouteImport } from './routes/admin.carteira'
 import { Route as AdminCatalogosRouteImport } from './routes/admin.catalogos'
 import { Route as AdminCategoriasRouteImport } from './routes/admin.categorias'
 import { Route as AdminClientesRouteImport } from './routes/admin.clientes'
@@ -288,6 +289,11 @@ const AdminCapturaRoute = AdminCapturaRouteImport.update({
 const AdminCarrinhosRoute = AdminCarrinhosRouteImport.update({
   id: '/carrinhos',
   path: '/carrinhos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCarteiraRoute = AdminCarteiraRouteImport.update({
+  id: '/carteira',
+  path: '/carteira',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCatalogosRoute = AdminCatalogosRouteImport.update({
@@ -947,6 +953,7 @@ export interface FileRoutesByFullPath {
   '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/captura': typeof AdminCapturaRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
+  '/admin/carteira': typeof AdminCarteiraRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/clientes': typeof AdminClientesRoute
@@ -1097,6 +1104,7 @@ export interface FileRoutesByTo {
   '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/captura': typeof AdminCapturaRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
+  '/admin/carteira': typeof AdminCarteiraRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/clientes': typeof AdminClientesRoute
@@ -1250,6 +1258,7 @@ export interface FileRoutesById {
   '/admin/campanhas': typeof AdminCampanhasRoute
   '/admin/captura': typeof AdminCapturaRoute
   '/admin/carrinhos': typeof AdminCarrinhosRoute
+  '/admin/carteira': typeof AdminCarteiraRoute
   '/admin/catalogos': typeof AdminCatalogosRoute
   '/admin/categorias': typeof AdminCategoriasRoute
   '/admin/clientes': typeof AdminClientesRoute
@@ -1404,6 +1413,7 @@ export interface FileRouteTypes {
     | '/admin/campanhas'
     | '/admin/captura'
     | '/admin/carrinhos'
+    | '/admin/carteira'
     | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/clientes'
@@ -1554,6 +1564,7 @@ export interface FileRouteTypes {
     | '/admin/campanhas'
     | '/admin/captura'
     | '/admin/carrinhos'
+    | '/admin/carteira'
     | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/clientes'
@@ -1706,6 +1717,7 @@ export interface FileRouteTypes {
     | '/admin/campanhas'
     | '/admin/captura'
     | '/admin/carrinhos'
+    | '/admin/carteira'
     | '/admin/catalogos'
     | '/admin/categorias'
     | '/admin/clientes'
@@ -2105,6 +2117,13 @@ declare module '@tanstack/react-router' {
       path: '/carrinhos'
       fullPath: '/admin/carrinhos'
       preLoaderRoute: typeof AdminCarrinhosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/carteira': {
+      id: '/admin/carteira'
+      path: '/carteira'
+      fullPath: '/admin/carteira'
+      preLoaderRoute: typeof AdminCarteiraRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/catalogos': {
@@ -2987,6 +3006,7 @@ interface AdminRouteChildren {
   AdminCampanhasRoute: typeof AdminCampanhasRoute
   AdminCapturaRoute: typeof AdminCapturaRoute
   AdminCarrinhosRoute: typeof AdminCarrinhosRoute
+  AdminCarteiraRoute: typeof AdminCarteiraRoute
   AdminCatalogosRoute: typeof AdminCatalogosRoute
   AdminCategoriasRoute: typeof AdminCategoriasRoute
   AdminClientesRoute: typeof AdminClientesRoute
@@ -3036,6 +3056,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCampanhasRoute: AdminCampanhasRoute,
   AdminCapturaRoute: AdminCapturaRoute,
   AdminCarrinhosRoute: AdminCarrinhosRoute,
+  AdminCarteiraRoute: AdminCarteiraRoute,
   AdminCatalogosRoute: AdminCatalogosRoute,
   AdminCategoriasRoute: AdminCategoriasRoute,
   AdminClientesRoute: AdminClientesRoute,
