@@ -521,6 +521,7 @@ export async function tarefasInstagram() {
   if (Date.now() - ultimaMetrica > 6 * 3600_000 && (await lerConta())) {
     ultimaMetrica = Date.now();
     await atualizarMetricas().catch((e) => console.error("instagram métricas", e?.message));
+    await snapshotDiarioIg().catch((e) => console.error("instagram snapshot", e?.message));
   }
 }
 
@@ -594,4 +595,82 @@ export async function igChamada(
 }
 export async function igContaConectada() {
   return conta();
+}
+
+// --------------------------------------------------- Painel Meta: snapshot diário + série + demografia
+const diaMvd = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Montevideo" });
+
+// Salva/atualiza o retrato do dia (chamado pelo agendador). Idempotente por dia.
+export async function snapshotDiarioIg() {
+  if (!(await lerConta())) return;
+  const d = await desempenhoInstagram(1).catch(() => null);
+  if (!d) return;
+  const { prisma } = await import("./prisma");
+  const dados = {
+    seguidores: d.seguidores ?? null,
+    alcance: d.alcance ?? null,
+    visitas: d.visitas ?? null,
+    interacoes: d.interacoes ?? null,
+    engajadas: d.engajadas ?? null,
+    posts: d.posts ?? null,
+  };
+  await prisma.ig_dia.upsert({
+    where: { dia: diaMvd() },
+    create: { dia: diaMvd(), ...dados },
+    update: dados,
+  });
+}
+
+// Série dos últimos N dias (para os gráficos de evolução).
+export async function serieIg(dias = 30) {
+  const { prisma } = await import("./prisma");
+  const limite = new Date(Date.now() - dias * 86400_000).toLocaleDateString("en-CA", {
+    timeZone: "America/Montevideo",
+  });
+  const rows = await prisma.ig_dia.findMany({
+    where: { dia: { gte: limite } },
+    orderBy: { dia: "asc" },
+  });
+  return rows.map((r) => ({
+    dia: r.dia,
+    seguidores: r.seguidores,
+    alcance: r.alcance,
+    visitas: r.visitas,
+    interacoes: r.interacoes,
+  }));
+}
+
+// Demografia dos seguidores (cidade, país, idade, gênero). Precisa de 100+ seguidores; best-effort.
+export async function demografiaIg() {
+  if (!(await lerConta())) return null;
+  const c = await conta();
+  const breakdown = async (bd: string) => {
+    try {
+      const j = await graph(`${c.userId}/insights`, {
+        metric: "follower_demographics",
+        period: "lifetime",
+        timeframe: "this_month",
+        breakdown: bd,
+        metric_type: "total_value",
+        access_token: c.token,
+      });
+      const results = j?.data?.[0]?.total_value?.breakdowns?.[0]?.results ?? [];
+      return results
+        .map((r: any) => ({
+          chave: (r.dimension_values || []).join(" · "),
+          valor: Number(r.value) || 0,
+        }))
+        .sort((a: any, b: any) => b.valor - a.valor)
+        .slice(0, 10);
+    } catch {
+      return [];
+    }
+  };
+  const [cidade, pais, idade, genero] = await Promise.all([
+    breakdown("city"),
+    breakdown("country"),
+    breakdown("age"),
+    breakdown("gender"),
+  ]);
+  return { cidade, pais, idade, genero };
 }

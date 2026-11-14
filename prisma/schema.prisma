@@ -1285,3 +1285,17 @@ model ig_dm_log {
   @@unique([campanha_id, comment_id])
   @@index([campanha_id, dm_status])
 }
+
+// Retrato diário das métricas da conta (Instagram), para os gráficos de evolução do Painel Meta.
+// Um robô salva/atualiza a linha do dia (ver tarefasInstagram em instagram.server.ts).
+model ig_dia {
+  dia        String   @id @db.VarChar(10) // AAAA-MM-DD (horário de Montevidéu)
+  seguidores Int?
+  alcance    Int?
+  visitas    Int?
+  interacoes Int?
+  engajadas  Int?
+  posts      Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
