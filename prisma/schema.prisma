@@ -1239,3 +1239,49 @@ model extrato_regras {
 
   @@unique([chave, sentido])
 }
+
+// Campanha de Instagram "comentou → DM": quem comenta a palavra-chave numa publicação
+// recebe um DM com o link do prêmio (cupom ou cashback na carteira). Ver src/lib/instagram-dm.server.ts.
+model ig_campanha_dm {
+  id               Int      @id @default(autoincrement())
+  nome             String   @db.VarChar(120)
+  media_id         String?  @db.VarChar(64) // id da publicação no Instagram (o post da campanha)
+  permalink        String?  @db.VarChar(300)
+  palavra          String   @db.VarChar(60) // palavra-chave do comentário (ex.: "eu quiero")
+  dm_texto         String   @db.Text // mensagem do DM; {{link}} vira o link do prêmio
+  resposta_publica String?  @db.VarChar(200) // resposta pública ao comentário (opcional)
+  premio           String   @default("CASHBACK") @db.VarChar(10) // CASHBACK | CUPOM
+  valor            Int      @default(500) // cashback: pesos na carteira; cupom: % de desconto
+  validade_dias    Int      @default(30)
+  ativo            Boolean  @default(false)
+  comentarios      Int      @default(0) // comentários detectados
+  dms              Int      @default(0) // DMs enviados
+  cadastros        Int      @default(0) // contas criadas pelo link
+  resgates         Int      @default(0) // prêmios entregues
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  logs ig_dm_log[]
+
+  @@index([ativo])
+}
+
+// Cada pessoa que comentou a palavra-chave (1 registro por comentário).
+model ig_dm_log {
+  id           Int       @id @default(autoincrement())
+  campanha_id  Int
+  comment_id   String    @db.VarChar(64)
+  ig_user_id   String?   @db.VarChar(64)
+  ig_username  String?   @db.VarChar(80)
+  texto        String?   @db.VarChar(300)
+  dm_status    String    @default("PENDENTE") @db.VarChar(12) // PENDENTE, ENVIADO, ERRO, MANUAL
+  dm_erro      String?   @db.VarChar(300)
+  user_id      Int? // conta criada pelo link (quando resgata)
+  resgatado_em DateTime?
+  created_at   DateTime  @default(now())
+
+  campanha ig_campanha_dm @relation(fields: [campanha_id], references: [id], onDelete: Cascade)
+
+  @@unique([campanha_id, comment_id])
+  @@index([campanha_id, dm_status])
+}

@@ -581,3 +581,17 @@ export async function desempenhoInstagram(dias = 28) {
     })),
   };
 }
+
+// --------------------------------------------------- Reuso pela campanha de DM (comentário → DM)
+// Chamada autenticada à Graph API do Instagram (adiciona o token da conta conectada).
+export async function igChamada(
+  caminho: string,
+  params: Record<string, string> = {},
+  metodo: "GET" | "POST" = "GET",
+) {
+  const c = await conta();
+  return graph(caminho, { ...params, access_token: c.token }, metodo);
+}
+export async function igContaConectada() {
+  return conta();
+}

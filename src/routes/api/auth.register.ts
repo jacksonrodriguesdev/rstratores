@@ -87,6 +87,8 @@ export const Route = createFileRoute("/api/auth/register")({
           await garantirCupom(user.id);
           const { garantirBonusCarteira } = await import("@/lib/carteira.server");
           await garantirBonusCarteira(user.id);
+          const { resgatarIgDm } = await import("@/lib/instagram-dm.server");
+          await resgatarIgDm(request, user.id);
           const { registrarCadastro } = await import("@/lib/conversoes.server");
           void registrarCadastro(request, user);
           const cookie = await abrirSessao(request, user);

@@ -47,6 +47,7 @@ import { Route as AdminFiscalRouteImport } from './routes/admin.fiscal'
 import { Route as AdminFotosLoteRouteImport } from './routes/admin.fotos-lote'
 import { Route as AdminGoogleRouteImport } from './routes/admin.google'
 import { Route as AdminHomepageRouteImport } from './routes/admin.homepage'
+import { Route as AdminIgDmRouteImport } from './routes/admin.ig-dm'
 import { Route as AdminInstagramRouteImport } from './routes/admin.instagram'
 import { Route as AdminInteresseRouteImport } from './routes/admin.interesse'
 import { Route as AdminJornadasRouteImport } from './routes/admin.jornadas'
@@ -79,6 +80,7 @@ import { Route as EtiquetaIdRouteImport } from './routes/etiqueta.$id'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
 import { Route as GuiasSlugRouteImport } from './routes/guias.$slug'
+import { Route as IgSplatRouteImport } from './routes/ig.$'
 import { Route as PagarCodigoRouteImport } from './routes/pagar.$codigo'
 import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
@@ -111,6 +113,7 @@ import { Route as ApiAuthRapidoRouteImport } from './routes/api/auth.rapido'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth.register'
 import { Route as ApiDespachanteConviteRouteImport } from './routes/api/despachante.convite'
 import { Route as ApiEmpresasRegistroRouteImport } from './routes/api/empresas.registro'
+import { Route as ApiInstagramWebhookRouteImport } from './routes/api/instagram.webhook'
 import { Route as ApiPublicAnalyticsRouteImport } from './routes/api/public/analytics'
 import { Route as ApiPublicAvaliacaoFotoRouteImport } from './routes/api/public/avaliacao-foto'
 import { Route as ApiPublicAvisoPrecoRouteImport } from './routes/api/public/aviso-preco'
@@ -351,6 +354,11 @@ const AdminHomepageRoute = AdminHomepageRouteImport.update({
   path: '/homepage',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminIgDmRoute = AdminIgDmRouteImport.update({
+  id: '/ig-dm',
+  path: '/ig-dm',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminInstagramRoute = AdminInstagramRouteImport.update({
   id: '/instagram',
   path: '/instagram',
@@ -511,6 +519,11 @@ const GuiasSlugRoute = GuiasSlugRouteImport.update({
   path: '/guias/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IgSplatRoute = IgSplatRouteImport.update({
+  id: '/ig/$',
+  path: '/ig/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PagarCodigoRoute = PagarCodigoRouteImport.update({
   id: '/pagar/$codigo',
   path: '/pagar/$codigo',
@@ -669,6 +682,11 @@ const ApiDespachanteConviteRoute = ApiDespachanteConviteRouteImport.update({
 const ApiEmpresasRegistroRoute = ApiEmpresasRegistroRouteImport.update({
   id: '/api/empresas/registro',
   path: '/api/empresas/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInstagramWebhookRoute = ApiInstagramWebhookRouteImport.update({
+  id: '/api/instagram/webhook',
+  path: '/api/instagram/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAnalyticsRoute = ApiPublicAnalyticsRouteImport.update({
@@ -965,6 +983,7 @@ export interface FileRoutesByFullPath {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/ig-dm': typeof AdminIgDmRoute
   '/admin/instagram': typeof AdminInstagramRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
@@ -993,6 +1012,7 @@ export interface FileRoutesByFullPath {
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
+  '/ig/$': typeof IgSplatRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -1027,6 +1047,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/despachante/convite': typeof ApiDespachanteConviteRoute
   '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
+  '/api/instagram/webhook': typeof ApiInstagramWebhookRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
@@ -1116,6 +1137,7 @@ export interface FileRoutesByTo {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/ig-dm': typeof AdminIgDmRoute
   '/admin/instagram': typeof AdminInstagramRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
@@ -1144,6 +1166,7 @@ export interface FileRoutesByTo {
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
+  '/ig/$': typeof IgSplatRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -1178,6 +1201,7 @@ export interface FileRoutesByTo {
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/despachante/convite': typeof ApiDespachanteConviteRoute
   '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
+  '/api/instagram/webhook': typeof ApiInstagramWebhookRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
@@ -1270,6 +1294,7 @@ export interface FileRoutesById {
   '/admin/fotos-lote': typeof AdminFotosLoteRoute
   '/admin/google': typeof AdminGoogleRoute
   '/admin/homepage': typeof AdminHomepageRoute
+  '/admin/ig-dm': typeof AdminIgDmRoute
   '/admin/instagram': typeof AdminInstagramRoute
   '/admin/interesse': typeof AdminInteresseRoute
   '/admin/jornadas': typeof AdminJornadasRoute
@@ -1298,6 +1323,7 @@ export interface FileRoutesById {
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
+  '/ig/$': typeof IgSplatRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -1332,6 +1358,7 @@ export interface FileRoutesById {
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/despachante/convite': typeof ApiDespachanteConviteRoute
   '/api/empresas/registro': typeof ApiEmpresasRegistroRoute
+  '/api/instagram/webhook': typeof ApiInstagramWebhookRoute
   '/api/public/analytics': typeof ApiPublicAnalyticsRoute
   '/api/public/avaliacao-foto': typeof ApiPublicAvaliacaoFotoRoute
   '/api/public/aviso-preco': typeof ApiPublicAvisoPrecoRoute
@@ -1425,6 +1452,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
+    | '/admin/ig-dm'
     | '/admin/instagram'
     | '/admin/interesse'
     | '/admin/jornadas'
@@ -1453,6 +1481,7 @@ export interface FileRouteTypes {
     | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/guias/$slug'
+    | '/ig/$'
     | '/pagar/$codigo'
     | '/pedido/$codigo'
     | '/produto/$sku'
@@ -1487,6 +1516,7 @@ export interface FileRouteTypes {
     | '/api/auth/register'
     | '/api/despachante/convite'
     | '/api/empresas/registro'
+    | '/api/instagram/webhook'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/aviso-preco'
@@ -1576,6 +1606,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
+    | '/admin/ig-dm'
     | '/admin/instagram'
     | '/admin/interesse'
     | '/admin/jornadas'
@@ -1604,6 +1635,7 @@ export interface FileRouteTypes {
     | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/guias/$slug'
+    | '/ig/$'
     | '/pagar/$codigo'
     | '/pedido/$codigo'
     | '/produto/$sku'
@@ -1638,6 +1670,7 @@ export interface FileRouteTypes {
     | '/api/auth/register'
     | '/api/despachante/convite'
     | '/api/empresas/registro'
+    | '/api/instagram/webhook'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/aviso-preco'
@@ -1729,6 +1762,7 @@ export interface FileRouteTypes {
     | '/admin/fotos-lote'
     | '/admin/google'
     | '/admin/homepage'
+    | '/admin/ig-dm'
     | '/admin/instagram'
     | '/admin/interesse'
     | '/admin/jornadas'
@@ -1757,6 +1791,7 @@ export interface FileRouteTypes {
     | '/etiqueta/$id'
     | '/feeds/$arquivo'
     | '/guias/$slug'
+    | '/ig/$'
     | '/pagar/$codigo'
     | '/pedido/$codigo'
     | '/produto/$sku'
@@ -1791,6 +1826,7 @@ export interface FileRouteTypes {
     | '/api/auth/register'
     | '/api/despachante/convite'
     | '/api/empresas/registro'
+    | '/api/instagram/webhook'
     | '/api/public/analytics'
     | '/api/public/avaliacao-foto'
     | '/api/public/aviso-preco'
@@ -1871,6 +1907,7 @@ export interface RootRouteChildren {
   EtiquetaIdRoute: typeof EtiquetaIdRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
+  IgSplatRoute: typeof IgSplatRoute
   PagarCodigoRoute: typeof PagarCodigoRoute
   PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
@@ -1896,6 +1933,7 @@ export interface RootRouteChildren {
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiDespachanteConviteRoute: typeof ApiDespachanteConviteRoute
   ApiEmpresasRegistroRoute: typeof ApiEmpresasRegistroRoute
+  ApiInstagramWebhookRoute: typeof ApiInstagramWebhookRoute
   ApiPublicAnalyticsRoute: typeof ApiPublicAnalyticsRoute
   ApiPublicAvaliacaoFotoRoute: typeof ApiPublicAvaliacaoFotoRoute
   ApiPublicAvisoPrecoRoute: typeof ApiPublicAvisoPrecoRoute
@@ -2203,6 +2241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHomepageRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ig-dm': {
+      id: '/admin/ig-dm'
+      path: '/ig-dm'
+      fullPath: '/admin/ig-dm'
+      preLoaderRoute: typeof AdminIgDmRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/instagram': {
       id: '/admin/instagram'
       path: '/instagram'
@@ -2427,6 +2472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuiasSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ig/$': {
+      id: '/ig/$'
+      path: '/ig/$'
+      fullPath: '/ig/$'
+      preLoaderRoute: typeof IgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pagar/$codigo': {
       id: '/pagar/$codigo'
       path: '/pagar/$codigo'
@@ -2649,6 +2701,13 @@ declare module '@tanstack/react-router' {
       path: '/api/empresas/registro'
       fullPath: '/api/empresas/registro'
       preLoaderRoute: typeof ApiEmpresasRegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/instagram/webhook': {
+      id: '/api/instagram/webhook'
+      path: '/api/instagram/webhook'
+      fullPath: '/api/instagram/webhook'
+      preLoaderRoute: typeof ApiInstagramWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/analytics': {
@@ -3018,6 +3077,7 @@ interface AdminRouteChildren {
   AdminFotosLoteRoute: typeof AdminFotosLoteRoute
   AdminGoogleRoute: typeof AdminGoogleRoute
   AdminHomepageRoute: typeof AdminHomepageRoute
+  AdminIgDmRoute: typeof AdminIgDmRoute
   AdminInstagramRoute: typeof AdminInstagramRoute
   AdminInteresseRoute: typeof AdminInteresseRoute
   AdminJornadasRoute: typeof AdminJornadasRoute
@@ -3068,6 +3128,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFotosLoteRoute: AdminFotosLoteRoute,
   AdminGoogleRoute: AdminGoogleRoute,
   AdminHomepageRoute: AdminHomepageRoute,
+  AdminIgDmRoute: AdminIgDmRoute,
   AdminInstagramRoute: AdminInstagramRoute,
   AdminInteresseRoute: AdminInteresseRoute,
   AdminJornadasRoute: AdminJornadasRoute,
@@ -3227,6 +3288,7 @@ const rootRouteChildren: RootRouteChildren = {
   EtiquetaIdRoute: EtiquetaIdRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,
+  IgSplatRoute: IgSplatRoute,
   PagarCodigoRoute: PagarCodigoRoute,
   PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
@@ -3252,6 +3314,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiDespachanteConviteRoute: ApiDespachanteConviteRoute,
   ApiEmpresasRegistroRoute: ApiEmpresasRegistroRoute,
+  ApiInstagramWebhookRoute: ApiInstagramWebhookRoute,
   ApiPublicAnalyticsRoute: ApiPublicAnalyticsRoute,
   ApiPublicAvaliacaoFotoRoute: ApiPublicAvaliacaoFotoRoute,
   ApiPublicAvisoPrecoRoute: ApiPublicAvisoPrecoRoute,

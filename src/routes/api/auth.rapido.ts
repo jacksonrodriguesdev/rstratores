@@ -56,6 +56,8 @@ export const Route = createFileRoute("/api/auth/rapido")({
             void registrarCadastro(request, user);
             const { garantirBonusCarteira } = await import("@/lib/carteira.server");
             await garantirBonusCarteira(user.id);
+            const { resgatarIgDm } = await import("@/lib/instagram-dm.server");
+            await resgatarIgDm(request, user.id);
           }
           const cupom = await garantirCupom(user.id);
           const cookie = await abrirSessao(request, user);
