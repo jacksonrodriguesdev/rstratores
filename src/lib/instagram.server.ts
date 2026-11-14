@@ -522,6 +522,9 @@ export async function tarefasInstagram() {
     ultimaMetrica = Date.now();
     await atualizarMetricas().catch((e) => console.error("instagram métricas", e?.message));
     await snapshotDiarioIg().catch((e) => console.error("instagram snapshot", e?.message));
+    await import("./posts-auto.server")
+      .then((m) => m.gerarPostDiario())
+      .catch((e) => console.error("instagram post auto", e?.message));
   }
 }
 

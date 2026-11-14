@@ -58,6 +58,7 @@ import { Route as AdminPagamentosRouteImport } from './routes/admin.pagamentos'
 import { Route as AdminPellegrinoRouteImport } from './routes/admin.pellegrino'
 import { Route as AdminPesquisaPrecosRouteImport } from './routes/admin.pesquisa-precos'
 import { Route as AdminPopupRouteImport } from './routes/admin.popup'
+import { Route as AdminPostsAutoRouteImport } from './routes/admin.posts-auto'
 import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
 import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
@@ -408,6 +409,11 @@ const AdminPesquisaPrecosRoute = AdminPesquisaPrecosRouteImport.update({
 const AdminPopupRoute = AdminPopupRouteImport.update({
   id: '/popup',
   path: '/popup',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPostsAutoRoute = AdminPostsAutoRouteImport.update({
+  id: '/posts-auto',
+  path: '/posts-auto',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPrecificacaoRoute = AdminPrecificacaoRouteImport.update({
@@ -1000,6 +1006,7 @@ export interface FileRoutesByFullPath {
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
+  '/admin/posts-auto': typeof AdminPostsAutoRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -1155,6 +1162,7 @@ export interface FileRoutesByTo {
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
+  '/admin/posts-auto': typeof AdminPostsAutoRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -1313,6 +1321,7 @@ export interface FileRoutesById {
   '/admin/pellegrino': typeof AdminPellegrinoRoute
   '/admin/pesquisa-precos': typeof AdminPesquisaPrecosRoute
   '/admin/popup': typeof AdminPopupRoute
+  '/admin/posts-auto': typeof AdminPostsAutoRoute
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -1472,6 +1481,7 @@ export interface FileRouteTypes {
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
     | '/admin/popup'
+    | '/admin/posts-auto'
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
@@ -1627,6 +1637,7 @@ export interface FileRouteTypes {
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
     | '/admin/popup'
+    | '/admin/posts-auto'
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
@@ -1784,6 +1795,7 @@ export interface FileRouteTypes {
     | '/admin/pellegrino'
     | '/admin/pesquisa-precos'
     | '/admin/popup'
+    | '/admin/posts-auto'
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
@@ -2328,6 +2340,13 @@ declare module '@tanstack/react-router' {
       path: '/popup'
       fullPath: '/admin/popup'
       preLoaderRoute: typeof AdminPopupRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/posts-auto': {
+      id: '/admin/posts-auto'
+      path: '/posts-auto'
+      fullPath: '/admin/posts-auto'
+      preLoaderRoute: typeof AdminPostsAutoRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/precificacao': {
@@ -3107,6 +3126,7 @@ interface AdminRouteChildren {
   AdminPellegrinoRoute: typeof AdminPellegrinoRoute
   AdminPesquisaPrecosRoute: typeof AdminPesquisaPrecosRoute
   AdminPopupRoute: typeof AdminPopupRoute
+  AdminPostsAutoRoute: typeof AdminPostsAutoRoute
   AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
   AdminPrecificarRoute: typeof AdminPrecificarRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
@@ -3159,6 +3179,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPellegrinoRoute: AdminPellegrinoRoute,
   AdminPesquisaPrecosRoute: AdminPesquisaPrecosRoute,
   AdminPopupRoute: AdminPopupRoute,
+  AdminPostsAutoRoute: AdminPostsAutoRoute,
   AdminPrecificacaoRoute: AdminPrecificacaoRoute,
   AdminPrecificarRoute: AdminPrecificarRoute,
   AdminProdutosRoute: AdminProdutosRoute,

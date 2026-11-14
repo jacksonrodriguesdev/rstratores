@@ -142,6 +142,7 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/carteira", label: "Carteira de clientes", icon: Wallet },
       { to: "/admin/ig-dm", label: "Instagram: comentário → DM", icon: Instagram },
       { to: "/admin/meta-painel", label: "Painel Meta (Instagram)", icon: BarChart3 },
+      { to: "/admin/posts-auto", label: "Posts automáticos (IG)", icon: Sparkles },
       { to: "/admin/push", label: "App e notificações", icon: Smartphone },
       { to: "/admin/campanhas", label: "Campanhas e cupons", icon: Flame },
       { to: "/admin/ads", label: "Central de Anúncios", icon: BarChart3 },
