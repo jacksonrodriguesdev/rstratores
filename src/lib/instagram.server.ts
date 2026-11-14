@@ -674,3 +674,151 @@ export async function demografiaIg() {
   ]);
   return { cidade, pais, idade, genero };
 }
+
+// --------------------------------------------------- Painel Meta completo (série diária real da API)
+// Série diária da conta (reach, profile_views, follower_count) + engajamento por dia agregado dos
+// posts (curtidas, comentários, compartilhamentos, salvos) + top posts com métricas completas.
+export async function painelCompletoIg(dias = 30) {
+  const c = await conta();
+  const ate = Math.floor(Date.now() / 1000);
+  const janela = Math.min(Math.max(1, dias), 30); // a Meta entrega até ~30 dias por consulta
+  const de = ate - janela * 86400;
+
+  const serieConta = async (metric: string) => {
+    const j = await graph(`${c.userId}/insights`, {
+      metric,
+      period: "day",
+      since: String(de),
+      until: String(ate),
+      access_token: c.token,
+    }).catch(() => null);
+    const vals = j?.data?.[0]?.values;
+    if (!Array.isArray(vals)) return new Map<string, number>();
+    return new Map<string, number>(
+      vals.map((v: any) => [String(v.end_time).slice(0, 10), Number(v.value) || 0]),
+    );
+  };
+
+  const [perfil, alcanceM, visitasM, seguidoresM, media] = await Promise.all([
+    graph("me", { fields: "username,followers_count,media_count", access_token: c.token }),
+    serieConta("reach"),
+    serieConta("profile_views"),
+    serieConta("follower_count"),
+    graph(`${c.userId}/media`, {
+      fields:
+        "id,caption,media_type,media_product_type,thumbnail_url,media_url,permalink,timestamp,like_count,comments_count",
+      limit: "50",
+      access_token: c.token,
+    }).catch(() => ({ data: [] })),
+  ]);
+
+  const desdeMs = de * 1000;
+  const posts = (media.data ?? []).filter(
+    (m: any) => new Date(m.timestamp).getTime() >= desdeMs && m.media_product_type !== "STORY",
+  );
+  // Insights por post (compartilhamentos, salvos, alcance) — em paralelo
+  const insights = await Promise.all(
+    posts.map((p: any) =>
+      graph(`${p.id}/insights`, { metric: "shares,saved,reach", access_token: c.token })
+        .then((j: any) => ({
+          id: p.id,
+          m: Object.fromEntries(
+            (j.data ?? []).map((d: any) => [
+              d.name,
+              d.values?.[0]?.value ?? d.total_value?.value ?? 0,
+            ]),
+          ),
+        }))
+        .catch(() => ({ id: p.id, m: {} as Record<string, number> })),
+    ),
+  );
+  const insMap = new Map(insights.map((i) => [i.id, i.m]));
+
+  // Agrega engajamento por dia (pelo dia de publicação do post)
+  type Dia = {
+    curtidas: number;
+    comentarios: number;
+    compartilhamentos: number;
+    salvos: number;
+    posts: number;
+  };
+  const porDia = new Map<string, Dia>();
+  for (const p of posts) {
+    const dia = String(p.timestamp).slice(0, 10);
+    const e = porDia.get(dia) ?? {
+      curtidas: 0,
+      comentarios: 0,
+      compartilhamentos: 0,
+      salvos: 0,
+      posts: 0,
+    };
+    const ins = insMap.get(p.id) ?? {};
+    e.curtidas += p.like_count ?? 0;
+    e.comentarios += p.comments_count ?? 0;
+    e.compartilhamentos += Number(ins.shares) || 0;
+    e.salvos += Number(ins.saved) || 0;
+    e.posts += 1;
+    porDia.set(dia, e);
+  }
+
+  // Monta a série unindo todos os dias
+  const dias0: string[] = [];
+  for (let t = de; t <= ate; t += 86400) dias0.push(new Date(t * 1000).toISOString().slice(0, 10));
+  const serie = dias0.map((dia) => {
+    const e = porDia.get(dia);
+    return {
+      dia,
+      alcance: alcanceM.get(dia) ?? null,
+      visitas: visitasM.get(dia) ?? null,
+      novosSeguidores: seguidoresM.get(dia) ?? null,
+      curtidas: e?.curtidas ?? 0,
+      comentarios: e?.comentarios ?? 0,
+      compartilhamentos: e?.compartilhamentos ?? 0,
+      posts: e?.posts ?? 0,
+    };
+  });
+
+  const soma = (f: (s: (typeof serie)[number]) => number | null) =>
+    serie.reduce((t, s) => t + (f(s) || 0), 0);
+
+  const topPosts = posts
+    .map((p: any) => {
+      const ins = insMap.get(p.id) ?? {};
+      return {
+        id: String(p.id),
+        legenda: String(p.caption ?? "").slice(0, 120),
+        tipo: p.media_product_type === "REELS" ? "REELS" : String(p.media_type ?? ""),
+        imagem: p.thumbnail_url ?? (p.media_type === "VIDEO" ? null : p.media_url) ?? null,
+        link: p.permalink ?? null,
+        quando: String(p.timestamp ?? "").slice(0, 10),
+        curtidas: p.like_count ?? 0,
+        comentarios: p.comments_count ?? 0,
+        compartilhamentos: Number(ins.shares) || 0,
+        salvos: Number(ins.saved) || 0,
+        alcance: Number(ins.reach) || 0,
+      };
+    })
+    .sort(
+      (a: any, b: any) =>
+        b.curtidas +
+        b.comentarios +
+        b.compartilhamentos -
+        (a.curtidas + a.comentarios + a.compartilhamentos),
+    )
+    .slice(0, 12);
+
+  return {
+    seguidores: perfil.followers_count ?? null,
+    posts: perfil.media_count ?? null,
+    totais: {
+      alcance: soma((s) => s.alcance),
+      visitas: soma((s) => s.visitas),
+      novosSeguidores: soma((s) => s.novosSeguidores),
+      curtidas: soma((s) => s.curtidas),
+      comentarios: soma((s) => s.comentarios),
+      compartilhamentos: soma((s) => s.compartilhamentos),
+    },
+    serie,
+    topPosts,
+  };
+}
