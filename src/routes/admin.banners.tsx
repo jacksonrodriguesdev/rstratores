@@ -466,6 +466,7 @@ function NovoBanner({
   const [celular, setCelular] = useState<File | null>(null);
   const [titulo, setTitulo] = useState("");
   const [link, setLink] = useState("");
+  const [linha, setLinha] = useState("AGRICOLA");
   const [busy, setBusy] = useState(false);
 
   // Pré-visualização local antes de enviar
@@ -497,7 +498,7 @@ function NovoBanner({
         link_url: link.trim() || null,
         position: proximaPosicao,
         active: true,
-        linha: "AGRICOLA",
+        linha,
       });
       toast.success("Banner adicionado e já está no site");
       setDesktop(null);
@@ -515,6 +516,32 @@ function NovoBanner({
   return (
     <Card className="border-dashed p-4">
       <h3 className="mb-3 font-semibold">Adicionar banner — {tipo.nome}</h3>
+      {kind === "hero" && (
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-medium">Linha:</span>
+          {(
+            [
+              ["AGRICOLA", "Agrícola"],
+              ["DIESEL", "Inyección Diesel"],
+            ] as const
+          ).map(([v, l]) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setLinha(v)}
+              className={
+                "rounded-full px-3 py-1 text-xs font-medium " +
+                (linha === v ? "bg-primary text-white" : "bg-muted text-zinc-600")
+              }
+            >
+              {l}
+            </button>
+          ))}
+          <span className="text-xs text-muted-foreground">
+            Diesel = slider principal da nova linha (bombas/bicos).
+          </span>
+        </div>
+      )}
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="grid flex-1 gap-3 sm:grid-cols-[2fr_1fr]">
           <div className="space-y-2">

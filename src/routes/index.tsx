@@ -32,6 +32,8 @@ import { SITE_URL } from "@/lib/site";
 import { PHONE } from "@/lib/whatsapp";
 import { ehLarguraTotal, temH1, tipoNovo } from "@/lib/blocos-home";
 import { BlocoNovo } from "@/components/home/BlocosNovos";
+import { ProductRail } from "@/components/home/ProductRail";
+import { listProducts } from "@/lib/products";
 import { HeroCampanhaHome } from "@/components/campanha/Campanha";
 import { guiaInicio, ldPerguntas } from "@/lib/seo-guias";
 import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/components/GuiaSeo";
@@ -149,12 +151,14 @@ export const Route = createFileRoute("/")({
   },
   // Blocos e banners do topo vêm do servidor: o banner já sai no HTML (é a maior imagem da página)
   loader: async () => {
-    const [blocos, hero] = await Promise.all([
+    const banners = await import("@/lib/banners");
+    const [blocos, heroDiesel, heroAgricola] = await Promise.all([
       import("@/lib/homepage").then((m) => m.listHomepageBlocks()),
-      import("@/lib/banners")
-        .then((m) => m.listActiveBanners("hero", "AGRICOLA"))
-        .catch(() => [] as Banner[]),
+      banners.listActiveBanners("hero", "DIESEL").catch(() => [] as Banner[]),
+      banners.listActiveBanners("hero", "AGRICOLA").catch(() => [] as Banner[]),
     ]);
+    // Slider principal da linha nova (injeção). Sem banners Diesel ainda, mostra os agrícolas.
+    const hero = heroDiesel.length ? heroDiesel : heroAgricola;
     return { blocos, hero };
   },
   component: HomePage,
@@ -330,6 +334,9 @@ function HomePage() {
             </div>
           ),
         )}
+
+        <VitrineDiesel />
+
         {/* Texto para o Google: "repuestos para tractores en Uruguay" (espanhol) ou "peças para
             trator RS, SC e PR" (português), e links para as outras buscas */}
         <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 md:py-12">
@@ -344,5 +351,40 @@ function HomePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Vitrine da linha nova (injeção diesel): bombas injetoras, bicos e peças. Aparece na home só
+// quando há produtos na linha DIESEL; some sozinha se não houver.
+function VitrineDiesel() {
+  const { t, href } = useT();
+  const { data, isLoading } = useQuery({
+    queryKey: ["home-vitrine-diesel"],
+    queryFn: () => listProducts({ linha: "DIESEL", pageSize: 12 }),
+    staleTime: 5 * 60 * 1000,
+  });
+  const rows = ((data as any)?.rows ?? []) as any[];
+  if (!isLoading && !rows.length) return null;
+  return (
+    <section className="mx-auto max-w-7xl px-3 pt-6 md:px-4 md:pt-8">
+      <div className="mb-1 flex items-end justify-between gap-2">
+        <h2 className="text-lg font-bold md:text-2xl">
+          {t("Nueva línea · Inyección Diesel", "Nova linha · Injeção Diesel")}
+        </h2>
+        <a
+          href={href("/loja?linha=DIESEL")}
+          className="shrink-0 text-sm font-semibold text-primary"
+        >
+          {t("Ver todo →", "Ver tudo →")}
+        </a>
+      </div>
+      <p className="mb-3 text-sm text-muted-foreground">
+        {t(
+          "Bombas inyectoras, inyectores y repuestos de inyección para tu tractor.",
+          "Bombas injetoras, bicos e peças de injeção para o seu trator.",
+        )}
+      </p>
+      <ProductRail products={rows} loading={isLoading} />
+    </section>
   );
 }
