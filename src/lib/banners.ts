@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 
 // Tipos de banner da página inicial:
-// - hero:  carrossel principal no topo
-// - duplo: banners promocionais lado a lado
-// - strip: faixa promocional larga entre as seções
-// - dac:   imagem de fundo da seção de envios para o Uruguai pela DAC
-export type BannerKind = "hero" | "duplo" | "strip" | "dac";
+// - hero:    carrossel principal no topo
+// - anuncio: carrossel de anúncios logo abaixo do hero (produto específico, link direto)
+// - duplo:   banners promocionais lado a lado
+// - strip:   faixa promocional larga entre as seções
+// - dac:     imagem de fundo da seção de envios para o Uruguai pela DAC
+export type BannerKind = "hero" | "anuncio" | "duplo" | "strip" | "dac";
 
 export type Banner = {
   id: number;
@@ -40,6 +41,14 @@ export const TIPOS_BANNER: Record<
     celular: "800 × 400 px",
     aspecto: "aspect-[1366/400]",
     aspectoCelular: "aspect-[366/170]",
+  },
+  anuncio: {
+    nome: "Anúncios (abaixo do topo)",
+    onde: "Carrossel logo abaixo do carrossel principal. Vários viram slider com troca automática. Use o link para apontar direto a um produto (ex.: /producto/CODIGO) ou a uma busca.",
+    desktop: "1920 × 400 px",
+    celular: "800 × 600 px (opcional)",
+    aspecto: "aspect-[1920/400]",
+    aspectoCelular: "aspect-[800/600]",
   },
   duplo: {
     nome: "Banners promocionais (lado a lado)",

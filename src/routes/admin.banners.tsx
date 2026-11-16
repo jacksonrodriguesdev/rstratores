@@ -39,7 +39,7 @@ export const Route = createFileRoute("/admin/banners")({
   component: BannersPage,
 });
 
-const ORDEM_TIPOS: BannerKind[] = ["hero", "duplo", "strip", "dac"];
+const ORDEM_TIPOS: BannerKind[] = ["hero", "anuncio", "duplo", "strip", "dac"];
 
 const urlImagem = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
 

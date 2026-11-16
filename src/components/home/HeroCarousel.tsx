@@ -23,6 +23,14 @@ const ESTILOS = {
     img: "aspect-[800/300] md:aspect-[1600/250]",
     pontos: "bottom-2",
   },
+  // Anúncios abaixo do hero: largura total, 400 px no desktop (um pouco menor no celular
+  // para boa leitura). Vários viram slider.
+  anuncio: {
+    caixa: "relative px-3 pt-3 md:px-0 md:pt-0",
+    trilho: "rounded-2xl md:rounded-none",
+    img: "h-[220px] sm:h-[300px] md:h-[400px]",
+    pontos: "bottom-3 md:bottom-4",
+  },
 };
 
 // Banner principal com arrasto (toque/mouse), troca automática e indicadores.

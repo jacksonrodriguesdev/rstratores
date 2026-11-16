@@ -34,6 +34,8 @@ import { ehLarguraTotal, temH1, tipoNovo } from "@/lib/blocos-home";
 import { BlocoNovo } from "@/components/home/BlocosNovos";
 import { ProductRail } from "@/components/home/ProductRail";
 import { listProducts } from "@/lib/products";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { listActiveBanners } from "@/lib/banners";
 import { HeroCampanhaHome } from "@/components/campanha/Campanha";
 import { guiaInicio, ldPerguntas } from "@/lib/seo-guias";
 import { GuiaSeoBloco, linksBuscasPrincipais, PerguntasBloco } from "@/components/GuiaSeo";
@@ -305,35 +307,36 @@ function HomePage() {
           </div>
         )}
 
-        {trechos.map((trecho, n) =>
-          "total" in trecho ? (
-            <div key={trecho.total.id} className={n > 0 ? "mt-3 md:mt-5" : undefined}>
-              <Bloco
-                block={trecho.total}
-                heroInicial={heroInicial}
-                prioridade={trecho.total.id === primeiroId}
-              />
-            </div>
-          ) : (
-            <div
-              key={`g${trecho.grupo[0].id}`}
-              className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4"
-            >
-              {trecho.grupo.map((b) => {
-                const i = resto.indexOf(b);
-                return (
-                  <Fragment key={b.id}>
-                    <Bloco block={b} prioridade={b.id === primeiroId} />
-                    {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
-                    {i === 0 && <ParaVoceBlock />}
-                    {i === posCta && <CatalogosCtaBlock />}
-                    {i === posCotizacao && <CotizacionDistribuidorBlock />}
-                  </Fragment>
-                );
-              })}
-            </div>
-          ),
-        )}
+        {trechos.map((trecho, n) => (
+          <Fragment key={"total" in trecho ? `t${trecho.total.id}` : `g${trecho.grupo[0].id}`}>
+            {"total" in trecho ? (
+              <div className={n > 0 ? "mt-3 md:mt-5" : undefined}>
+                <Bloco
+                  block={trecho.total}
+                  heroInicial={heroInicial}
+                  prioridade={trecho.total.id === primeiroId}
+                />
+              </div>
+            ) : (
+              <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 pb-8 pt-1 md:gap-5 md:px-4 md:pt-4">
+                {trecho.grupo.map((b) => {
+                  const i = resto.indexOf(b);
+                  return (
+                    <Fragment key={b.id}>
+                      <Bloco block={b} prioridade={b.id === primeiroId} />
+                      {/* Logo depois do primeiro bloco: quem volta ao site vê o que já estava olhando */}
+                      {i === 0 && <ParaVoceBlock />}
+                      {i === posCta && <CatalogosCtaBlock />}
+                      {i === posCotizacao && <CotizacionDistribuidorBlock />}
+                    </Fragment>
+                  );
+                })}
+              </div>
+            )}
+            {/* Anúncios logo abaixo do carrossel principal (primeiro bloco = hero). */}
+            {n === 0 && <AnuncioSlider />}
+          </Fragment>
+        ))}
 
         <VitrineDiesel />
 
@@ -351,6 +354,23 @@ function HomePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Carrossel de anúncios logo abaixo do hero. Banners do tipo "anuncio" (gerenciados em
+// Admin → Banners), largura total, com link direto a um produto. Vários viram slider.
+// Some sozinho se não houver nenhum ativo.
+function AnuncioSlider() {
+  const { data: banners = [] } = useQuery({
+    queryKey: ["banners-anuncio"],
+    queryFn: () => listActiveBanners("anuncio"),
+    staleTime: 5 * 60 * 1000,
+  });
+  if (!banners.length) return null;
+  return (
+    <section className="mt-3 md:mt-5">
+      <HeroCarousel banners={banners} variante="anuncio" />
+    </section>
   );
 }
 
