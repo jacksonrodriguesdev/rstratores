@@ -13,11 +13,19 @@ globalForPrisma.prisma = prisma;
 // Aquece o engine uma vez no boot. Sem isso, no cold start (logo após o deploy reiniciar o
 // Node) várias queries concorrentes competiam para iniciar o engine ("library already
 // starting", libraryStarted: false) e provocavam o panic "PANIC: timer has gone away",
-// derrubando a home com 500. Um $connect() único serializa esse início; quem precisa de
-// garantia de ordem pode `await prismaReady` antes de disparar queries em paralelo.
+// derrubando a home com 500. Um $connect() único serializa esse início.
+//
+// IMPORTANTE: `prismaReady` NUNCA pode pendurar uma requisição. Se o banco estiver lento ou
+// instável, o $connect() pode demorar/travar; por isso corremos contra um timeout curto. Quem
+// faz `await prismaReady` espera no máximo esse tempo e segue — se o banco estiver fora, a
+// query falha rápido e o chamador degrada (em vez de o app travar e dar 504).
+const AQUECIMENTO_MS = 2500;
 export const prismaReady: Promise<void> =
   globalForPrisma.prismaReady ??
-  prisma.$connect().catch((e) => {
-    console.error("[prisma] conexão inicial falhou:", (e as Error)?.message);
-  });
+  Promise.race([
+    prisma.$connect().catch((e) => {
+      console.error("[prisma] conexão inicial falhou:", (e as Error)?.message);
+    }),
+    new Promise<void>((resolve) => setTimeout(resolve, AQUECIMENTO_MS)),
+  ]);
 globalForPrisma.prismaReady = prismaReady;
