@@ -1,10 +1,18 @@
 import type { HomepageBlock } from "./homepage";
-import { prisma } from "./prisma";
+import { prisma, prismaReady } from "./prisma";
 
 export async function listHomepageBlocks(): Promise<HomepageBlock[]> {
-  return await prisma.homepage_blocks.findMany({
-    orderBy: { position: "asc" },
-  });
+  // Espera o engine aquecer (evita a corrida de cold start) e nunca derruba a home:
+  // se o banco falhar, a página ainda renderiza (sem blocos) em vez de dar 500.
+  try {
+    await prismaReady;
+    return await prisma.homepage_blocks.findMany({
+      orderBy: { position: "asc" },
+    });
+  } catch (e) {
+    console.error("[home] listHomepageBlocks falhou:", (e as Error)?.message);
+    return [];
+  }
 }
 
 export async function createHomepageBlock(data: {

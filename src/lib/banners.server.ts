@@ -1,5 +1,5 @@
 import type { Banner } from "./banners";
-import { prisma } from "./prisma";
+import { prisma, prismaReady } from "./prisma";
 
 export async function listBanners(kind?: string, linha?: string): Promise<Banner[]> {
   const where: any = {};
@@ -17,6 +17,7 @@ export async function listActiveBanners(kind: string, linha?: string): Promise<B
   const where: any = { kind, active: true };
   if (linha) where.linha = linha;
 
+  await prismaReady;
   const data = await prisma.site_banners.findMany({
     where,
     orderBy: [{ position: "asc" }, { id: "asc" }],
