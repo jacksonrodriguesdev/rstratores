@@ -187,10 +187,10 @@ export function SiteHeader() {
           <BarraCampanha />
         </div>
 
-        {/* Faixa de avisos */}
+        {/* Faixa de avisos: só no desktop. No celular o topo fica só com logo, busca e carrinho. */}
         <div
           className={cn(
-            "relative overflow-hidden border-b border-white/10 bg-black/25 text-[12px] font-medium text-white/85 transition-[max-height,border-color] duration-300",
+            "relative hidden overflow-hidden border-b border-white/10 bg-black/25 text-[12px] font-medium text-white/85 transition-[max-height,border-color] duration-300 md:block",
             scrolled ? "max-h-0 border-transparent" : "max-h-10",
           )}
         >
@@ -422,11 +422,12 @@ export function SiteHeader() {
           </div>
         </div>
 
-        {/* Categorias: chips no celular, menu no desktop. Recolhe ao rolar para baixo. */}
+        {/* Categorias: só no desktop (menu). No celular ficam na aba "Categorías" da barra
+            inferior, deixando o topo só com logo, busca e carrinho. Recolhe ao rolar. */}
         <nav
           aria-label={t("Categorías", "Categorias")}
           className={cn(
-            "relative overflow-hidden transition-[max-height,opacity] duration-300",
+            "relative hidden overflow-hidden transition-[max-height,opacity] duration-300 md:block",
             hidden ? "max-h-0 opacity-0" : "max-h-14 opacity-100",
           )}
         >
