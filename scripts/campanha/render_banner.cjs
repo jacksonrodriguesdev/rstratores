@@ -2,10 +2,6 @@
 // Desktop 1920x520 e mobile 1080x470, em espanhol e português. Arte autoexplicativa: ao subir
 // em Admin → Banners (linha = Inyección Diesel), deixe título/subtítulo em branco.
 // Uso: node render_banner.cjs            (gera todos os slides, ES e PT, desktop e mobile)
-//
-// Ferramenta de design (não roda no servidor/CI). Os assets (cutouts dos produtos, logo e as
-// fotos de fundo das marcas) ficam em ../../../bodipasa_extracao/campanha/ fora deste repo; a
-// saída vai para ./banners ao lado do script original. Esta cópia é o registro versionado.
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("C:/Users/USER/Desktop/site-rs/rstratorparts/node_modules/playwright");
@@ -71,6 +67,20 @@ const SLIDES = [
     cut: "V3663F130G",
     es: { head: ["Inyección para", "Massey Ferguson"], sub: "Bombas, inyectores y repuestos de inyección" },
     pt: { head: ["Injeção para", "Massey Ferguson"], sub: "Bombas, bicos e peças de injeção" },
+  },
+  {
+    id: "case-ih",
+    tema: "CASE IH",
+    cut: "0445120212C",
+    es: { head: ["Inyección para", "Case IH"], sub: "Bombas, inyectores y repuestos de inyección" },
+    pt: { head: ["Injeção para", "Case IH"], sub: "Bombas, bicos e peças de injeção" },
+  },
+  {
+    id: "motores",
+    tema: "GENERICO",
+    cut: "V6801089",
+    es: { head: ["Inyección para", "Motores Diesel"], sub: "Cummins · Perkins · MWM · FPT — bombas y inyectores" },
+    pt: { head: ["Injeção para", "Motores Diesel"], sub: "Cummins · Perkins · MWM · FPT — bombas e bicos" },
   },
 ];
 
