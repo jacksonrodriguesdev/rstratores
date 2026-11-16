@@ -182,7 +182,10 @@ export function SiteHeader() {
           />
         </div>
 
-        <BarraCampanha />
+        {/* Contador da campanha: só no desktop. No celular deixa o topo enxuto. */}
+        <div className="hidden md:block">
+          <BarraCampanha />
+        </div>
 
         {/* Faixa de avisos */}
         <div

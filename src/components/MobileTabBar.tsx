@@ -46,12 +46,16 @@ export function MobileTabBar() {
   ];
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/catalogos/ver/")) return null;
-  // Páginas com barra fixa própria logo acima desta (ex.: comprar na página do produto)
-  const barraPropria = pathname.startsWith("/produto/");
 
+  // Barra inferior minimalista: 5 abas planas iguais, ícones finos, aba ativa com um traço
+  // sutil e cor primária. A ação de cotação se destaca só pela cor (verde WhatsApp).
   const tab =
-    "flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] font-medium text-zinc-500 transition-colors active:scale-95";
+    "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium tracking-tight text-zinc-400 transition-colors active:text-primary";
   const ativo = "text-primary";
+  const traco = "absolute inset-x-0 top-0 mx-auto h-0.5 w-7 rounded-full bg-primary";
+  const inicioAtivo = pathname === "/";
+  const categoriasAtivo = sheet === "categorias" || pathname.startsWith("/loja");
+  const contaAtivo = sheet === "conta";
 
   return (
     <>
@@ -59,54 +63,39 @@ export function MobileTabBar() {
       <div className="h-[calc(var(--barra-inferior)+1rem)] md:hidden" aria-hidden />
       <nav
         aria-label={t("Navegación principal", "Navegação principal")}
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white pb-safe md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200/80 bg-white/95 pb-safe backdrop-blur-md md:hidden"
       >
         <div className="flex h-16 items-stretch">
-          <Link to="/" className={cn(tab, pathname === "/" && ativo)}>
-            <Home className="h-6 w-6" />
+          <Link to="/" className={cn(tab, inicioAtivo && ativo)}>
+            {inicioAtivo && <span className={traco} />}
+            <Home className="h-[22px] w-[22px]" strokeWidth={1.75} />
             {t("Inicio", "Início")}
           </Link>
           <button
             onClick={() => setSheet("categorias")}
-            className={cn(tab, (sheet === "categorias" || pathname.startsWith("/loja")) && ativo)}
+            className={cn(tab, categoriasAtivo && ativo)}
           >
-            <LayoutGrid className="h-6 w-6" />
+            {categoriasAtivo && <span className={traco} />}
+            <LayoutGrid className="h-[22px] w-[22px]" strokeWidth={1.75} />
             {t("Categorías", "Categorias")}
           </button>
 
-          {/* Ação principal: cotação pelo WhatsApp. Na página do produto há uma barra própria
-              de compra logo acima; lá o botão fica plano para não cobrir "Consultar precio". */}
-          {barraPropria ? (
-            <a
-              href={whatsappContactUrl(
-                t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."),
-              )}
-              target="_blank"
-              rel="noreferrer noopener"
-              className={cn(tab, "text-[#128C4B]")}
-            >
-              <MessageCircle className="h-6 w-6" />
-              {t("Cotizar", "Orçamento")}
-            </a>
-          ) : (
-            <a
-              href={whatsappContactUrl(
-                t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."),
-              )}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex flex-1 flex-col items-center justify-start text-[11px] font-semibold text-[#128C4B] active:scale-95"
-            >
-              <span className="-mt-5 mb-0.5 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/40 ring-4 ring-white">
-                <MessageCircle className="h-7 w-7" />
-              </span>
-              {t("Cotizar", "Orçamento")}
-            </a>
-          )}
+          {/* Ação principal: cotação pelo WhatsApp. Plana e minimalista, destacada só pela cor. */}
+          <a
+            href={whatsappContactUrl(
+              t("¡Hola! Quiero cotizar repuestos.", "Olá! Quero fazer um orçamento de peças."),
+            )}
+            target="_blank"
+            rel="noreferrer noopener"
+            className={cn(tab, "font-semibold text-[#128C4B] active:text-[#128C4B]")}
+          >
+            <MessageCircle className="h-[22px] w-[22px]" strokeWidth={1.75} />
+            {t("Cotizar", "Orçamento")}
+          </a>
 
           <button onClick={() => setIsCartOpen(true)} className={tab}>
             <span className="relative">
-              <ShoppingCart className="h-6 w-6" />
+              <ShoppingCart className="h-[22px] w-[22px]" strokeWidth={1.75} />
               {cartItemCount > 0 && (
                 <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-zinc-900">
                   {cartItemCount}
@@ -116,16 +105,15 @@ export function MobileTabBar() {
             {t("Carrito", "Carrinho")}
           </button>
           {user ? (
-            <button
-              onClick={() => setSheet("conta")}
-              className={cn(tab, sheet === "conta" && ativo)}
-            >
-              <User className="h-6 w-6" />
+            <button onClick={() => setSheet("conta")} className={cn(tab, contaAtivo && ativo)}>
+              {contaAtivo && <span className={traco} />}
+              <User className="h-[22px] w-[22px]" strokeWidth={1.75} />
               {t("Cuenta", "Conta")}
             </button>
           ) : (
             <Link to="/login" className={cn(tab, pathname === "/login" && ativo)}>
-              <User className="h-6 w-6" />
+              {pathname === "/login" && <span className={traco} />}
+              <User className="h-[22px] w-[22px]" strokeWidth={1.75} />
               {t("Ingresar", "Entrar")}
             </Link>
           )}

@@ -158,7 +158,8 @@ export function HeroCampanha({ c, h1 = false }: { c: CampanhaPublica; h1?: boole
             )}
           </p>
         )}
-        <div className="mt-6 flex flex-col items-center gap-2">
+        {/* Contador: só no desktop. No celular o hero fica limpo (título + desconto + botão). */}
+        <div className="mt-6 hidden flex-col items-center gap-2 md:flex">
           <span className="text-xs font-bold uppercase tracking-widest text-white/60">
             {pre ? t("Empieza en", "Começa em") : t("Termina en", "Termina em")}
           </span>
