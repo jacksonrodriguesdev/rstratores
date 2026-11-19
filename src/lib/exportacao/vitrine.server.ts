@@ -165,6 +165,39 @@ export async function vitrineExportacao(f: FiltroVitrine) {
   return { total: Number(tot.n), pagina, porPagina, linha, itens };
 }
 
+// ---------------------------------------------------------------- destaques públicos (landing)
+// Carrosséis de produtos COM foto e SEM preço, para a página /empresas (pública, sem login).
+export type DestaqueItem = { sku: string; nome: string; marca: string | null; foto: string };
+export type Carrossel = { marca: string; itens: DestaqueItem[] };
+
+export async function destaquesPublicos(): Promise<{ carrosseis: Carrossel[] }> {
+  const prisma = await db();
+  const { nomeProduto } = await import("../pecas-es");
+  const marcas = ["John Deere", "Massey Ferguson", "New Holland", "Case IH", "Valtra"];
+  const carrosseis: Carrossel[] = [];
+  for (const marca of marcas) {
+    const rows = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT sku, codigo_fabricante, nome, nome_es, marca, imagem_principal
+       FROM agricolas
+       WHERE duplicado_de IS NULL AND marca = ? AND estoque > 0
+         AND imagem_principal IS NOT NULL AND imagem_principal <> '' AND imagem_principal NOT LIKE '%redeparts%'
+       ORDER BY estoque DESC LIMIT 14`,
+      marca,
+    );
+    if (rows.length >= 4)
+      carrosseis.push({
+        marca,
+        itens: rows.map((r) => ({
+          sku: String(r.sku).trim(),
+          nome: nomeProduto(r as any),
+          marca: r.marca ?? null,
+          foto: r.imagem_principal as string,
+        })),
+      });
+  }
+  return { carrosseis };
+}
+
 // ---------------------------------------------------------------- detalhe do produto (modal)
 export type ProdutoExpDetalhe = {
   sku: string;

@@ -21,6 +21,11 @@ export const vitrineExportacaoFn = createServerFn({ method: "GET" })
     return (await import("./vitrine.server")).vitrineExportacao(data);
   });
 
+// Pública (landing /empresas): carrosséis de produtos com foto, sem preço.
+export const destaquesPublicosFn = createServerFn({ method: "GET" }).handler(async () => {
+  return (await import("./vitrine.server")).destaquesPublicos();
+});
+
 export const produtoExportacaoFn = createServerFn({ method: "GET" })
   .validator((d: { sku: string; linha: string }) => ({
     sku: String(d?.sku ?? "").slice(0, 191),

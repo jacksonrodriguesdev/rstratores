@@ -2,6 +2,7 @@
 // volume (repuesteras, talleres, cooperativas). Em espanhol. A seção "Probá con tu lista" confere a
 // lista colada contra o catálogo de verdade (sem preços) e leva ao cadastro.
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ArrowRight,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { B2bHeader } from "@/components/b2b/B2bLayout";
 import { numerosB2bFn } from "@/lib/b2b";
+import { destaquesPublicosFn } from "@/lib/exportacao/vitrine";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/empresas/")({
@@ -61,13 +63,140 @@ function PaginaEmpresas() {
         <Hero pecas={n.pecas} minimo={n.minimo} />
       </div>
       <Numeros pecas={n.pecas} minimo={n.minimo} />
+      <Carrosseis pecas={n.pecas} />
       <Probar />
       <ComoFunciona />
       <Diferenciais />
       <ParaQuem />
+      <Parceria />
       <Perguntas minimo={n.minimo} prazo={n.prazo} />
       <Chamada />
     </div>
+  );
+}
+
+// Logos/badges das montadoras + carrosséis de produtos (com foto, sem preço)
+const MONTADORAS = [
+  "John Deere",
+  "Massey Ferguson",
+  "New Holland",
+  "Case IH",
+  "Valtra",
+  "Agrale",
+  "Ford",
+  "Fiat",
+  "Yanmar",
+  "Agco",
+];
+const fotoUrl = (s: string) => (s.startsWith("http") || s.startsWith("/") ? s : `/uploads/${s}`);
+
+function Carrosseis({ pecas }: { pecas: number }) {
+  const { data } = useQuery({
+    queryKey: ["exp-destaques"],
+    queryFn: () => destaquesPublicosFn(),
+    staleTime: 10 * 60_000,
+  });
+  return (
+    <section className="border-b border-slate-200 bg-slate-50 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-widest text-emerald-700">
+            Catálogo listo para importar
+          </p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+            Conocé nuestros +{Math.floor(pecas / 1000)} mil repuestos listos para tu empresa
+            importar
+          </h2>
+          <p className="mt-3 text-slate-600">
+            Agrícola, camiones y línea diesel. Todas las marcas del agro, con NCM y origen Mercosur.
+            Los precios por volumen aparecen al cotizar.
+          </p>
+        </div>
+
+        {/* Logos / marcas */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+          {MONTADORAS.map((m) => (
+            <span
+              key={m}
+              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold tracking-tight text-slate-700 shadow-sm"
+            >
+              {m}
+            </span>
+          ))}
+        </div>
+
+        {/* Carrosséis por montadora */}
+        <div className="mt-12 space-y-10">
+          {(data?.carrosseis ?? []).map((c) => (
+            <div key={c.marca}>
+              <h3 className="mb-3 text-lg font-bold tracking-tight">{c.marca}</h3>
+              <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:thin]">
+                {c.itens.map((i) => (
+                  <div
+                    key={i.sku}
+                    className="w-40 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                  >
+                    <div className="grid aspect-square place-items-center bg-white p-2">
+                      <img
+                        src={fotoUrl(i.foto)}
+                        alt=""
+                        loading="lazy"
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                    <p className="line-clamp-2 px-3 pb-3 text-xs font-medium leading-snug text-slate-600">
+                      {i.nome}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Link
+            to="/empresas/registro"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-emerald-600 px-7 font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700"
+          >
+            Registrar mi empresa y ver precios <ArrowRight className="h-5 w-5" />
+          </Link>
+          <Link
+            to="/empresas/portal"
+            className="inline-flex h-12 items-center gap-2 rounded-full border border-slate-300 px-7 font-semibold text-slate-700 hover:bg-white"
+          >
+            Ya tengo cuenta
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Mensagem de parceria
+function Parceria() {
+  return (
+    <section className="bg-slate-950 py-20 text-white">
+      <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+        <p className="text-sm font-bold uppercase tracking-widest text-emerald-400">
+          Compañerismo en el campo y en tu local
+        </p>
+        <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+          Nosotros te ayudamos a crecer, y vos nos ayudás a crecer
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
+          No vendemos una caja y chau. Armamos una relación de largo plazo: mejores precios cuanto
+          más importás, soporte en la clasificación y el despacho, y un catálogo que crece con tu
+          demanda. Tu casa de repuestos más fuerte, nuestra fábrica de soluciones también.
+        </p>
+        <Link
+          to="/empresas/registro"
+          className="mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-emerald-600 px-7 font-bold text-white transition hover:bg-emerald-700"
+        >
+          Empezar la sociedad <ArrowRight className="h-5 w-5" />
+        </Link>
+      </div>
+    </section>
   );
 }
 
