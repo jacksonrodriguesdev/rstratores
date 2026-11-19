@@ -340,6 +340,8 @@ function HomePage() {
 
         <VitrineDiesel />
 
+        <ConviteImportacao />
+
         {/* Texto para o Google: "repuestos para tractores en Uruguay" (espanhol) ou "peças para
             trator RS, SC e PR" (português), e links para as outras buscas */}
         <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 md:py-12">
@@ -354,6 +356,50 @@ function HomePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Faixa de convite à importação (revendas do Uruguai): leva à área de exportação /empresas.
+function ConviteImportacao() {
+  const { t } = useT();
+  return (
+    <section className="mx-auto max-w-7xl px-3 py-6 md:px-4 md:py-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6 py-8 text-white md:px-10 md:py-10">
+        <div className="relative z-10 flex flex-col items-start gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-xl">
+            <p className="text-xs font-bold uppercase tracking-widest text-emerald-300">
+              {t("¿Sos revendedor en Uruguay?", "Você é revenda no Uruguai?")}
+            </p>
+            <h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">
+              {t(
+                "Importá repuestos directo desde Brasil — grandes y pequeñas cantidades",
+                "Importe peças direto do Brasil — grandes e pequenas quantidades",
+              )}
+            </h2>
+            <p className="mt-2 text-slate-300">
+              {t(
+                "Precios de distribuidor, origen Mercosur (0% de arancel), flete e impuestos calculados y despacho a todo Uruguay.",
+                "Preço de distribuidor, origem Mercosul (0% de imposto), frete e impostos calculados e despacho para todo o Uruguai.",
+              )}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            <Link
+              to="/empresas"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 font-bold text-slate-950 transition hover:bg-emerald-400"
+            >
+              {t("Conocé nuestra exportación", "Conheça nossa exportação")}
+            </Link>
+            <Link
+              to="/empresas/registro"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-white/30 px-6 font-semibold text-white hover:bg-white/10"
+            >
+              {t("Registrar mi empresa", "Cadastrar empresa")}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

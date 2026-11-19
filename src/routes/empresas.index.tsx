@@ -26,6 +26,7 @@ import {
 import { B2bHeader } from "@/components/b2b/B2bLayout";
 import { numerosB2bFn } from "@/lib/b2b";
 import { destaquesPublicosFn } from "@/lib/exportacao/vitrine";
+import { EstructuraExportacion } from "@/components/b2b/EstructuraExportacion";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/empresas/")({
@@ -64,6 +65,7 @@ function PaginaEmpresas() {
       </div>
       <Numeros pecas={n.pecas} minimo={n.minimo} />
       <Carrosseis pecas={n.pecas} />
+      <EstructuraExportacion />
       <Probar />
       <ComoFunciona />
       <Diferenciais />
