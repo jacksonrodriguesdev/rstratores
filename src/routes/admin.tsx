@@ -105,6 +105,7 @@ const GRUPOS: Grupo[] = [
           { to: "/admin/empresas", search: { aba: "embarques" }, label: "Embarques" },
           { to: "/admin/empresas", search: { aba: "aduana" }, label: "Aduana" },
           { to: "/admin/empresas", search: { aba: "despachantes" }, label: "Despachantes" },
+          { to: "/admin/empresas", search: { aba: "descontos" }, label: "Descontos" },
         ],
       },
       { to: "/admin/cubagem", label: "Cubagem / Logística", icon: Boxes },

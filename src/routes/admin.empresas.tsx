@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   XCircle,
+  Percent,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,12 +51,22 @@ import {
 } from "@/components/b2b/AdminAduana";
 import { AdminCatalogo } from "@/components/b2b/AdminCatalogo";
 import { AdminDespachantes } from "@/components/b2b/AdminDespachantes";
+import { DescontosExportacao } from "@/components/b2b/DescontosExportacao";
 import { acordoDaNcm, origemValida, STATUS_ORIGEM_PT } from "@/lib/aduana/aduana-comum";
 import { Selo, tomStatus } from "@/components/b2b/B2bLayout";
 import { cn } from "@/lib/utils";
 
 type Busca = { cotacao?: string; aba?: string };
-const ABAS_VALIDAS = ["cotacoes", "empresas", "catalogo", "embarques", "aduana", "despachantes"];
+const ABAS_VALIDAS = [
+  "cotacoes",
+  "empresas",
+  "catalogo",
+  "embarques",
+  "aduana",
+  "despachantes",
+  "descontos",
+  "config",
+];
 export const Route = createFileRoute("/admin/empresas")({
   validateSearch: (s: Record<string, unknown>): Busca => ({
     cotacao: typeof s.cotacao === "string" ? s.cotacao.slice(0, 16) : undefined,
@@ -138,6 +149,9 @@ function PaginaEmpresas() {
               )}
             </TabsTrigger>
             <TabsTrigger value="despachantes">Despachantes</TabsTrigger>
+            <TabsTrigger value="descontos">
+              <Percent className="mr-1 h-3.5 w-3.5" /> Descontos
+            </TabsTrigger>
             <TabsTrigger value="config">
               <Settings className="mr-1 h-3.5 w-3.5" /> Configuração
             </TabsTrigger>
@@ -159,6 +173,9 @@ function PaginaEmpresas() {
           </TabsContent>
           <TabsContent value="despachantes">
             <AdminDespachantes />
+          </TabsContent>
+          <TabsContent value="descontos">
+            <DescontosExportacao />
           </TabsContent>
           <TabsContent value="config">
             <Configuracao cfg={data.cfg} usdPorReal={data.usdPorReal} />
