@@ -20,3 +20,14 @@ export const vitrineExportacaoFn = createServerFn({ method: "GET" })
     await exigirSessao();
     return (await import("./vitrine.server")).vitrineExportacao(data);
   });
+
+export const produtoExportacaoFn = createServerFn({ method: "GET" })
+  .validator((d: { sku: string; linha: string }) => ({
+    sku: String(d?.sku ?? "").slice(0, 191),
+    linha: String(d?.linha ?? "AGRICOLA"),
+  }))
+  .handler(async ({ data }) => {
+    await exigirSessao();
+    const { produtoExportacao } = await import("./vitrine.server");
+    return produtoExportacao(data.sku, data.linha as any);
+  });

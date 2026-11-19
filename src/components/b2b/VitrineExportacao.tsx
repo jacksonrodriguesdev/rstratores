@@ -17,6 +17,7 @@ import {
   Factory,
 } from "lucide-react";
 import { facetsExportacaoFn, vitrineExportacaoFn } from "@/lib/exportacao/vitrine";
+import { ModalProduto } from "@/components/b2b/ModalProduto";
 import type { LinhaExp, ItemVitrine } from "@/lib/exportacao/vitrine.server";
 import { configDescontosPortalFn } from "@/lib/exportacao/descontos-fn";
 import { descontoRegra, aplicarDesconto } from "@/lib/exportacao/descontos";
@@ -44,6 +45,7 @@ export function VitrineExportacao({
   const [busca, setBusca] = useState("");
   const [pagina, setPagina] = useState(1);
   const [addMap, setAddMap] = useState<Record<string, boolean>>({});
+  const [verProduto, setVerProduto] = useState<ItemVitrine | null>(null);
 
   const { data: facets } = useQuery({
     queryKey: ["exp-facets"],
@@ -249,7 +251,8 @@ export function VitrineExportacao({
             return (
               <div
                 key={p.sku}
-                className="group flex flex-col rounded-2xl border border-slate-200 p-4 transition hover:border-emerald-300 hover:shadow-md"
+                onClick={() => setVerProduto(p)}
+                className="group flex cursor-pointer flex-col rounded-2xl border border-slate-200 p-4 transition hover:border-emerald-300 hover:shadow-md"
               >
                 <div className="flex gap-3">
                   {p.foto ? (
@@ -307,7 +310,8 @@ export function VitrineExportacao({
                     )}
                   </div>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       adicionar(p, Math.max(1, minimo));
                       setAddMap((m) => ({ ...m, [p.sku]: true }));
                     }}
@@ -359,6 +363,18 @@ export function VitrineExportacao({
           </div>
         )}
       </div>
+
+      {verProduto && (
+        <ModalProduto
+          item={verProduto}
+          minimo={minimo}
+          onFechar={() => setVerProduto(null)}
+          onAgregar={(it, qtd) => {
+            adicionar(it, qtd);
+            setAddMap((m) => ({ ...m, [it.sku]: true }));
+          }}
+        />
+      )}
     </section>
   );
 }

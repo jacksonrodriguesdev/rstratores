@@ -164,3 +164,87 @@ export async function vitrineExportacao(f: FiltroVitrine) {
   }));
   return { total: Number(tot.n), pagina, porPagina, linha, itens };
 }
+
+// ---------------------------------------------------------------- detalhe do produto (modal)
+export type ProdutoExpDetalhe = {
+  sku: string;
+  codigo: string;
+  linha: LinhaExp;
+  nome: string;
+  marca: string | null;
+  categoria: string | null;
+  ncm: string | null;
+  descricao: string | null;
+  aplicacaoTexto: string | null;
+  preco_usd: number | null;
+  peso_cubado_kg: number | null;
+  comp_cm: number | null;
+  larg_cm: number | null;
+  alt_cm: number | null;
+  diam_cm: number | null;
+  imagens: string[];
+  aplicacoes: Array<{
+    montadora: string;
+    veiculo: string;
+    ano: string | null;
+    motor: string | null;
+  }>;
+  fichas: Array<{ chave: string; valor: string }>;
+};
+
+export async function produtoExportacao(
+  sku: string,
+  linha: LinhaExp,
+): Promise<ProdutoExpDetalhe | null> {
+  const prisma = await db();
+  const { nomeProduto } = await import("../pecas-es");
+  const usdPorReal = (await (await import("../b2b.server")).cambioUsd().catch(() => 0)) || 0;
+  const incluir = {
+    images: { orderBy: { sort_order: "asc" as const } },
+    aplicacoes: true,
+    fichas_tecnicas: true,
+  };
+  const p: any =
+    linha === "AGRICOLA"
+      ? await prisma.agricolas.findUnique({ where: { sku }, include: incluir })
+      : await prisma.products.findUnique({ where: { sku }, include: incluir });
+  if (!p || (linha !== "AGRICOLA" && p.linha !== linha)) return null;
+
+  const [cub] = await prisma.$queryRawUnsafe<any[]>(
+    `SELECT ncm, peso_cubado_kg, comp_cm, larg_cm, alt_cm, diam_cm FROM cubagem_ref WHERE catalogo = ? AND sku = ?`,
+    linha,
+    sku,
+  );
+  const limpa = (s?: string | null) => (s && !/redeparts/i.test(s) ? s : null);
+  const imagens = [
+    limpa(p.imagem_principal),
+    ...(p.images ?? []).map((i: any) => limpa(i.image_path)),
+  ].filter((v, i, arr): v is string => !!v && arr.indexOf(v) === i);
+  const n = (v: unknown) => (v == null ? null : Number(v));
+
+  return {
+    sku: String(p.sku).trim(),
+    codigo: String(p.codigo_fabricante || p.sku).trim(),
+    linha,
+    nome: nomeProduto(p),
+    marca: p.marca ?? null,
+    categoria: p.categoria ?? null,
+    ncm: cub?.ncm ?? (p.ncm ? String(p.ncm).replace(/\D/g, "").slice(0, 8) : null),
+    descricao: p.descricao_es || p.descricao || null,
+    aplicacaoTexto: p.veiculos_compativeis ?? null,
+    preco_usd: precoUsd(p.preco_brl, p.valor_promocional, usdPorReal),
+    peso_cubado_kg: n(cub?.peso_cubado_kg),
+    comp_cm: n(cub?.comp_cm),
+    larg_cm: n(cub?.larg_cm),
+    alt_cm: n(cub?.alt_cm),
+    diam_cm: n(cub?.diam_cm),
+    imagens,
+    aplicacoes: (p.aplicacoes ?? []).map((a: any) => ({
+      montadora: a.montadora,
+      veiculo: a.veiculo,
+      ano: a.ano ?? null,
+      motor: a.motor ?? null,
+    })),
+    fichas: (p.fichas_tecnicas ?? []).map((f: any) => ({ chave: f.chave, valor: f.valor })),
+  };
+}
