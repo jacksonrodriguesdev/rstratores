@@ -43,6 +43,7 @@ import {
   Landmark,
   ReceiptText,
   Boxes,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -109,6 +110,7 @@ const GRUPOS: Grupo[] = [
         ],
       },
       { to: "/admin/cubagem", label: "Cubagem / Logística", icon: Boxes },
+      { to: "/admin/prospeccion", label: "Prospecção (importadores)", icon: Target },
       { to: "/admin/cotacoes", label: "Solicitações do site (cotizar)", icon: Calculator },
     ],
   },

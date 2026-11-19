@@ -156,6 +156,10 @@ function iniciarAutomacoes() {
   import("./lib/cubagem/cubagem.server")
     .then((m) => m.garantirColunaDiametro())
     .catch((e) => console.error("coluna diametro", e));
+  // Tabela de prospecção (CRM de importadores UY): criada no primeiro acesso em produção
+  import("./lib/prospeccion/prospeccion.server")
+    .then((m) => m.garantirTabelaProspectos())
+    .catch((e) => console.error("tabela prospectos", e));
   import("./lib/automacoes.server")
     .then((m) => m.iniciarAgendador())
     .catch((e) => console.error("automações", e));

@@ -63,6 +63,7 @@ import { Route as AdminPostsAutoRouteImport } from './routes/admin.posts-auto'
 import { Route as AdminPrecificacaoRouteImport } from './routes/admin.precificacao'
 import { Route as AdminPrecificarRouteImport } from './routes/admin.precificar'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
+import { Route as AdminProspeccionRouteImport } from './routes/admin.prospeccion'
 import { Route as AdminPushRouteImport } from './routes/admin.push'
 import { Route as AdminUploadRouteImport } from './routes/admin.upload'
 import { Route as AdminVendasRouteImport } from './routes/admin.vendas'
@@ -438,6 +439,11 @@ const AdminPrecificarRoute = AdminPrecificarRouteImport.update({
 const AdminProdutosRoute = AdminProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProspeccionRoute = AdminProspeccionRouteImport.update({
+  id: '/prospeccion',
+  path: '/prospeccion',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPushRoute = AdminPushRouteImport.update({
@@ -1036,6 +1042,7 @@ export interface FileRoutesByFullPath {
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
+  '/admin/prospeccion': typeof AdminProspeccionRoute
   '/admin/push': typeof AdminPushRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/vendas': typeof AdminVendasRoute
@@ -1196,6 +1203,7 @@ export interface FileRoutesByTo {
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
+  '/admin/prospeccion': typeof AdminProspeccionRoute
   '/admin/push': typeof AdminPushRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/vendas': typeof AdminVendasRoute
@@ -1359,6 +1367,7 @@ export interface FileRoutesById {
   '/admin/precificacao': typeof AdminPrecificacaoRoute
   '/admin/precificar': typeof AdminPrecificarRoute
   '/admin/produtos': typeof AdminProdutosRoute
+  '/admin/prospeccion': typeof AdminProspeccionRoute
   '/admin/push': typeof AdminPushRoute
   '/admin/upload': typeof AdminUploadRoute
   '/admin/vendas': typeof AdminVendasRoute
@@ -1523,6 +1532,7 @@ export interface FileRouteTypes {
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
+    | '/admin/prospeccion'
     | '/admin/push'
     | '/admin/upload'
     | '/admin/vendas'
@@ -1683,6 +1693,7 @@ export interface FileRouteTypes {
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
+    | '/admin/prospeccion'
     | '/admin/push'
     | '/admin/upload'
     | '/admin/vendas'
@@ -1845,6 +1856,7 @@ export interface FileRouteTypes {
     | '/admin/precificacao'
     | '/admin/precificar'
     | '/admin/produtos'
+    | '/admin/prospeccion'
     | '/admin/push'
     | '/admin/upload'
     | '/admin/vendas'
@@ -2427,6 +2439,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/admin/produtos'
       preLoaderRoute: typeof AdminProdutosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/prospeccion': {
+      id: '/admin/prospeccion'
+      path: '/prospeccion'
+      fullPath: '/admin/prospeccion'
+      preLoaderRoute: typeof AdminProspeccionRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/push': {
@@ -3211,6 +3230,7 @@ interface AdminRouteChildren {
   AdminPrecificacaoRoute: typeof AdminPrecificacaoRoute
   AdminPrecificarRoute: typeof AdminPrecificarRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
+  AdminProspeccionRoute: typeof AdminProspeccionRoute
   AdminPushRoute: typeof AdminPushRoute
   AdminUploadRoute: typeof AdminUploadRoute
   AdminVendasRoute: typeof AdminVendasRoute
@@ -3265,6 +3285,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPrecificacaoRoute: AdminPrecificacaoRoute,
   AdminPrecificarRoute: AdminPrecificarRoute,
   AdminProdutosRoute: AdminProdutosRoute,
+  AdminProspeccionRoute: AdminProspeccionRoute,
   AdminPushRoute: AdminPushRoute,
   AdminUploadRoute: AdminUploadRoute,
   AdminVendasRoute: AdminVendasRoute,
