@@ -112,7 +112,7 @@ export function CarritoExport({
       <button
         onClick={() => setAberto(true)}
         className={cn(
-          "fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 font-bold text-white shadow-xl shadow-emerald-600/30 transition hover:bg-emerald-700",
+          "fixed bottom-5 right-5 z-[55] inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 font-bold text-white shadow-xl shadow-emerald-600/30 transition hover:bg-emerald-700 md:bottom-24",
           !nItens && "opacity-90",
         )}
       >
@@ -125,7 +125,7 @@ export function CarritoExport({
 
       {/* Drawer */}
       {aberto && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-[60]">
           <div className="absolute inset-0 bg-black/40" onClick={() => setAberto(false)} />
           <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl animate-in slide-in-from-right duration-200">
             <header className="flex items-center justify-between border-b px-5 py-4">
