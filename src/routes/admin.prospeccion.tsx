@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import {
   Target,
   Plus,
@@ -14,6 +14,9 @@ import {
   X,
   Save,
   CalendarClock,
+  Map as MapIcon,
+  List,
+  MapPin,
 } from "lucide-react";
 import {
   estatProspeccionFn,
@@ -24,6 +27,8 @@ import {
   eliminarProspectoFn,
   importarProspectosFn,
   exportarProspectosFn,
+  prospectosMapaFn,
+  obtenerProspectoFn,
 } from "@/lib/prospeccion/prospeccion-admin";
 import {
   ESTADOS,
@@ -36,6 +41,7 @@ import {
   type EstadoProspecto,
   type Prospecto,
 } from "@/lib/prospeccion/prospeccion-comum";
+import { coordDeCiudad, lugarMasCercano, CENTRO_UY, ZOOM_UY } from "@/lib/prospeccion/coords-uy";
 
 export const Route = createFileRoute("/admin/prospeccion")({
   head: () => ({ meta: [{ title: "Prospección de importadores — AGRO PARTS" }] }),
@@ -52,6 +58,7 @@ function ProspeccionPage() {
   const [busca, setBusca] = useState("");
   const [edit, setEdit] = useState<Partial<Prospecto> | null>(null);
   const [importar, setImportar] = useState(false);
+  const [vista, setVista] = useState<"lista" | "mapa">("lista");
 
   const { data: stats } = useQuery({
     queryKey: ["prosp-stats"],
@@ -61,8 +68,19 @@ function ProspeccionPage() {
     queryKey: ["prosp-lista", f],
     queryFn: () => listarProspectosFn({ data: f }),
   });
+  const { data: puntos } = useQuery({
+    queryKey: ["prosp-mapa"],
+    queryFn: () => prospectosMapaFn(),
+    enabled: vista === "mapa",
+  });
+
+  const abrirEdicion = async (id: number) => {
+    const full = await obtenerProspectoFn({ data: { id } });
+    if (full) setEdit(full);
+  };
 
   const refrescar = () => {
+    qc.invalidateQueries({ queryKey: ["prosp-mapa"] });
     qc.invalidateQueries({ queryKey: ["prosp-lista"] });
     qc.invalidateQueries({ queryKey: ["prosp-stats"] });
   };
@@ -159,167 +177,198 @@ function ProspeccionPage() {
         </p>
       )}
 
-      {/* Filtros */}
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <input
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && set({ busca: busca || undefined })}
-            placeholder="Buscar nombre, ciudad, teléfono…"
-            className="h-10 w-64 rounded-lg border border-zinc-200 pl-8 pr-3 text-sm outline-none focus:border-primary"
-          />
-        </div>
-        <select
-          value={f.tipo ?? ""}
-          onChange={(e) => set({ tipo: e.target.value || undefined })}
-          className="h-10 rounded-lg border border-zinc-200 px-3 text-sm"
+      {/* Vista: lista / mapa */}
+      <div className="mt-4 flex w-fit gap-1 rounded-lg border border-zinc-200 bg-white p-1">
+        <button
+          onClick={() => setVista("lista")}
+          className={`inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-semibold ${vista === "lista" ? "bg-primary text-white" : "text-zinc-600 hover:bg-zinc-50"}`}
         >
-          <option value="">Todos los tipos</option>
-          {TIPOS.map((t) => (
-            <option key={t.v} value={t.v}>
-              {t.es}
-            </option>
-          ))}
-        </select>
-        <input
-          value={f.ciudad ?? ""}
-          onChange={(e) => set({ ciudad: e.target.value || undefined })}
-          placeholder="Ciudad"
-          className="h-10 w-40 rounded-lg border border-zinc-200 px-3 text-sm outline-none focus:border-primary"
-        />
-        {isFetching && <span className="text-sm text-zinc-400">Cargando…</span>}
+          <List className="h-4 w-4" /> Lista
+        </button>
+        <button
+          onClick={() => setVista("mapa")}
+          className={`inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-semibold ${vista === "mapa" ? "bg-primary text-white" : "text-zinc-600 hover:bg-zinc-50"}`}
+        >
+          <MapIcon className="h-4 w-4" /> Mapa
+        </button>
       </div>
 
-      {/* Tabla */}
-      <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-200 bg-white">
-        <table className="w-full min-w-[920px] text-sm">
-          <thead>
-            <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500">
-              <th className="px-3 py-2.5 font-semibold">Empresa</th>
-              <th className="px-3 py-2.5 font-semibold">Ciudad</th>
-              <th className="px-3 py-2.5 font-semibold">Contacto</th>
-              <th className="px-3 py-2.5 font-semibold">Estado</th>
-              <th className="px-3 py-2.5 font-semibold">Próximo</th>
-              <th className="px-3 py-2.5 font-semibold">Notas</th>
-              <th className="px-3 py-2.5" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((p) => {
-              const info = estadoInfo(p.estado);
-              const wa = p.telefono
-                ? `https://wa.me/${telefonoWhatsapp(p.telefono)}?text=${encodeURIComponent(mensajeWhatsapp(p))}`
-                : null;
-              return (
-                <tr key={p.id} className="border-b border-zinc-50 align-top hover:bg-zinc-50/60">
-                  <td className="px-3 py-2.5">
-                    <div className="font-semibold text-zinc-900">{p.nombre}</div>
-                    <div className="text-xs text-zinc-400">{tipoEs(p.tipo)}</div>
-                  </td>
-                  <td className="px-3 py-2.5 text-zinc-700">{p.ciudad || "—"}</td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {wa && (
-                        <a
-                          href={wa}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="inline-flex items-center gap-1 rounded-md bg-[#25D366]/10 px-2 py-1 text-xs font-bold text-[#128C3E] hover:bg-[#25D366]/20"
-                        >
-                          <MessageCircle className="h-3.5 w-3.5" /> {p.telefono}
-                        </a>
-                      )}
-                      {!wa && <span className="text-xs text-zinc-400">sin teléfono</span>}
-                      {p.email && (
-                        <a
-                          href={`mailto:${p.email}`}
-                          className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-200"
-                        >
-                          <Mail className="h-3.5 w-3.5" /> email
-                        </a>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <select
-                      value={p.estado}
-                      onChange={(e) => cambiarEstado(p.id, e.target.value as EstadoProspecto)}
-                      className="rounded-md border border-zinc-200 px-2 py-1 text-xs font-semibold"
-                      style={{ color: info.cor }}
-                    >
-                      {ESTADOS.map((e) => (
-                        <option key={e.v} value={e.v}>
-                          {e.es}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <input
-                      type="date"
-                      value={p.proximo_contacto ?? ""}
-                      onChange={(e) => fijarProximo(p.id, e.target.value)}
-                      className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600"
-                    />
-                  </td>
-                  <td className="max-w-[220px] px-3 py-2.5 text-xs text-zinc-500">
-                    <span className="line-clamp-2">{p.notas || "—"}</span>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setEdit(p)}
-                        className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-primary"
-                        title="Editar"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => eliminar(p)}
-                        className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
+      {vista === "mapa" && (
+        <MapaProspectos
+          puntos={puntos ?? []}
+          onEditar={abrirEdicion}
+          onAgregar={(d) => setEdit({ ...vacio, ...d })}
+        />
+      )}
+
+      {vista === "lista" && (
+        <>
+          {/* Filtros */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && set({ busca: busca || undefined })}
+                placeholder="Buscar nombre, ciudad, teléfono…"
+                className="h-10 w-64 rounded-lg border border-zinc-200 pl-8 pr-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <select
+              value={f.tipo ?? ""}
+              onChange={(e) => set({ tipo: e.target.value || undefined })}
+              className="h-10 rounded-lg border border-zinc-200 px-3 text-sm"
+            >
+              <option value="">Todos los tipos</option>
+              {TIPOS.map((t) => (
+                <option key={t.v} value={t.v}>
+                  {t.es}
+                </option>
+              ))}
+            </select>
+            <input
+              value={f.ciudad ?? ""}
+              onChange={(e) => set({ ciudad: e.target.value || undefined })}
+              placeholder="Ciudad"
+              className="h-10 w-40 rounded-lg border border-zinc-200 px-3 text-sm outline-none focus:border-primary"
+            />
+            {isFetching && <span className="text-sm text-zinc-400">Cargando…</span>}
+          </div>
+
+          {/* Tabla */}
+          <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+            <table className="w-full min-w-[920px] text-sm">
+              <thead>
+                <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500">
+                  <th className="px-3 py-2.5 font-semibold">Empresa</th>
+                  <th className="px-3 py-2.5 font-semibold">Ciudad</th>
+                  <th className="px-3 py-2.5 font-semibold">Contacto</th>
+                  <th className="px-3 py-2.5 font-semibold">Estado</th>
+                  <th className="px-3 py-2.5 font-semibold">Próximo</th>
+                  <th className="px-3 py-2.5 font-semibold">Notas</th>
+                  <th className="px-3 py-2.5" />
                 </tr>
-              );
-            })}
-            {!rows.length && (
-              <tr>
-                <td colSpan={7} className="px-3 py-10 text-center text-zinc-400">
-                  No hay empresas todavía. Usá <strong>Importar lote</strong> para pegar una lista
-                  de Google Maps, o <strong>Añadir empresa</strong>.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      {!!data && data.total > data.rows.length && (
-        <div className="mt-3 flex items-center justify-center gap-3 text-sm">
-          <button
-            disabled={(f.pagina ?? 1) <= 1}
-            onClick={() => setF((v) => ({ ...v, pagina: Math.max(1, (v.pagina ?? 1) - 1) }))}
-            className="rounded-md border border-zinc-200 px-3 py-1 disabled:opacity-40"
-          >
-            ← Anterior
-          </button>
-          <span className="text-zinc-500">
-            {data.rows.length ? (data.pagina - 1) * data.porPagina + 1 : 0}–
-            {(data.pagina - 1) * data.porPagina + data.rows.length} de {data.total}
-          </span>
-          <button
-            disabled={data.pagina * data.porPagina >= data.total}
-            onClick={() => setF((v) => ({ ...v, pagina: (v.pagina ?? 1) + 1 }))}
-            className="rounded-md border border-zinc-200 px-3 py-1 disabled:opacity-40"
-          >
-            Siguiente →
-          </button>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map((p) => {
+                  const info = estadoInfo(p.estado);
+                  const wa = p.telefono
+                    ? `https://wa.me/${telefonoWhatsapp(p.telefono)}?text=${encodeURIComponent(mensajeWhatsapp(p))}`
+                    : null;
+                  return (
+                    <tr
+                      key={p.id}
+                      className="border-b border-zinc-50 align-top hover:bg-zinc-50/60"
+                    >
+                      <td className="px-3 py-2.5">
+                        <div className="font-semibold text-zinc-900">{p.nombre}</div>
+                        <div className="text-xs text-zinc-400">{tipoEs(p.tipo)}</div>
+                      </td>
+                      <td className="px-3 py-2.5 text-zinc-700">{p.ciudad || "—"}</td>
+                      <td className="px-3 py-2.5">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {wa && (
+                            <a
+                              href={wa}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="inline-flex items-center gap-1 rounded-md bg-[#25D366]/10 px-2 py-1 text-xs font-bold text-[#128C3E] hover:bg-[#25D366]/20"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" /> {p.telefono}
+                            </a>
+                          )}
+                          {!wa && <span className="text-xs text-zinc-400">sin teléfono</span>}
+                          {p.email && (
+                            <a
+                              href={`mailto:${p.email}`}
+                              className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-200"
+                            >
+                              <Mail className="h-3.5 w-3.5" /> email
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <select
+                          value={p.estado}
+                          onChange={(e) => cambiarEstado(p.id, e.target.value as EstadoProspecto)}
+                          className="rounded-md border border-zinc-200 px-2 py-1 text-xs font-semibold"
+                          style={{ color: info.cor }}
+                        >
+                          {ESTADOS.map((e) => (
+                            <option key={e.v} value={e.v}>
+                              {e.es}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <input
+                          type="date"
+                          value={p.proximo_contacto ?? ""}
+                          onChange={(e) => fijarProximo(p.id, e.target.value)}
+                          className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600"
+                        />
+                      </td>
+                      <td className="max-w-[220px] px-3 py-2.5 text-xs text-zinc-500">
+                        <span className="line-clamp-2">{p.notas || "—"}</span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setEdit(p)}
+                            className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-primary"
+                            title="Editar"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => eliminar(p)}
+                            className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {!rows.length && (
+                  <tr>
+                    <td colSpan={7} className="px-3 py-10 text-center text-zinc-400">
+                      No hay empresas todavía. Usá <strong>Importar lote</strong> para pegar una
+                      lista de Google Maps, o <strong>Añadir empresa</strong>.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {!!data && data.total > data.rows.length && (
+            <div className="mt-3 flex items-center justify-center gap-3 text-sm">
+              <button
+                disabled={(f.pagina ?? 1) <= 1}
+                onClick={() => setF((v) => ({ ...v, pagina: Math.max(1, (v.pagina ?? 1) - 1) }))}
+                className="rounded-md border border-zinc-200 px-3 py-1 disabled:opacity-40"
+              >
+                ← Anterior
+              </button>
+              <span className="text-zinc-500">
+                {data.rows.length ? (data.pagina - 1) * data.porPagina + 1 : 0}–
+                {(data.pagina - 1) * data.porPagina + data.rows.length} de {data.total}
+              </span>
+              <button
+                disabled={data.pagina * data.porPagina >= data.total}
+                onClick={() => setF((v) => ({ ...v, pagina: (v.pagina ?? 1) + 1 }))}
+                className="rounded-md border border-zinc-200 px-3 py-1 disabled:opacity-40"
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {edit && <FormEditar p={edit} setP={setEdit} onGuardar={guardar} />}
@@ -332,6 +381,172 @@ function ProspeccionPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Mapa (Leaflet + OpenStreetMap)
+type PuntoMapa = Awaited<ReturnType<typeof prospectosMapaFn>>[number];
+
+const escapeHtml = (s: string) =>
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      (
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }) as Record<
+          string,
+          string
+        >
+      )[c],
+  );
+
+function cargarLeaflet(): Promise<unknown> {
+  const w = window as unknown as { L?: unknown; __leafletP?: Promise<unknown> };
+  if (w.L) return Promise.resolve(w.L);
+  w.__leafletP ??= new Promise((resolve, reject) => {
+    const css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(css);
+    const s = document.createElement("script");
+    s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    s.async = true;
+    s.onload = () => resolve((window as unknown as { L: unknown }).L);
+    s.onerror = () => reject(new Error("mapa"));
+    document.head.appendChild(s);
+  });
+  return w.__leafletP;
+}
+
+function MapaProspectos({
+  puntos,
+  onEditar,
+  onAgregar,
+}: {
+  puntos: PuntoMapa[];
+  onEditar: (id: number) => void;
+  onAgregar: (d: { lat: number; lng: number; ciudad: string; departamento: string }) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const mapRef = useRef<any>(null);
+
+  const layerRef = useRef<any>(null);
+  const [modo, setModo] = useState(false);
+  const [error, setError] = useState(false);
+  const modoRef = useRef(false);
+  const agregarRef = useRef(onAgregar);
+  const editarRef = useRef(onEditar);
+  modoRef.current = modo;
+  agregarRef.current = onAgregar;
+  editarRef.current = onEditar;
+
+  useEffect(() => {
+    let cancel = false;
+    cargarLeaflet()
+      .then((L: any) => {
+        if (cancel || !ref.current || mapRef.current) return;
+        const map = L.map(ref.current).setView(CENTRO_UY, ZOOM_UY);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap",
+          maxZoom: 18,
+        }).addTo(map);
+        layerRef.current = L.layerGroup().addTo(map);
+
+        map.on("click", (e: any) => {
+          if (!modoRef.current) return;
+          const { lat, lng } = e.latlng;
+          const lugar = lugarMasCercano(lat, lng);
+          agregarRef.current({ lat, lng, ciudad: lugar.nombre, departamento: lugar.departamento });
+          setModo(false);
+        });
+        (window as unknown as { __prospEditar?: (id: number) => void }).__prospEditar = (id) =>
+          editarRef.current(id);
+        mapRef.current = map;
+        setTimeout(() => map.invalidateSize(), 120);
+      })
+      .catch(() => setError(true));
+    return () => {
+      cancel = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const L = (window as unknown as { L?: any }).L;
+    const layer = layerRef.current;
+    if (!L || !layer) return;
+    layer.clearLayers();
+    for (const p of puntos) {
+      const co =
+        p.lat != null && p.lng != null
+          ? ([p.lat, p.lng] as [number, number])
+          : coordDeCiudad(p.ciudad);
+      if (!co) continue;
+      const info = estadoInfo(p.estado);
+      const icon = L.divIcon({
+        className: "",
+        html: `<span style="display:block;width:16px;height:16px;border-radius:50%;background:${info.cor};border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)"></span>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+      });
+      const wa = p.telefono
+        ? `https://wa.me/${telefonoWhatsapp(p.telefono)}?text=${encodeURIComponent(mensajeWhatsapp(p))}`
+        : null;
+      const html = `<div style="min-width:170px;font-size:13px">
+        <strong>${escapeHtml(p.nombre)}</strong><br/>
+        <span style="color:#666">${escapeHtml(p.ciudad || "")}${p.tipo ? " · " + escapeHtml(tipoEs(p.tipo)) : ""}</span><br/>
+        <span style="color:${info.cor};font-weight:700">${info.es}</span>
+        <div style="margin-top:6px;display:flex;gap:10px">
+          ${wa ? `<a href="${wa}" target="_blank" rel="noopener noreferrer" style="color:#128C3E;font-weight:700">WhatsApp</a>` : ""}
+          <a href="#" onclick="window.__prospEditar&&window.__prospEditar(${p.id});return false" style="color:#2f6abf;font-weight:700">Editar</a>
+        </div></div>`;
+      L.marker(co, { icon }).addTo(layer).bindPopup(html);
+    }
+  }, [puntos]);
+
+  const colocados = puntos.filter(
+    (p) => (p.lat != null && p.lng != null) || coordDeCiudad(p.ciudad),
+  ).length;
+  const sinUbicar = puntos.length - colocados;
+
+  return (
+    <div className="mt-4">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+        <button
+          onClick={() => setModo((m) => !m)}
+          className={`inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-bold ${modo ? "bg-amber-500 text-white" : "bg-primary text-white hover:opacity-90"}`}
+        >
+          <MapPin className="h-4 w-4" />{" "}
+          {modo ? "Hacé clic en el mapa para ubicar…" : "Añadir en el mapa"}
+        </button>
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-600">
+          {ESTADOS.map((e) => (
+            <span key={e.v} className="inline-flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: e.cor }} /> {e.es}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="isolate overflow-hidden rounded-xl border border-zinc-200">
+        <div ref={ref} className="h-[520px] w-full" style={{ background: "#e9edf0" }} />
+      </div>
+      {error && (
+        <p className="mt-2 text-sm text-red-600">
+          No se pudo cargar el mapa. Revisá la conexión e intentá de nuevo.
+        </p>
+      )}
+      <p className="mt-2 text-xs text-zinc-500">
+        {colocados} empresa{colocados === 1 ? "" : "s"} en el mapa
+        {sinUbicar > 0
+          ? ` · ${sinUbicar} sin ubicación (ciudad desconocida o sin coordenadas)`
+          : ""}
+        . Tip: activá “Añadir en el mapa” y hacé clic donde está la empresa — completamos ciudad y
+        departamento por vos.
+      </p>
     </div>
   );
 }
@@ -385,6 +600,12 @@ function FormEditar({
   const u = (patch: Partial<Prospecto>) => setP({ ...p, ...patch });
   return (
     <Modal titulo={p.id ? "Editar empresa" : "Añadir empresa"} onClose={() => setP(null)}>
+      {p.lat != null && p.lng != null && (
+        <p className="mb-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
+          <MapPin className="h-4 w-4" /> Ubicación fijada en el mapa ({p.lat.toFixed(3)},{" "}
+          {p.lng.toFixed(3)})
+        </p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <Campo label="Nombre *">

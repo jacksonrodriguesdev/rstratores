@@ -50,6 +50,8 @@ export type Prospecto = {
   ultimo_contacto: string | null;
   proximo_contacto: string | null;
   notas: string | null;
+  lat: number | null;
+  lng: number | null;
 };
 
 // Só dígitos; monta número do Uruguai (código 598) para link de WhatsApp.

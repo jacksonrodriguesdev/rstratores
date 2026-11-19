@@ -25,11 +25,27 @@ const SQL_TABELA = `CREATE TABLE IF NOT EXISTS \`prospectos\` (
   UNIQUE INDEX \`prospectos_clave_uk\`(\`clave\`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
 
+// Adiciona uma coluna se ela ainda não existir (prod não roda prisma db push).
+async function garantirColuna(coluna: string, definicao: string) {
+  const { prisma } = await import("../prisma");
+  const existe = await prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
+    "SELECT COUNT(*) n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'prospectos' AND COLUMN_NAME = ?",
+    coluna,
+  );
+  if (Number(existe[0]?.n ?? 0) === 0)
+    await prisma.$executeRawUnsafe(
+      `ALTER TABLE \`prospectos\` ADD COLUMN \`${coluna}\` ${definicao}`,
+    );
+}
+
 let tabela: Promise<void> | null = null;
 export function garantirTabelaProspectos() {
   tabela ??= (async () => {
     const { prisma } = await import("../prisma");
     await prisma.$executeRawUnsafe(SQL_TABELA);
+    // Colunas do mapa (adicionadas depois da 1ª versão da tabela)
+    await garantirColuna("lat", "DOUBLE NULL");
+    await garantirColuna("lng", "DOUBLE NULL");
   })().catch((e) => {
     tabela = null;
     throw e;
@@ -92,13 +108,45 @@ export async function listarProspectos(f: FiltroProspeccion = {}) {
     `SELECT id, nombre, tipo, ciudad, departamento, telefono, email, web, origen, estado,
             prioridad,
             DATE_FORMAT(ultimo_contacto,'%Y-%m-%d') ultimo_contacto,
-            DATE_FORMAT(proximo_contacto,'%Y-%m-%d') proximo_contacto, notas
+            DATE_FORMAT(proximo_contacto,'%Y-%m-%d') proximo_contacto, notas, lat, lng
      FROM prospectos ${cond}
      ORDER BY (proximo_contacto IS NULL), proximo_contacto ASC, FIELD(estado,'respondio','cotizando','contactado','nuevo','cliente','descartado'), updated_at DESC
      LIMIT ${porPagina} OFFSET ${offset}`,
     ...params,
   );
   return { rows, total: Number(cont?.n ?? 0), pagina, porPagina };
+}
+
+// Todos os prospectos para o mapa (leve, sem paginação). Cap de segurança.
+export type PuntoMapa = {
+  id: number;
+  nombre: string;
+  ciudad: string | null;
+  estado: string;
+  tipo: string | null;
+  telefono: string | null;
+  lat: number | null;
+  lng: number | null;
+};
+export async function listarProspectosMapa(): Promise<PuntoMapa[]> {
+  await garantirTabelaProspectos();
+  const { prisma } = await import("../prisma");
+  return prisma.$queryRawUnsafe<PuntoMapa[]>(
+    `SELECT id, nombre, ciudad, estado, tipo, telefono, lat, lng FROM prospectos ORDER BY updated_at DESC LIMIT 5000`,
+  );
+}
+
+export async function obtenerProspecto(id: number): Promise<Prospecto | null> {
+  await garantirTabelaProspectos();
+  const { prisma } = await import("../prisma");
+  const rows = await prisma.$queryRawUnsafe<Prospecto[]>(
+    `SELECT id, nombre, tipo, ciudad, departamento, telefono, email, web, origen, estado, prioridad,
+            DATE_FORMAT(ultimo_contacto,'%Y-%m-%d') ultimo_contacto,
+            DATE_FORMAT(proximo_contacto,'%Y-%m-%d') proximo_contacto, notas, lat, lng
+     FROM prospectos WHERE id=? LIMIT 1`,
+    id,
+  );
+  return rows[0] ?? null;
 }
 
 export async function estatisticasProspeccion() {
@@ -137,13 +185,15 @@ export async function guardarProspecto(d: DatosProspecto) {
     ultimo_contacto: d.ultimo_contacto || null,
     proximo_contacto: d.proximo_contacto || null,
     notas: d.notas?.slice(0, 4000) ?? null,
+    lat: d.lat != null && Number.isFinite(Number(d.lat)) ? Number(d.lat) : null,
+    lng: d.lng != null && Number.isFinite(Number(d.lng)) ? Number(d.lng) : null,
   };
   if (!campos.nombre) throw new Error("El nombre es obligatorio.");
   const clave = claveDe(campos.nombre, campos.ciudad, campos.telefono);
   if (d.id) {
     await prisma.$executeRawUnsafe(
       `UPDATE prospectos SET nombre=?, tipo=?, ciudad=?, departamento=?, telefono=?, email=?, web=?,
-         origen=?, estado=?, prioridad=?, ultimo_contacto=?, proximo_contacto=?, notas=?, clave=? WHERE id=?`,
+         origen=?, estado=?, prioridad=?, ultimo_contacto=?, proximo_contacto=?, notas=?, lat=?, lng=?, clave=? WHERE id=?`,
       campos.nombre,
       campos.tipo,
       campos.ciudad,
@@ -157,15 +207,18 @@ export async function guardarProspecto(d: DatosProspecto) {
       campos.ultimo_contacto,
       campos.proximo_contacto,
       campos.notas,
+      campos.lat,
+      campos.lng,
       clave,
       d.id,
     );
     return { id: d.id };
   }
   await prisma.$executeRawUnsafe(
-    `INSERT INTO prospectos (nombre, tipo, ciudad, departamento, telefono, email, web, origen, estado, prioridad, ultimo_contacto, proximo_contacto, notas, clave)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-     ON DUPLICATE KEY UPDATE telefono=COALESCE(VALUES(telefono),telefono), tipo=COALESCE(VALUES(tipo),tipo), updated_at=CURRENT_TIMESTAMP(3)`,
+    `INSERT INTO prospectos (nombre, tipo, ciudad, departamento, telefono, email, web, origen, estado, prioridad, ultimo_contacto, proximo_contacto, notas, lat, lng, clave)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+     ON DUPLICATE KEY UPDATE telefono=COALESCE(VALUES(telefono),telefono), tipo=COALESCE(VALUES(tipo),tipo),
+       lat=COALESCE(VALUES(lat),lat), lng=COALESCE(VALUES(lng),lng), updated_at=CURRENT_TIMESTAMP(3)`,
     campos.nombre,
     campos.tipo,
     campos.ciudad,
@@ -179,6 +232,8 @@ export async function guardarProspecto(d: DatosProspecto) {
     campos.ultimo_contacto,
     campos.proximo_contacto,
     campos.notas,
+    campos.lat,
+    campos.lng,
     clave,
   );
   return { ok: true };

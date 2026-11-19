@@ -74,3 +74,15 @@ export const exportarProspectosFn = createServerFn({ method: "GET" }).handler(as
   await admin();
   return (await import("./prospeccion.server")).exportarProspectosCsv();
 });
+
+export const prospectosMapaFn = createServerFn({ method: "GET" }).handler(async () => {
+  await admin();
+  return (await import("./prospeccion.server")).listarProspectosMapa();
+});
+
+export const obtenerProspectoFn = createServerFn({ method: "GET" })
+  .validator((d: { id: number }) => d)
+  .handler(async ({ data }) => {
+    await admin();
+    return (await import("./prospeccion.server")).obtenerProspecto(data.id);
+  });
