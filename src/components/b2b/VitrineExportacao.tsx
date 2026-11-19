@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { facetsExportacaoFn, vitrineExportacaoFn } from "@/lib/exportacao/vitrine";
 import type { LinhaExp } from "@/lib/exportacao/vitrine.server";
+import { configDescontosPortalFn } from "@/lib/exportacao/descontos-fn";
+import { descontoRegra, aplicarDesconto } from "@/lib/exportacao/descontos";
 import { formatarNcm } from "@/lib/aduana/aduana-comum";
 import { usd } from "@/lib/b2b-comum";
 import { cn } from "@/lib/utils";
@@ -48,6 +50,13 @@ export function VitrineExportacao({
     queryFn: () => facetsExportacaoFn(),
     staleTime: 10 * 60_000,
   });
+  const { data: desc } = useQuery({
+    queryKey: ["exp-descontos"],
+    queryFn: () => configDescontosPortalFn(),
+    staleTime: 10 * 60_000,
+  });
+  const descAtivo = !!desc?.ativo;
+  const faixasOrd = (desc?.faixas ?? []).slice().sort((a, b) => a.min_itens - b.min_itens);
   const filtro = {
     linha,
     marca: marca ?? undefined,
@@ -120,6 +129,22 @@ export function VitrineExportacao({
       </div>
 
       <div className="space-y-5 p-6">
+        {/* Descontos por volume */}
+        {descAtivo && faixasOrd.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            <Sparkles className="h-4 w-4 text-emerald-600" />
+            <b>Descuentos por volumen:</b>
+            {faixasOrd.map((f) => (
+              <span
+                key={f.min_itens}
+                className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold"
+              >
+                {f.min_itens}+ {desc?.base === "UNIDADES" ? "un." : "ítems"} = {f.pct}% OFF
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Montadoras (só agrícola) */}
         {linha === "AGRICOLA" && !!facets?.montadoras.length && (
           <div>
@@ -215,6 +240,12 @@ export function VitrineExportacao({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data?.itens.map((p) => {
             const ok = addMap[p.sku];
+            const rpct = descAtivo
+              ? descontoRegra(
+                  { linha: p.linha, marca: p.marca, categoria: p.categoria, codigo: p.codigo },
+                  desc!.regras,
+                )
+              : 0;
             return (
               <div
                 key={p.sku}
@@ -256,7 +287,21 @@ export function VitrineExportacao({
                 <div className="mt-auto flex items-end justify-between gap-2 pt-3">
                   <div>
                     {p.preco_usd != null ? (
-                      <p className="text-base font-bold text-slate-900">{usd(p.preco_usd)}</p>
+                      rpct > 0 ? (
+                        <>
+                          <p className="text-[11px] text-slate-400 line-through">
+                            {usd(p.preco_usd)}
+                          </p>
+                          <p className="text-base font-bold text-emerald-700">
+                            {usd(aplicarDesconto(p.preco_usd, rpct))}
+                            <span className="ml-1 rounded bg-emerald-100 px-1 text-[10px] font-bold text-emerald-700">
+                              -{rpct}%
+                            </span>
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-base font-bold text-slate-900">{usd(p.preco_usd)}</p>
+                      )
                     ) : (
                       <p className="text-xs font-semibold text-slate-400">A cotizar</p>
                     )}

@@ -35,6 +35,8 @@ import {
 } from "@/lib/b2b-comum";
 import { criarCotacaoFn, minhaEmpresaFn, minhasCotacoesFn, previaCotacaoFn } from "@/lib/b2b";
 import { estimarFreteFn } from "@/lib/cubagem/frete-portal";
+import { configDescontosPortalFn } from "@/lib/exportacao/descontos-fn";
+import { descontoVolume, proximaFaixa, aplicarDesconto } from "@/lib/exportacao/descontos";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/empresas/portal")({
@@ -387,6 +389,18 @@ function Compositor({
   });
   const fmtFrete = (v: number) => (frete?.tarifa.moeda === "BRL" ? `R$ ${v.toFixed(2)}` : usd(v));
 
+  // Desconto por volume (configurável no admin)
+  const { data: desc } = useQuery({
+    queryKey: ["b2b-descontos"],
+    queryFn: () => configDescontosPortalFn(),
+    staleTime: 10 * 60_000,
+  });
+  const descAtivo = !!desc?.ativo;
+  const qtdDesc = desc?.base === "UNIDADES" ? resumo.unidades : resumo.itens;
+  const unidadeDesc = desc?.base === "UNIDADES" ? "unidades" : "ítems";
+  const volumePct = descAtivo ? descontoVolume(qtdDesc, desc!.faixas) : 0;
+  const prox = descAtivo ? proximaFaixa(qtdDesc, desc?.faixas ?? []) : null;
+
   return (
     <section
       id="nueva-cotizacion"
@@ -605,6 +619,35 @@ function Compositor({
               <Dado r="Unidades" v={resumo.unidades.toLocaleString("es-UY")} />
               <Dado r="Peso est." v={resumo.peso ? `${resumo.peso} kg` : "—"} />
             </dl>
+            {descAtivo && (volumePct > 0 || prox) && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                {volumePct > 0 && (
+                  <p className="text-sm font-extrabold text-amber-800">
+                    ¡{volumePct}% OFF por volumen!
+                  </p>
+                )}
+                {prox && (
+                  <>
+                    <p className="mt-0.5 text-[11px] text-amber-800/90">
+                      Agregá <b>{prox.min_itens - qtdDesc}</b> {unidadeDesc} más y llegás a{" "}
+                      <b>{prox.pct}% OFF</b>
+                    </p>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-white">
+                      <div
+                        className="h-full rounded-full bg-amber-500 transition-all"
+                        style={{ width: `${Math.min(100, (qtdDesc / prox.min_itens) * 100)}%` }}
+                      />
+                    </div>
+                  </>
+                )}
+                {instantaneo && volumePct > 0 && resumo.total > 0 && (
+                  <p className="mt-2 text-xs text-amber-900">
+                    Total con descuento: <b>{usd(aplicarDesconto(resumo.total, volumePct))}</b>{" "}
+                    <span className="text-amber-700/70 line-through">{usd(resumo.total)}</span>
+                  </p>
+                )}
+              </div>
+            )}
             {frete?.configurada && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
                 <p className="text-xs font-semibold text-emerald-700">Flete estimado al destino</p>
