@@ -34,6 +34,7 @@ import {
   STATUS_EMPRESA_ES,
   statusVisivel,
   usd,
+  fotoUrl,
 } from "@/lib/b2b-comum";
 import { criarCotacaoFn, minhaEmpresaFn, minhasCotacoesFn, previaCotacaoFn } from "@/lib/b2b";
 import { estimarFreteFn } from "@/lib/cubagem/frete-portal";
@@ -654,7 +655,7 @@ function Compositor({
                       <div className="flex items-center gap-3">
                         {l.foto ? (
                           <img
-                            src={l.foto}
+                            src={fotoUrl(l.foto)}
                             alt=""
                             loading="lazy"
                             className="h-11 w-11 shrink-0 rounded-lg border border-slate-100 bg-white object-contain"

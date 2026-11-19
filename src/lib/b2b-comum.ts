@@ -185,6 +185,14 @@ export const usd = (n: number | null | undefined) =>
     ? "—"
     : `USD ${n.toLocaleString("es-UY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+// URL de foto de produto: http(s) e caminhos absolutos (/catalogo…) ficam como estão; caminhos
+// relativos (fotos enviadas pelo admin, ex.: "produtos/x.jpg") vão para a rota /uploads/.
+export const fotoUrl = (s: string | null | undefined) => {
+  const t = String(s ?? "").trim();
+  if (!t || /redeparts/i.test(t)) return "";
+  return t.startsWith("http") || t.startsWith("/") ? t : `/uploads/${t}`;
+};
+
 export function totaisCotacao(itens: ItemCotacao[], frete?: number | null) {
   const validos = itens.filter((i) => i.disponivel !== false && i.preco != null && i.preco > 0);
   const subtotal = Math.round(validos.reduce((s, i) => s + i.qtd * (i.preco ?? 0), 0) * 100) / 100;

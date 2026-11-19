@@ -22,7 +22,7 @@ import type { LinhaExp, ItemVitrine } from "@/lib/exportacao/vitrine.server";
 import { configDescontosPortalFn } from "@/lib/exportacao/descontos-fn";
 import { descontoRegra, aplicarDesconto } from "@/lib/exportacao/descontos";
 import { formatarNcm } from "@/lib/aduana/aduana-comum";
-import { usd } from "@/lib/b2b-comum";
+import { usd, fotoUrl } from "@/lib/b2b-comum";
 import { cn } from "@/lib/utils";
 
 const LINHAS: Array<{ id: LinhaExp; nome: string; icon: typeof Tractor }> = [
@@ -257,7 +257,7 @@ export function VitrineExportacao({
                 <div className="flex gap-3">
                   {p.foto ? (
                     <img
-                      src={p.foto}
+                      src={fotoUrl(p.foto)}
                       alt=""
                       loading="lazy"
                       className="h-16 w-16 shrink-0 rounded-lg border border-slate-100 bg-white object-contain"

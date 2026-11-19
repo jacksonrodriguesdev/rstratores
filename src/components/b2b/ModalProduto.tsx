@@ -6,7 +6,7 @@ import { X, Loader2, Plus, Minus, Check, Globe2, Boxes, PackageSearch } from "lu
 import { produtoExportacaoFn } from "@/lib/exportacao/vitrine";
 import type { ItemVitrine } from "@/lib/exportacao/vitrine.server";
 import { formatarNcm } from "@/lib/aduana/aduana-comum";
-import { usd } from "@/lib/b2b-comum";
+import { usd, fotoUrl } from "@/lib/b2b-comum";
 
 export function ModalProduto({
   item,
@@ -26,7 +26,9 @@ export function ModalProduto({
     queryKey: ["exp-produto", item.linha, item.sku],
     queryFn: () => produtoExportacaoFn({ data: { sku: item.sku, linha: item.linha } }),
   });
-  const imgs = data?.imagens?.length ? data.imagens : item.foto ? [item.foto] : [];
+  const imgs = (data?.imagens?.length ? data.imagens : item.foto ? [item.foto] : [])
+    .map(fotoUrl)
+    .filter(Boolean);
   const preco = data?.preco_usd ?? item.preco_usd;
 
   return (

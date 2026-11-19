@@ -22,7 +22,7 @@ import {
   aplicarDesconto,
   proximaFaixa,
 } from "@/lib/exportacao/descontos";
-import { INCOTERMS, usd } from "@/lib/b2b-comum";
+import { INCOTERMS, usd, fotoUrl } from "@/lib/b2b-comum";
 import { cn } from "@/lib/utils";
 
 export type ItemCarrito = {
@@ -181,7 +181,7 @@ export function CarritoExport({
                           >
                             {i.foto ? (
                               <img
-                                src={i.foto}
+                                src={fotoUrl(i.foto)}
                                 alt=""
                                 className="h-12 w-12 shrink-0 rounded-lg border object-contain"
                               />
