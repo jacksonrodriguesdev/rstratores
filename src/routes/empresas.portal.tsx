@@ -208,6 +208,7 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
   });
   const abertas = (cotacoes ?? []).filter((c) => statusVisivel(c) === "COTADA");
   const [extras, setExtras] = useState<Array<{ codigo: string; qtd: number }>>([]);
+  const [tab, setTab] = useState<"comprar" | "cotizaciones" | "empresa">("comprar");
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -296,6 +297,32 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
             <Selo>Entrega {cfg.incoterm}</Selo>
           </div>
         </div>
+        {/* Navegação por abas */}
+        <div className="mx-auto flex max-w-7xl gap-1 px-4 sm:px-6">
+          {(
+            [
+              ["comprar", "Comprar"],
+              [
+                "cotizaciones",
+                `Mis cotizaciones${cotacoes?.length ? ` (${cotacoes.length})` : ""}`,
+              ],
+              ["empresa", "Mi empresa"],
+            ] as const
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              onClick={() => setTab(k)}
+              className={cn(
+                "-mb-px border-b-2 px-4 py-3 text-sm font-semibold transition",
+                tab === k
+                  ? "border-emerald-600 text-emerald-700"
+                  : "border-transparent text-slate-500 hover:text-slate-800",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:px-6">
         {abertas.length > 0 && (
@@ -316,22 +343,39 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
             </Link>
           </div>
         )}
-        <VitrineExportacao minimo={cfg.minimo} adicionar={addCart} />
-        <details className="rounded-2xl border border-slate-200 bg-white">
-          <summary className="cursor-pointer px-5 py-4 text-sm font-semibold text-slate-700">
-            ¿Preferís pegar una lista de códigos? Abrí el modo lista
-          </summary>
-          <div className="border-t border-slate-100 p-1">
-            <Compositor
-              empresa={empresa}
-              cfg={cfg}
-              extras={extras}
-              consumir={() => setExtras([])}
+        {tab === "comprar" && (
+          <>
+            <VitrineExportacao minimo={cfg.minimo} adicionar={addCart} />
+            <details className="rounded-2xl border border-slate-200 bg-white">
+              <summary className="cursor-pointer px-5 py-4 text-sm font-semibold text-slate-700">
+                ¿Preferís pegar una lista de códigos? Abrí el modo lista
+              </summary>
+              <div className="border-t border-slate-100 p-1">
+                <Compositor
+                  empresa={empresa}
+                  cfg={cfg}
+                  extras={extras}
+                  consumir={() => setExtras([])}
+                />
+              </div>
+            </details>
+          </>
+        )}
+        {tab === "cotizaciones" && (
+          <>
+            <AnaliseCotacoes cotacoes={cotacoes} />
+            <Historico cotacoes={cotacoes} />
+          </>
+        )}
+        {tab === "empresa" && (
+          <>
+            <PerfilEmpresa empresa={empresa} cfg={cfg} />
+            <CartaoDespachante
+              nome={empresa.despachante_nome}
+              contato={empresa.despachante_contato}
             />
-          </div>
-        </details>
-        <Historico cotacoes={cotacoes} />
-        <CartaoDespachante nome={empresa.despachante_nome} contato={empresa.despachante_contato} />
+          </>
+        )}
       </div>
       <CarritoExport
         itens={cart}
@@ -823,6 +867,123 @@ const Dado = ({ r, v }: { r: string; v: React.ReactNode }) => (
     <dd className="text-lg font-bold">{v}</dd>
   </div>
 );
+
+// Análise das cotações feitas (KPIs + por estado)
+function AnaliseCotacoes({
+  cotacoes,
+}: {
+  cotacoes: Awaited<ReturnType<typeof minhasCotacoesFn>> | undefined;
+}) {
+  const lista = cotacoes ?? [];
+  const aceitas = lista.filter((c) => c.status === "ACEITA");
+  const valorAceito = aceitas.reduce((s, c) => s + (c.total || 0), 0);
+  const ticket = aceitas.length ? valorAceito / aceitas.length : 0;
+  const aguardando = lista.filter((c) => statusVisivel(c) === "COTADA").length;
+  const unidades = lista.reduce((s, c) => s + c.itens.reduce((a, i) => a + i.qtd, 0), 0);
+  const porEstado = new Map<string, number>();
+  for (const c of lista) {
+    const e = statusVisivel(c);
+    porEstado.set(e, (porEstado.get(e) ?? 0) + 1);
+  }
+  if (!lista.length)
+    return (
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+        Tus cotizaciones y su análisis aparecen acá cuando envíes la primera.
+      </div>
+    );
+  const Kpi = ({ r, v, sub }: { r: string; v: React.ReactNode; sub?: string }) => (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{r}</p>
+      <p className="mt-1 text-2xl font-black tracking-tight">{v}</p>
+      {sub && <p className="text-xs text-slate-500">{sub}</p>}
+    </div>
+  );
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi
+          r="Cotizaciones"
+          v={lista.length}
+          sub={`${unidades.toLocaleString("es-UY")} unidades`}
+        />
+        <Kpi r="Esperando respuesta" v={aguardando} />
+        <Kpi r="Aceptadas" v={aceitas.length} sub={`${usd(valorAceito)} en total`} />
+        <Kpi r="Ticket promedio" v={aceitas.length ? usd(ticket) : "—"} />
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Por estado
+        </p>
+        <div className="space-y-1.5">
+          {[...porEstado.entries()].map(([e, n]) => (
+            <div key={e} className="flex items-center gap-3 text-sm">
+              <span className="w-40 shrink-0 text-slate-600">
+                {STATUS_COTACAO_ES[e as keyof typeof STATUS_COTACAO_ES] ?? e}
+              </span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-emerald-500"
+                  style={{ width: `${(n / lista.length) * 100}%` }}
+                />
+              </div>
+              <span className="w-8 text-right font-semibold">{n}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Perfil da empresa (dados + condições comerciais)
+function PerfilEmpresa({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
+  const e: any = empresa;
+  const Campo = ({ r, v }: { r: string; v: React.ReactNode }) => (
+    <div className="border-b border-slate-100 py-2">
+      <dt className="text-xs text-slate-500">{r}</dt>
+      <dd className="font-medium">{v || "—"}</dd>
+    </div>
+  );
+  return (
+    <div className="grid gap-5 md:grid-cols-2">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 className="mb-2 flex items-center gap-2 font-bold">
+          <Building2 className="h-5 w-5 text-emerald-600" /> Datos de la empresa
+        </h3>
+        <dl>
+          <Campo r="Razón social" v={e.razao_social} />
+          <Campo r="RUT" v={formatarRut(e.rut)} />
+          <Campo r="Contacto" v={e.contato_nome} />
+          <Campo r="E-mail" v={e.email} />
+          <Campo r="Teléfono" v={e.telefone} />
+          <Campo
+            r="Dirección"
+            v={[e.endereco, e.cidade, e.departamento, "Uruguay"].filter(Boolean).join(", ")}
+          />
+        </dl>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 className="mb-2 flex items-center gap-2 font-bold">
+          <BadgeCheck className="h-5 w-5 text-emerald-600" /> Condiciones comerciales
+        </h3>
+        <dl>
+          <Campo r="Mínimo por ítem" v={`${cfg.minimo} u.`} />
+          <Campo
+            r="Descuento de tu cuenta"
+            v={e.desconto_pct ? `${e.desconto_pct}%` : "estándar"}
+          />
+          <Campo r="Forma de pago" v={PAGAMENTOS[empresa.pagamento] ?? empresa.pagamento} />
+          <Campo r="Entrega (Incoterm)" v={cfg.incoterm} />
+          <Campo r="Despachante" v={e.despachante_nome} />
+        </dl>
+        <p className="mt-3 text-xs text-slate-500">
+          Para actualizar datos o condiciones, escribinos por WhatsApp o respondé el e-mail de tu
+          cuenta.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function Historico({
   cotacoes,
