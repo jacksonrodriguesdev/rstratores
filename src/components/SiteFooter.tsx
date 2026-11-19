@@ -124,6 +124,24 @@ export function SiteFooter() {
                 {t("Catálogos para mecánicos", "Catálogos para mecânicos")}
               </Link>
             </li>
+            <li>
+              <Link
+                to="/empresas"
+                className="font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
+              >
+                {t("Importá al Uruguay (Mayorista)", "Importar ao Uruguai (Atacado)")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/empresas/portal" className="transition-colors hover:text-white">
+                {t("Portal de la empresa", "Portal da empresa")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/empresas/registro" className="transition-colors hover:text-white">
+                {t("Registrá tu empresa", "Cadastre sua empresa")}
+              </Link>
+            </li>
             {AYUDA.map((a) => (
               <li key={a.hash}>
                 <Link to="/ayuda" hash={a.hash} className="transition-colors hover:text-white">

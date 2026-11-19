@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { B2bPagina, Selo, tomStatus } from "@/components/b2b/B2bLayout";
 import { CartaoDespachante } from "@/components/b2b/ClienteAduana";
-import { CatalogoPortal } from "@/components/b2b/CatalogoPortal";
+import { VitrineExportacao } from "@/components/b2b/VitrineExportacao";
 import {
   formatarRut,
   INCOTERMS,
@@ -243,7 +243,8 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
             </Link>
           </div>
         )}
-        <CatalogoPortal
+        <VitrineExportacao
+          minimo={cfg.minimo}
           adicionar={(codigo, qtd) => {
             setExtras((x) => [...x, { codigo, qtd }]);
             document.getElementById("nueva-cotizacion")?.scrollIntoView({ behavior: "smooth" });
