@@ -17,7 +17,7 @@ import {
   Factory,
 } from "lucide-react";
 import { facetsExportacaoFn, vitrineExportacaoFn } from "@/lib/exportacao/vitrine";
-import type { LinhaExp } from "@/lib/exportacao/vitrine.server";
+import type { LinhaExp, ItemVitrine } from "@/lib/exportacao/vitrine.server";
 import { configDescontosPortalFn } from "@/lib/exportacao/descontos-fn";
 import { descontoRegra, aplicarDesconto } from "@/lib/exportacao/descontos";
 import { formatarNcm } from "@/lib/aduana/aduana-comum";
@@ -35,7 +35,7 @@ export function VitrineExportacao({
   adicionar,
 }: {
   minimo: number;
-  adicionar: (codigo: string, qtd: number) => void;
+  adicionar: (item: ItemVitrine, qtd: number) => void;
 }) {
   const [linha, setLinha] = useState<LinhaExp>("AGRICOLA");
   const [marca, setMarca] = useState<string | null>(null);
@@ -308,7 +308,7 @@ export function VitrineExportacao({
                   </div>
                   <button
                     onClick={() => {
-                      adicionar(p.codigo, Math.max(1, minimo));
+                      adicionar(p, Math.max(1, minimo));
                       setAddMap((m) => ({ ...m, [p.sku]: true }));
                     }}
                     className={cn(

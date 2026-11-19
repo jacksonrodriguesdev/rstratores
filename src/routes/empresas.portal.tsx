@@ -22,6 +22,8 @@ import {
 import { B2bPagina, Selo, tomStatus } from "@/components/b2b/B2bLayout";
 import { CartaoDespachante } from "@/components/b2b/ClienteAduana";
 import { VitrineExportacao } from "@/components/b2b/VitrineExportacao";
+import { CarritoExport, type ItemCarrito } from "@/components/b2b/CarritoExport";
+import type { ItemVitrine } from "@/lib/exportacao/vitrine.server";
 import {
   formatarRut,
   INCOTERMS,
@@ -206,6 +208,75 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
   });
   const abertas = (cotacoes ?? []).filter((c) => statusVisivel(c) === "COTADA");
   const [extras, setExtras] = useState<Array<{ codigo: string; qtd: number }>>([]);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  // Carrinho de importação (persistido no navegador)
+  const [cart, setCart] = useState<ItemCarrito[]>([]);
+  useEffect(() => {
+    try {
+      const r = localStorage.getItem("carrito_exp");
+      if (r) setCart(JSON.parse(r));
+    } catch {
+      /* sem localStorage */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem("carrito_exp", JSON.stringify(cart));
+    } catch {
+      /* sem localStorage */
+    }
+  }, [cart]);
+  const addCart = (it: ItemVitrine, qtd: number) =>
+    setCart((c) =>
+      c.some((x) => x.sku === it.sku)
+        ? c
+        : [
+            ...c,
+            {
+              sku: it.sku,
+              codigo: it.codigo,
+              linha: it.linha,
+              nome: it.nome,
+              marca: it.marca,
+              categoria: it.categoria,
+              foto: it.foto,
+              preco_usd: it.preco_usd,
+              peso_cubado_kg: it.peso_cubado_kg,
+              qtd: Math.max(1, qtd),
+            },
+          ],
+    );
+  const setQtdCart = (sku: string, qtd: number) =>
+    setCart((c) => c.map((x) => (x.sku === sku ? { ...x, qtd } : x)));
+  const removerCart = (sku: string) => setCart((c) => c.filter((x) => x.sku !== sku));
+  const [enviandoCart, setEnviandoCart] = useState(false);
+  const enviarCart = async (d: { incoterm: string; destino: string; mensagem: string }) => {
+    if (!cart.length) return;
+    setEnviandoCart(true);
+    try {
+      const r = await criarCotacaoFn({
+        data: {
+          linhas: cart.map((i, k) => ({
+            linha: k + 1,
+            codigo: i.codigo,
+            qtd: i.qtd,
+            descricao: i.nome,
+          })),
+          incoterm: d.incoterm,
+          destino: d.destino,
+          mensagem: d.mensagem,
+        },
+      });
+      setCart([]);
+      qc.invalidateQueries({ queryKey: ["b2b-cotacoes"] });
+      navigate({ to: "/empresas/cotizacion/$codigo", params: { codigo: r.codigo } });
+    } catch (e: any) {
+      alert(e.message);
+      setEnviandoCart(false);
+    }
+  };
   return (
     <B2bPagina>
       <div className="border-b border-slate-200 bg-white">
@@ -245,17 +316,34 @@ function Painel({ empresa, cfg }: { empresa: Empresa; cfg: Cfg }) {
             </Link>
           </div>
         )}
-        <VitrineExportacao
-          minimo={cfg.minimo}
-          adicionar={(codigo, qtd) => {
-            setExtras((x) => [...x, { codigo, qtd }]);
-            document.getElementById("nueva-cotizacion")?.scrollIntoView({ behavior: "smooth" });
-          }}
-        />
-        <Compositor empresa={empresa} cfg={cfg} extras={extras} consumir={() => setExtras([])} />
+        <VitrineExportacao minimo={cfg.minimo} adicionar={addCart} />
+        <details className="rounded-2xl border border-slate-200 bg-white">
+          <summary className="cursor-pointer px-5 py-4 text-sm font-semibold text-slate-700">
+            ¿Preferís pegar una lista de códigos? Abrí el modo lista
+          </summary>
+          <div className="border-t border-slate-100 p-1">
+            <Compositor
+              empresa={empresa}
+              cfg={cfg}
+              extras={extras}
+              consumir={() => setExtras([])}
+            />
+          </div>
+        </details>
         <Historico cotacoes={cotacoes} />
         <CartaoDespachante nome={empresa.despachante_nome} contato={empresa.despachante_contato} />
       </div>
+      <CarritoExport
+        itens={cart}
+        setQtd={setQtdCart}
+        remover={removerCart}
+        limpar={() => setCart([])}
+        minimo={cfg.minimo}
+        incotermInicial={cfg.incoterm}
+        destinoInicial={[empresa.cidade, empresa.departamento].filter(Boolean).join(", ")}
+        enviando={enviandoCart}
+        onEnviar={enviarCart}
+      />
     </B2bPagina>
   );
 }
