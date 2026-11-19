@@ -175,7 +175,21 @@ export const proformaFn = createServerFn({ method: "GET" })
         ? await b.cotacaoAdmin(data.codigo)
         : await b.cotacaoDoCliente(Number(s.id), data.codigo);
     const { nota_interna: _n, ...cotacao } = r.cotacao;
-    return { cotacao, empresa: r.empresa, exportador: r.cfg.exportador, prazo: r.cfg.prazo };
+    // Cubagem por item (peso, peso cubado, volume e medidas) para a proforma e o packing list
+    const cub = await (
+      await import("./cubagem/cubagem.server")
+    ).cubagemPorCodigos(cotacao.itens.map((i) => i.codigo));
+    const { normalizarCodigo } = await import("./b2b-comum");
+    const itens = cotacao.itens.map((i) => ({
+      ...i,
+      cub: cub.get(normalizarCodigo(i.codigo)) ?? null,
+    }));
+    return {
+      cotacao: { ...cotacao, itens },
+      empresa: r.empresa,
+      exportador: r.cfg.exportador,
+      prazo: r.cfg.prazo,
+    };
   });
 
 export type { DadosEmpresa };

@@ -59,6 +59,15 @@ export const apagarProdutoFn = createServerFn({ method: "POST" })
     return c.apagarProduto(data.id);
   });
 
+// Preenche o catálogo de exportação com os campeões da loja (admin)
+export const importarCatalogoFn = createServerFn({ method: "POST" })
+  .validator((d?: { limite?: number }) => ({ limite: Number(d?.limite) || 100000 }))
+  .handler(async ({ data }) => {
+    await admin();
+    const c = await import("./catalogo.server");
+    return c.importarCatalogoDaLoja(data.limite);
+  });
+
 export const dadosDaLojaFn = createServerFn({ method: "GET" })
   .validator((d: { q: string }) => ({ q: String(d?.q ?? "").slice(0, 80) }))
   .handler(async ({ data }) => {

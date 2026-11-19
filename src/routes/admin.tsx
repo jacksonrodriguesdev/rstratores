@@ -42,6 +42,7 @@ import {
   type LucideIcon,
   Landmark,
   ReceiptText,
+  Boxes,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSessionFn } from "@/lib/user-auth";
@@ -186,6 +187,7 @@ const GRUPOS: Grupo[] = [
             icon: Tags,
           },
       { to: "/admin/catalogos", label: "Catálogos (PDF)", icon: BookOpen },
+      { to: "/admin/cubagem", label: "Cubagem / Logística", icon: Boxes },
     ],
   },
   {

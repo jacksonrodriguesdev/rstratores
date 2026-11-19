@@ -1,0 +1,268 @@
+{
+  "_nota": "Classificador tipo de peça -> NCM, reconferido na web (fontes fiscais BR: buscadorncm, fazcomex, actana, tributodevido, catálogos ZF). NCM de referência (RGI/NESH/Solução de Consulta confirmam em caso fiscal). Ordem importa: regra específica antes da genérica. fonte única do app e dos scripts.",
+  "regras": [
+    {
+      "fam": "Filtro de ar",
+      "ncm": "84213100",
+      "kw": ["FILTRO DE AR", "FILTRO AR", "ELEMENTO DE AR"]
+    },
+    {
+      "fam": "Filtro (óleo/combustível)",
+      "ncm": "84212300",
+      "kw": [
+        "FILTRO DE OLEO",
+        "FILTRO DE COMBUSTIVEL",
+        "FILTRO COMBUSTIVEL",
+        "FILTRO DE OLEO LUBRIFICANTE",
+        "FILTRO SEPARADOR",
+        "FILTRO RACOR"
+      ]
+    },
+    {
+      "fam": "Elemento filtrante (peça)",
+      "ncm": "84219999",
+      "kw": ["ELEMENTO FILTRANTE", "ELEMENTO DE FILTRO", "REFIL DE FILTRO"]
+    },
+    { "fam": "Filtros (outros)", "ncm": "84212300", "kw": ["FILTRO", "FILTRANTE"] },
+    {
+      "fam": "Rolamento cônico/rolo",
+      "ncm": "84822010",
+      "kw": ["ROLAMENTO CONICO", "ROLAMENTO DE ROLO", "ROLETE CONICO", "ROLAMENTO DE ROLETE"]
+    },
+    { "fam": "Rolamentos e mancais", "ncm": "84821010", "kw": ["ROLAMENTO", "MANCAL", "BEARING"] },
+    {
+      "fam": "Retentores e vedações",
+      "ncm": "40169300",
+      "kw": [
+        "RETENTOR",
+        "VEDACAO",
+        "GAXETA",
+        "ANEL DE VEDACAO",
+        "ANEL VEDACAO",
+        "O RING",
+        "ORING",
+        "SELO MECANICO"
+      ]
+    },
+    { "fam": "Juntas", "ncm": "84841000", "kw": ["JUNTA", "JOGO DE JUNTAS", "JUNTA CABECOTE"] },
+    {
+      "fam": "Correia dentada/síncrona",
+      "ncm": "40103900",
+      "kw": ["CORREIA DENTADA", "CORREIA SINCRONA", "CORREIA DE DISTRIBUICAO"]
+    },
+    { "fam": "Correias (trapezoidal/poli-V)", "ncm": "40103100", "kw": ["CORREIA", "CORREA"] },
+    {
+      "fam": "Mangueiras e tubos de borracha",
+      "ncm": "40093200",
+      "kw": ["MANGUEIRA", "MANGOTE", "TUBO FLEXIVEL"]
+    },
+    {
+      "fam": "Bomba injetora diesel",
+      "ncm": "84133020",
+      "kw": ["BOMBA INJETORA", "BOMBA DE COMBUSTIVEL", "BOMBA COMBUSTIVEL", "BOMBA ALIMENTADORA"]
+    },
+    {
+      "fam": "Bico injetor (parte de motor)",
+      "ncm": "84099969",
+      "kw": ["BICO INJETOR", "INJETOR", "PORTA INJETOR", "PORTA BICO"]
+    },
+    {
+      "fam": "Pistão, camisa, anéis e bronzina",
+      "ncm": "84099990",
+      "kw": [
+        "PISTAO",
+        "CAMISA",
+        "ANEL DE SEGMENTO",
+        "ANEIS",
+        "BRONZINA",
+        "KIT MOTOR",
+        "JOGO DE PISTAO"
+      ]
+    },
+    {
+      "fam": "Válvulas de motor",
+      "ncm": "84099990",
+      "kw": [
+        "VALVULA DE ADMISSAO",
+        "VALVULA DE ESCAPE",
+        "VALVULA ADMISSAO",
+        "VALVULA ESCAPE",
+        "GUIA DE VALVULA",
+        "SEDE DE VALVULA"
+      ]
+    },
+    {
+      "fam": "Virabrequim e comando",
+      "ncm": "84831010",
+      "kw": ["VIRABREQUIM", "COMANDO DE VALVULA", "EIXO COMANDO", "ARVORE DE MANIVELA"]
+    },
+    {
+      "fam": "Engrenagens e transmissão",
+      "ncm": "84834000",
+      "kw": ["ENGRENAGEM", "PINHAO", "COROA", "CREMALHEIRA", "CAIXA SATELITE", "PLANETARIA"]
+    },
+    { "fam": "Turbocompressor", "ncm": "84148021", "kw": ["TURBINA", "TURBO", "TURBOCOMPRESSOR"] },
+    {
+      "fam": "Bomba d'água e arrefecimento",
+      "ncm": "84133090",
+      "kw": [
+        "BOMBA DAGUA",
+        "BOMBA D AGUA",
+        "BOMBA DE AGUA",
+        "BOMBA AGUA",
+        "VALVULA TERMOSTATICA",
+        "TERMOSTATO"
+      ]
+    },
+    {
+      "fam": "Radiador e intercooler",
+      "ncm": "87089100",
+      "kw": ["RADIADOR", "INTERCOOLER", "COLMEIA"]
+    },
+    {
+      "fam": "Embreagem",
+      "ncm": "87089300",
+      "kw": ["EMBREAGEM", "PLATO", "DISCO DE EMBREAGEM", "ATUADOR EMBREAGEM"]
+    },
+    {
+      "fam": "Freio — guarnição (pastilha/lona)",
+      "ncm": "87083019",
+      "kw": ["PASTILHA", "LONA DE FREIO", "LONA"]
+    },
+    {
+      "fam": "Freios (disco/pinça/outros)",
+      "ncm": "87083090",
+      "kw": ["FREIO", "DISCO DE FREIO", "TAMBOR", "CILINDRO DE RODA", "CUICA", "PINCA"]
+    },
+    { "fam": "Câmbio", "ncm": "87084090", "kw": ["CAIXA DE CAMBIO", "CAMBIO", "SINCRONIZADOR"] },
+    {
+      "fam": "Eixo, diferencial e cardã",
+      "ncm": "87085099",
+      "kw": ["DIFERENCIAL", "SEMI EIXO", "SEMIEIXO", "CARDA", "CRUZETA", "FLANGE", "PONTA DE EIXO"]
+    },
+    {
+      "fam": "Direção",
+      "ncm": "87089400",
+      "kw": [
+        "DIRECAO",
+        "TERMINAL DE DIRECAO",
+        "CAIXA DE DIRECAO",
+        "BRACO AXIAL",
+        "BARRA DE DIRECAO"
+      ]
+    },
+    {
+      "fam": "Suspensão",
+      "ncm": "87088000",
+      "kw": [
+        "AMORTECEDOR",
+        "MOLA",
+        "BANDEJA",
+        "PIVO",
+        "BUCHA",
+        "BARRA ESTABILIZADORA",
+        "BATENTE",
+        "COXIM",
+        "MANGA DE EIXO",
+        "MANGA EIXO"
+      ]
+    },
+    {
+      "fam": "Cabine e lataria",
+      "ncm": "87082999",
+      "kw": [
+        "PARALAMA",
+        "CAPO",
+        "PORTA",
+        "RETROVISOR",
+        "PARACHOQUE",
+        "PARA CHOQUE",
+        "GRADE",
+        "TETO",
+        "CABINE"
+      ]
+    },
+    {
+      "fam": "Chassi e estrutura",
+      "ncm": "87089990",
+      "kw": ["LONGARINA", "CHASSI", "SUPORTE DE CHASSI", "TRAVESSA"]
+    },
+    {
+      "fam": "Partida e alternador",
+      "ncm": "85119000",
+      "kw": ["MOTOR DE PARTIDA", "ARRANQUE", "ALTERNADOR", "BOBINA", "VELA", "DISTRIBUIDOR"]
+    },
+    {
+      "fam": "Elétrica e sensores",
+      "ncm": "90318099",
+      "kw": ["SENSOR", "CHICOTE", "RELE", "INTERRUPTOR", "CHAVE ELETRICA", "MODULO"]
+    },
+    { "fam": "Hidráulica — bomba", "ncm": "84136019", "kw": ["BOMBA HIDRAULICA"] },
+    {
+      "fam": "Hidráulica — cilindro",
+      "ncm": "84122100",
+      "kw": ["CILINDRO HIDRAULICO", "CILINDRO DE DIRECAO"]
+    },
+    {
+      "fam": "Elementos de fixação",
+      "ncm": "73181500",
+      "kw": ["PARAFUSO", "PORCA", "ARRUELA", "PINO", "GRAMPO", "PRISIONEIRO", "ABRACADEIRA"]
+    },
+    {
+      "fam": "Óleos e lubrificantes",
+      "ncm": "27101932",
+      "kw": ["OLEO", "LUBRIFICANTE", "GRAXA", "ADITIVO", "FLUIDO"]
+    },
+    {
+      "fam": "Escapamento",
+      "ncm": "87089200",
+      "kw": [
+        "CANO DE DESCARGA",
+        "CANO DESCARGA",
+        "COLETOR DE DESCARGA",
+        "COLETOR DESCARGA",
+        "SILENCIOSO",
+        "ESCAPAMENTO",
+        "CANO DE ESCAPE",
+        "TUBO DE ESCAPE",
+        "CURVA DE DESCARGA",
+        "PONTEIRA DE ESCAPE"
+      ]
+    },
+    { "fam": "Farol", "ncm": "85122011", "kw": ["FAROL"] },
+    {
+      "fam": "Iluminação e sinalização",
+      "ncm": "85122019",
+      "kw": ["SINALEIRA", "LANTERNA", "PISCA", "SETA", "LED", "FAROLETE", "LUZ DE PLACA", "LAMPADA"]
+    },
+    { "fam": "Polia", "ncm": "84835010", "kw": ["POLIA"] },
+    {
+      "fam": "Cubo de roda",
+      "ncm": "87087090",
+      "kw": ["CUBO DE RODA", "CUBO RODA", "CUBO DA RODA"]
+    },
+    { "fam": "Cabeçote", "ncm": "84099990", "kw": ["CABECOTE"] },
+    {
+      "fam": "Cilindro de freio (mestre)",
+      "ncm": "87083090",
+      "kw": ["CILINDRO MESTRE", "CILINDRO DE FREIO", "CILINDRO ESCRAVO"]
+    },
+    {
+      "fam": "Partes de pulverizador",
+      "ncm": "84249090",
+      "kw": ["PULVERIZADOR", "BICO PULVERIZADOR", "PONTA PULVERIZADORA", "BARRA DE PULVERIZACAO"]
+    },
+    {
+      "fam": "Partes de colheitadeira (corte)",
+      "ncm": "84339090",
+      "kw": ["BARRA DE CORTE", "BARRA CORTE", "NAVALHA", "SECAO DE CORTE", "DEDO DA BARRA"]
+    },
+    { "fam": "Pneus", "ncm": "40117090", "kw": ["PNEU"] },
+    {
+      "fam": "Separador de água/combustível",
+      "ncm": "84212300",
+      "kw": ["SEPARADOR DE AGUA", "SEPARADOR DE COMBUSTIVEL", "SEPARADOR DE OLEO"]
+    },
+    { "fam": "(Outras autopeças — rever)", "ncm": "87089990", "kw": ["*"], "fallback": true }
+  ]
+}

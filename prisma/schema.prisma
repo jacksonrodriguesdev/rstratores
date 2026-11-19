@@ -62,6 +62,7 @@ model products {
   ean                  String?  @db.Text
   ncm                  String?  @db.Text
   profundidade         Float?
+  diametro             Float?
 
   category        categories?             @relation(fields: [category_id], references: [id], onDelete: SetNull)
   images          products_img[]
@@ -257,6 +258,7 @@ model agricolas {
   ean                  String?   @db.Text
   ncm                  String?   @db.Text
   profundidade         Float?
+  diametro             Float?
   // Precificação (admin → Produtos e preços). valor_compra = custo em R$, preco_brl = venda em R$.
   // Preço em $U: AUTO = preco_brl × cotação do dia (tabela cotacoes); FIXO = preco_uyu digitado.
   margem               Float?

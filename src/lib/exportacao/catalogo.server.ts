@@ -357,6 +357,90 @@ export async function apagarProduto(id: number) {
   return true;
 }
 
+// Preenche o catálogo de exportação a partir dos "campeões" da loja agrícola (em estoque, com foto e
+// preço), já enriquecidos com NCM, peso e medidas da base de cubagem (cubagem_ref). Idempotente:
+// pula os códigos que já estão no catálogo. Preço em USD fica para a proposta (não é inventado aqui).
+export async function importarCatalogoDaLoja(limite = 100000) {
+  const prisma = await db();
+  const { nomeProduto } = await import("../pecas-es");
+  const rows = await prisma.$queryRawUnsafe<any[]>(
+    `SELECT a.sku, a.codigo_fabricante, a.nome, a.nome_es, a.marca, a.fabricante, a.descricao_es,
+            a.veiculos_compativeis, a.imagem_principal, a.valor_compra, a.estoque,
+            cr.ncm, cr.peso_kg, cr.comp_cm, cr.larg_cm, cr.alt_cm
+     FROM agricolas a
+     LEFT JOIN cubagem_ref cr ON cr.catalogo = 'AGRICOLA' AND cr.sku = a.sku
+     WHERE a.duplicado_de IS NULL AND a.estoque > 0 AND a.preco_brl > 0
+       AND a.imagem_principal IS NOT NULL AND a.imagem_principal <> ''
+       AND a.imagem_principal NOT LIKE '%redeparts%'
+     ORDER BY a.estoque DESC
+     LIMIT ${Math.min(100000, limite)}`,
+  );
+  const existentes = new Set(
+    (await prisma.$queryRawUnsafe<any[]>(`SELECT codigo_norm FROM b2b_produtos`)).map(
+      (r) => r.codigo_norm as string,
+    ),
+  );
+  let importados = 0;
+  let pulados = 0;
+  const COLS = 18;
+  const gravar = async (vals: unknown[]) => {
+    if (!vals.length) return;
+    const linhas = vals.length / COLS;
+    const ph = Array.from({ length: linhas }, () => `(${Array(COLS).fill("?").join(",")})`).join(
+      ",",
+    );
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO b2b_produtos (codigo, codigo_norm, sku_loja, nome_es, nome_pt, marca, fabricante,
+        descricao_es, aplicacao, ncm, unidade, peso_liquido, comprimento, largura, altura, custo_brl, estoque, foto)
+       VALUES ${ph}`,
+      ...vals,
+    );
+  };
+  let lote: unknown[] = [];
+  const num = (v: unknown) => (v == null ? null : Number(v));
+  for (const r of rows) {
+    const codigo = String(r.codigo_fabricante || r.sku || "")
+      .trim()
+      .slice(0, 64);
+    if (!codigo) continue;
+    const norm = normalizarCodigo(codigo);
+    if (!norm || existentes.has(norm)) {
+      pulados++;
+      continue;
+    }
+    existentes.add(norm);
+    lote.push(
+      codigo,
+      norm,
+      String(r.sku).trim(),
+      nomeProduto(r as any).slice(0, 200),
+      String(r.nome ?? "")
+        .trim()
+        .slice(0, 200) || null,
+      r.marca?.toString().slice(0, 120) || null,
+      r.fabricante?.toString().slice(0, 160) || null,
+      r.descricao_es?.toString().slice(0, 5000) || null,
+      r.veiculos_compativeis?.toString().slice(0, 400) || null,
+      soNcm(r.ncm) || null,
+      "UN",
+      num(r.peso_kg),
+      num(r.comp_cm),
+      num(r.larg_cm),
+      num(r.alt_cm),
+      num(r.valor_compra),
+      r.estoque == null ? null : Math.round(Number(r.estoque)),
+      r.imagem_principal?.toString().slice(0, 400) || null,
+    );
+    importados++;
+    if (lote.length >= COLS * 500) {
+      await gravar(lote);
+      lote = [];
+    }
+  }
+  await gravar(lote);
+  return { candidatos: rows.length, importados, pulados };
+}
+
 // Só a NCM (cotação e painel do despachante gravam a classificação)
 export async function gravarNcmProduto(id: number, ncm: string) {
   const n = soNcm(ncm);

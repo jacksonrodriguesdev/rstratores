@@ -164,6 +164,9 @@ function Proforma() {
             {c.nota_cliente}
           </p>
         )}
+
+        <PackingList codigo={c.codigo} itens={c.itens} />
+
         <footer className="mt-6 border-t border-slate-300 pt-3 text-[9.5px] leading-relaxed text-slate-500">
           Documento sin valor fiscal. Precios sin IVA ni tributos de importación de Uruguay. La
           preferencia arancelaria del Mercosur aplica solo a los ítems indicados con origen Mercosur
@@ -173,5 +176,105 @@ function Proforma() {
         </footer>
       </article>
     </div>
+  );
+}
+
+// Packing list: peso neto, peso cubado, volume e medidas por item (para o despachante no DUA).
+type ItemPacking = {
+  linha: number;
+  codigo: string;
+  nome?: string | null;
+  descricao?: string | null;
+  qtd: number;
+  peso?: number | null;
+  disponivel?: boolean;
+  cub?: {
+    peso_kg: number | null;
+    peso_cubado_kg: number | null;
+    volume_m3: number | null;
+    comp_cm: number | null;
+    larg_cm: number | null;
+    alt_cm: number | null;
+  } | null;
+};
+
+function PackingList({ codigo, itens }: { codigo: string; itens: ItemPacking[] }) {
+  const linhas = itens.filter((i) => i.disponivel !== false);
+  if (!linhas.length) return null;
+  const kg = (v: number | null | undefined) => (v == null ? "—" : v.toFixed(3));
+  const m3 = (v: number | null | undefined) => (v == null ? "—" : v.toFixed(4));
+  const pesoNetoU = (i: ItemPacking) => i.cub?.peso_kg ?? i.peso ?? null;
+  let totPeso = 0;
+  let totCub = 0;
+  let totVol = 0;
+  let totUn = 0;
+  for (const i of linhas) {
+    totUn += i.qtd;
+    if (pesoNetoU(i) != null) totPeso += (pesoNetoU(i) as number) * i.qtd;
+    if (i.cub?.peso_cubado_kg != null) totCub += i.cub.peso_cubado_kg * i.qtd;
+    if (i.cub?.volume_m3 != null) totVol += i.cub.volume_m3 * i.qtd;
+  }
+  return (
+    <section className="mt-8 print:break-before-page">
+      <div className="flex items-end justify-between border-b-2 border-slate-900 pb-2">
+        <p className="text-base font-black tracking-tight">PACKING LIST</p>
+        <p className="font-mono text-xs font-bold">PL-{codigo}</p>
+      </div>
+      <table className="mt-3 w-full border-collapse">
+        <thead>
+          <tr className="bg-slate-900 text-left text-[9px] uppercase tracking-wide text-white">
+            <th className="px-2 py-1.5">#</th>
+            <th className="px-2 py-1.5">Código</th>
+            <th className="px-2 py-1.5">Descripción</th>
+            <th className="px-2 py-1.5 text-right">Cant.</th>
+            <th className="px-2 py-1.5 text-right">Peso u. (kg)</th>
+            <th className="px-2 py-1.5 text-right">Peso neto (kg)</th>
+            <th className="px-2 py-1.5 text-right">Peso cubicado (kg)</th>
+            <th className="px-2 py-1.5 text-right">Volumen (m³)</th>
+            <th className="px-2 py-1.5">Medidas (cm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {linhas.map((i, k) => (
+            <tr key={i.linha} className="border-b border-slate-200 align-top odd:bg-slate-50">
+              <td className="px-2 py-1.5 text-slate-500">{k + 1}</td>
+              <td className="px-2 py-1.5 font-mono font-semibold">{i.codigo}</td>
+              <td className="px-2 py-1.5">{i.nome ?? i.descricao ?? "—"}</td>
+              <td className="px-2 py-1.5 text-right">{i.qtd}</td>
+              <td className="px-2 py-1.5 text-right">{kg(pesoNetoU(i))}</td>
+              <td className="px-2 py-1.5 text-right">
+                {pesoNetoU(i) == null ? "—" : kg((pesoNetoU(i) as number) * i.qtd)}
+              </td>
+              <td className="px-2 py-1.5 text-right font-semibold">
+                {i.cub?.peso_cubado_kg == null ? "—" : kg(i.cub.peso_cubado_kg * i.qtd)}
+              </td>
+              <td className="px-2 py-1.5 text-right">
+                {i.cub?.volume_m3 == null ? "—" : m3(i.cub.volume_m3 * i.qtd)}
+              </td>
+              <td className="px-2 py-1.5 font-mono text-[9px]">
+                {i.cub?.comp_cm ? `${i.cub.comp_cm}×${i.cub.larg_cm}×${i.cub.alt_cm}` : "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="border-t-2 border-slate-900 font-bold">
+            <td className="px-2 py-1.5" colSpan={3}>
+              TOTAL · {linhas.length} ítems
+            </td>
+            <td className="px-2 py-1.5 text-right">{totUn}</td>
+            <td className="px-2 py-1.5" />
+            <td className="px-2 py-1.5 text-right">{kg(totPeso)}</td>
+            <td className="px-2 py-1.5 text-right">{kg(totCub)}</td>
+            <td className="px-2 py-1.5 text-right">{m3(totVol)}</td>
+            <td className="px-2 py-1.5" />
+          </tr>
+        </tfoot>
+      </table>
+      <p className="mt-2 text-[9px] leading-relaxed text-slate-500">
+        Pesos y volúmenes estimados (peso cubicado a 300 kg/m³). El peso bruto final depende del
+        embalaje. Documento de apoyo logístico, sin valor fiscal.
+      </p>
+    </section>
   );
 }

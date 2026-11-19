@@ -34,6 +34,7 @@ import {
   usd,
 } from "@/lib/b2b-comum";
 import { criarCotacaoFn, minhaEmpresaFn, minhasCotacoesFn, previaCotacaoFn } from "@/lib/b2b";
+import { estimarFreteFn } from "@/lib/cubagem/frete-portal";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/empresas/portal")({
@@ -373,6 +374,18 @@ function Compositor({
     };
   }, [linhas]);
 
+  // Flete estimado (por kg cubado) com base en la tarifa del transportista cargada en el admin.
+  const itensFrete = useMemo(
+    () => (linhas ?? []).filter((l) => l.qtd > 0).map((l) => ({ codigo: l.codigo, qtd: l.qtd })),
+    [linhas],
+  );
+  const { data: frete } = useQuery({
+    queryKey: ["b2b-frete", itensFrete],
+    queryFn: () => estimarFreteFn({ data: { itens: itensFrete } }),
+    enabled: itensFrete.length > 0,
+  });
+  const fmtFrete = (v: number) => (frete?.tarifa.moeda === "BRL" ? `R$ ${v.toFixed(2)}` : usd(v));
+
   return (
     <section
       id="nueva-cotizacion"
@@ -591,6 +604,20 @@ function Compositor({
               <Dado r="Unidades" v={resumo.unidades.toLocaleString("es-UY")} />
               <Dado r="Peso est." v={resumo.peso ? `${resumo.peso} kg` : "—"} />
             </dl>
+            {frete?.configurada && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-xs font-semibold text-emerald-700">Flete estimado al destino</p>
+                <p className="text-2xl font-extrabold tracking-tight text-emerald-900">
+                  {fmtFrete(frete.frete)}
+                </p>
+                <p className="mt-1 text-[11px] leading-snug text-emerald-800/80">
+                  Peso cubado ~{frete.pesoCubadoKg.toLocaleString("es-UY")} kg · estimado, se
+                  confirma en la propuesta.
+                  {frete.semDado > 0 &&
+                    ` ${frete.semDado} ítem(s) sin medida todavía no entran en el cálculo.`}
+                </p>
+              </div>
+            )}
             {instantaneo && (
               <div className="rounded-2xl bg-slate-950 p-4 text-white">
                 <p className="text-xs text-slate-400">Total indicativo</p>

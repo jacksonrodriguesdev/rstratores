@@ -152,6 +152,10 @@ function iniciarAutomacoes() {
   import("./lib/email.server")
     .then((m) => m.garantirColunasEmail())
     .catch((e) => console.error("colunas de e-mail", e));
+  // Coluna `diametro` (base de cubagem/logística): criada no primeiro acesso em produção
+  import("./lib/cubagem/cubagem.server")
+    .then((m) => m.garantirColunaDiametro())
+    .catch((e) => console.error("coluna diametro", e));
   import("./lib/automacoes.server")
     .then((m) => m.iniciarAgendador())
     .catch((e) => console.error("automações", e));
