@@ -118,6 +118,31 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
             ),
           )
         : []),
+      // Exportação ao Uruguai: pilar + máquina + máquina×cidade (só espanhol)
+      ...(await (async () => {
+        const { MAQUINAS_EXPORT, CIUDADES_EXPORT } = await import("./seo-exportacion");
+        const linhas: string[] = [
+          urlUnica("/exportacion", "es", "<changefreq>weekly</changefreq><priority>0.8</priority>"),
+        ];
+        for (const m of MAQUINAS_EXPORT) {
+          linhas.push(
+            urlUnica(
+              `/exportacion/${m.slug}`,
+              "es",
+              "<changefreq>weekly</changefreq><priority>0.8</priority>",
+            ),
+          );
+          for (const c of CIUDADES_EXPORT)
+            linhas.push(
+              urlUnica(
+                `/exportacion/${m.slug}/${c.slug}`,
+                "es",
+                "<changefreq>weekly</changefreq><priority>0.7</priority>",
+              ),
+            );
+        }
+        return linhas;
+      })()),
       url(`/catalogos`, "<changefreq>weekly</changefreq><priority>0.7</priority>"),
       ...(await catalogosPublicos()).map((c) =>
         url(c.caminho, `<lastmod>${c.data}</lastmod><priority>0.7</priority>`),

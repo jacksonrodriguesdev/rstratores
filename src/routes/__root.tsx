@@ -30,7 +30,8 @@ import { PopupAcesso } from "@/components/PopupAcesso";
 import { AppPwa } from "@/components/AppInstalavel";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MobileTabBar } from "@/components/MobileTabBar";
-import { SugestaoIdioma } from "@/components/SugestaoIdioma";
+// Popup de sugestão de idioma (pt) desativado — maioria dos usuários é uruguaia.
+// import { SugestaoIdioma } from "@/components/SugestaoIdioma";
 import { IndicacaoAmigo } from "@/components/IndicacaoAmigo";
 import { FotoPiezaModal } from "@/components/FotoPieza";
 import { Toaster } from "@/components/ui/sonner";
@@ -280,7 +281,8 @@ function RootComponent() {
               <VisitTracker />
               <AppPwa />
               {!avaliar && <PopupAcesso />}
-              {!avaliar && <SugestaoIdioma />}
+              {/* Popup de sugestão de idioma (pt) desativado: a maioria dos usuários é uruguaia. */}
+              {/* {!avaliar && <SugestaoIdioma />} */}
               {!avaliar && <IndicacaoAmigo />}
               {!avaliar && <FotoPiezaModal />}
             </>

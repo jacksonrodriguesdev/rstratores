@@ -80,6 +80,8 @@ import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasPortalRouteImport } from './routes/empresas.portal'
 import { Route as EmpresasRegistroRouteImport } from './routes/empresas.registro'
 import { Route as EtiquetaIdRouteImport } from './routes/etiqueta.$id'
+import { Route as ExportacionIndexRouteImport } from './routes/exportacion.index'
+import { Route as ExportacionMaquinaRouteImport } from './routes/exportacion.$maquina'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
 import { Route as GuiasSlugRouteImport } from './routes/guias.$slug'
@@ -135,6 +137,7 @@ import { Route as DespachanteCotacaoCodigoRouteImport } from './routes/despachan
 import { Route as EmpresasCotizacionCodigoRouteImport } from './routes/empresas.cotizacion.$codigo'
 import { Route as EmpresasDocumentoCodigoRouteImport } from './routes/empresas.documento.$codigo'
 import { Route as EmpresasProformaCodigoRouteImport } from './routes/empresas.proforma.$codigo'
+import { Route as ExportacionMaquinaCiudadRouteImport } from './routes/exportacion.$maquina_.$ciudad'
 import { Route as RepuestosSlugSubRouteImport } from './routes/repuestos.$slug_.$sub'
 import { Route as ApiAdminAduanaArquivoRouteImport } from './routes/api/admin/aduana.arquivo'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
@@ -522,6 +525,16 @@ const EtiquetaIdRoute = EtiquetaIdRouteImport.update({
   path: '/etiqueta/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExportacionIndexRoute = ExportacionIndexRouteImport.update({
+  id: '/exportacion/',
+  path: '/exportacion/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportacionMaquinaRoute = ExportacionMaquinaRouteImport.update({
+  id: '/exportacion/$maquina',
+  path: '/exportacion/$maquina',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedsArquivoRoute = FeedsArquivoRouteImport.update({
   id: '/feeds/$arquivo',
   path: '/feeds/$arquivo',
@@ -800,6 +813,12 @@ const EmpresasProformaCodigoRoute = EmpresasProformaCodigoRouteImport.update({
   path: '/empresas/proforma/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExportacionMaquinaCiudadRoute =
+  ExportacionMaquinaCiudadRouteImport.update({
+    id: '/exportacion/$maquina_/$ciudad',
+    path: '/exportacion/$maquina/$ciudad',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RepuestosSlugSubRoute = RepuestosSlugSubRouteImport.update({
   id: '/repuestos/$slug_/$sub',
   path: '/repuestos/$slug/$sub',
@@ -1031,6 +1050,7 @@ export interface FileRoutesByFullPath {
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
+  '/exportacion/$maquina': typeof ExportacionMaquinaRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
@@ -1046,6 +1066,7 @@ export interface FileRoutesByFullPath {
   '/catalogos/': typeof CatalogosIndexRoute
   '/despachante/': typeof DespachanteIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/exportacion/': typeof ExportacionIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
@@ -1087,6 +1108,7 @@ export interface FileRoutesByFullPath {
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
+  '/exportacion/$maquina/$ciudad': typeof ExportacionMaquinaCiudadRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1188,6 +1210,7 @@ export interface FileRoutesByTo {
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
+  '/exportacion/$maquina': typeof ExportacionMaquinaRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
@@ -1203,6 +1226,7 @@ export interface FileRoutesByTo {
   '/catalogos': typeof CatalogosIndexRoute
   '/despachante': typeof DespachanteIndexRoute
   '/empresas': typeof EmpresasIndexRoute
+  '/exportacion': typeof ExportacionIndexRoute
   '/guias': typeof GuiasIndexRoute
   '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
@@ -1244,6 +1268,7 @@ export interface FileRoutesByTo {
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
+  '/exportacion/$maquina/$ciudad': typeof ExportacionMaquinaCiudadRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
@@ -1348,6 +1373,7 @@ export interface FileRoutesById {
   '/empresas/portal': typeof EmpresasPortalRoute
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
+  '/exportacion/$maquina': typeof ExportacionMaquinaRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
@@ -1363,6 +1389,7 @@ export interface FileRoutesById {
   '/catalogos/': typeof CatalogosIndexRoute
   '/despachante/': typeof DespachanteIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/exportacion/': typeof ExportacionIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
@@ -1404,6 +1431,7 @@ export interface FileRoutesById {
   '/empresas/cotizacion/$codigo': typeof EmpresasCotizacionCodigoRoute
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
+  '/exportacion/$maquina_/$ciudad': typeof ExportacionMaquinaCiudadRoute
   '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1509,6 +1537,7 @@ export interface FileRouteTypes {
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
+    | '/exportacion/$maquina'
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
@@ -1524,6 +1553,7 @@ export interface FileRouteTypes {
     | '/catalogos/'
     | '/despachante/'
     | '/empresas/'
+    | '/exportacion/'
     | '/guias/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
@@ -1565,6 +1595,7 @@ export interface FileRouteTypes {
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
+    | '/exportacion/$maquina/$ciudad'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1666,6 +1697,7 @@ export interface FileRouteTypes {
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
+    | '/exportacion/$maquina'
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
@@ -1681,6 +1713,7 @@ export interface FileRouteTypes {
     | '/catalogos'
     | '/despachante'
     | '/empresas'
+    | '/exportacion'
     | '/guias'
     | '/repuestos-agricolas'
     | '/repuestos'
@@ -1722,6 +1755,7 @@ export interface FileRouteTypes {
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
+    | '/exportacion/$maquina/$ciudad'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
@@ -1825,6 +1859,7 @@ export interface FileRouteTypes {
     | '/empresas/portal'
     | '/empresas/registro'
     | '/etiqueta/$id'
+    | '/exportacion/$maquina'
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
@@ -1840,6 +1875,7 @@ export interface FileRouteTypes {
     | '/catalogos/'
     | '/despachante/'
     | '/empresas/'
+    | '/exportacion/'
     | '/guias/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
@@ -1881,6 +1917,7 @@ export interface FileRouteTypes {
     | '/empresas/cotizacion/$codigo'
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
+    | '/exportacion/$maquina_/$ciudad'
     | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1941,6 +1978,7 @@ export interface RootRouteChildren {
   EmpresasPortalRoute: typeof EmpresasPortalRoute
   EmpresasRegistroRoute: typeof EmpresasRegistroRoute
   EtiquetaIdRoute: typeof EtiquetaIdRoute
+  ExportacionMaquinaRoute: typeof ExportacionMaquinaRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
   IgSplatRoute: typeof IgSplatRoute
@@ -1954,6 +1992,7 @@ export interface RootRouteChildren {
   UploadsSplatRoute: typeof UploadsSplatRoute
   CatalogosIndexRoute: typeof CatalogosIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
+  ExportacionIndexRoute: typeof ExportacionIndexRoute
   GuiasIndexRoute: typeof GuiasIndexRoute
   RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
@@ -1987,6 +2026,7 @@ export interface RootRouteChildren {
   EmpresasCotizacionCodigoRoute: typeof EmpresasCotizacionCodigoRoute
   EmpresasDocumentoCodigoRoute: typeof EmpresasDocumentoCodigoRoute
   EmpresasProformaCodigoRoute: typeof EmpresasProformaCodigoRoute
+  ExportacionMaquinaCiudadRoute: typeof ExportacionMaquinaCiudadRoute
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminAduanaArquivoRoute: typeof ApiAdminAduanaArquivoRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
@@ -2508,6 +2548,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EtiquetaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exportacion/': {
+      id: '/exportacion/'
+      path: '/exportacion'
+      fullPath: '/exportacion/'
+      preLoaderRoute: typeof ExportacionIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exportacion/$maquina': {
+      id: '/exportacion/$maquina'
+      path: '/exportacion/$maquina'
+      fullPath: '/exportacion/$maquina'
+      preLoaderRoute: typeof ExportacionMaquinaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feeds/$arquivo': {
       id: '/feeds/$arquivo'
       path: '/feeds/$arquivo'
@@ -2891,6 +2945,13 @@ declare module '@tanstack/react-router' {
       path: '/empresas/proforma/$codigo'
       fullPath: '/empresas/proforma/$codigo'
       preLoaderRoute: typeof EmpresasProformaCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exportacion/$maquina_/$ciudad': {
+      id: '/exportacion/$maquina_/$ciudad'
+      path: '/exportacion/$maquina/$ciudad'
+      fullPath: '/exportacion/$maquina/$ciudad'
+      preLoaderRoute: typeof ExportacionMaquinaCiudadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repuestos/$slug_/$sub': {
@@ -3349,6 +3410,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasPortalRoute: EmpresasPortalRoute,
   EmpresasRegistroRoute: EmpresasRegistroRoute,
   EtiquetaIdRoute: EtiquetaIdRoute,
+  ExportacionMaquinaRoute: ExportacionMaquinaRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,
   IgSplatRoute: IgSplatRoute,
@@ -3362,6 +3424,7 @@ const rootRouteChildren: RootRouteChildren = {
   UploadsSplatRoute: UploadsSplatRoute,
   CatalogosIndexRoute: CatalogosIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
+  ExportacionIndexRoute: ExportacionIndexRoute,
   GuiasIndexRoute: GuiasIndexRoute,
   RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
@@ -3395,6 +3458,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasCotizacionCodigoRoute: EmpresasCotizacionCodigoRoute,
   EmpresasDocumentoCodigoRoute: EmpresasDocumentoCodigoRoute,
   EmpresasProformaCodigoRoute: EmpresasProformaCodigoRoute,
+  ExportacionMaquinaCiudadRoute: ExportacionMaquinaCiudadRoute,
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminAduanaArquivoRoute: ApiAdminAduanaArquivoRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,

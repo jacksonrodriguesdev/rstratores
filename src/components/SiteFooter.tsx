@@ -142,6 +142,11 @@ export function SiteFooter() {
                 {t("Registrá tu empresa", "Cadastre sua empresa")}
               </Link>
             </li>
+            <li>
+              <Link to="/exportacion" className="transition-colors hover:text-white">
+                {t("Exportación a Uruguay", "Exportação ao Uruguai")}
+              </Link>
+            </li>
             {AYUDA.map((a) => (
               <li key={a.hash}>
                 <Link to="/ayuda" hash={a.hash} className="transition-colors hover:text-white">
