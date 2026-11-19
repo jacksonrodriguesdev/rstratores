@@ -81,8 +81,6 @@ const GRUPOS: Grupo[] = [
   {
     titulo: "Vendas",
     itens: [
-      { to: "/admin/cotacoes", label: "Cotações", icon: Calculator },
-      { to: "/admin/empresas", label: "Empresas (atacado)", icon: Building2 },
       { to: "/admin/clientes", label: "Clientes", icon: Users },
       { to: "/admin/captura", label: "Captação de visitantes", icon: Magnet },
       { to: "/admin/carrinhos", label: "Carrinhos", icon: ShoppingCart },
@@ -92,6 +90,25 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/fiscal", label: "Fiscal (MEI e notas)", icon: Landmark },
       { to: "/admin/extratos", label: "Extrato do banco", icon: ReceiptText },
       { to: "/admin/avaliacoes", label: "Avaliações", icon: Star },
+    ],
+  },
+  {
+    titulo: "Exportação e cotações",
+    itens: [
+      {
+        label: "Mayorista (empresas)",
+        icon: Building2,
+        sub: [
+          { to: "/admin/empresas", search: { aba: "cotacoes" }, label: "Cotações (atacado)" },
+          { to: "/admin/empresas", search: { aba: "empresas" }, label: "Empresas" },
+          { to: "/admin/empresas", search: { aba: "catalogo" }, label: "Catálogo de exportação" },
+          { to: "/admin/empresas", search: { aba: "embarques" }, label: "Embarques" },
+          { to: "/admin/empresas", search: { aba: "aduana" }, label: "Aduana" },
+          { to: "/admin/empresas", search: { aba: "despachantes" }, label: "Despachantes" },
+        ],
+      },
+      { to: "/admin/cubagem", label: "Cubagem / Logística", icon: Boxes },
+      { to: "/admin/cotacoes", label: "Solicitações do site (cotizar)", icon: Calculator },
     ],
   },
   {
@@ -187,7 +204,6 @@ const GRUPOS: Grupo[] = [
             icon: Tags,
           },
       { to: "/admin/catalogos", label: "Catálogos (PDF)", icon: BookOpen },
-      { to: "/admin/cubagem", label: "Cubagem / Logística", icon: Boxes },
     ],
   },
   {

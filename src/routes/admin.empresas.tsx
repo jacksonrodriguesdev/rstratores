@@ -54,10 +54,12 @@ import { acordoDaNcm, origemValida, STATUS_ORIGEM_PT } from "@/lib/aduana/aduana
 import { Selo, tomStatus } from "@/components/b2b/B2bLayout";
 import { cn } from "@/lib/utils";
 
-type Busca = { cotacao?: string };
+type Busca = { cotacao?: string; aba?: string };
+const ABAS_VALIDAS = ["cotacoes", "empresas", "catalogo", "embarques", "aduana", "despachantes"];
 export const Route = createFileRoute("/admin/empresas")({
   validateSearch: (s: Record<string, unknown>): Busca => ({
     cotacao: typeof s.cotacao === "string" ? s.cotacao.slice(0, 16) : undefined,
+    aba: typeof s.aba === "string" && ABAS_VALIDAS.includes(s.aba) ? s.aba : undefined,
   }),
   component: PaginaEmpresas,
 });
@@ -71,7 +73,11 @@ function PaginaEmpresas() {
   const [embarque, setEmbarque] = useState<string | null>(null);
   const { data: aduana } = usePainelAduana();
   const [empresa, setEmpresa] = useState<Painel["empresas"][number] | null>(null);
-  const [aba, setAba] = useState("cotacoes");
+  const [aba, setAba] = useState(busca.aba ?? "cotacoes");
+  // Submenus do sidebar abrem a aba pela URL (?aba=)
+  useEffect(() => {
+    if (busca.aba) setAba(busca.aba);
+  }, [busca.aba]);
   const n = useMemo(() => {
     const e = data?.empresas ?? [];
     const c = data?.cotacoes ?? [];
@@ -84,8 +90,8 @@ function PaginaEmpresas() {
     };
   }, [data]);
   useEffect(() => {
-    if (n.pendentes && !n.novas) setAba("empresas");
-  }, [n.pendentes, n.novas]);
+    if (!busca.aba && n.pendentes && !n.novas) setAba("empresas");
+  }, [n.pendentes, n.novas, busca.aba]);
 
   return (
     <div className="space-y-6">
