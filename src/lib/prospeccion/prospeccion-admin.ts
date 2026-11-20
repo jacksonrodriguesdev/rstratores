@@ -86,3 +86,8 @@ export const obtenerProspectoFn = createServerFn({ method: "GET" })
     await admin();
     return (await import("./prospeccion.server")).obtenerProspecto(data.id);
   });
+
+export const importarSemillaFn = createServerFn({ method: "POST" }).handler(async () => {
+  await admin();
+  return (await import("./prospeccion.server")).importarSemillaUy();
+});

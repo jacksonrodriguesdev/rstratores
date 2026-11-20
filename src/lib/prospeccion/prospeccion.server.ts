@@ -305,7 +305,7 @@ export async function importarProspectos(
       nombre,
       l.tipo || defaults.tipo || null,
       ciudad,
-      defaults.departamento || null,
+      l.departamento || defaults.departamento || null,
       telefono,
       defaults.origen || "maps",
       clave,
@@ -313,6 +313,12 @@ export async function importarProspectos(
     insertados++;
   }
   return { insertados, duplicados, total: linhas.length };
+}
+
+// Carrega a base inicial de empresas do Uruguai (semilla-uy.ts). Dedup por nome+cidade.
+export async function importarSemillaUy() {
+  const { SEMILLA_UY } = await import("./semilla-uy");
+  return importarProspectos(SEMILLA_UY, { origen: "maps" });
 }
 
 export async function exportarProspectosCsv(): Promise<string> {

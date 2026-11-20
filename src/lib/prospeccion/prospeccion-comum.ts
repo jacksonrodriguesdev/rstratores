@@ -83,6 +83,7 @@ export type ProspectoNuevo = {
   ciudad?: string | null;
   telefono?: string | null;
   tipo?: string | null;
+  departamento?: string | null;
 };
 export function parseLinhas(texto: string): ProspectoNuevo[] {
   const out: ProspectoNuevo[] = [];

@@ -29,6 +29,7 @@ import {
   exportarProspectosFn,
   prospectosMapaFn,
   obtenerProspectoFn,
+  importarSemillaFn,
 } from "@/lib/prospeccion/prospeccion-admin";
 import {
   ESTADOS,
@@ -86,6 +87,24 @@ function ProspeccionPage() {
   };
   const set = (patch: Partial<Filtro>) => setF((v) => ({ ...v, ...patch, pagina: 1 }));
 
+  const [cargandoBase, setCargandoBase] = useState(false);
+  const cargarBase = async () => {
+    if (
+      !confirm(
+        "Cargar la base inicial de empresas de Uruguay (repuesteras, talleres, maquinaria y camiones)? No duplica las que ya estén.",
+      )
+    )
+      return;
+    setCargandoBase(true);
+    try {
+      const r = await importarSemillaFn();
+      refrescar();
+      alert(`Listo: ${r.insertados} agregadas, ${r.duplicados} ya existían.`);
+    } finally {
+      setCargandoBase(false);
+    }
+  };
+
   const guardar = async () => {
     if (!edit?.nombre?.trim()) return alert("El nombre es obligatorio.");
     await guardarProspectoFn({ data: edit });
@@ -130,6 +149,13 @@ function ProspeccionPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button
+            onClick={cargarBase}
+            disabled={cargandoBase}
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            <MapPin className="h-4 w-4" /> {cargandoBase ? "Cargando…" : "Cargar base de empresas"}
+          </button>
           <button
             onClick={() => setImportar(true)}
             className="inline-flex h-10 items-center gap-2 rounded-lg bg-zinc-900 px-4 text-sm font-bold text-white hover:bg-zinc-800"
@@ -480,12 +506,22 @@ function MapaProspectos({
     const layer = layerRef.current;
     if (!L || !layer) return;
     layer.clearLayers();
+    const bounds: Array<[number, number]> = [];
     for (const p of puntos) {
-      const co =
-        p.lat != null && p.lng != null
-          ? ([p.lat, p.lng] as [number, number])
-          : coordDeCiudad(p.ciudad);
+      let co: [number, number] | null = null;
+      if (p.lat != null && p.lng != null) {
+        co = [p.lat, p.lng];
+      } else {
+        const c = coordDeCiudad(p.ciudad);
+        if (c) {
+          // Espalha lojas da mesma cidade em espiral, pra não ficarem empilhadas no centroide.
+          const ang = p.id * 2.399963;
+          const r = 0.016 + ((p.id * 7) % 6) * 0.006;
+          co = [c[0] + r * Math.cos(ang), c[1] + r * Math.sin(ang)];
+        }
+      }
       if (!co) continue;
+      bounds.push(co);
       const info = estadoInfo(p.estado);
       const icon = L.divIcon({
         className: "",
@@ -505,6 +541,13 @@ function MapaProspectos({
           <a href="#" onclick="window.__prospEditar&&window.__prospEditar(${p.id});return false" style="color:#2f6abf;font-weight:700">Editar</a>
         </div></div>`;
       L.marker(co, { icon }).addTo(layer).bindPopup(html);
+    }
+    if (bounds.length && mapRef.current) {
+      try {
+        mapRef.current.fitBounds(bounds, { padding: [30, 30], maxZoom: 11 });
+      } catch {
+        /* ignora */
+      }
     }
   }, [puntos]);
 
