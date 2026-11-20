@@ -57,14 +57,37 @@ export function importarMannSeNecessario() {
   return processo;
 }
 
+const URL_BASE = "https://mannpecas.com.br/wp-content/uploads/produtos/imagens/";
+
 async function executar() {
   const { prisma } = await import("../prisma");
+  const catId = await garantirCategoria(prisma);
   const [cont] = await prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
     "SELECT COUNT(*) n FROM agricolas WHERE imagem_origem='mannpecas'",
   );
-  if (Number(cont?.n ?? 0) > 0) return; // já importado
 
-  const catId = await garantirCategoria(prisma);
+  // Já importado (talvez por uma versão antiga): conserta categoria e fotos se ainda estiverem
+  // no esquema antigo (category_id diferente / imagem em /mann/... em vez da URL). Idempotente.
+  if (Number(cont?.n ?? 0) > 0) {
+    const [pend] = await prisma.$queryRawUnsafe<Array<{ n: bigint }>>(
+      "SELECT COUNT(*) n FROM agricolas WHERE imagem_origem='mannpecas' AND (category_id <> ? OR imagem_principal LIKE '/mann/%')",
+      catId,
+    );
+    if (Number(pend?.n ?? 0) > 0) {
+      await prisma.$executeRawUnsafe(
+        "UPDATE agricolas SET category_id=?, categoria=? WHERE imagem_origem='mannpecas' AND category_id <> ?",
+        catId,
+        CATEGORIA_NOME,
+        catId,
+      );
+      await prisma.$executeRawUnsafe(
+        `UPDATE agricolas SET imagem_principal=CONCAT('${URL_BASE}', sku, '.jpg') WHERE imagem_origem='mannpecas' AND imagem_principal LIKE '/mann/%'`,
+      );
+      console.log("[mann] catálogo corrigido (categoria Colheitadeiras + fotos por URL)");
+    }
+    return;
+  }
+
   const COLS =
     "sku, nome, marca, marca_confirmada, categoria, category_id, veiculos_compativeis, codigo_fabricante, imagem_principal, imagem_origem, estoque, updated_at";
   let i = 0;
@@ -84,7 +107,7 @@ async function executar() {
           catId,
           veic,
           it.s,
-          it.i ? `https://mannpecas.com.br/wp-content/uploads/produtos/imagens/${it.s}.jpg` : null,
+          it.i ? `${URL_BASE}${it.s}.jpg` : null,
           "mannpecas",
           0,
         );
@@ -94,5 +117,5 @@ async function executar() {
     await prisma.$executeRawUnsafe(`INSERT IGNORE INTO agricolas (${COLS}) VALUES ${ph}`, ...vals);
     i += lote.length;
   }
-  console.log(`[mann] produtos importados: ${i} (fotos em /mann/<sku>.jpg)`);
+  console.log(`[mann] produtos importados: ${i} (categoria Colheitadeiras, fotos por URL)`);
 }
