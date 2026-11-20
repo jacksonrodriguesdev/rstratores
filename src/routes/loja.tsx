@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Camera,
   Bell,
+  ChevronRight,
 } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -132,6 +133,116 @@ function paramsIniciais(categoria?: string, marca?: string): ListParams {
   };
 }
 
+// Filtro de categorias com hierarquia: categorias nomeadas "Pai · Filho" (ex.: "Colheitadeiras ·
+// Peças Caldeiraria") viram um grupo colapsável; marcar o pai filtra tudo dele, marcar um filho
+// filtra só ele. Categorias simples (sem "·") seguem como lista plana.
+function CategoriaFiltro({
+  opcoes,
+  selecionados,
+  setter,
+  idioma,
+  rotulo,
+  t,
+}: {
+  opcoes?: { name: string; count: number }[];
+  selecionados: string[];
+  setter: (v: string[]) => void;
+  idioma: string;
+  rotulo: (n: string) => string;
+  t: (es: string, pt: string) => string;
+}) {
+  const [abertos, setAbertos] = useState<Record<string, boolean>>({});
+  if (!opcoes)
+    return <div className="p-2 text-sm text-zinc-500">{t("Cargando…", "Carregando…")}</div>;
+  const alterna = (v: string) =>
+    setter(selecionados.includes(v) ? selecionados.filter((x) => x !== v) : [...selecionados, v]);
+  const fmt = (n: number) => n.toLocaleString(idioma === "pt" ? "pt-BR" : "es-UY");
+  const chkCls =
+    "rounded-[4px] border-zinc-300 data-[state=checked]:border-primary data-[state=checked]:bg-primary";
+
+  const flat: { name: string; count: number }[] = [];
+  const grupos = new Map<string, { full: string; child: string; count: number }[]>();
+  for (const o of opcoes) {
+    const i = o.name.indexOf(" · ");
+    if (i === -1) flat.push(o);
+    else {
+      const pai = o.name.slice(0, i);
+      if (!grupos.has(pai)) grupos.set(pai, []);
+      grupos.get(pai)!.push({ full: o.name, child: o.name.slice(i + 3), count: o.count });
+    }
+  }
+  const Item = ({
+    name,
+    label,
+    count,
+    forte,
+  }: {
+    name: string;
+    label: string;
+    count: number;
+    forte?: boolean;
+  }) => (
+    <label className="group flex cursor-pointer items-center justify-between gap-3 rounded p-1.5 transition-colors hover:bg-zinc-100">
+      <div className="flex items-center gap-3">
+        <Checkbox
+          checked={selecionados.includes(name)}
+          onCheckedChange={() => alterna(name)}
+          className={chkCls}
+        />
+        <span
+          className={cn(
+            "text-sm text-zinc-700 group-hover:text-zinc-900",
+            forte ? "font-semibold" : "font-medium",
+          )}
+        >
+          {label}
+        </span>
+      </div>
+      <span className="rounded-full border border-zinc-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-zinc-400">
+        {fmt(count)}
+      </span>
+    </label>
+  );
+
+  return (
+    <div className="space-y-1">
+      {flat.map((o) => (
+        <Item key={o.name} name={o.name} label={rotulo(o.name)} count={o.count} />
+      ))}
+      {[...grupos.entries()].map(([pai, filhos]) => {
+        const total = filhos.reduce((s, f) => s + f.count, 0);
+        const aberto = !!abertos[pai];
+        return (
+          <div key={pai}>
+            <div className="flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => setAbertos((a) => ({ ...a, [pai]: !a[pai] }))}
+                className="shrink-0 rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+                aria-label={aberto ? "Recolher" : "Expandir"}
+              >
+                <ChevronRight
+                  className={cn("h-4 w-4 transition-transform", aberto && "rotate-90")}
+                />
+              </button>
+              <div className="min-w-0 flex-1">
+                <Item name={pai} label={rotulo(pai)} count={total} forte />
+              </div>
+            </div>
+            {aberto && (
+              <div className="ml-3 space-y-0.5 border-l border-zinc-100 pl-2">
+                {filhos.map((f) => (
+                  <Item key={f.full} name={f.full} label={f.child} count={f.count} />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function LojaPage() {
   const { t, idioma } = useT();
   const { q, categoria, marca, linha } = Route.useSearch();
@@ -221,6 +332,17 @@ function LojaPage() {
 
   // Trocou categoria/marca: volta a mostrar primeiro só as com foto
   useEffect(() => setSoComFoto(true), [categorias, marcas]);
+
+  // Trocou categoria/marca: leva a página de volta ao topo (senão, com a lista encolhendo,
+  // o scroll ficava lá no rodapé). Não roda na 1ª renderização.
+  const primeiraCarga = useRef(true);
+  useEffect(() => {
+    if (primeiraCarga.current) {
+      primeiraCarga.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [categorias, marcas, busca]);
 
   // Categoria ou marca sem nenhuma peça com foto: mostra todas em vez de uma lista vazia
   useEffect(() => {
@@ -370,9 +492,14 @@ function LojaPage() {
             </span>
           </AccordionTrigger>
           <AccordionContent className="space-y-1 px-1 pb-4 pt-1">
-            {listaFiltro(facets?.categorias, categorias, setCategorias, (n) =>
-              categoriaNo(n, idioma),
-            )}
+            <CategoriaFiltro
+              opcoes={facets?.categorias}
+              selecionados={categorias}
+              setter={setCategorias}
+              idioma={idioma}
+              rotulo={(n) => categoriaNo(n, idioma)}
+              t={t}
+            />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="marcas" className="border-b-0">
