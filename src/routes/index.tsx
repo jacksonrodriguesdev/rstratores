@@ -338,6 +338,8 @@ function HomePage() {
           </Fragment>
         ))}
 
+        <VitrineColheitadeiras />
+
         <VitrineDiesel />
 
         <ConviteImportacao />
@@ -416,6 +418,48 @@ function AnuncioSlider() {
   return (
     <section className="mt-3 md:mt-5">
       <HeroCarousel banners={banners} variante="anuncio" />
+    </section>
+  );
+}
+
+// Primeiro carrossel de produtos da home: peças de colheitadeira (categoria "Colheitadeiras",
+// linha agrícola). Aparece só quando há produtos nessa categoria; some sozinha se não houver.
+function VitrineColheitadeiras() {
+  const { t, href } = useT();
+  const { data, isLoading } = useQuery({
+    queryKey: ["home-vitrine-colheitadeiras"],
+    queryFn: () =>
+      listProducts({
+        linha: "AGRICOLA",
+        categoria: "Colheitadeiras",
+        hasImage: true,
+        vitrine: true,
+        pageSize: 12,
+      }),
+    staleTime: 5 * 60 * 1000,
+  });
+  const rows = ((data as any)?.rows ?? []) as any[];
+  if (!isLoading && !rows.length) return null;
+  return (
+    <section className="mx-auto max-w-7xl px-3 pt-6 md:px-4 md:pt-8">
+      <div className="mb-1 flex items-end justify-between gap-2">
+        <h2 className="text-lg font-bold md:text-2xl">
+          {t("Repuestos para cosechadoras", "Peças para colheitadeiras")}
+        </h2>
+        <a
+          href={href("/loja?categoria=Colheitadeiras")}
+          className="shrink-0 text-sm font-semibold text-primary"
+        >
+          {t("Ver todo →", "Ver tudo →")}
+        </a>
+      </div>
+      <p className="mb-3 text-sm text-muted-foreground">
+        {t(
+          "Plataforma, molinete, zarandas y piezas de cosechadora John Deere, New Holland, Case y Massey.",
+          "Plataforma, molinete, peneiras e peças de colheitadeira John Deere, New Holland, Case e Massey.",
+        )}
+      </p>
+      <ProductRail products={rows} loading={isLoading} />
     </section>
   );
 }
