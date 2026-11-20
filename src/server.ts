@@ -160,6 +160,10 @@ function iniciarAutomacoes() {
   import("./lib/prospeccion/prospeccion.server")
     .then((m) => m.garantirTabelaProspectos())
     .catch((e) => console.error("tabela prospectos", e));
+  // Catálogo Mann (linha agrícola/colheitadeiras): importação única + download das fotos
+  import("./lib/mann/importar-mann.server")
+    .then((m) => m.importarMannSeNecessario())
+    .catch((e) => console.error("import mann", e));
   import("./lib/automacoes.server")
     .then((m) => m.iniciarAgendador())
     .catch((e) => console.error("automações", e));
