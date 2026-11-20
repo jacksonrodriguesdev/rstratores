@@ -160,10 +160,16 @@ function iniciarAutomacoes() {
   import("./lib/prospeccion/prospeccion.server")
     .then((m) => m.garantirTabelaProspectos())
     .catch((e) => console.error("tabela prospectos", e));
-  // Catálogo Mann (linha agrícola/colheitadeiras): importação única + download das fotos
-  import("./lib/mann/importar-mann.server")
-    .then((m) => m.importarMannSeNecessario())
-    .catch((e) => console.error("import mann", e));
+  // Catálogo Mann (linha agrícola/colheitadeiras): importação/reorganização única. ADIADA ~2 min
+  // para não competir com a reconstrução do índice do catálogo no cold-start (evita 504 no boot).
+  setTimeout(
+    () => {
+      import("./lib/mann/importar-mann.server")
+        .then((m) => m.importarMannSeNecessario())
+        .catch((e) => console.error("import mann", e));
+    },
+    2 * 60 * 1000,
+  );
   import("./lib/automacoes.server")
     .then((m) => m.iniciarAgendador())
     .catch((e) => console.error("automações", e));

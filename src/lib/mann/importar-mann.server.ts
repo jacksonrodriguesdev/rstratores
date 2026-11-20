@@ -12,6 +12,7 @@ const ITENS = dados as Item[];
 const PAI = "Colheitadeiras";
 const URL_BASE = "https://mannpecas.com.br/wp-content/uploads/produtos/imagens/";
 const catTexto = (sg: string) => `${PAI} · ${sg}`;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const MARCA: Record<string, string> = {
   "JOHN DEERE": "John Deere",
@@ -112,6 +113,7 @@ async function executar() {
           catTexto(sg),
           ...lote,
         );
+        await sleep(80);
       }
     }
     await prisma.$executeRawUnsafe(
@@ -150,6 +152,7 @@ async function executar() {
       .join(",");
     await prisma.$executeRawUnsafe(`INSERT IGNORE INTO agricolas (${COLS}) VALUES ${ph}`, ...vals);
     i += lote.length;
+    await sleep(80);
   }
   console.log(`[mann] produtos importados: ${i} (Colheitadeiras › ${subgrupos.length} subgrupos)`);
 }
