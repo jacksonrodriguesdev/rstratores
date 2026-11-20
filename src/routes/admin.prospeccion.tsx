@@ -224,6 +224,7 @@ function ProspeccionPage() {
           puntos={puntos ?? []}
           onEditar={abrirEdicion}
           onAgregar={(d) => setEdit({ ...vacio, ...d })}
+          onCliente={(id) => cambiarEstado(id, "cliente")}
         />
       )}
 
@@ -444,14 +445,20 @@ function cargarLeaflet(): Promise<unknown> {
   return w.__leafletP;
 }
 
+// Perfil da empresa no Google Maps (abre o lugar real pela busca nome+cidade).
+const urlGoogleMaps = (nombre: string, ciudad?: string | null) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${nombre} ${ciudad ?? ""} Uruguay`)}`;
+
 function MapaProspectos({
   puntos,
   onEditar,
   onAgregar,
+  onCliente,
 }: {
   puntos: PuntoMapa[];
   onEditar: (id: number) => void;
   onAgregar: (d: { lat: number; lng: number; ciudad: string; departamento: string }) => void;
+  onCliente: (id: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -463,9 +470,11 @@ function MapaProspectos({
   const modoRef = useRef(false);
   const agregarRef = useRef(onAgregar);
   const editarRef = useRef(onEditar);
+  const clienteRef = useRef(onCliente);
   modoRef.current = modo;
   agregarRef.current = onAgregar;
   editarRef.current = onEditar;
+  clienteRef.current = onCliente;
 
   useEffect(() => {
     let cancel = false;
@@ -486,8 +495,12 @@ function MapaProspectos({
           agregarRef.current({ lat, lng, ciudad: lugar.nombre, departamento: lugar.departamento });
           setModo(false);
         });
-        (window as unknown as { __prospEditar?: (id: number) => void }).__prospEditar = (id) =>
-          editarRef.current(id);
+        const w = window as unknown as {
+          __prospEditar?: (id: number) => void;
+          __prospCliente?: (id: number) => void;
+        };
+        w.__prospEditar = (id) => editarRef.current(id);
+        w.__prospCliente = (id) => clienteRef.current(id);
         mapRef.current = map;
         setTimeout(() => map.invalidateSize(), 120);
       })
@@ -523,24 +536,38 @@ function MapaProspectos({
       if (!co) continue;
       bounds.push(co);
       const info = estadoInfo(p.estado);
+      // Pins verdes. Cliente = verde escuro com ✓ (destaque); descartado = cinza; resto = verde.
+      const esCliente = p.estado === "cliente";
+      const esDescartado = p.estado === "descartado";
+      const cor = esCliente ? "#06821b" : esDescartado ? "#9aa4ad" : "#1f9d57";
+      const tam = esCliente ? 22 : 16;
       const icon = L.divIcon({
         className: "",
-        html: `<span style="display:block;width:16px;height:16px;border-radius:50%;background:${info.cor};border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)"></span>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+        html: esCliente
+          ? `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:${cor};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4);color:#fff;font-size:13px;font-weight:700">✓</span>`
+          : `<span style="display:block;width:${tam}px;height:${tam}px;border-radius:50%;background:${cor};border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)"></span>`,
+        iconSize: [tam, tam],
+        iconAnchor: [tam / 2, tam / 2],
       });
       const wa = p.telefono
         ? `https://wa.me/${telefonoWhatsapp(p.telefono)}?text=${encodeURIComponent(mensajeWhatsapp(p))}`
         : null;
-      const html = `<div style="min-width:170px;font-size:13px">
-        <strong>${escapeHtml(p.nombre)}</strong><br/>
+      const maps = urlGoogleMaps(p.nombre, p.ciudad);
+      const html = `<div style="min-width:190px;font-size:13px;line-height:1.5">
+        <strong style="font-size:14px">${escapeHtml(p.nombre)}</strong><br/>
         <span style="color:#666">${escapeHtml(p.ciudad || "")}${p.tipo ? " · " + escapeHtml(tipoEs(p.tipo)) : ""}</span><br/>
         <span style="color:${info.cor};font-weight:700">${info.es}</span>
-        <div style="margin-top:6px;display:flex;gap:10px">
+        <a href="${maps}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:7px 10px;border-radius:8px;background:#eef3ee;color:#06321b;font-weight:700;text-decoration:none">📍 Ver en Google Maps</a>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px 12px">
           ${wa ? `<a href="${wa}" target="_blank" rel="noopener noreferrer" style="color:#128C3E;font-weight:700">WhatsApp</a>` : ""}
+          ${esCliente ? "" : `<a href="#" onclick="window.__prospCliente&&window.__prospCliente(${p.id});return false" style="color:#06821b;font-weight:700">✓ Cliente</a>`}
           <a href="#" onclick="window.__prospEditar&&window.__prospEditar(${p.id});return false" style="color:#2f6abf;font-weight:700">Editar</a>
         </div></div>`;
-      L.marker(co, { icon }).addTo(layer).bindPopup(html);
+      const marker = L.marker(co, { icon, title: p.nombre, riseOnHover: true })
+        .addTo(layer)
+        .bindPopup(html);
+      // Ao passar o mouse, abre o cartão da empresa (com o link do Google Maps).
+      marker.on("mouseover", () => marker.openPopup());
     }
     if (bounds.length && mapRef.current) {
       try {
@@ -567,11 +594,23 @@ function MapaProspectos({
           {modo ? "Hacé clic en el mapa para ubicar…" : "Añadir en el mapa"}
         </button>
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-600">
-          {ESTADOS.map((e) => (
-            <span key={e.v} className="inline-flex items-center gap-1">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ background: e.cor }} /> {e.es}
-            </span>
-          ))}
+          <span className="inline-flex items-center gap-1">
+            <span
+              className="grid h-3.5 w-3.5 place-items-center rounded-full text-[8px] font-bold text-white"
+              style={{ background: "#06821b" }}
+            >
+              ✓
+            </span>{" "}
+            Cliente
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "#1f9d57" }} />{" "}
+            Prospecto
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "#9aa4ad" }} />{" "}
+            Descartado
+          </span>
         </div>
       </div>
       <div className="isolate overflow-hidden rounded-xl border border-zinc-200">
