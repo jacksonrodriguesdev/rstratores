@@ -502,7 +502,13 @@ function Stat({ valor, label }: { valor: string; label: string }) {
   );
 }
 
-export function PaginaExportacionHome({ total }: { total: number }) {
+export function PaginaExportacionHome({
+  total,
+  productos = [],
+}: {
+  total: number;
+  productos?: Product[];
+}) {
   const wa = whatsappContactUrl("¡Hola! Soy revendedor en Uruguay y quiero importar repuestos.");
   const s = statsExport(total);
   const deps = ciudadesPorDepartamento();
@@ -565,6 +571,30 @@ export function PaginaExportacionHome({ total }: { total: number }) {
               </div>
             ))}
           </section>
+
+          {/* Vitrine de produtos reais */}
+          {productos.length > 0 && (
+            <section>
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <h2 className="text-2xl font-extrabold text-zinc-900 md:text-3xl">
+                    Algunos de los repuestos que exportamos
+                  </h2>
+                  <p className="mt-1 text-zinc-600">
+                    Piezas reales de nuestro stock, con código original y foto.
+                  </p>
+                </div>
+                <a href="/loja" className="text-sm font-bold text-primary hover:underline">
+                  Ver todo el catálogo →
+                </a>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6">
+                {productos.map((p, i) => (
+                  <CardLoja key={p.sku} p={p} prioridade={i < 2} />
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Líneas de exportación */}
           <section>

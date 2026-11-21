@@ -147,6 +147,11 @@ export function SiteFooter() {
                 {t("Exportación a Uruguay", "Exportação ao Uruguai")}
               </Link>
             </li>
+            <li>
+              <Link to="/exportacion/como-importar" className="transition-colors hover:text-white">
+                {t("Cómo importar desde Brasil", "Como importar do Brasil")}
+              </Link>
+            </li>
             {AYUDA.map((a) => (
               <li key={a.hash}>
                 <Link to="/ayuda" hash={a.hash} className="transition-colors hover:text-white">

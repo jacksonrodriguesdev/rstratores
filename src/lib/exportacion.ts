@@ -31,6 +31,29 @@ export const getPaginaExportFn = createServerFn({ method: "GET" })
     });
   });
 
+// Produtos em destaque (com foto) para a vitrine da landing /exportacion: mistura das linhas.
+export const destaquesExportFn = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Product[]> => {
+    const { emCache } = await import("./cache.server");
+    return emCache("export|destaques", 15 * 60_000, async () => {
+      const { listProducts } = await import("./products.server");
+      // Só linha agrícola: fotos próprias do catálogo (sem marca d'água de terceiros).
+      const r = await listProducts({
+        linha: "AGRICOLA",
+        hasImage: true,
+        vitrine: true,
+        sort: "nome-asc",
+        pageSize: 24,
+      }).catch(() => ({ rows: [] as Product[] }));
+      const rows = r.rows as Product[];
+      // Prioriza as fotos próprias (/catalogo/), que são as mais limpas e rápidas.
+      const proprias = rows.filter((p) => String(p.imagem_principal ?? "").includes("/catalogo/"));
+      const resto = rows.filter((p) => !String(p.imagem_principal ?? "").includes("/catalogo/"));
+      return [...proprias, ...resto].slice(0, 12);
+    });
+  },
+);
+
 // Total de peças exportáveis (agrícola + caminhões + diesel) para o hub /exportacion.
 export const totalExportFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<number> => {

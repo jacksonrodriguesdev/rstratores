@@ -521,6 +521,14 @@ export function SiteHeader() {
               ))}
 
               <div className="flex-1" />
+              {idioma === "es" && (
+                <Link
+                  to="/exportacion"
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
+                >
+                  <Truck className="h-3.5 w-3.5 text-emerald-300" /> Exportación
+                </Link>
+              )}
               <Link
                 to="/catalogos"
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"

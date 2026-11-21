@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/site";
-import { totalExportFn } from "@/lib/exportacion";
+import { totalExportFn, destaquesExportFn } from "@/lib/exportacion";
 import { PaginaExportacionHome } from "@/components/PaginaExportacion";
 
 // /exportacion — página pilar geral do projeto de exportação ao Uruguai (espanhol).
 export const Route = createFileRoute("/exportacion/")({
-  loader: async () => ({ total: await totalExportFn().catch(() => 0) }),
+  loader: async () => ({
+    total: await totalExportFn().catch(() => 0),
+    productos: await destaquesExportFn().catch(() => []),
+  }),
   head: () => {
     const url = `${SITE_URL}/exportacion`;
     const titulo = "Exportación de repuestos a Uruguay | AGRO PARTS";
@@ -26,6 +29,6 @@ export const Route = createFileRoute("/exportacion/")({
 });
 
 function Pagina() {
-  const { total } = Route.useLoaderData();
-  return <PaginaExportacionHome total={total} />;
+  const { total, productos } = Route.useLoaderData();
+  return <PaginaExportacionHome total={total} productos={productos} />;
 }
