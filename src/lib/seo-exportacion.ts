@@ -461,24 +461,172 @@ export function urlCatalogoExport(m: MaquinaExport): string {
 export type TipoPieza = {
   slug: string;
   es: string; // nome exibido
+  plural: string; // minúsculo p/ frases ("filtros para…")
   categoria?: string; // valor de categoria no banco (pt)
   busca?: string; // termo de busca
   linha?: LinhaExport; // força a linha (senão, todas)
+  intro: string; // parágrafo (es)
+  incluye: string[]; // exemplos de peças do tipo (long-tail)
+  maquinas: string[]; // máquinas em que esse tipo é usado
 };
 export const TIPOS_PIEZA: TipoPieza[] = [
-  { slug: "filtros", es: "Filtros", categoria: "Filtros" },
-  { slug: "rodamientos", es: "Rodamientos y soportes", categoria: "Rolamentos e Mancais" },
-  { slug: "transmision", es: "Engranajes y transmisión", categoria: "Engrenagens e Transmissão" },
-  { slug: "hidraulica", es: "Hidráulica y bombas", categoria: "Hidráulica e Pneumática" },
-  { slug: "juntas-y-retenes", es: "Juntas y retenes", categoria: "Vedações" },
-  { slug: "frenos-y-embragues", es: "Frenos y embragues", categoria: "Freios e Embreagens" },
-  { slug: "electrica-y-sensores", es: "Eléctrica y sensores", categoria: "Elétrica e Sensores" },
-  { slug: "estructura-y-rodados", es: "Estructura y rodados", categoria: "Estrutura e Suspensão" },
-  { slug: "inyeccion-diesel", es: "Inyección diesel", busca: "injetora", linha: "DIESEL" },
-  { slug: "motor", es: "Motor (pistones, bielas)", busca: "pistao" },
-  { slug: "cosecha", es: "Cosecha (cóncavos, zarandas)", busca: "concavo" },
-  { slug: "correas-y-cadenas", es: "Correas y cadenas", busca: "correia" },
+  {
+    slug: "filtros",
+    es: "Filtros",
+    plural: "filtros",
+    categoria: "Filtros",
+    intro:
+      "Filtros originales y equivalentes para tractores, cosechadoras, camiones y motores diesel: la reposición que más rota en cualquier taller.",
+    incluye: [
+      "filtro de aceite",
+      "filtro de combustible",
+      "filtro de aire",
+      "filtro hidráulico",
+      "filtro separador de agua",
+      "filtro de cabina",
+    ],
+    maquinas: ["tractores", "cosechadoras", "camiones", "excavadoras"],
+  },
+  {
+    slug: "rodamientos",
+    es: "Rodamientos y soportes",
+    plural: "rodamientos",
+    categoria: "Rolamentos e Mancais",
+    intro:
+      "Rodamientos, soportes y mazas para toda la línea agrícola y pesada, de marcas líderes, con la medida y el código exactos.",
+    incluye: [
+      "rodamiento de rueda",
+      "rodamiento cónico",
+      "soporte con rodamiento",
+      "maza",
+      "rodamiento de embrague",
+    ],
+    maquinas: ["tractores", "cosechadoras", "camiones"],
+  },
+  {
+    slug: "transmision",
+    es: "Engranajes y transmisión",
+    plural: "repuestos de transmisión",
+    categoria: "Engrenagens e Transmissão",
+    intro:
+      "Engranajes, ejes, sincronizados y piezas de caja y diferencial para tractores y camiones, con aplicación por modelo.",
+    incluye: ["engranaje", "eje", "piñón", "corona", "sincronizado", "cardán"],
+    maquinas: ["tractores", "camiones", "cosechadoras"],
+  },
+  {
+    slug: "hidraulica",
+    es: "Hidráulica y bombas",
+    plural: "repuestos hidráulicos",
+    categoria: "Hidráulica e Pneumática",
+    intro:
+      "Bombas, cilindros, válvulas, mangueras y sellos hidráulicos para tractores, cosechadoras y línea amarilla.",
+    incluye: [
+      "bomba hidráulica",
+      "cilindro hidráulico",
+      "válvula de control",
+      "manguera hidráulica",
+      "kit de sellos",
+    ],
+    maquinas: ["tractores", "excavadoras", "cosechadoras"],
+  },
+  {
+    slug: "juntas-y-retenes",
+    es: "Juntas y retenes",
+    plural: "juntas y retenes",
+    categoria: "Vedações",
+    intro:
+      "Juntas, retenes, o-rings y empaquetaduras para motor, transmisión e hidráulica, con la medida exacta.",
+    incluye: ["retén", "junta de tapa", "o-ring", "empaquetadura", "junta de culata"],
+    maquinas: ["tractores", "camiones", "cosechadoras"],
+  },
+  {
+    slug: "frenos-y-embragues",
+    es: "Frenos y embragues",
+    plural: "repuestos de frenos y embrague",
+    categoria: "Freios e Embreagens",
+    intro:
+      "Discos, platos, balatas y kits de freno y embrague para tractores y camiones, originales y equivalentes.",
+    incluye: [
+      "disco de embrague",
+      "plato de presión",
+      "balatas",
+      "kit de embrague",
+      "cilindro de freno",
+    ],
+    maquinas: ["tractores", "camiones"],
+  },
+  {
+    slug: "electrica-y-sensores",
+    es: "Eléctrica y sensores",
+    plural: "repuestos eléctricos",
+    categoria: "Elétrica e Sensores",
+    intro:
+      "Alternadores, motores de arranque, sensores y módulos para toda la línea agrícola, de camiones y diesel.",
+    incluye: ["alternador", "motor de arranque", "sensor", "solenoide", "módulo", "faro"],
+    maquinas: ["tractores", "cosechadoras", "camiones"],
+  },
+  {
+    slug: "estructura-y-rodados",
+    es: "Estructura y rodados",
+    plural: "piezas de estructura y rodados",
+    categoria: "Estrutura e Suspensão",
+    intro:
+      "Piezas de estructura, suspensión y tren de rodaje para tractores, cosechadoras y máquinas de línea amarilla.",
+    incluye: ["rueda guía", "rodillo", "cadena de oruga", "resorte", "soporte de chasis"],
+    maquinas: ["tractores", "excavadoras", "cosechadoras"],
+  },
+  {
+    slug: "inyeccion-diesel",
+    es: "Inyección diesel",
+    plural: "repuestos de inyección diesel",
+    busca: "injetora",
+    linha: "DIESEL",
+    intro:
+      "Bombas inyectoras, inyectores, toberas y piezas de common rail para tractores, camiones, maquinaria y generación.",
+    incluye: ["bomba inyectora", "inyector", "tobera", "porta-tobera", "elemento", "válvula"],
+    maquinas: ["tractores", "camiones", "excavadoras"],
+  },
+  {
+    slug: "motor",
+    es: "Motor",
+    plural: "repuestos de motor",
+    busca: "pistao",
+    intro:
+      "Pistones, bielas, camisas, cigüeñales, válvulas y juntas de motor diesel, con medida estándar y de rectificación.",
+    incluye: ["pistón", "biela", "camisa", "cigüeñal", "válvula", "kit de junta de motor"],
+    maquinas: ["tractores", "camiones", "excavadoras"],
+  },
+  {
+    slug: "cosecha",
+    es: "Cosecha (cóncavos, zarandas)",
+    plural: "repuestos de cosecha",
+    busca: "concavo",
+    linha: "AGRICOLA",
+    intro:
+      "Cóncavos, zarandas, sinfines, cuchillas y piezas de plataforma y trilla para cosechadoras de grano y arroceras.",
+    incluye: ["cóncavo", "zaranda", "sinfín", "cuchilla", "peine", "lona de plataforma"],
+    maquinas: ["cosechadoras"],
+  },
+  {
+    slug: "correas-y-cadenas",
+    es: "Correas y cadenas",
+    plural: "correas y cadenas",
+    busca: "correia",
+    intro:
+      "Correas, cadenas, poleas y tensores para la transmisión de cosechadoras, tractores e implementos.",
+    incluye: ["correa en V", "correa dentada", "cadena de rodillos", "polea", "tensor"],
+    maquinas: ["cosechadoras", "tractores"],
+  },
 ];
+export const tipoPorSlug = (s: string) => TIPOS_PIEZA.find((t) => t.slug === s) ?? null;
+
+export function tituloTipo(t: TipoPieza, c?: CiudadExport): string {
+  return c ? `${t.es} para exportación a ${c.nombre}, Uruguay` : `${t.es} — exportación a Uruguay`;
+}
+export function descripcionTipo(t: TipoPieza, total: number): string {
+  const base = total > 0 ? `Más de ${fmt(total)} ${t.plural}` : t.es;
+  return `${base} para exportación a Uruguay: ${t.incluye.slice(0, 4).join(", ")} y más. Origen Mercosur (0% de arancel), precios en USD (FOB) y despacho a todo Uruguay.`;
+}
 export function urlCatalogoTipo(t: TipoPieza): string {
   const qs = new URLSearchParams();
   if (t.linha) qs.set("linha", t.linha);

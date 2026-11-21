@@ -120,7 +120,7 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
         : []),
       // Exportação ao Uruguai: pilar + máquina + máquina×cidade (só espanhol)
       ...(await (async () => {
-        const { MAQUINAS_EXPORT, CIUDADES_EXPORT } = await import("./seo-exportacion");
+        const { MAQUINAS_EXPORT, CIUDADES_EXPORT, TIPOS_PIEZA } = await import("./seo-exportacion");
         const linhas: string[] = [
           urlUnica("/exportacion", "es", "<changefreq>weekly</changefreq><priority>0.9</priority>"),
           urlUnica(
@@ -134,6 +134,14 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
             "<changefreq>monthly</changefreq><priority>0.7</priority>",
           ),
         ];
+        for (const t of TIPOS_PIEZA)
+          linhas.push(
+            urlUnica(
+              `/exportacion/repuestos/${t.slug}`,
+              "es",
+              "<changefreq>weekly</changefreq><priority>0.7</priority>",
+            ),
+          );
         for (const m of MAQUINAS_EXPORT) {
           linhas.push(
             urlUnica(

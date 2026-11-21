@@ -141,6 +141,7 @@ import { Route as EmpresasCotizacionCodigoRouteImport } from './routes/empresas.
 import { Route as EmpresasDocumentoCodigoRouteImport } from './routes/empresas.documento.$codigo'
 import { Route as EmpresasProformaCodigoRouteImport } from './routes/empresas.proforma.$codigo'
 import { Route as ExportacionMaquinaCiudadRouteImport } from './routes/exportacion.$maquina_.$ciudad'
+import { Route as ExportacionRepuestosTipoRouteImport } from './routes/exportacion.repuestos.$tipo'
 import { Route as RepuestosSlugSubRouteImport } from './routes/repuestos.$slug_.$sub'
 import { Route as ApiAdminAduanaArquivoRouteImport } from './routes/api/admin/aduana.arquivo'
 import { Route as ApiAdminBannersIdRouteImport } from './routes/api/admin/banners.$id'
@@ -837,6 +838,12 @@ const ExportacionMaquinaCiudadRoute =
     path: '/exportacion/$maquina/$ciudad',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ExportacionRepuestosTipoRoute =
+  ExportacionRepuestosTipoRouteImport.update({
+    id: '/exportacion/repuestos/$tipo',
+    path: '/exportacion/repuestos/$tipo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RepuestosSlugSubRoute = RepuestosSlugSubRouteImport.update({
   id: '/repuestos/$slug_/$sub',
   path: '/repuestos/$slug/$sub',
@@ -1130,6 +1137,7 @@ export interface FileRoutesByFullPath {
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
   '/exportacion/$maquina/$ciudad': typeof ExportacionMaquinaCiudadRoute
+  '/exportacion/repuestos/$tipo': typeof ExportacionRepuestosTipoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1293,6 +1301,7 @@ export interface FileRoutesByTo {
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
   '/exportacion/$maquina/$ciudad': typeof ExportacionMaquinaCiudadRoute
+  '/exportacion/repuestos/$tipo': typeof ExportacionRepuestosTipoRoute
   '/repuestos/$slug/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes': typeof AdminAutomacoesIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
@@ -1459,6 +1468,7 @@ export interface FileRoutesById {
   '/empresas/documento/$codigo': typeof EmpresasDocumentoCodigoRoute
   '/empresas/proforma/$codigo': typeof EmpresasProformaCodigoRoute
   '/exportacion/$maquina_/$ciudad': typeof ExportacionMaquinaCiudadRoute
+  '/exportacion/repuestos/$tipo': typeof ExportacionRepuestosTipoRoute
   '/repuestos/$slug_/$sub': typeof RepuestosSlugSubRoute
   '/admin/automacoes/': typeof AdminAutomacoesIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
@@ -1626,6 +1636,7 @@ export interface FileRouteTypes {
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
     | '/exportacion/$maquina/$ciudad'
+    | '/exportacion/repuestos/$tipo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -1789,6 +1800,7 @@ export interface FileRouteTypes {
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
     | '/exportacion/$maquina/$ciudad'
+    | '/exportacion/repuestos/$tipo'
     | '/repuestos/$slug/$sub'
     | '/admin/automacoes'
     | '/admin/emails'
@@ -1954,6 +1966,7 @@ export interface FileRouteTypes {
     | '/empresas/documento/$codigo'
     | '/empresas/proforma/$codigo'
     | '/exportacion/$maquina_/$ciudad'
+    | '/exportacion/repuestos/$tipo'
     | '/repuestos/$slug_/$sub'
     | '/admin/automacoes/'
     | '/admin/emails/'
@@ -2065,6 +2078,7 @@ export interface RootRouteChildren {
   EmpresasDocumentoCodigoRoute: typeof EmpresasDocumentoCodigoRoute
   EmpresasProformaCodigoRoute: typeof EmpresasProformaCodigoRoute
   ExportacionMaquinaCiudadRoute: typeof ExportacionMaquinaCiudadRoute
+  ExportacionRepuestosTipoRoute: typeof ExportacionRepuestosTipoRoute
   RepuestosSlugSubRoute: typeof RepuestosSlugSubRoute
   ApiAdminAduanaArquivoRoute: typeof ApiAdminAduanaArquivoRoute
   ApiAdminCatalogosUploadRoute: typeof ApiAdminCatalogosUploadRoute
@@ -3013,6 +3027,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExportacionMaquinaCiudadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exportacion/repuestos/$tipo': {
+      id: '/exportacion/repuestos/$tipo'
+      path: '/exportacion/repuestos/$tipo'
+      fullPath: '/exportacion/repuestos/$tipo'
+      preLoaderRoute: typeof ExportacionRepuestosTipoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repuestos/$slug_/$sub': {
       id: '/repuestos/$slug_/$sub'
       path: '/repuestos/$slug/$sub'
@@ -3522,6 +3543,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasDocumentoCodigoRoute: EmpresasDocumentoCodigoRoute,
   EmpresasProformaCodigoRoute: EmpresasProformaCodigoRoute,
   ExportacionMaquinaCiudadRoute: ExportacionMaquinaCiudadRoute,
+  ExportacionRepuestosTipoRoute: ExportacionRepuestosTipoRoute,
   RepuestosSlugSubRoute: RepuestosSlugSubRoute,
   ApiAdminAduanaArquivoRoute: ApiAdminAduanaArquivoRoute,
   ApiAdminCatalogosUploadRoute: ApiAdminCatalogosUploadRoute,

@@ -31,6 +31,34 @@ export const getPaginaExportFn = createServerFn({ method: "GET" })
     });
   });
 
+// Dados da página por TIPO de peça (pilar): total + 1ª página com foto.
+export const getPaginaTipoFn = createServerFn({ method: "GET" })
+  .validator((d: { tipo: string }) => ({ tipo: String(d?.tipo ?? "").slice(0, 40) }))
+  .handler(async ({ data }): Promise<PaginaExport> => {
+    const { emCache } = await import("./cache.server");
+    return emCache(`export-tipo|${data.tipo}`, 10 * 60_000, async () => {
+      const { tipoPorSlug } = await import("./seo-exportacion");
+      const t = tipoPorSlug(data.tipo);
+      if (!t) return { total: 0, produtos: [] };
+      const { buscarSkus } = await import("./busca-catalogo.server");
+      const { listProducts } = await import("./products.server");
+      const linha = t.linha ?? "AGRICOLA";
+      const filtro = {
+        categoria: t.categoria ?? undefined,
+        search: t.busca ?? undefined,
+        hasImage: true,
+        vitrine: true,
+      };
+      const [todos, pagina] = await Promise.all([
+        buscarSkus(filtro, linha).catch(() => []),
+        listProducts({ linha, ...filtro, sort: "nome-asc", pageSize: 18 }).catch(() => ({
+          rows: [] as Product[],
+        })),
+      ]);
+      return { total: todos.length, produtos: pagina.rows as Product[] };
+    });
+  });
+
 // Produtos em destaque (com foto) para a vitrine da landing /exportacion: mistura das linhas.
 export const destaquesExportFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {

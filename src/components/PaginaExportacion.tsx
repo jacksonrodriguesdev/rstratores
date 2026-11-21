@@ -33,6 +33,7 @@ import {
   PASOS_IMPORTAR,
   ciudadesVecinas,
   ciudadesPorDepartamento,
+  maquinaPorSlug,
   tituloExport,
   descripcionExport,
   textoExport,
@@ -40,9 +41,12 @@ import {
   frasesExport,
   urlCatalogoExport,
   urlCatalogoTipo,
+  tituloTipo,
+  descripcionTipo,
   statsExport,
   type MaquinaExport,
   type CiudadExport,
+  type TipoPieza,
 } from "@/lib/seo-exportacion";
 
 import { ETAPAS, PONTOS_FRONTEIRA, TAXAS_PADRAO } from "@/lib/aduana/aduana-comum";
@@ -658,9 +662,10 @@ export function PaginaExportacionHome({
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {TIPOS_PIEZA.map((t) => (
-                <a
+                <Link
                   key={t.slug}
-                  href={urlCatalogoTipo(t)}
+                  to="/exportacion/repuestos/$tipo"
+                  params={{ tipo: t.slug }}
                   className="group flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-primary/40"
                 >
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
@@ -669,7 +674,7 @@ export function PaginaExportacionHome({
                   <span className="font-bold leading-tight text-zinc-900 group-hover:text-primary">
                     {t.es}
                   </span>
-                </a>
+                </Link>
               ))}
             </div>
           </section>
@@ -796,6 +801,184 @@ export function PaginaExportacionHome({
               >
                 <MessageCircle className="h-5 w-5" /> Hablar por WhatsApp
               </a>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- pilar por TIPO de peça
+export function ldExportTipo(t: TipoPieza, url: string, total: number) {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { name: "Inicio", item: u("/") },
+        { name: "Exportación a Uruguay", item: u("/exportacion") },
+        { name: t.es, item: url },
+      ].map((x, i) => ({ "@type": "ListItem", position: i + 1, ...x })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      serviceType: `Exportación de ${t.plural}`,
+      provider: { "@type": "Organization", name: "AGRO PARTS", url: SITE_URL },
+      areaServed: { "@type": "Country", name: "Uruguay" },
+      description: descripcionTipo(t, total),
+    },
+  ];
+}
+
+export function PaginaExportacionTipo({ tipo: t, dados }: { tipo: TipoPieza; dados: Dados }) {
+  const wa = whatsappContactUrl(`¡Hola! Quiero importar ${t.plural} a Uruguay.`);
+  const otras = TIPOS_PIEZA.filter((x) => x.slug !== t.slug).slice(0, 8);
+  return (
+    <div className="min-h-screen bg-[#f3f5f1]">
+      <SiteHeader />
+      <main>
+        <section className="relative overflow-hidden bg-[#06321b] text-white">
+          <FondoHero />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.07] [background-image:repeating-linear-gradient(-28deg,#fff_0_2px,transparent_2px_42px)]"
+          />
+          <div className="relative mx-auto max-w-7xl px-4 py-8 md:py-12">
+            <nav className="flex flex-wrap items-center gap-1 text-sm text-white/70">
+              <Link to="/" className="hover:text-white">
+                Inicio
+              </Link>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <Link to="/exportacion" className="hover:text-white">
+                Exportación
+              </Link>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-white">{t.es}</span>
+            </nav>
+            <h1 className="mt-3 max-w-4xl text-3xl font-extrabold leading-tight md:text-5xl">
+              {t.es} — exportación a Uruguay
+            </h1>
+            <p className="mt-4 max-w-3xl text-white/85 md:text-lg">
+              {dados.total > 0 ? `Más de ${fmt(dados.total)} ítems. ` : ""}
+              {t.intro}
+            </p>
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/85">
+              <li className="flex items-center gap-2">
+                <Globe2 className="h-4 w-4 text-amber-300" /> Origen Mercosur · 0% arancel · USD
+                (FOB)
+              </li>
+              <li className="flex items-center gap-2">
+                <Truck className="h-4 w-4 text-amber-300" /> Despacho a todo Uruguay
+              </li>
+            </ul>
+            <BotonesCTA wa={wa} catalogo={urlCatalogoTipo(t)} />
+          </div>
+        </section>
+
+        <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 md:py-12">
+          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {SELOS.map((sel) => (
+              <div key={sel.t} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5">
+                <sel.icon className="h-6 w-6 text-emerald-600" />
+                <p className="mt-2 font-bold text-zinc-900">{sel.t}</p>
+                <p className="mt-0.5 text-sm text-zinc-600">{sel.d}</p>
+              </div>
+            ))}
+          </section>
+
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-7">
+            <h2 className="text-xl font-extrabold text-zinc-900">¿Qué incluye?</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {t.incluye.map((x) => (
+                <span
+                  key={x}
+                  className="rounded-full bg-[#f3f5f1] px-3 py-1.5 text-sm font-medium text-zinc-700"
+                >
+                  {x}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          {dados.produtos.length > 0 && (
+            <section>
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <h2 className="text-xl font-extrabold text-zinc-900 md:text-2xl">
+                  {t.es} disponibles
+                </h2>
+                <a
+                  href={urlCatalogoTipo(t)}
+                  className="text-sm font-bold text-primary hover:underline"
+                >
+                  Ver los {fmt(dados.total)} ítems →
+                </a>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6">
+                {dados.produtos.map((p, i) => (
+                  <CardLoja key={p.sku} p={p} prioridade={i < 2} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Máquinas donde se usa */}
+          <section>
+            <h2 className="text-lg font-extrabold text-zinc-900">
+              {t.es} para cada tipo de máquina
+            </h2>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {t.maquinas
+                .map((s) => maquinaPorSlug(s))
+                .filter((m): m is MaquinaExport => !!m)
+                .map((m) => (
+                  <Link
+                    key={m.slug}
+                    to="/exportacion/$maquina"
+                    params={{ maquina: m.slug }}
+                    className="group rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-primary/40"
+                  >
+                    <Factory className="h-5 w-5 text-primary" />
+                    <span className="mt-2 block font-bold text-zinc-900 group-hover:text-primary">
+                      {t.es} para {m.plural}
+                    </span>
+                  </Link>
+                ))}
+            </div>
+          </section>
+
+          {/* Otros tipos */}
+          <section>
+            <h2 className="text-lg font-extrabold text-zinc-900">Otros repuestos que exportamos</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {otras.map((x) => (
+                <Link
+                  key={x.slug}
+                  to="/exportacion/repuestos/$tipo"
+                  params={{ tipo: x.slug }}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-black/10 hover:text-primary hover:ring-primary/40"
+                >
+                  <Wrench className="h-3.5 w-3.5 text-primary" /> {x.es}
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* Ciudades */}
+          <section>
+            <h2 className="text-lg font-extrabold text-zinc-900">Exportamos a todo Uruguay</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {CIUDADES_EXPORT.map((c) => (
+                <Link
+                  key={c.slug}
+                  to="/exportacion/$maquina/$ciudad"
+                  params={{ maquina: t.maquinas[0] ?? "tractores", ciudad: c.slug }}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-700 ring-1 ring-black/10 hover:text-primary hover:ring-primary/40"
+                >
+                  <MapPin className="h-3.5 w-3.5 text-primary" /> {c.nombre}
+                </Link>
+              ))}
             </div>
           </section>
         </div>
