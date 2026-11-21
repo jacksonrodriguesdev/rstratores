@@ -203,6 +203,31 @@ const PERFIL_DEP: Record<string, string> = {
 };
 const perfilDe = (dep: string) => PERFIL_DEP[dep] ?? "agricultura, ganadería y transporte";
 
+// Máquina típica de cada departamento (es): diferencia o texto por zona (fuga de "doorway").
+const MAQUINA_TIPICA_DEP: Record<string, string> = {
+  Artigas: "cosechadoras arroceras, tractores y equipos de caña",
+  Canelones: "tractores chicos y medianos e implementos de granja",
+  "Cerro Largo": "cosechadoras arroceras y tractores",
+  Colonia: "tractores medianos, mixers y enfardadoras de la cuenca lechera",
+  Durazno: "tractores de potencia media y pulverizadoras",
+  Flores: "cosechadoras, sembradoras y tractores de alta potencia",
+  Florida: "tractores medianos, mixers y enfardadoras",
+  Lavalleja: "tractores y equipos de carga y movimiento de suelo",
+  Maldonado: "tractores y máquinas de línea amarilla para obra",
+  Montevideo: "camiones, tractores y toda la línea para talleres y transporte",
+  Paysandú: "cosechadoras, pulverizadoras y equipos forestales",
+  "Río Negro": "cosechadoras, sembradoras y tractores de alta potencia",
+  Rivera: "tractores y equipos forestales",
+  Rocha: "cosechadoras arroceras y niveladoras",
+  Salto: "tractores, pulverizadoras y equipos de citrus y horticultura",
+  "San José": "tractores medianos, mixers y sembradoras",
+  Soriano: "cosechadoras, sembradoras y tractores de alta potencia",
+  Tacuarembó: "tractores y equipos forestales",
+  "Treinta y Tres": "cosechadoras arroceras y niveladoras",
+};
+export const maquinaTipicaDe = (dep: string) =>
+  MAQUINA_TIPICA_DEP[dep] ?? "tractores, cosechadoras y equipos agrícolas";
+
 // Cidades extras do Uruguai (além dos 19 departamentos e das poucas cidades já em locais-seo.ts).
 // nombre + departamento; o slug é gerado. Localidades reais (capitais departamentais, polos
 // agrícolas, industriais e de fronteira). Cobertura de todo o país.
@@ -368,10 +393,11 @@ export function descripcionExport(m: MaquinaExport, total: number, c?: CiudadExp
 
 // Parágrafos únicos por máquina + cidade
 export function textoExport(m: MaquinaExport, c: CiudadExport, total: number): string[] {
+  const tipica = maquinaTipicaDe(c.departamento);
   return [
-    `En ${c.nombre} (${c.departamento}), zona de ${c.perfil}, AGRO PARTS exporta ${m.plural} directo desde Brasil${total > 0 ? `, con más de ${fmt(total)} ítems disponibles` : ""}. Importación con origen Mercosur (ACE 02/18): 0% de arancel en las piezas con origen comprobado.`,
+    `En ${c.nombre} (${c.departamento}), zona de ${c.perfil} donde trabajan ${tipica}, AGRO PARTS exporta ${m.plural} directo desde Brasil${total > 0 ? `, con más de ${fmt(total)} ítems disponibles` : ""}. Importación con origen Mercosur (ACE 02/18): 0% de arancel en las piezas con origen comprobado, y precios cotizados en USD (FOB).`,
     `${m.intro}`,
-    `Entramos por la frontera de ${c.frontera}, la más cercana a ${c.nombre}, y despachamos hasta tu local o taller. Te damos la factura proforma, la clasificación NCM y el packing list listos para tu despachante. Cotización de flete interna, calculada después del pedido.`,
+    `Entramos por la frontera de ${c.frontera}, la más cercana a ${c.nombre}: es el paso que usamos para que tu pedido llegue antes y con menos flete. Te damos la factura proforma, la clasificación NCM y el packing list listos para tu despachante. La cotización del flete interno la calculamos según el peso cubicado de tu pedido, antes de que confirmes.`,
   ];
 }
 

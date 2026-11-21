@@ -143,7 +143,11 @@ export function ldExportMaquina(m: MaquinaExport, url: string, total: number) {
 
 // ---------------------------------------------------------------- selos de confiança (reutilizáveis)
 const SELOS = [
-  { icon: Globe2, t: "Origen Mercosur", d: "0% de arancel con origen comprobado (ACE 02/18)." },
+  {
+    icon: Globe2,
+    t: "Origen Mercosur · USD",
+    d: "0% de arancel con origen comprobado (ACE 02/18). Precios cotizados en USD (FOB).",
+  },
   { icon: FileCheck2, t: "NCM verificada", d: "Cada pieza con su clasificación fiscal." },
   { icon: Boxes, t: "Proforma y packing list", d: "Documentos listos para tu despachante." },
   { icon: ShieldCheck, t: "Compatibilidad confirmada", d: "Antes de comprar, sin errores." },
@@ -235,7 +239,8 @@ export function PaginaExportacionCiudad({
                 <MapPin className="h-4 w-4 text-amber-300" /> Entrada por {c.frontera}
               </li>
               <li className="flex items-center gap-2">
-                <Globe2 className="h-4 w-4 text-amber-300" /> Origen Mercosur — 0% de arancel
+                <Globe2 className="h-4 w-4 text-amber-300" /> Origen Mercosur · 0% arancel · USD
+                (FOB)
               </li>
               <li className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-amber-300" /> Despacho a {c.nombre} y todo Uruguay
@@ -598,7 +603,8 @@ export function PaginaExportacionHome({
                     Algunos de los repuestos que exportamos
                   </h2>
                   <p className="mt-1 text-zinc-600">
-                    Piezas reales de nuestro stock, con código original y foto.
+                    Piezas reales de nuestro stock, con código original y foto. Cotizamos en USD
+                    (FOB).
                   </p>
                 </div>
                 <a href="/loja" className="text-sm font-bold text-primary hover:underline">
