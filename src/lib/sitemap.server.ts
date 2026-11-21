@@ -122,7 +122,12 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
       ...(await (async () => {
         const { MAQUINAS_EXPORT, CIUDADES_EXPORT } = await import("./seo-exportacion");
         const linhas: string[] = [
-          urlUnica("/exportacion", "es", "<changefreq>weekly</changefreq><priority>0.8</priority>"),
+          urlUnica("/exportacion", "es", "<changefreq>weekly</changefreq><priority>0.9</priority>"),
+          urlUnica(
+            "/exportacion/como-importar",
+            "es",
+            "<changefreq>monthly</changefreq><priority>0.8</priority>",
+          ),
         ];
         for (const m of MAQUINAS_EXPORT) {
           linhas.push(

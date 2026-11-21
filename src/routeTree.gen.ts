@@ -83,6 +83,7 @@ import { Route as EmpresasRegistroRouteImport } from './routes/empresas.registro
 import { Route as EtiquetaIdRouteImport } from './routes/etiqueta.$id'
 import { Route as ExportacionIndexRouteImport } from './routes/exportacion.index'
 import { Route as ExportacionMaquinaRouteImport } from './routes/exportacion.$maquina'
+import { Route as ExportacionComoImportarRouteImport } from './routes/exportacion.como-importar'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
 import { Route as GuiasSlugRouteImport } from './routes/guias.$slug'
@@ -539,6 +540,11 @@ const ExportacionIndexRoute = ExportacionIndexRouteImport.update({
 const ExportacionMaquinaRoute = ExportacionMaquinaRouteImport.update({
   id: '/exportacion/$maquina',
   path: '/exportacion/$maquina',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportacionComoImportarRoute = ExportacionComoImportarRouteImport.update({
+  id: '/exportacion/como-importar',
+  path: '/exportacion/como-importar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedsArquivoRoute = FeedsArquivoRouteImport.update({
@@ -1058,6 +1064,7 @@ export interface FileRoutesByFullPath {
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/exportacion/$maquina': typeof ExportacionMaquinaRoute
+  '/exportacion/como-importar': typeof ExportacionComoImportarRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
@@ -1219,6 +1226,7 @@ export interface FileRoutesByTo {
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/exportacion/$maquina': typeof ExportacionMaquinaRoute
+  '/exportacion/como-importar': typeof ExportacionComoImportarRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
@@ -1383,6 +1391,7 @@ export interface FileRoutesById {
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/exportacion/$maquina': typeof ExportacionMaquinaRoute
+  '/exportacion/como-importar': typeof ExportacionComoImportarRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
@@ -1548,6 +1557,7 @@ export interface FileRouteTypes {
     | '/empresas/registro'
     | '/etiqueta/$id'
     | '/exportacion/$maquina'
+    | '/exportacion/como-importar'
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
@@ -1709,6 +1719,7 @@ export interface FileRouteTypes {
     | '/empresas/registro'
     | '/etiqueta/$id'
     | '/exportacion/$maquina'
+    | '/exportacion/como-importar'
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
@@ -1872,6 +1883,7 @@ export interface FileRouteTypes {
     | '/empresas/registro'
     | '/etiqueta/$id'
     | '/exportacion/$maquina'
+    | '/exportacion/como-importar'
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
@@ -1991,6 +2003,7 @@ export interface RootRouteChildren {
   EmpresasRegistroRoute: typeof EmpresasRegistroRoute
   EtiquetaIdRoute: typeof EtiquetaIdRoute
   ExportacionMaquinaRoute: typeof ExportacionMaquinaRoute
+  ExportacionComoImportarRoute: typeof ExportacionComoImportarRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
   IgSplatRoute: typeof IgSplatRoute
@@ -2579,6 +2592,13 @@ declare module '@tanstack/react-router' {
       path: '/exportacion/$maquina'
       fullPath: '/exportacion/$maquina'
       preLoaderRoute: typeof ExportacionMaquinaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exportacion/como-importar': {
+      id: '/exportacion/como-importar'
+      path: '/exportacion/como-importar'
+      fullPath: '/exportacion/como-importar'
+      preLoaderRoute: typeof ExportacionComoImportarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feeds/$arquivo': {
@@ -3432,6 +3452,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasRegistroRoute: EmpresasRegistroRoute,
   EtiquetaIdRoute: EtiquetaIdRoute,
   ExportacionMaquinaRoute: ExportacionMaquinaRoute,
+  ExportacionComoImportarRoute: ExportacionComoImportarRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,
   IgSplatRoute: IgSplatRoute,

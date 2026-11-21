@@ -204,36 +204,103 @@ const PERFIL_DEP: Record<string, string> = {
 const perfilDe = (dep: string) => PERFIL_DEP[dep] ?? "agricultura, ganadería y transporte";
 
 // Cidades extras do Uruguai (além dos 19 departamentos e das poucas cidades já em locais-seo.ts).
-// nombre + departamento; o slug é gerado. Polos agrícolas/industriais reais.
+// nombre + departamento; o slug é gerado. Localidades reais (capitais departamentais, polos
+// agrícolas, industriais e de fronteira). Cobertura de todo o país.
 const CIUDADES_EXTRA: Array<{ nombre: string; departamento: string }> = [
+  // Artigas
+  { nombre: "Bella Unión", departamento: "Artigas" },
+  { nombre: "Tomás Gomensoro", departamento: "Artigas" },
+  { nombre: "Baltasar Brum", departamento: "Artigas" },
+  // Canelones
+  { nombre: "Canelones", departamento: "Canelones" },
   { nombre: "Las Piedras", departamento: "Canelones" },
   { nombre: "Pando", departamento: "Canelones" },
   { nombre: "Ciudad de la Costa", departamento: "Canelones" },
   { nombre: "Santa Lucía", departamento: "Canelones" },
-  { nombre: "San Carlos", departamento: "Maldonado" },
-  { nombre: "Punta del Este", departamento: "Maldonado" },
-  { nombre: "Minas", departamento: "Lavalleja" },
-  { nombre: "San José de Mayo", departamento: "San José" },
-  { nombre: "Ciudad del Plata", departamento: "San José" },
+  { nombre: "Progreso", departamento: "Canelones" },
+  { nombre: "San Ramón", departamento: "Canelones" },
+  { nombre: "Sauce", departamento: "Canelones" },
+  { nombre: "Tala", departamento: "Canelones" },
+  { nombre: "Atlántida", departamento: "Canelones" },
+  // Cerro Largo
+  { nombre: "Melo", departamento: "Cerro Largo" },
+  { nombre: "Río Branco", departamento: "Cerro Largo" },
+  { nombre: "Fraile Muerto", departamento: "Cerro Largo" },
+  // Colonia
   { nombre: "Colonia del Sacramento", departamento: "Colonia" },
   { nombre: "Carmelo", departamento: "Colonia" },
   { nombre: "Juan Lacaze", departamento: "Colonia" },
   { nombre: "Nueva Helvecia", departamento: "Colonia" },
   { nombre: "Rosario", departamento: "Colonia" },
   { nombre: "Nueva Palmira", departamento: "Colonia" },
-  { nombre: "Dolores", departamento: "Soriano" },
-  { nombre: "Cardona", departamento: "Soriano" },
+  { nombre: "Tarariras", departamento: "Colonia" },
+  { nombre: "Ombúes de Lavalle", departamento: "Colonia" },
+  // Durazno
+  { nombre: "Durazno", departamento: "Durazno" },
+  { nombre: "Sarandí del Yí", departamento: "Durazno" },
+  { nombre: "Villa del Carmen", departamento: "Durazno" },
+  // Flores
   { nombre: "Trinidad", departamento: "Flores" },
+  { nombre: "Ismael Cortinas", departamento: "Flores" },
+  // Florida
+  { nombre: "Florida", departamento: "Florida" },
+  { nombre: "Sarandí Grande", departamento: "Florida" },
+  { nombre: "Casupá", departamento: "Florida" },
+  // Lavalleja
+  { nombre: "Minas", departamento: "Lavalleja" },
+  { nombre: "José Pedro Varela", departamento: "Lavalleja" },
+  { nombre: "Solís de Mataojo", departamento: "Lavalleja" },
+  // Maldonado
+  { nombre: "Maldonado", departamento: "Maldonado" },
+  { nombre: "San Carlos", departamento: "Maldonado" },
+  { nombre: "Punta del Este", departamento: "Maldonado" },
+  { nombre: "Pan de Azúcar", departamento: "Maldonado" },
+  { nombre: "Aiguá", departamento: "Maldonado" },
+  // Montevideo
+  { nombre: "Montevideo", departamento: "Montevideo" },
+  // Paysandú
+  { nombre: "Paysandú", departamento: "Paysandú" },
+  { nombre: "Guichón", departamento: "Paysandú" },
+  { nombre: "Quebracho", departamento: "Paysandú" },
+  // Río Negro
   { nombre: "Fray Bentos", departamento: "Río Negro" },
-  { nombre: "Bella Unión", departamento: "Artigas" },
-  { nombre: "Río Branco", departamento: "Cerro Largo" },
-  { nombre: "Vergara", departamento: "Treinta y Tres" },
+  { nombre: "Young", departamento: "Río Negro" },
+  { nombre: "Nuevo Berlín", departamento: "Río Negro" },
+  { nombre: "San Javier", departamento: "Río Negro" },
+  // Rivera
+  { nombre: "Rivera", departamento: "Rivera" },
+  { nombre: "Tranqueras", departamento: "Rivera" },
+  { nombre: "Minas de Corrales", departamento: "Rivera" },
+  { nombre: "Vichadero", departamento: "Rivera" },
+  // Rocha
+  { nombre: "Rocha", departamento: "Rocha" },
+  { nombre: "Chuy", departamento: "Rocha" },
   { nombre: "Castillos", departamento: "Rocha" },
   { nombre: "La Paloma", departamento: "Rocha" },
-  { nombre: "Sarandí del Yí", departamento: "Durazno" },
+  { nombre: "Lascano", departamento: "Rocha" },
+  { nombre: "Velázquez", departamento: "Rocha" },
+  // Salto
+  { nombre: "Salto", departamento: "Salto" },
+  { nombre: "Constitución", departamento: "Salto" },
+  { nombre: "Belén", departamento: "Salto" },
+  // San José
+  { nombre: "San José de Mayo", departamento: "San José" },
+  { nombre: "Ciudad del Plata", departamento: "San José" },
+  { nombre: "Libertad", departamento: "San José" },
+  { nombre: "Rodríguez", departamento: "San José" },
+  // Soriano
+  { nombre: "Mercedes", departamento: "Soriano" },
+  { nombre: "Dolores", departamento: "Soriano" },
+  { nombre: "Cardona", departamento: "Soriano" },
+  { nombre: "Palmitas", departamento: "Soriano" },
+  // Tacuarembó
+  { nombre: "Tacuarembó", departamento: "Tacuarembó" },
   { nombre: "Paso de los Toros", departamento: "Tacuarembó" },
-  { nombre: "Guichón", departamento: "Paysandú" },
-  { nombre: "Tranqueras", departamento: "Rivera" },
+  { nombre: "San Gregorio de Polanco", departamento: "Tacuarembó" },
+  // Treinta y Tres
+  { nombre: "Treinta y Tres", departamento: "Treinta y Tres" },
+  { nombre: "Vergara", departamento: "Treinta y Tres" },
+  { nombre: "Santa Clara de Olimar", departamento: "Treinta y Tres" },
 ];
 
 // Monta a lista única de cidades: departamentos e cidades do Uruguai de locais-seo.ts + as extras.
@@ -360,4 +427,133 @@ export function urlCatalogoExport(m: MaquinaExport): string {
   const qs = new URLSearchParams({ linha: m.linha });
   if (m.categoria) qs.set("categoria", m.categoria);
   return `/loja?${qs}`;
+}
+
+// ---------------------------------------------------------------- tipos de peça (todas as linhas)
+// Para a vitrine "exportamos todo tipo de repuesto". `categoria` casa com os valores do banco (pt);
+// `busca` quando é por termo. O link cai no catálogo já filtrado.
+export type TipoPieza = {
+  slug: string;
+  es: string; // nome exibido
+  categoria?: string; // valor de categoria no banco (pt)
+  busca?: string; // termo de busca
+  linha?: LinhaExport; // força a linha (senão, todas)
+};
+export const TIPOS_PIEZA: TipoPieza[] = [
+  { slug: "filtros", es: "Filtros", categoria: "Filtros" },
+  { slug: "rodamientos", es: "Rodamientos y soportes", categoria: "Rolamentos e Mancais" },
+  { slug: "transmision", es: "Engranajes y transmisión", categoria: "Engrenagens e Transmissão" },
+  { slug: "hidraulica", es: "Hidráulica y bombas", categoria: "Hidráulica e Pneumática" },
+  { slug: "juntas-y-retenes", es: "Juntas y retenes", categoria: "Vedações" },
+  { slug: "frenos-y-embragues", es: "Frenos y embragues", categoria: "Freios e Embreagens" },
+  { slug: "electrica-y-sensores", es: "Eléctrica y sensores", categoria: "Elétrica e Sensores" },
+  { slug: "estructura-y-rodados", es: "Estructura y rodados", categoria: "Estrutura e Suspensão" },
+  { slug: "inyeccion-diesel", es: "Inyección diesel", busca: "injetora", linha: "DIESEL" },
+  { slug: "motor", es: "Motor (pistones, bielas)", busca: "pistao" },
+  { slug: "cosecha", es: "Cosecha (cóncavos, zarandas)", busca: "concavo" },
+  { slug: "correas-y-cadenas", es: "Correas y cadenas", busca: "correia" },
+];
+export function urlCatalogoTipo(t: TipoPieza): string {
+  const qs = new URLSearchParams();
+  if (t.linha) qs.set("linha", t.linha);
+  if (t.categoria) qs.set("categoria", t.categoria);
+  if (t.busca) qs.set("q", t.busca);
+  return `/loja?${qs}`;
+}
+
+// ---------------------------------------------------------------- pilares da estrutura (startup)
+// O que diferencia o AGRO PARTS de um simples catálogo: a operação logística/aduaneira completa.
+export const PILARES_ESTRUCTURA = [
+  {
+    icon: "Factory",
+    t: "Stock directo en Brasil",
+    d: "Más de 60.000 repuestos de fábrica, con código original y aplicación por modelo. Compramos directo, sin intermediarios, y exportamos a precio de distribuidor.",
+  },
+  {
+    icon: "FileCheck2",
+    t: "Aduana y origen resueltos",
+    d: "Clasificamos la NCM de cada pieza, armamos la prueba de origen Mercosur (ACE 02/18) y te entregamos la proforma y el packing list listos para tu despachante.",
+  },
+  {
+    icon: "MapPin",
+    t: "Estructura propia en la frontera",
+    d: "Operamos por los 6 pasos entre Brasil y Uruguay. Despachante aliado de cada lado, consolidación de carga y seguimiento del trámite hasta la salida.",
+  },
+  {
+    icon: "Truck",
+    t: "Despacho a todo el país",
+    d: "Transporte internacional con CRT y MIC/DTA, y entrega hasta tu local o taller en cualquier departamento. Flete interno calculado por peso cubicado.",
+  },
+  {
+    icon: "ShieldCheck",
+    t: "Acompañamiento total",
+    d: "Un asesor te sigue de la cotización a la entrega: compatibilidad confirmada antes de comprar, estado del trámite en tiempo real y soporte post-venta.",
+  },
+  {
+    icon: "Boxes",
+    t: "Pensado para quien revende",
+    d: "Ideal para repuesteras, talleres y logistas: pedidos grandes y chicos, reposición recurrente y condiciones de mayorista para tu empresa.",
+  },
+] as const;
+
+// Passos resumidos de "cómo importar" para a landing (o guia completo fica em /exportacion/como-importar).
+export const PASOS_IMPORTAR = [
+  {
+    n: 1,
+    t: "Elegís las piezas",
+    d: "Del catálogo o mandándonos los códigos por WhatsApp. Confirmamos compatibilidad y precio.",
+  },
+  {
+    n: 2,
+    t: "Armamos la proforma",
+    d: "Con NCM, origen Mercosur, Incoterm y el costo estimado de importación a tu departamento.",
+  },
+  {
+    n: 3,
+    t: "Documentación y origen",
+    d: "NF-e de exportación, DU-E, certificado/declaración de origen, factura y packing list.",
+  },
+  {
+    n: 4,
+    t: "Frontera y despacho",
+    d: "Entramos por el paso más cercano, con CRT y MIC/DTA. Tu despachante registra el DUA en Uruguay.",
+  },
+  {
+    n: 5,
+    t: "Entrega y post-venta",
+    d: "Despacho hasta tu local y seguimiento. Soporte si necesitás otra pieza o un reclamo.",
+  },
+] as const;
+
+// ---------------------------------------------------------------- estatísticas para o hero
+export function statsExport(total: number) {
+  const departamentos = new Set(CIUDADES_EXPORT.map((c) => c.departamento)).size;
+  return {
+    repuestos: total,
+    ciudades: CIUDADES_EXPORT.length,
+    departamentos,
+    pasos: Object.keys(PONTOS_FRONTEIRA).length,
+    maquinas: MAQUINAS_EXPORT.length,
+    tipos: TIPOS_PIEZA.length,
+    frases: totalFrasesExport(),
+  };
+}
+
+// Cidades agrupadas por departamento (para o silo de navegação da landing/guia).
+export function ciudadesPorDepartamento(): Array<{
+  departamento: string;
+  ciudades: CiudadExport[];
+}> {
+  const mapa = new Map<string, CiudadExport[]>();
+  for (const c of CIUDADES_EXPORT) {
+    const arr = mapa.get(c.departamento) ?? [];
+    arr.push(c);
+    mapa.set(c.departamento, arr);
+  }
+  return [...mapa.entries()]
+    .map(([departamento, ciudades]) => ({
+      departamento,
+      ciudades: ciudades.sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    }))
+    .sort((a, b) => a.departamento.localeCompare(b.departamento, "es"));
 }
