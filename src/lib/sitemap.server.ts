@@ -128,6 +128,11 @@ export async function sitemapParte(arquivo: string): Promise<string | null> {
             "es",
             "<changefreq>monthly</changefreq><priority>0.8</priority>",
           ),
+          urlUnica(
+            "/exportacion/calculadora",
+            "es",
+            "<changefreq>monthly</changefreq><priority>0.7</priority>",
+          ),
         ];
         for (const m of MAQUINAS_EXPORT) {
           linhas.push(

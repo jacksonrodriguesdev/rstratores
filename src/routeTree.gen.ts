@@ -83,6 +83,7 @@ import { Route as EmpresasRegistroRouteImport } from './routes/empresas.registro
 import { Route as EtiquetaIdRouteImport } from './routes/etiqueta.$id'
 import { Route as ExportacionIndexRouteImport } from './routes/exportacion.index'
 import { Route as ExportacionMaquinaRouteImport } from './routes/exportacion.$maquina'
+import { Route as ExportacionCalculadoraRouteImport } from './routes/exportacion.calculadora'
 import { Route as ExportacionComoImportarRouteImport } from './routes/exportacion.como-importar'
 import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
@@ -540,6 +541,11 @@ const ExportacionIndexRoute = ExportacionIndexRouteImport.update({
 const ExportacionMaquinaRoute = ExportacionMaquinaRouteImport.update({
   id: '/exportacion/$maquina',
   path: '/exportacion/$maquina',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportacionCalculadoraRoute = ExportacionCalculadoraRouteImport.update({
+  id: '/exportacion/calculadora',
+  path: '/exportacion/calculadora',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExportacionComoImportarRoute = ExportacionComoImportarRouteImport.update({
@@ -1064,6 +1070,7 @@ export interface FileRoutesByFullPath {
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/exportacion/$maquina': typeof ExportacionMaquinaRoute
+  '/exportacion/calculadora': typeof ExportacionCalculadoraRoute
   '/exportacion/como-importar': typeof ExportacionComoImportarRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
@@ -1226,6 +1233,7 @@ export interface FileRoutesByTo {
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/exportacion/$maquina': typeof ExportacionMaquinaRoute
+  '/exportacion/calculadora': typeof ExportacionCalculadoraRoute
   '/exportacion/como-importar': typeof ExportacionComoImportarRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
@@ -1391,6 +1399,7 @@ export interface FileRoutesById {
   '/empresas/registro': typeof EmpresasRegistroRoute
   '/etiqueta/$id': typeof EtiquetaIdRoute
   '/exportacion/$maquina': typeof ExportacionMaquinaRoute
+  '/exportacion/calculadora': typeof ExportacionCalculadoraRoute
   '/exportacion/como-importar': typeof ExportacionComoImportarRoute
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
@@ -1557,6 +1566,7 @@ export interface FileRouteTypes {
     | '/empresas/registro'
     | '/etiqueta/$id'
     | '/exportacion/$maquina'
+    | '/exportacion/calculadora'
     | '/exportacion/como-importar'
     | '/feeds/$arquivo'
     | '/guias/$slug'
@@ -1719,6 +1729,7 @@ export interface FileRouteTypes {
     | '/empresas/registro'
     | '/etiqueta/$id'
     | '/exportacion/$maquina'
+    | '/exportacion/calculadora'
     | '/exportacion/como-importar'
     | '/feeds/$arquivo'
     | '/guias/$slug'
@@ -1883,6 +1894,7 @@ export interface FileRouteTypes {
     | '/empresas/registro'
     | '/etiqueta/$id'
     | '/exportacion/$maquina'
+    | '/exportacion/calculadora'
     | '/exportacion/como-importar'
     | '/feeds/$arquivo'
     | '/guias/$slug'
@@ -2003,6 +2015,7 @@ export interface RootRouteChildren {
   EmpresasRegistroRoute: typeof EmpresasRegistroRoute
   EtiquetaIdRoute: typeof EtiquetaIdRoute
   ExportacionMaquinaRoute: typeof ExportacionMaquinaRoute
+  ExportacionCalculadoraRoute: typeof ExportacionCalculadoraRoute
   ExportacionComoImportarRoute: typeof ExportacionComoImportarRoute
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
@@ -2592,6 +2605,13 @@ declare module '@tanstack/react-router' {
       path: '/exportacion/$maquina'
       fullPath: '/exportacion/$maquina'
       preLoaderRoute: typeof ExportacionMaquinaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exportacion/calculadora': {
+      id: '/exportacion/calculadora'
+      path: '/exportacion/calculadora'
+      fullPath: '/exportacion/calculadora'
+      preLoaderRoute: typeof ExportacionCalculadoraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exportacion/como-importar': {
@@ -3452,6 +3472,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasRegistroRoute: EmpresasRegistroRoute,
   EtiquetaIdRoute: EtiquetaIdRoute,
   ExportacionMaquinaRoute: ExportacionMaquinaRoute,
+  ExportacionCalculadoraRoute: ExportacionCalculadoraRoute,
   ExportacionComoImportarRoute: ExportacionComoImportarRoute,
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,

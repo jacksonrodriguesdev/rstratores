@@ -285,6 +285,9 @@ export type CubagemItem = {
   larg_cm: number | null;
   alt_cm: number | null;
   diam_cm: number | null;
+  ncm: string | null;
+  nome: string | null;
+  confianca: string | null;
 };
 export async function cubagemPorCodigos(codigos: string[]): Promise<Map<string, CubagemItem>> {
   const mapa = new Map<string, CubagemItem>();
@@ -292,7 +295,7 @@ export async function cubagemPorCodigos(codigos: string[]): Promise<Map<string, 
   if (!norms.length) return mapa;
   const prisma = await db();
   const rows = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT codigo_norm, peso_kg, peso_cubado_kg, volume_m3, comp_cm, larg_cm, alt_cm, diam_cm
+    `SELECT codigo_norm, peso_kg, peso_cubado_kg, volume_m3, comp_cm, larg_cm, alt_cm, diam_cm, ncm, nome, confianca
      FROM cubagem_ref WHERE codigo_norm IN (${norms.map(() => "?").join(",")})`,
     ...norms,
   );
@@ -307,6 +310,9 @@ export async function cubagemPorCodigos(codigos: string[]): Promise<Map<string, 
         larg_cm: n(r.larg_cm),
         alt_cm: n(r.alt_cm),
         diam_cm: n(r.diam_cm),
+        ncm: r.ncm ?? null,
+        nome: r.nome ?? null,
+        confianca: r.confianca ?? null,
       });
   return mapa;
 }

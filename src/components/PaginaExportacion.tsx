@@ -17,6 +17,7 @@ import {
   Factory,
   Wrench,
   Sparkles,
+  Calculator,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CardLoja } from "@/components/CardPeca";
@@ -676,12 +677,20 @@ export function PaginaExportacionHome({
                   Un asesor te acompaña de principio a fin. Vos no tocás la aduana.
                 </p>
               </div>
-              <Link
-                to="/exportacion/como-importar"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-amber-400 px-5 font-bold text-[#06321b] hover:brightness-95"
-              >
-                Guía completa de importación <ArrowRight className="h-4 w-4" />
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  to="/exportacion/calculadora"
+                  className="inline-flex h-11 items-center gap-2 rounded-full bg-amber-400 px-5 font-bold text-[#06321b] hover:brightness-95"
+                >
+                  <Calculator className="h-4 w-4" /> Calculá tu costo
+                </Link>
+                <Link
+                  to="/exportacion/como-importar"
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-white/40 px-5 font-semibold text-white hover:bg-white/10"
+                >
+                  Guía completa <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
             <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {PASOS_IMPORTAR.map((p) => (
@@ -1005,6 +1014,12 @@ export function PaginaComoImportar() {
               Estimación referencial para que compares; el cálculo oficial lo hace tu despachante.
               Te damos el costo estimado total junto con la proforma.
             </p>
+            <Link
+              to="/exportacion/calculadora"
+              className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-emerald-600 px-5 font-bold text-white hover:bg-emerald-700"
+            >
+              <Calculator className="h-4 w-4" /> Calculá tu costo desembarcado
+            </Link>
           </section>
 
           {/* Pasos de frontera */}
