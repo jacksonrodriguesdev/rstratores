@@ -49,6 +49,19 @@ import { ETAPAS, PONTOS_FRONTEIRA, TAXAS_PADRAO } from "@/lib/aduana/aduana-comu
 // Ícones dos pilares da estrutura (string -> componente)
 const ICONOS = { Factory, FileCheck2, MapPin, Truck, ShieldCheck, Boxes } as const;
 
+// Fundo fotográfico do hero (caixote AGRO PARTS na fronteira) + overlay verde para legibilidade.
+function FondoHero() {
+  return (
+    <div
+      aria-hidden
+      className="absolute inset-0 bg-cover bg-center"
+      style={{ backgroundImage: "url('/export/hero-frontera.webp')" }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-[#06321b]/95 via-[#06321b]/85 to-[#06321b]/65" />
+    </div>
+  );
+}
+
 type Dados = { total: number; produtos: Product[] };
 const fmt = (n: number) => n.toLocaleString("es-UY");
 const u = (c: string) => `${SITE_URL}${c}`;
@@ -187,6 +200,7 @@ export function PaginaExportacionCiudad({
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden bg-[#06321b] text-white">
+          <FondoHero />
           <div
             aria-hidden
             className="absolute inset-0 opacity-[0.08] [background-image:repeating-linear-gradient(-28deg,#fff_0_2px,transparent_2px_42px)]"
@@ -404,6 +418,7 @@ export function PaginaExportacionMaquina({
       <SiteHeader />
       <main>
         <section className="relative overflow-hidden bg-[#06321b] text-white">
+          <FondoHero />
           <div
             aria-hidden
             className="absolute inset-0 opacity-[0.08] [background-image:repeating-linear-gradient(-28deg,#fff_0_2px,transparent_2px_42px)]"
@@ -518,6 +533,7 @@ export function PaginaExportacionHome({
       <main>
         {/* Hero + mapa */}
         <section className="relative overflow-hidden bg-[#06321b] text-white">
+          <FondoHero />
           <div
             aria-hidden
             className="absolute inset-0 opacity-[0.07] [background-image:repeating-linear-gradient(-28deg,#fff_0_2px,transparent_2px_42px)]"
@@ -856,6 +872,7 @@ export function PaginaComoImportar() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden bg-[#06321b] text-white">
+          <FondoHero />
           <div
             aria-hidden
             className="absolute inset-0 opacity-[0.07] [background-image:repeating-linear-gradient(-28deg,#fff_0_2px,transparent_2px_42px)]"
