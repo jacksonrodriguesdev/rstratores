@@ -15,6 +15,9 @@ const { execFileSync } = require("child_process");
 const MYSQLDUMP =
   process.env.MYSQLDUMP || "C:/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysqldump.exe";
 
+// Dados que o site de produção usa. A linha `products` (DIESEL + CAMINHOES) sai à parte, com
+// filtro, para NÃO levar a linha PELLEGRINO (outro projeto, ~102k itens + 387 MB de aplicações).
+// A cubagem (cubagem_ref/ncm) é DERIVADA: não vai no dump; recria-se no admin depois (mais leve).
 const TABELAS_COM_DADOS = [
   "agricolas",
   "agricolas_img",
@@ -24,10 +27,15 @@ const TABELAS_COM_DADOS = [
   "categories",
   "homepage_blocks",
   "site_banners",
+  "site_eventos",
+  "catalogos",
   "users",
   "quotes",
   "site_visits",
+  "configuracoes",
 ];
+// Linhas de `products` que o site mostra (sem PELLEGRINO).
+const PRODUCTS_WHERE = "linha IN ('DIESEL','CAMINHOES')";
 
 function lerDatabaseUrl() {
   const linha = fs
@@ -70,6 +78,14 @@ console.log(`Exportando ${db.banco} de ${db.host}...`);
 
 const estrutura = dump(db, ["--no-data", db.banco]);
 const dados = dump(db, ["--no-create-info", "--extended-insert", db.banco, ...TABELAS_COM_DADOS]);
+// products filtrado (DIESEL + CAMINHOES), sem PELLEGRINO
+const dadosProducts = dump(db, [
+  "--no-create-info",
+  "--extended-insert",
+  `--where=${PRODUCTS_WHERE}`,
+  db.banco,
+  "products",
+]);
 
 // MariaDB (comum na Hostinger) não conhece a collation padrão do MySQL 8
 const compativel = (sql) => sql.replace(/utf8mb4_0900_ai_ci/g, "utf8mb4_unicode_ci");
@@ -83,6 +99,7 @@ fs.writeFileSync(
     "SET FOREIGN_KEY_CHECKS=0;",
     compativel(estrutura),
     compativel(dados),
+    compativel(dadosProducts),
     "SET FOREIGN_KEY_CHECKS=1;",
     "",
   ].join("\n"),
