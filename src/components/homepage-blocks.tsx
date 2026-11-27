@@ -18,6 +18,8 @@ import {
   MapPin,
   PackageCheck,
   ListChecks,
+  Clock,
+  Globe,
 } from "lucide-react";
 import { useSegment } from "@/components/SegmentContext";
 import { linhaPermitida } from "@/lib/linhas";
@@ -770,7 +772,120 @@ export function NewsletterInstagramBlock({ config }: { config: string | null }) 
 // nota fiscal). Na versão do Uruguai o site não mostra informação de envio.
 export function EnvioDacBlock(_: { config: string | null }) {
   const { idioma } = useT();
-  return idioma === "pt" ? <EnvioBrasilPt /> : null;
+  return idioma === "pt" ? <EnvioBrasilPt /> : <EnvioUruguayEs />;
+}
+
+// Versão Uruguai (español): nosso maior diferencial — exportación a todo el país en pocos días.
+function EnvioUruguayEs() {
+  const ventajas = [
+    {
+      icon: Clock,
+      titulo: "Hasta 4 días hábiles",
+      texto: "Despachamos tu pedido y llega a tu local en pocos días.",
+    },
+    {
+      icon: Globe,
+      titulo: "Los 19 departamentos",
+      texto: "Exportamos a todo el país, de Montevideo a todo el interior.",
+    },
+    {
+      icon: Search,
+      titulo: "Seguimiento del envío",
+      texto: "Te pasamos el código para seguir tu paquete hasta la entrega.",
+    },
+    {
+      icon: ShieldCheck,
+      titulo: "Sin mínimo de compra",
+      texto: "Micro-exportaciones: pedí desde una sola pieza.",
+    },
+  ];
+  const ciudades = [
+    "Montevideo",
+    "Salto",
+    "Paysandú",
+    "Rivera",
+    "Tacuarembó",
+    "Maldonado",
+    "Melo",
+    "Treinta y Tres",
+    "Durazno",
+    "Florida",
+    "Minas",
+    "San José",
+    "Mercedes",
+    "Fray Bentos",
+    "Colonia",
+    "Artigas",
+    "Rocha",
+    "Canelones",
+  ];
+  return (
+    <Reveal>
+      <section
+        id="exportacion-uruguay"
+        className="relative scroll-mt-[calc(var(--altura-header,112px)+12px)] overflow-hidden rounded-2xl bg-gradient-to-br from-sky-700 via-sky-800 to-blue-950 p-5 text-white shadow-sm md:p-10"
+      >
+        <Truck className="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 text-white/5" />
+        <Globe className="pointer-events-none absolute -top-12 -left-12 h-56 w-56 text-white/5" />
+        <div className="relative grid gap-6 md:grid-cols-2 md:items-center md:gap-10">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+              <BandeiraUruguay className="h-3.5 w-5 rounded-sm" /> Exportación a todo el Uruguay
+            </span>
+            <h2 className="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">
+              Ahora es mucho más fácil: exportamos a tu local en todo el país
+            </h2>
+            <p className="mt-2 text-sm text-white/85 md:text-base">
+              Micro-exportaciones a tu tienda en <strong>hasta 4 días hábiles</strong>. Sin mínimo
+              de compra: pedí desde una sola pieza y la llevamos a cualquier rincón del Uruguay.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <a
+                data-livre="1"
+                href={whatsappContactUrl("¡Hola! Quiero exportar repuestos a mi local en Uruguay.")}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow transition active:scale-95"
+              >
+                <MessageCircle className="h-4 w-4" /> Cotizá por WhatsApp
+              </a>
+              <Link
+                to="/exportacion"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white/15 px-5 py-3 text-sm font-bold text-white ring-1 ring-white/30 transition hover:bg-white/25 active:scale-95"
+              >
+                Cómo exportamos <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
+            {ventajas.map((v) => (
+              <div key={v.titulo} className="rounded-xl bg-white/10 p-3 backdrop-blur-sm md:p-4">
+                <v.icon className="h-6 w-6 text-sky-200" />
+                <h3 className="mt-2 text-sm font-bold">{v.titulo}</h3>
+                <p className="mt-0.5 text-xs leading-snug text-white/80">{v.texto}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="relative mt-6 border-t border-white/15 pt-4">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+            <MapPin className="h-4 w-4" /> Llegamos a todo el país
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {ciudades.map((c) => (
+              <Link
+                key={c}
+                to="/exportacion"
+                className="rounded-full bg-white/10 px-2.5 py-1 text-xs text-white/85 transition hover:bg-white/20"
+              >
+                {c}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </Reveal>
+  );
 }
 
 function EnvioBrasilPt() {
