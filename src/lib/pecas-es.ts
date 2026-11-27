@@ -58,6 +58,19 @@ const GLOSSARIO: Record<string, string> = {
   VALVULA: "VÁLVULA",
   VALVULAS: "VÁLVULAS",
   MANGUEIRA: "MANGUERA",
+  // termos de máquina pesada / diesel (engepeças)
+  GAXETA: "EMPAQUETADURA",
+  TROCADOR: "INTERCAMBIADOR",
+  EXPANSAO: "EXPANSIÓN",
+  SECOES: "SECCIONES",
+  CHICOTE: "ARNÉS",
+  LEVANTE: "ELEVACIÓN",
+  CONVERSOR: "CONVERTIDOR",
+  SEDE: "ASIENTO",
+  CONDICIONADO: "ACONDICIONADO",
+  BORDA: "BORDE",
+  LANCA: "PLUMA",
+  SILICONE: "SILICONA",
   MANGUEIRAS: "MANGUERAS",
   MANG: "MANG",
   CABO: "CABLE",
@@ -733,6 +746,54 @@ const CATEGORIAS_ES: Record<string, { nome: string; curto: string; frase: string
     frase: "Componente del sistema eléctrico del equipo.",
   },
   "Outros Componentes": { nome: "Otros Componentes", curto: "Otros", frase: "" },
+  "Bloco e Motor": {
+    nome: "Bloque y Motor",
+    curto: "Motor",
+    frase:
+      "Componentes internos del bloque del motor: camisas, pistones, anillos, bielas y cojinetes.",
+  },
+  Cabeçote: {
+    nome: "Culata",
+    curto: "Culata",
+    frase: "Piezas de la culata: válvulas, guías, asientos, balancines y juntas de tapa.",
+  },
+  "Material Rodante": {
+    nome: "Tren de Rodaje",
+    curto: "Rodaje",
+    frase:
+      "Tren de rodaje de máquinas sobre orugas: cadenas, eslabones, zapatas, rodillos y ruedas guía.",
+  },
+  "Sistema de Injeção": {
+    nome: "Sistema de Inyección",
+    curto: "Inyección",
+    frase: "Componentes del sistema de inyección diésel: inyectores, bombas inyectoras y toberas.",
+  },
+  Arrefecimento: {
+    nome: "Refrigeración",
+    curto: "Refrigeración",
+    frase:
+      "Sistema de refrigeración del motor: radiadores, bombas de agua, termostatos y mangueras.",
+  },
+  Bombas: {
+    nome: "Bombas",
+    curto: "Bombas",
+    frase: "Bombas hidráulicas, de aceite y de agua para equipos pesados.",
+  },
+  "Turbo e Escape": {
+    nome: "Turbo y Escape",
+    curto: "Turbo",
+    frase: "Turbocompresores y componentes del sistema de escape.",
+  },
+  "Correias e Tensores": {
+    nome: "Correas y Tensores",
+    curto: "Correas",
+    frase: "Correas, poleas y tensores de la transmisión por correa del motor.",
+  },
+  "Virabrequim e Comando": {
+    nome: "Cigüeñal y Árbol de Levas",
+    curto: "Cigüeñal",
+    frase: "Cigüeñal, árbol de levas, engranajes de distribución y cojinetes de bancada.",
+  },
 };
 
 // Nome da categoria em espanhol (o valor do banco continua em português nos filtros e URLs).
