@@ -226,6 +226,7 @@ function Dashboard({
           </div>
           <Link
             to="/panel/anuncio"
+            search={{ id: undefined }}
             className="flex items-center gap-1.5 rounded-full bg-amber-400 px-4 py-2.5 text-sm font-extrabold text-[#06321b] hover:bg-amber-300"
           >
             <Plus className="h-4 w-4" /> {es ? "Publicar máquina" : "Publicar máquina"}
@@ -253,6 +254,7 @@ function Dashboard({
             </p>
             <Link
               to="/panel/anuncio"
+              search={{ id: undefined }}
               className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-700 px-4 py-2 text-sm font-bold text-white"
             >
               <Megaphone className="h-4 w-4" /> {es ? "Publicar la primera" : "Publicar a primeira"}
