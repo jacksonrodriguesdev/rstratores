@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, Megaphone } from "lucide-react";
+import { Search, Megaphone, RefreshCw, BadgeCheck, Tractor } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { MaquinaCard } from "@/components/marketplace/MaquinaCard";
 import { useT } from "@/lib/idioma";
@@ -171,6 +171,59 @@ function Pagina() {
   );
 }
 
+// Hero animado padrão (sem imagem de banner): estilo "anunciar grátis", marca AGRO PARTS.
+function HeroAnimado({ es }: { es: boolean }) {
+  return (
+    <div className="relative mb-4 aspect-[288/170] overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 text-white md:aspect-[1135/350]">
+      <style>{`@keyframes mkt-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}`}</style>
+      <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-amber-300/10 blur-2xl" />
+
+      <div className="relative flex h-full items-center justify-between gap-3 px-5 md:px-12">
+        <div className="max-w-[64%] md:max-w-[56%]">
+          <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-amber-400 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-950 md:text-sm">
+            <BadgeCheck className="h-3 w-3 md:h-4 md:w-4" /> {es ? "GRATIS" : "GRÁTIS"}
+          </span>
+          <h2 className="mt-1.5 text-base font-extrabold leading-tight md:mt-3 md:text-4xl">
+            {es ? "Anunciá tu máquina gratis" : "Anuncie sua máquina grátis"}
+          </h2>
+          <p className="mt-1 flex items-center gap-1.5 text-[11px] text-emerald-50/90 md:mt-2 md:text-lg">
+            <RefreshCw className="h-3 w-3 animate-[spin_3s_linear_infinite] md:h-5 md:w-5" />
+            {es
+              ? "Renová con 1 clic. Sin costos, hasta venderla."
+              : "Renove com 1 clique. Sem custos, até vender."}
+          </p>
+          <Link
+            to="/login"
+            search={{ redirect: "/panel" } as never}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-extrabold text-emerald-800 shadow transition hover:bg-emerald-50 md:mt-4 md:px-6 md:py-3 md:text-base"
+          >
+            <Megaphone className="h-3.5 w-3.5 md:h-5 md:w-5" />{" "}
+            {es ? "Anunciar gratis" : "Anunciar grátis"}
+          </Link>
+        </div>
+
+        <div className="relative hidden shrink-0 sm:block">
+          <div
+            style={{ animation: "mkt-float 3s ease-in-out infinite" }}
+            className="text-7xl leading-none md:text-[150px]"
+          >
+            🚜
+          </div>
+          <div className="absolute -left-4 top-1 rounded-xl bg-white/95 px-2.5 py-1.5 text-emerald-800 shadow-lg md:px-3 md:py-2">
+            <div className="flex items-center gap-1 text-[9px] font-bold md:text-xs">
+              <Tractor className="h-3 w-3 md:h-4 md:w-4" /> {es ? "Tu máquina" : "Sua máquina"}
+            </div>
+            <div className="text-[8px] text-emerald-600 md:text-[11px]">
+              {es ? "publicada ✓" : "publicada ✓"}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MarketplaceHero({ banners, es }: { banners: Banner[]; es: boolean }) {
   const [i, setI] = useState(0);
   const n = banners.length;
@@ -181,21 +234,8 @@ function MarketplaceHero({ banners, es }: { banners: Banner[]; es: boolean }) {
   }, [n]);
 
   if (n === 0) {
-    // Fallback (nenhum banner cadastrado ainda): convida a anunciar.
-    return (
-      <div className="mb-4 flex aspect-[288/170] items-center justify-center rounded-2xl bg-gradient-to-br from-sky-700 via-sky-800 to-blue-950 p-6 text-center text-white md:aspect-[1135/350]">
-        <div>
-          <p className="text-lg font-extrabold md:text-3xl">
-            {es ? "Vendé tu maquinaria a todo el país" : "Venda seu maquinário pra todo o país"}
-          </p>
-          <p className="mt-1 text-sm text-white/80 md:text-base">
-            {es
-              ? "Publicá tu primera máquina gratis. Tu vidriera con enlace propio."
-              : "Publique sua primeira máquina grátis. Sua vitrine com link próprio."}
-          </p>
-        </div>
-      </div>
-    );
+    // Hero animado padrão (quando não há banner de imagem cadastrado no admin).
+    return <HeroAnimado es={es} />;
   }
 
   const b = banners[i];
