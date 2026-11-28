@@ -1,10 +1,13 @@
-import type { ReactNode } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Search, Megaphone } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { MaquinaCard } from "@/components/marketplace/MaquinaCard";
 import { useT } from "@/lib/idioma";
 import { listarAnunciosFn, facetasFn, TIPOS_MAQUINA, DEPARTAMENTOS_UY } from "@/lib/marketplace";
+import { listActiveBanners, type Banner } from "@/lib/banners";
+
+const urlImg = (p: string) => (p.startsWith("http") || p.startsWith("/") ? p : `/uploads/${p}`);
 
 type Busca = {
   tipo?: string;
@@ -26,7 +29,7 @@ export const Route = createFileRoute("/marketplace/")({
   }),
   loaderDeps: ({ search }) => search,
   loader: async ({ deps }) => {
-    const [lista, facetas] = await Promise.all([
+    const [lista, facetas, banners] = await Promise.all([
       listarAnunciosFn({
         data: {
           tipo: deps.tipo ?? null,
@@ -38,8 +41,9 @@ export const Route = createFileRoute("/marketplace/")({
         },
       }),
       facetasFn(),
+      listActiveBanners("marketplace").catch(() => [] as Banner[]),
     ]);
-    return { lista, facetas };
+    return { lista, facetas, banners };
   },
   head: () => ({
     meta: [
@@ -55,7 +59,7 @@ export const Route = createFileRoute("/marketplace/")({
 });
 
 function Pagina() {
-  const { lista, facetas } = Route.useLoaderData();
+  const { lista, facetas, banners } = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const { idioma } = useT();
@@ -68,17 +72,29 @@ function Pagina() {
     <div className="min-h-screen bg-slate-50">
       <SiteHeader />
       <main className="mx-auto max-w-7xl px-4 py-6">
-        {/* Cabeçalho */}
-        <div className="mb-5 rounded-2xl bg-gradient-to-br from-sky-700 via-sky-800 to-blue-950 p-6 text-white">
-          <h1 className="text-2xl font-extrabold md:text-3xl">
-            {es ? "Marketplace de máquinas" : "Marketplace de máquinas"}
-          </h1>
-          <p className="mt-1 text-sm text-white/85">
-            {es
-              ? "Tractores, cosechadoras, pulverizadoras e implementos en venta en todo Uruguay."
-              : "Tratores, colheitadeiras, pulverizadores e implementos à venda em todo o Uruguai."}
-          </p>
+        {/* Barra: título curto + Anunciar */}
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-extrabold text-slate-800 md:text-2xl">
+              {es ? "Marketplace de máquinas" : "Marketplace de máquinas"}
+            </h1>
+            <p className="text-xs text-slate-500 md:text-sm">
+              {es
+                ? "Comprá y vendé maquinaria agrícola en todo Uruguay."
+                : "Compre e venda maquinário agrícola em todo o Uruguai."}
+            </p>
+          </div>
+          <Link
+            to="/login"
+            search={{ redirect: "/panel" } as never}
+            className="flex shrink-0 items-center gap-1.5 rounded-full bg-amber-400 px-4 py-2.5 text-sm font-extrabold text-[#06321b] shadow transition hover:bg-amber-300"
+          >
+            <Megaphone className="h-4 w-4" /> {es ? "Anunciar" : "Anunciar"}
+          </Link>
         </div>
+
+        {/* Hero (banners do admin, tipo "marketplace") */}
+        <MarketplaceHero banners={banners} es={es} />
 
         {/* Chips de tipo */}
         <div className="mb-4 flex flex-wrap gap-2">
@@ -151,6 +167,72 @@ function Pagina() {
           </section>
         </div>
       </main>
+    </div>
+  );
+}
+
+function MarketplaceHero({ banners, es }: { banners: Banner[]; es: boolean }) {
+  const [i, setI] = useState(0);
+  const n = banners.length;
+  useEffect(() => {
+    if (n < 2) return;
+    const id = setInterval(() => setI((v) => (v + 1) % n), 5000);
+    return () => clearInterval(id);
+  }, [n]);
+
+  if (n === 0) {
+    // Fallback (nenhum banner cadastrado ainda): convida a anunciar.
+    return (
+      <div className="mb-4 flex aspect-[288/170] items-center justify-center rounded-2xl bg-gradient-to-br from-sky-700 via-sky-800 to-blue-950 p-6 text-center text-white md:aspect-[1135/350]">
+        <div>
+          <p className="text-lg font-extrabold md:text-3xl">
+            {es ? "Vendé tu maquinaria a todo el país" : "Venda seu maquinário pra todo o país"}
+          </p>
+          <p className="mt-1 text-sm text-white/80 md:text-base">
+            {es
+              ? "Publicá tu primera máquina gratis. Tu vidriera con enlace propio."
+              : "Publique sua primeira máquina grátis. Sua vitrine com link próprio."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const b = banners[i];
+  const img = (
+    <picture>
+      {b.image_path_mobile && (
+        <source media="(max-width: 768px)" srcSet={urlImg(b.image_path_mobile)} />
+      )}
+      <img
+        src={urlImg(b.image_path)}
+        alt={b.titulo ?? "Marketplace"}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    </picture>
+  );
+
+  return (
+    <div className="relative mb-4 aspect-[288/170] overflow-hidden rounded-2xl bg-slate-200 md:aspect-[1135/350]">
+      {b.link_url ? (
+        <a href={b.link_url} className="absolute inset-0 block">
+          {img}
+        </a>
+      ) : (
+        img
+      )}
+      {n > 1 && (
+        <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
+          {banners.map((_, d) => (
+            <button
+              key={d}
+              aria-label={`banner ${d + 1}`}
+              onClick={() => setI(d)}
+              className={`h-1.5 rounded-full transition-all ${d === i ? "w-5 bg-white" : "w-1.5 bg-white/60"}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -7,7 +7,9 @@ export function FloatingContact() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { t } = useT();
 
-  if (pathname.startsWith("/loja")) {
+  // Esconde na loja e no Marketplace (essas páginas têm seus próprios CTAs de contato).
+  const esconder = ["/loja", "/marketplace", "/maquina", "/m/"];
+  if (esconder.some((p) => pathname.startsWith(p))) {
     return null;
   }
 
