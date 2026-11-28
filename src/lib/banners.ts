@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 // - duplo:   banners promocionais lado a lado
 // - strip:   faixa promocional larga entre as seções
 // - dac:     imagem de fundo da seção de envios para o Uruguai pela DAC
-export type BannerKind = "hero" | "anuncio" | "duplo" | "strip" | "dac";
+export type BannerKind = "hero" | "anuncio" | "duplo" | "strip" | "dac" | "marketplace";
 
 export type Banner = {
   id: number;
@@ -73,6 +73,14 @@ export const TIPOS_BANNER: Record<
     celular: "800 × 300 px",
     aspecto: "aspect-[1600/250]",
     aspectoCelular: "aspect-[800/300]",
+  },
+  marketplace: {
+    nome: "Hero do Marketplace",
+    onde: "Topo da página /marketplace (vitrine de máquinas). Vários ativos viram carrossel.",
+    desktop: "1135 × 350 px",
+    celular: "576 × 340 px (exibido ~288 × 170 px)",
+    aspecto: "aspect-[1135/350]",
+    aspectoCelular: "aspect-[288/170]",
   },
 };
 
