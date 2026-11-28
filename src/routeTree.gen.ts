@@ -89,6 +89,9 @@ import { Route as FeedsArquivoRouteImport } from './routes/feeds.$arquivo'
 import { Route as GuiasIndexRouteImport } from './routes/guias.index'
 import { Route as GuiasSlugRouteImport } from './routes/guias.$slug'
 import { Route as IgSplatRouteImport } from './routes/ig.$'
+import { Route as MHandleRouteImport } from './routes/m.$handle'
+import { Route as MaquinaIdRouteImport } from './routes/maquina.$id'
+import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as PagarCodigoRouteImport } from './routes/pagar.$codigo'
 import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
@@ -572,6 +575,21 @@ const GuiasSlugRoute = GuiasSlugRouteImport.update({
 const IgSplatRoute = IgSplatRouteImport.update({
   id: '/ig/$',
   path: '/ig/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MHandleRoute = MHandleRouteImport.update({
+  id: '/m/$handle',
+  path: '/m/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaquinaIdRoute = MaquinaIdRouteImport.update({
+  id: '/maquina/$id',
+  path: '/maquina/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
+  id: '/marketplace/',
+  path: '/marketplace/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PagarCodigoRoute = PagarCodigoRouteImport.update({
@@ -1082,6 +1100,8 @@ export interface FileRoutesByFullPath {
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
+  '/m/$handle': typeof MHandleRoute
+  '/maquina/$id': typeof MaquinaIdRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -1096,6 +1116,7 @@ export interface FileRoutesByFullPath {
   '/empresas/': typeof EmpresasIndexRoute
   '/exportacion/': typeof ExportacionIndexRoute
   '/guias/': typeof GuiasIndexRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
@@ -1246,6 +1267,8 @@ export interface FileRoutesByTo {
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
+  '/m/$handle': typeof MHandleRoute
+  '/maquina/$id': typeof MaquinaIdRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -1260,6 +1283,7 @@ export interface FileRoutesByTo {
   '/empresas': typeof EmpresasIndexRoute
   '/exportacion': typeof ExportacionIndexRoute
   '/guias': typeof GuiasIndexRoute
+  '/marketplace': typeof MarketplaceIndexRoute
   '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
@@ -1413,6 +1437,8 @@ export interface FileRoutesById {
   '/feeds/$arquivo': typeof FeedsArquivoRoute
   '/guias/$slug': typeof GuiasSlugRoute
   '/ig/$': typeof IgSplatRoute
+  '/m/$handle': typeof MHandleRoute
+  '/maquina/$id': typeof MaquinaIdRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
@@ -1427,6 +1453,7 @@ export interface FileRoutesById {
   '/empresas/': typeof EmpresasIndexRoute
   '/exportacion/': typeof ExportacionIndexRoute
   '/guias/': typeof GuiasIndexRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
@@ -1581,6 +1608,8 @@ export interface FileRouteTypes {
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
+    | '/m/$handle'
+    | '/maquina/$id'
     | '/pagar/$codigo'
     | '/pedido/$codigo'
     | '/produto/$sku'
@@ -1595,6 +1624,7 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/exportacion/'
     | '/guias/'
+    | '/marketplace/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
@@ -1745,6 +1775,8 @@ export interface FileRouteTypes {
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
+    | '/m/$handle'
+    | '/maquina/$id'
     | '/pagar/$codigo'
     | '/pedido/$codigo'
     | '/produto/$sku'
@@ -1759,6 +1791,7 @@ export interface FileRouteTypes {
     | '/empresas'
     | '/exportacion'
     | '/guias'
+    | '/marketplace'
     | '/repuestos-agricolas'
     | '/repuestos'
     | '/admin/automacoes/$id'
@@ -1911,6 +1944,8 @@ export interface FileRouteTypes {
     | '/feeds/$arquivo'
     | '/guias/$slug'
     | '/ig/$'
+    | '/m/$handle'
+    | '/maquina/$id'
     | '/pagar/$codigo'
     | '/pedido/$codigo'
     | '/produto/$sku'
@@ -1925,6 +1960,7 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/exportacion/'
     | '/guias/'
+    | '/marketplace/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
@@ -2033,6 +2069,8 @@ export interface RootRouteChildren {
   FeedsArquivoRoute: typeof FeedsArquivoRoute
   GuiasSlugRoute: typeof GuiasSlugRoute
   IgSplatRoute: typeof IgSplatRoute
+  MHandleRoute: typeof MHandleRoute
+  MaquinaIdRoute: typeof MaquinaIdRoute
   PagarCodigoRoute: typeof PagarCodigoRoute
   PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
@@ -2045,6 +2083,7 @@ export interface RootRouteChildren {
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ExportacionIndexRoute: typeof ExportacionIndexRoute
   GuiasIndexRoute: typeof GuiasIndexRoute
+  MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
@@ -2661,6 +2700,27 @@ declare module '@tanstack/react-router' {
       path: '/ig/$'
       fullPath: '/ig/$'
       preLoaderRoute: typeof IgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m/$handle': {
+      id: '/m/$handle'
+      path: '/m/$handle'
+      fullPath: '/m/$handle'
+      preLoaderRoute: typeof MHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/maquina/$id': {
+      id: '/maquina/$id'
+      path: '/maquina/$id'
+      fullPath: '/maquina/$id'
+      preLoaderRoute: typeof MaquinaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/': {
+      id: '/marketplace/'
+      path: '/marketplace'
+      fullPath: '/marketplace/'
+      preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pagar/$codigo': {
@@ -3498,6 +3558,8 @@ const rootRouteChildren: RootRouteChildren = {
   FeedsArquivoRoute: FeedsArquivoRoute,
   GuiasSlugRoute: GuiasSlugRoute,
   IgSplatRoute: IgSplatRoute,
+  MHandleRoute: MHandleRoute,
+  MaquinaIdRoute: MaquinaIdRoute,
   PagarCodigoRoute: PagarCodigoRoute,
   PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
@@ -3510,6 +3572,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasIndexRoute: EmpresasIndexRoute,
   ExportacionIndexRoute: ExportacionIndexRoute,
   GuiasIndexRoute: GuiasIndexRoute,
+  MarketplaceIndexRoute: MarketplaceIndexRoute,
   RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,

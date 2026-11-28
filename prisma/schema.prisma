@@ -362,6 +362,9 @@ model users {
   carrinhos       carrinhos[]
   links_pagamento links_pagamento[]
   carteira_mov    carteira_movimentos[]
+  // Marketplace: um usuário pode ter uma empresa (vendedor) e seguir várias
+  mkt_empresa     mkt_empresa?
+  mkt_seguindo    mkt_seguidor[]
 }
 
 // Carteira interna do cliente: livro-razão (nunca editar saldo direto, só criar movimentos).
@@ -1300,4 +1303,111 @@ model ig_dia {
   posts      Int?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+// ============================================================================
+// AGRO PARTS MARKETPLACE — vitrine estilo rede social + anúncios de máquinas.
+// Fase 1 (MVP): cadastro de empresa, perfil social, anúncios com fotos, moderação.
+// Pagamento/assinatura entram depois (campos `plano`/`verificada` já preparados).
+// ============================================================================
+
+// A loja/perfil social de cada empresa vendedora. 1 por usuário (role EMPRESA).
+model mkt_empresa {
+  id              Int      @id @default(autoincrement())
+  user_id         Int      @unique
+  handle          String   @unique @db.VarChar(40) // @usuario (sem o @)
+  nome            String   @db.VarChar(120)
+  bio             String?  @db.Text
+  logo_url        String?  @db.Text
+  capa_url        String?  @db.Text
+  cor_tema        String?  @db.VarChar(9) // hex, personaliza o perfil
+  telefone_wa     String?  @db.VarChar(20)
+  web             String?  @db.VarChar(200)
+  ubicacion       String?  @db.VarChar(120)
+  departamento    String?  @db.VarChar(40)
+  maps_url        String?  @db.Text
+  verificada      Boolean  @default(false) // selo ✔ (ligado quando o plano Verificado estiver pago)
+  plano           String   @default("GRATIS") @db.VarChar(20) // GRATIS, PRO, VERIFICADO
+  limite_anuncios Int      @default(1)
+  ativa           Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user       users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  anuncios   mkt_anuncio[]
+  seguidores mkt_seguidor[]
+
+  @@index([plano])
+  @@index([ativa])
+}
+
+// Um anúncio de máquina/equipamento.
+model mkt_anuncio {
+  id              Int       @id @default(autoincrement())
+  empresa_id      Int
+  titulo          String    @db.VarChar(160)
+  slug            String?   @db.VarChar(180)
+  tipo            String    @db.VarChar(30) // tractor, cosechadora, pulverizadora, implemento, camion, otro
+  marca           String?   @db.VarChar(60)
+  modelo          String?   @db.VarChar(80)
+  ano             Int?
+  horas_km        Int?
+  unidade_uso     String?   @db.VarChar(4) // h | km
+  condicao        String    @default("USADO") @db.VarChar(10) // NUEVO, USADO
+  potencia        String?   @db.VarChar(40)
+  preco           Decimal?  @db.Decimal(12, 2)
+  moeda           String    @default("USD") @db.VarChar(3)
+  preco_consultar Boolean   @default(false)
+  descricao       String?   @db.Text
+  departamento    String?   @db.VarChar(40)
+  status          String    @default("PENDIENTE") @db.VarChar(12) // PENDIENTE, ACTIVO, PAUSADO, VENDIDO, RECHAZADO
+  destaque_ate    DateTime?
+  views           Int       @default(0)
+  motivo_rechazo  String?   @db.VarChar(200)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  empresa mkt_empresa        @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
+  fotos   mkt_anuncio_foto[]
+
+  @@index([status, created_at])
+  @@index([tipo])
+  @@index([empresa_id])
+}
+
+// Galeria de fotos do anúncio (arquivos em <uploads>/marketplace).
+model mkt_anuncio_foto {
+  id         Int      @id @default(autoincrement())
+  anuncio_id Int
+  image_path String   @db.VarChar(255)
+  ordem      Int      @default(0)
+  created_at DateTime @default(now())
+
+  anuncio mkt_anuncio @relation(fields: [anuncio_id], references: [id], onDelete: Cascade)
+
+  @@index([anuncio_id])
+}
+
+// "Seguir" uma empresa (rede social): avisa o cliente quando entra máquina nova.
+model mkt_seguidor {
+  id         Int      @id @default(autoincrement())
+  empresa_id Int
+  user_id    Int
+  created_at DateTime @default(now())
+
+  empresa mkt_empresa @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
+  user    users       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([empresa_id, user_id])
+  @@index([empresa_id])
+}
+
+// Métricas do anúncio (views, cliques no WhatsApp) — vira as estatísticas do vendedor.
+model mkt_lead {
+  id         Int      @id @default(autoincrement())
+  anuncio_id Int
+  tipo       String   @db.VarChar(12) // whatsapp, view
+  created_at DateTime @default(now())
+
+  @@index([anuncio_id, created_at])
 }
