@@ -102,6 +102,105 @@ export const facetasFn = createServerFn({ method: "GET" }).handler(async () => {
   return facetasAnuncios();
 });
 
+// ===== PAINEL DO VENDEDOR (precisa estar logado) =====
+
+async function sessaoOuNull() {
+  const { getSession } = await import("./auth.server");
+  return getSession();
+}
+
+export const minhaEmpresaFn = createServerFn({ method: "GET" }).handler(async () => {
+  const s = await sessaoOuNull();
+  if (!s) return { logado: false as const };
+  const { empresaDoUsuario } = await import("./marketplace.server");
+  const e = await empresaDoUsuario(s.id);
+  return { logado: true as const, nome: s.nome, empresa: e };
+});
+
+export const verificarHandleFn = createServerFn({ method: "GET" })
+  .validator((d: { handle: string }) => ({ handle: String(d.handle) }))
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    const { handleDisponivel, normalizaHandle } = await import("./marketplace.server");
+    const h = normalizaHandle(data.handle);
+    return { handle: h, disponivel: await handleDisponivel(h, s?.id) };
+  });
+
+export const criarEmpresaFn = createServerFn({ method: "POST" })
+  .validator((d: any) => d)
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    if (!s) return { needLogin: true as const };
+    const { criarEmpresa } = await import("./marketplace.server");
+    return { needLogin: false as const, ...(await criarEmpresa(s.id, data)) };
+  });
+
+export const atualizarEmpresaFn = createServerFn({ method: "POST" })
+  .validator((d: any) => d)
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    if (!s) return { needLogin: true as const };
+    const { atualizarEmpresa } = await import("./marketplace.server");
+    return { needLogin: false as const, ...(await atualizarEmpresa(s.id, data)) };
+  });
+
+export const meusAnunciosFn = createServerFn({ method: "GET" }).handler(async () => {
+  const s = await sessaoOuNull();
+  if (!s) return { logado: false as const };
+  const { meusAnuncios } = await import("./marketplace.server");
+  return { logado: true as const, ...(await meusAnuncios(s.id)) };
+});
+
+export const salvarAnuncioFn = createServerFn({ method: "POST" })
+  .validator((d: any) => d)
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    if (!s) return { needLogin: true as const };
+    const { salvarAnuncio } = await import("./marketplace.server");
+    return { needLogin: false as const, ...(await salvarAnuncio(s.id, data)) };
+  });
+
+export const getAnuncioEditarFn = createServerFn({ method: "GET" })
+  .validator((d: { id: number }) => ({ id: Number(d.id) }))
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    if (!s) return null;
+    const { getAnuncioParaEditar } = await import("./marketplace.server");
+    return getAnuncioParaEditar(s.id, data.id);
+  });
+
+export const mudarStatusFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number; status: string }) => ({
+    id: Number(d.id),
+    status: String(d.status),
+  }))
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    if (!s) return { needLogin: true as const };
+    const { mudarStatusAnuncio } = await import("./marketplace.server");
+    return { needLogin: false as const, ...(await mudarStatusAnuncio(s.id, data.id, data.status)) };
+  });
+
+export const deletarAnuncioFn = createServerFn({ method: "POST" })
+  .validator((d: { id: number }) => ({ id: Number(d.id) }))
+  .handler(async ({ data }) => {
+    const s = await sessaoOuNull();
+    if (!s) return { needLogin: true as const };
+    const { deletarAnuncio } = await import("./marketplace.server");
+    return { needLogin: false as const, ...(await deletarAnuncio(s.id, data.id)) };
+  });
+
+// Envia uma foto de máquina (precisa estar logado). Retorna o path salvo.
+export async function uploadFotoMaquina(file: File): Promise<string> {
+  const { prepararImagem } = await import("./imagem-cliente");
+  const fd = new FormData();
+  fd.append("file", await prepararImagem(file));
+  const res = await fetch("/api/marketplace/foto/upload", { method: "POST", body: fd });
+  if (!res.ok)
+    throw new Error((await res.json().catch(() => null))?.error || "Falla al subir la foto");
+  return (await res.json()).path as string;
+}
+
 export const registrarLeadFn = createServerFn({ method: "POST" })
   .validator((d: { id: number; tipo: "whatsapp" | "view" }) => ({
     id: Number(d.id),

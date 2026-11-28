@@ -93,6 +93,8 @@ import { Route as MHandleRouteImport } from './routes/m.$handle'
 import { Route as MaquinaIdRouteImport } from './routes/maquina.$id'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as PagarCodigoRouteImport } from './routes/pagar.$codigo'
+import { Route as PanelIndexRouteImport } from './routes/panel.index'
+import { Route as PanelAnuncioRouteImport } from './routes/panel.anuncio'
 import { Route as PedidoCodigoRouteImport } from './routes/pedido.$codigo'
 import { Route as ProdutoSkuRouteImport } from './routes/produto.$sku'
 import { Route as RepuestosAgricolasIndexRouteImport } from './routes/repuestos-agricolas.index'
@@ -174,6 +176,7 @@ import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.goo
 import { Route as ApiAuthPasskeyOpcoesRouteImport } from './routes/api/auth.passkey.opcoes'
 import { Route as ApiAuthPasskeyVerificarRouteImport } from './routes/api/auth.passkey.verificar'
 import { Route as ApiEmpresasArquivoIdRouteImport } from './routes/api/empresas.arquivo.$id'
+import { Route as ApiMarketplaceFotoUploadRouteImport } from './routes/api/marketplace/foto.upload'
 import { Route as ApiPublicDlocalPagamentosRouteImport } from './routes/api/public/dlocal.pagamentos'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe.webhook'
 
@@ -597,6 +600,16 @@ const PagarCodigoRoute = PagarCodigoRouteImport.update({
   path: '/pagar/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanelIndexRoute = PanelIndexRouteImport.update({
+  id: '/panel/',
+  path: '/panel/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelAnuncioRoute = PanelAnuncioRouteImport.update({
+  id: '/panel/anuncio',
+  path: '/panel/anuncio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PedidoCodigoRoute = PedidoCodigoRouteImport.update({
   id: '/pedido/$codigo',
   path: '/pedido/$codigo',
@@ -1013,6 +1026,12 @@ const ApiEmpresasArquivoIdRoute = ApiEmpresasArquivoIdRouteImport.update({
   path: '/api/empresas/arquivo/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMarketplaceFotoUploadRoute =
+  ApiMarketplaceFotoUploadRouteImport.update({
+    id: '/api/marketplace/foto/upload',
+    path: '/api/marketplace/foto/upload',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicDlocalPagamentosRoute =
   ApiPublicDlocalPagamentosRouteImport.update({
     id: '/api/public/dlocal/pagamentos',
@@ -1103,6 +1122,7 @@ export interface FileRoutesByFullPath {
   '/m/$handle': typeof MHandleRoute
   '/maquina/$id': typeof MaquinaIdRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
+  '/panel/anuncio': typeof PanelAnuncioRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
@@ -1117,6 +1137,7 @@ export interface FileRoutesByFullPath {
   '/exportacion/': typeof ExportacionIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/panel/': typeof PanelIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
@@ -1191,6 +1212,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
   '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
   '/api/empresas/arquivo/$id': typeof ApiEmpresasArquivoIdRoute
+  '/api/marketplace/foto/upload': typeof ApiMarketplaceFotoUploadRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1270,6 +1292,7 @@ export interface FileRoutesByTo {
   '/m/$handle': typeof MHandleRoute
   '/maquina/$id': typeof MaquinaIdRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
+  '/panel/anuncio': typeof PanelAnuncioRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
@@ -1284,6 +1307,7 @@ export interface FileRoutesByTo {
   '/exportacion': typeof ExportacionIndexRoute
   '/guias': typeof GuiasIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/panel': typeof PanelIndexRoute
   '/repuestos-agricolas': typeof RepuestosAgricolasIndexRoute
   '/repuestos': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
@@ -1358,6 +1382,7 @@ export interface FileRoutesByTo {
   '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
   '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
   '/api/empresas/arquivo/$id': typeof ApiEmpresasArquivoIdRoute
+  '/api/marketplace/foto/upload': typeof ApiMarketplaceFotoUploadRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1440,6 +1465,7 @@ export interface FileRoutesById {
   '/m/$handle': typeof MHandleRoute
   '/maquina/$id': typeof MaquinaIdRoute
   '/pagar/$codigo': typeof PagarCodigoRoute
+  '/panel/anuncio': typeof PanelAnuncioRoute
   '/pedido/$codigo': typeof PedidoCodigoRoute
   '/produto/$sku': typeof ProdutoSkuRoute
   '/repuestos-agricolas/$local': typeof RepuestosAgricolasLocalRoute
@@ -1454,6 +1480,7 @@ export interface FileRoutesById {
   '/exportacion/': typeof ExportacionIndexRoute
   '/guias/': typeof GuiasIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/panel/': typeof PanelIndexRoute
   '/repuestos-agricolas/': typeof RepuestosAgricolasIndexRoute
   '/repuestos/': typeof RepuestosIndexRoute
   '/admin/automacoes/$id': typeof AdminAutomacoesIdRoute
@@ -1528,6 +1555,7 @@ export interface FileRoutesById {
   '/api/auth/passkey/opcoes': typeof ApiAuthPasskeyOpcoesRoute
   '/api/auth/passkey/verificar': typeof ApiAuthPasskeyVerificarRoute
   '/api/empresas/arquivo/$id': typeof ApiEmpresasArquivoIdRoute
+  '/api/marketplace/foto/upload': typeof ApiMarketplaceFotoUploadRoute
   '/api/public/dlocal/pagamentos': typeof ApiPublicDlocalPagamentosRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
 }
@@ -1611,6 +1639,7 @@ export interface FileRouteTypes {
     | '/m/$handle'
     | '/maquina/$id'
     | '/pagar/$codigo'
+    | '/panel/anuncio'
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
@@ -1625,6 +1654,7 @@ export interface FileRouteTypes {
     | '/exportacion/'
     | '/guias/'
     | '/marketplace/'
+    | '/panel/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
@@ -1699,6 +1729,7 @@ export interface FileRouteTypes {
     | '/api/auth/passkey/opcoes'
     | '/api/auth/passkey/verificar'
     | '/api/empresas/arquivo/$id'
+    | '/api/marketplace/foto/upload'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -1778,6 +1809,7 @@ export interface FileRouteTypes {
     | '/m/$handle'
     | '/maquina/$id'
     | '/pagar/$codigo'
+    | '/panel/anuncio'
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
@@ -1792,6 +1824,7 @@ export interface FileRouteTypes {
     | '/exportacion'
     | '/guias'
     | '/marketplace'
+    | '/panel'
     | '/repuestos-agricolas'
     | '/repuestos'
     | '/admin/automacoes/$id'
@@ -1866,6 +1899,7 @@ export interface FileRouteTypes {
     | '/api/auth/passkey/opcoes'
     | '/api/auth/passkey/verificar'
     | '/api/empresas/arquivo/$id'
+    | '/api/marketplace/foto/upload'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   id:
@@ -1947,6 +1981,7 @@ export interface FileRouteTypes {
     | '/m/$handle'
     | '/maquina/$id'
     | '/pagar/$codigo'
+    | '/panel/anuncio'
     | '/pedido/$codigo'
     | '/produto/$sku'
     | '/repuestos-agricolas/$local'
@@ -1961,6 +1996,7 @@ export interface FileRouteTypes {
     | '/exportacion/'
     | '/guias/'
     | '/marketplace/'
+    | '/panel/'
     | '/repuestos-agricolas/'
     | '/repuestos/'
     | '/admin/automacoes/$id'
@@ -2035,6 +2071,7 @@ export interface FileRouteTypes {
     | '/api/auth/passkey/opcoes'
     | '/api/auth/passkey/verificar'
     | '/api/empresas/arquivo/$id'
+    | '/api/marketplace/foto/upload'
     | '/api/public/dlocal/pagamentos'
     | '/api/public/stripe/webhook'
   fileRoutesById: FileRoutesById
@@ -2072,6 +2109,7 @@ export interface RootRouteChildren {
   MHandleRoute: typeof MHandleRoute
   MaquinaIdRoute: typeof MaquinaIdRoute
   PagarCodigoRoute: typeof PagarCodigoRoute
+  PanelAnuncioRoute: typeof PanelAnuncioRoute
   PedidoCodigoRoute: typeof PedidoCodigoRoute
   ProdutoSkuRoute: typeof ProdutoSkuRoute
   RepuestosAgricolasLocalRoute: typeof RepuestosAgricolasLocalRoute
@@ -2084,6 +2122,7 @@ export interface RootRouteChildren {
   ExportacionIndexRoute: typeof ExportacionIndexRoute
   GuiasIndexRoute: typeof GuiasIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
+  PanelIndexRoute: typeof PanelIndexRoute
   RepuestosAgricolasIndexRoute: typeof RepuestosAgricolasIndexRoute
   RepuestosIndexRoute: typeof RepuestosIndexRoute
   ApiAdminBannersRoute: typeof ApiAdminBannersRouteWithChildren
@@ -2136,6 +2175,7 @@ export interface RootRouteChildren {
   ApiAuthPasskeyOpcoesRoute: typeof ApiAuthPasskeyOpcoesRoute
   ApiAuthPasskeyVerificarRoute: typeof ApiAuthPasskeyVerificarRoute
   ApiEmpresasArquivoIdRoute: typeof ApiEmpresasArquivoIdRoute
+  ApiMarketplaceFotoUploadRoute: typeof ApiMarketplaceFotoUploadRoute
   ApiPublicDlocalPagamentosRoute: typeof ApiPublicDlocalPagamentosRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
@@ -2730,6 +2770,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PagarCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panel/': {
+      id: '/panel/'
+      path: '/panel'
+      fullPath: '/panel/'
+      preLoaderRoute: typeof PanelIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panel/anuncio': {
+      id: '/panel/anuncio'
+      path: '/panel/anuncio'
+      fullPath: '/panel/anuncio'
+      preLoaderRoute: typeof PanelAnuncioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pedido/$codigo': {
       id: '/pedido/$codigo'
       path: '/pedido/$codigo'
@@ -3297,6 +3351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEmpresasArquivoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/marketplace/foto/upload': {
+      id: '/api/marketplace/foto/upload'
+      path: '/api/marketplace/foto/upload'
+      fullPath: '/api/marketplace/foto/upload'
+      preLoaderRoute: typeof ApiMarketplaceFotoUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/dlocal/pagamentos': {
       id: '/api/public/dlocal/pagamentos'
       path: '/api/public/dlocal/pagamentos'
@@ -3561,6 +3622,7 @@ const rootRouteChildren: RootRouteChildren = {
   MHandleRoute: MHandleRoute,
   MaquinaIdRoute: MaquinaIdRoute,
   PagarCodigoRoute: PagarCodigoRoute,
+  PanelAnuncioRoute: PanelAnuncioRoute,
   PedidoCodigoRoute: PedidoCodigoRoute,
   ProdutoSkuRoute: ProdutoSkuRoute,
   RepuestosAgricolasLocalRoute: RepuestosAgricolasLocalRoute,
@@ -3573,6 +3635,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExportacionIndexRoute: ExportacionIndexRoute,
   GuiasIndexRoute: GuiasIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
+  PanelIndexRoute: PanelIndexRoute,
   RepuestosAgricolasIndexRoute: RepuestosAgricolasIndexRoute,
   RepuestosIndexRoute: RepuestosIndexRoute,
   ApiAdminBannersRoute: ApiAdminBannersRouteWithChildren,
@@ -3625,6 +3688,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthPasskeyOpcoesRoute: ApiAuthPasskeyOpcoesRoute,
   ApiAuthPasskeyVerificarRoute: ApiAuthPasskeyVerificarRoute,
   ApiEmpresasArquivoIdRoute: ApiEmpresasArquivoIdRoute,
+  ApiMarketplaceFotoUploadRoute: ApiMarketplaceFotoUploadRoute,
   ApiPublicDlocalPagamentosRoute: ApiPublicDlocalPagamentosRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
