@@ -15,11 +15,9 @@ import {
   LogOut,
   Truck,
   ShieldCheck,
-  Search,
   PackageSearch,
   ArrowRight,
-  ListChecks,
-  BookOpen,
+  Store,
 } from "lucide-react";
 import { whatsappContactUrl, PHONE_DISPLAY } from "@/lib/whatsapp";
 import {
@@ -31,7 +29,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
-import { BandeiraUruguay, BandeiraBrasil } from "@/components/Bandeiras";
 import { SeletorIdioma } from "@/components/SeletorIdioma";
 import { useT } from "@/lib/idioma";
 import { useSegment } from "@/components/SegmentContext";
@@ -45,12 +42,6 @@ import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { MONTADORAS, INSTAGRAM_URL, FACEBOOK_URL } from "@/lib/navegacao";
 import { useCategoriasLoja } from "@/hooks/use-categorias-loja";
 import { cn } from "@/lib/utils";
-
-// Buscas rápidas: o termo em espanhol vira o termo em português na busca (src/lib/pecas-es.ts)
-const MAIS_BUSCADOS = {
-  es: ["Retén", "Rodamiento", "Filtro", "Engranaje", "Bomba"],
-  pt: ["Retentor", "Rolamento", "Filtro", "Engrenagem", "Bomba"],
-};
 
 // Avisos da faixa superior (trocam sozinhos)
 const AVISOS = {
@@ -271,25 +262,6 @@ export function SiteHeader() {
                 /
               </kbd>
             </div>
-            {/* Mais buscados (desktop, só no topo da página) */}
-            <div
-              className={cn(
-                "mx-auto hidden items-center gap-2 overflow-hidden text-[12px] text-white/70 transition-[max-height,opacity,margin] duration-300 md:flex md:max-w-2xl",
-                scrolled ? "mt-0 max-h-0 opacity-0" : "mt-2 max-h-6 opacity-100",
-              )}
-            >
-              <span className="shrink-0">{t("Más buscados:", "Mais buscados:")}</span>
-              {MAIS_BUSCADOS[idioma].map((termo) => (
-                <Link
-                  key={termo}
-                  to="/loja"
-                  search={{ q: termo } as never}
-                  className="rounded-full bg-white/10 px-2.5 py-0.5 text-white/85 ring-1 ring-white/10 transition hover:bg-white/20 hover:text-white"
-                >
-                  {termo}
-                </Link>
-              ))}
-            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1 md:gap-2">
@@ -504,21 +476,16 @@ export function SiteHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Atalhos de categoria: 2 até 1280px, 4 até 1536px, 6 acima (o resto fica no menu) */}
-              {categorias.slice(0, 6).map((c, i) => (
-                <Link
-                  key={c.nome}
-                  to="/loja"
-                  search={{ linha: "AGRICOLA", categoria: c.nome } as never}
-                  className={cn(
-                    "items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition-colors hover:bg-white/10 hover:text-white",
-                    i < 2 ? "flex" : i < 4 ? "hidden xl:flex" : "hidden 2xl:flex",
-                  )}
-                >
-                  <c.icon className="h-3.5 w-3.5 text-emerald-300" />
-                  {c.curto}
-                </Link>
-              ))}
+              {/* Marketplace: vitrine de máquinas (ao lado de Categorías) */}
+              <Link
+                to="/marketplace"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold text-white transition hover:bg-white/10"
+              >
+                <Store className="h-4 w-4 text-emerald-300" /> Marketplace
+                <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-[#06321b]">
+                  {t("NUEVO", "NOVO")}
+                </span>
+              </Link>
 
               <div className="flex-1" />
               {idioma === "es" && (
@@ -530,40 +497,11 @@ export function SiteHeader() {
                 </Link>
               )}
               <Link
-                to="/catalogos"
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
-              >
-                <BookOpen className="h-3.5 w-3.5 text-emerald-300" /> Catálogos
-              </Link>
-              <Link
                 to="/cotizar"
                 className="flex items-center gap-1.5 rounded-lg bg-amber-400 px-3 py-1.5 font-bold text-[#06321b] transition hover:bg-amber-300"
               >
                 <MessageCircle className="h-3.5 w-3.5" />{" "}
                 {t("Cotizá con nosotros", "Peça seu orçamento")}
-              </Link>
-              <Link
-                to="/pedido-rapido"
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white"
-              >
-                <ListChecks className="h-3.5 w-3.5 text-emerald-300" /> Pedido rápido
-              </Link>
-              <a
-                href={href("/") + "#envios-uruguay"}
-                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-white/85 transition hover:bg-white/10 hover:text-white xl:flex"
-              >
-                {idioma === "pt" ? (
-                  <BandeiraBrasil className="h-3 w-[18px] rounded-[2px]" />
-                ) : (
-                  <BandeiraUruguay className="h-3 w-[18px] rounded-[2px]" />
-                )}
-                {t("Atención por WhatsApp", "Envio para todo o Sul do Brasil")}
-              </a>
-              <Link
-                to="/loja"
-                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-semibold text-accent transition hover:bg-white/10"
-              >
-                <Search className="h-3.5 w-3.5" /> Catálogo completo
               </Link>
             </div>
           </div>
